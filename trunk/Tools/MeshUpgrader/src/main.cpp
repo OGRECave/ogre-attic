@@ -94,15 +94,15 @@ struct UpgradeOptions
 // Crappy globals
 // NB some of these are not directly used, but are required to
 //   instantiate the singletons used in the dlls
-LogManager* logMgr;
-Math* mth;
-MaterialManager* matMgr;
-SkeletonManager* skelMgr;
-MeshSerializer* meshSerializer;
-SkeletonSerializer* skeletonSerializer;
-DefaultHardwareBufferManager *bufferManager;
-ResourceGroupManager* rgm;
-MeshManager* meshMgr;
+LogManager* logMgr = 0;
+Math* mth = 0;
+MaterialManager* matMgr = 0;
+SkeletonManager* skelMgr = 0;
+MeshSerializer* meshSerializer = 0;
+SkeletonSerializer* skeletonSerializer = 0;
+DefaultHardwareBufferManager *bufferManager = 0;
+ResourceGroupManager* rgm = 0;
+MeshManager* meshMgr = 0;
 UpgradeOptions opts;
 
 void parseOpts(UnaryOptionList& unOpts, BinaryOptionList& binOpts)
@@ -873,147 +873,155 @@ int main(int numargs, char** args)
         return -1;
     }
 
-    logMgr = new LogManager();
-	logMgr->createLog("OgreMeshUpgrade.log", true);
-    rgm = new ResourceGroupManager();
-    mth = new Math();
-    matMgr = new MaterialManager();
-    matMgr->initialise();
-    skelMgr = new SkeletonManager();
-    meshSerializer = new MeshSerializer();
-    skeletonSerializer = new SkeletonSerializer();
-    bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
-    meshMgr = new MeshManager();
-	// don't pad during upgrade
-	meshMgr->setBoundsPaddingFactor(0.0f);
-
-    
-    UnaryOptionList unOptList;
-    BinaryOptionList binOptList;
-
-	unOptList["-i"] = false;
-    unOptList["-e"] = false;
-    unOptList["-t"] = false;
-	unOptList["-r"] = false;
-	unOptList["-gl"] = false;
-	unOptList["-d3d"] = false;
-	unOptList["-srcgl"] = false;
-	unOptList["-srcd3d"] = false;
-	unOptList["-b"] = false;
-	binOptList["-l"] = "";
-	binOptList["-d"] = "";
-	binOptList["-p"] = "";
-	binOptList["-f"] = "";
-	binOptList["-E"] = "";
-	binOptList["-td"] = "";
-
-    int startIdx = findCommandLineOpts(numargs, args, unOptList, binOptList);
-	parseOpts(unOptList, binOptList);
-
-    String source(args[startIdx]);
-
-
-    // Load the mesh
-    struct stat tagStat;
-
-    FILE* pFile = fopen( source.c_str(), "rb" );
-    if (!pFile)
-    {
-        OGRE_EXCEPT(Exception::ERR_FILE_NOT_FOUND, 
-            "File " + source + " not found.", "OgreMeshUpgrade");
-    }
-    stat( source.c_str(), &tagStat );
-    MemoryDataStream* memstream = new MemoryDataStream(source, tagStat.st_size, true);
-    fread( (void*)memstream->getPtr(), tagStat.st_size, 1, pFile );
-    fclose( pFile );
-
-	Mesh mesh(meshMgr, "conversion", 0, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-
-    DataStreamPtr stream(memstream);
-    meshSerializer->importMesh(stream, &mesh);
-
-    // Write out the converted mesh
-    String dest;
-    if (numargs == startIdx + 2)
-    {
-        dest = args[startIdx + 1];
-    }
-    else
-    {
-        dest = source;
-    }
-
-	String response;
-
-	vertexBufferReorg(mesh);
-
-	// Deal with VET_COLOUR ambiguities
-	resolveColourAmbiguities(&mesh);
-	
-	buildLod(&mesh);
-
-    // Make sure we generate edge lists, provided they are not deliberately disabled
-    if (!opts.suppressEdgeLists)
-    {
-        cout << "\nGenerating edge lists.." << std::endl;
-        mesh.buildEdgeList();
-    }
-	else
+	int retCode = 0;
+	try 
 	{
-		mesh.freeEdgeList();
-	}
+		logMgr = new LogManager();
+		logMgr->createLog("OgreMeshUpgrade.log", true);
+		rgm = new ResourceGroupManager();
+		mth = new Math();
+		matMgr = new MaterialManager();
+		matMgr->initialise();
+		skelMgr = new SkeletonManager();
+		meshSerializer = new MeshSerializer();
+		skeletonSerializer = new SkeletonSerializer();
+		bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
+		meshMgr = new MeshManager();
+		// don't pad during upgrade
+		meshMgr->setBoundsPaddingFactor(0.0f);
 
-    // Generate tangents?
-    if (opts.generateTangents)
-    {
-        unsigned short srcTex, destTex;
-        bool existing = mesh.suggestTangentVectorBuildParams(opts.tangentSemantic, srcTex, destTex);
-        if (existing)
-        {
-			if (opts.interactive)
+	    
+		UnaryOptionList unOptList;
+		BinaryOptionList binOptList;
+
+		unOptList["-i"] = false;
+		unOptList["-e"] = false;
+		unOptList["-t"] = false;
+		unOptList["-r"] = false;
+		unOptList["-gl"] = false;
+		unOptList["-d3d"] = false;
+		unOptList["-srcgl"] = false;
+		unOptList["-srcd3d"] = false;
+		unOptList["-b"] = false;
+		binOptList["-l"] = "";
+		binOptList["-d"] = "";
+		binOptList["-p"] = "";
+		binOptList["-f"] = "";
+		binOptList["-E"] = "";
+		binOptList["-td"] = "";
+
+		int startIdx = findCommandLineOpts(numargs, args, unOptList, binOptList);
+		parseOpts(unOptList, binOptList);
+
+		String source(args[startIdx]);
+
+
+		// Load the mesh
+		struct stat tagStat;
+
+		FILE* pFile = fopen( source.c_str(), "rb" );
+		if (!pFile)
+		{
+			OGRE_EXCEPT(Exception::ERR_FILE_NOT_FOUND, 
+				"File " + source + " not found.", "OgreMeshUpgrade");
+		}
+		stat( source.c_str(), &tagStat );
+		MemoryDataStream* memstream = new MemoryDataStream(source, tagStat.st_size, true);
+		fread( (void*)memstream->getPtr(), tagStat.st_size, 1, pFile );
+		fclose( pFile );
+
+		Mesh mesh(meshMgr, "conversion", 0, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+		DataStreamPtr stream(memstream);
+		meshSerializer->importMesh(stream, &mesh);
+
+		// Write out the converted mesh
+		String dest;
+		if (numargs == startIdx + 2)
+		{
+			dest = args[startIdx + 1];
+		}
+		else
+		{
+			dest = source;
+		}
+
+		String response;
+
+		vertexBufferReorg(mesh);
+
+		// Deal with VET_COLOUR ambiguities
+		resolveColourAmbiguities(&mesh);
+		
+		buildLod(&mesh);
+
+		// Make sure we generate edge lists, provided they are not deliberately disabled
+		if (!opts.suppressEdgeLists)
+		{
+			cout << "\nGenerating edge lists.." << std::endl;
+			mesh.buildEdgeList();
+		}
+		else
+		{
+			mesh.freeEdgeList();
+		}
+
+		// Generate tangents?
+		if (opts.generateTangents)
+		{
+			unsigned short srcTex, destTex;
+			bool existing = mesh.suggestTangentVectorBuildParams(opts.tangentSemantic, srcTex, destTex);
+			if (existing)
 			{
-				std::cout << "\nThis mesh appears to already have a set of tangents, " <<
-					"which would suggest tangent vectors have already been calculated. Do you really " <<
-					"want to generate new tangent vectors (may duplicate)? (y/n)";
-				while (response == "")
+				if (opts.interactive)
 				{
-					cin >> response;
-					StringUtil::toLowerCase(response);
-					if (response == "y")
+					std::cout << "\nThis mesh appears to already have a set of tangents, " <<
+						"which would suggest tangent vectors have already been calculated. Do you really " <<
+						"want to generate new tangent vectors (may duplicate)? (y/n)";
+					while (response == "")
 					{
-						// Do nothing
-					}
-					else if (response == "n")
-					{
-						opts.generateTangents = false;
-					}
-					else
-					{
-						response = "";
+						cin >> response;
+						StringUtil::toLowerCase(response);
+						if (response == "y")
+						{
+							// Do nothing
+						}
+						else if (response == "n")
+						{
+							opts.generateTangents = false;
+						}
+						else
+						{
+							response = "";
+						}
 					}
 				}
+				else
+				{
+					// safe
+					opts.generateTangents = false;
+				}
+
 			}
-			else
+			if (opts.generateTangents)
 			{
-				// safe
-				opts.generateTangents = false;
+				cout << "Generating tangent vectors...." << std::endl;
+				mesh.buildTangentVectors(opts.tangentSemantic, srcTex, destTex);
 			}
-
-        }
-        if (opts.generateTangents)
-        {
-            cout << "Generating tangent vectors...." << std::endl;
-            mesh.buildTangentVectors(opts.tangentSemantic, srcTex, destTex);
-        }
-    }
+		}
 
 
-	if (opts.recalcBounds)
-		recalcBounds(&mesh);
+		if (opts.recalcBounds)
+			recalcBounds(&mesh);
 
-    meshSerializer->exportMesh(&mesh, dest, opts.endian);
+		meshSerializer->exportMesh(&mesh, dest, opts.endian);
     
-
+	}
+	catch (Exception& e)
+	{
+		cout << "Exception caught: " << e.getDescription();
+		retCode = 1;
+	}
 
 
     delete meshMgr;
@@ -1025,7 +1033,7 @@ int main(int numargs, char** args)
     delete rgm;
     delete logMgr;
 
-    return 0;
+    return retCode;
 
 }
 

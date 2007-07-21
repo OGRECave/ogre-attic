@@ -882,7 +882,7 @@ namespace Ogre
                 context);
         }
         TextureType tt = TEX_TYPE_2D;
-		int mips = MIP_DEFAULT; // When passed to TextureManager::load, this means default to default number of mipmaps
+		int mipmaps = MIP_DEFAULT; // When passed to TextureManager::load, this means default to default number of mipmaps
         bool isAlpha = false;
         PixelFormat desiredFormat = PF_UNKNOWN;
 		for (size_t p = 1; p < numParams; ++p)
@@ -906,11 +906,11 @@ namespace Ogre
             }
 			else if (vecparams[p] == "unlimited")
 			{
-				mips = MIP_UNLIMITED;
+				mipmaps = MIP_UNLIMITED;
 			}
 			else if (StringConverter::isNumber(vecparams[p]))
 			{
-				mips = StringConverter::parseInt(vecparams[p]);
+				mipmaps = StringConverter::parseInt(vecparams[p]);
 			}
 			else if (vecparams[p] == "alpha")
 			{
@@ -928,7 +928,7 @@ namespace Ogre
         }
 
 		context.textureUnit->setTextureName(vecparams[0], tt);
-        context.textureUnit->setNumMipmaps(mips);
+        context.textureUnit->setNumMipmaps(mipmaps);
         context.textureUnit->setIsAlpha(isAlpha);
         context.textureUnit->setDesiredFormat(desiredFormat);
         return false;

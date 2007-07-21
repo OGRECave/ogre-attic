@@ -13,6 +13,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreAnimationTrack.cpp \
                          OgreArchiveManager.cpp \
 			 OgreAutoParamDataSource.cpp \
+			 OgreAxisAlignedBox.cpp \
                          OgreBillboard.cpp \
 			 OgreBillboardChain.cpp \
                          OgreBillboardParticleRenderer.cpp \

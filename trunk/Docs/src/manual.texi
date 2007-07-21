@@ -3703,7 +3703,9 @@ This just tells OGRE you want a pre-drawn font.
 @item source <filename>
 This is the name of the image file you want to load. This will be loaded from the standard TextureManager resource locations and can be of any type OGRE supports, although JPEG is not recommended because of the lack of alpha and the lossy compression. I recommend PNG format which has both good lossless compression and an 8-bit alpha channel.
 @item glyph <character> <u1> <v1> <u2> <v2>
-This provides the texture coordinates for the specified character. You must repeat this for every character you have in the texture. The first 2 numbers are the x and y of the top-left corner, the second two are the x and y of the bottom-right corner. Note that you really should use a common height for all characters, but widths can vary because of proportional fonts.
+This provides the texture coordinates for the specified character. You must repeat this for every character you have in the texture. The first 2 numbers are the x and y of the top-left corner, the second two are the x and y of the bottom-right corner. Note that you really should use a common height for all characters, but widths can vary because of proportional fonts.@*@*
+
+'character' is either an ASCII character for non-extended 7-bit ASCII, or for extended glyphs, a unicode decimal value, which is identified by preceding the number with a 'u' - e.g. 'u0546' denotes unicode value 546. 
 @end table
 
 A note for Windows users: I recommend using BitmapFontBuilder (@url{http://www.lmnopc.com/bitmapfontbuilder/}), a free tool which will generate a texture and export character widths for you, you can find a tool for converting the binary output from this into 'glyph' lines in the Tools folder.@*

@@ -349,7 +349,7 @@ namespace Ogre
 				Element newElem(newPos, mInitialWidth[index], 0.0f, mInitialColour[index]);
 				addChainElement(index, newElem);
 				// alter diff to represent new head size
-				diff = newPos - newElem.position;
+				diff = newPos - headElem.position;
 				// check whether another step is needed or not
 				if (diff.squaredLength() <= mSquaredElemLength)   
 					done = true;

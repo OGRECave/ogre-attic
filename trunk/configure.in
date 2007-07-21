@@ -1,12 +1,12 @@
 AC_PREREQ(2.50)
 
-AC_INIT([OGRE], [1.5.0])
+AC_INIT([OGRE], [1.5.0],, [OGRE])
 
 AC_CANONICAL_TARGET
 
-# New syntax, but this is still buggy; PACKAGE gets defined as 'ogre' not 'OGRE'
-#AM_INIT_AUTOMAKE([1.7.0 foreign no-installinfo no-installman subdir-objects])
-AM_INIT_AUTOMAKE([OGRE], 1.5.0)
+# New syntax; PACKAGE gets defined as 'OGRE' not 'ogre'
+#AM_INIT_AUTOMAKE([OGRE], 1.5.0)
+AM_INIT_AUTOMAKE([OGRE], 1.5.0,, [OGRE])
 AC_CONFIG_HEADERS([OgreMain/include/config.h])
 
 dnl Check for programs
@@ -46,6 +46,15 @@ AC_LIBTOOL_COMPILER_OPTION([if $CXX supports -fvisibility],
                 echo "***********************************************************************"
                 CFLAGS_VISIBILITY="-fvisibility=hidden -DOGRE_GCC_VISIBILITY"
             fi
+        ;;
+    esac
+    case $CXX in
+        icpc )
+            echo "***********************************************************************"
+            echo "WARNING: The intel compiler currently has bugs in its -fvisibility"
+            echo "implementation. Disabling the compiler flag."
+            echo "***********************************************************************"
+            CFLAGS_VISIBILITY=""
         ;;
     esac
     ])

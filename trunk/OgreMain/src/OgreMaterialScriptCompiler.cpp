@@ -1724,7 +1724,7 @@ namespace Ogre {
     {
         assert(mScriptContext.textureUnit);
         TextureType tt = TEX_TYPE_2D;
-		int mips = MIP_DEFAULT; // When passed to TextureManager::load, this means default to default number of mipmaps
+		int mipmaps = MIP_DEFAULT; // When passed to TextureManager::load, this means default to default number of mipmaps
         bool isAlpha = false;
         PixelFormat desiredFormat = PF_UNKNOWN;
         const String& textureName = getNextTokenLabel();
@@ -1746,14 +1746,14 @@ namespace Ogre {
                 tt = TEX_TYPE_CUBE_MAP;
                 break;
             case ID_UNLIMITED:
-				mips = MIP_UNLIMITED;
+				mipmaps = MIP_UNLIMITED;
                 break;
             case ID_ALPHA:
                 isAlpha = true;
                 break;
             case _value_:
                 replaceToken();
-                mips = static_cast<int>(getNextTokenValue());
+                mipmaps = static_cast<int>(getNextTokenValue());
                 break;
             default:
                 desiredFormat = PixelUtil::getFormatFromName(getCurrentTokenLexeme(), true);
@@ -1761,7 +1761,7 @@ namespace Ogre {
             }
 		}
         mScriptContext.textureUnit->setTextureName(textureName, tt);
-        mScriptContext.textureUnit->setNumMipmaps(mips);
+        mScriptContext.textureUnit->setNumMipmaps(mipmaps);
         mScriptContext.textureUnit->setIsAlpha(isAlpha);
         mScriptContext.textureUnit->setDesiredFormat(desiredFormat);
     }

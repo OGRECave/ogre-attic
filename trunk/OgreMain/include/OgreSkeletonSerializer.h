@@ -77,7 +77,7 @@ namespace Ogre {
 
         // TODO: provide Cal3D importer?
 
-    private:
+    protected:
         // Internal export methods
         void writeSkeleton(const Skeleton* pSkel);
         void writeBone(const Skeleton* pSkel, const Bone* pBone);
