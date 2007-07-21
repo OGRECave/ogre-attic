@@ -345,17 +345,17 @@ XmlOptions parseArgs(int numArgs, char **args)
 // Crappy globals
 // NB some of these are not directly used, but are required to
 //   instantiate the singletons used in the dlls
-LogManager* logMgr;
-Math* mth;
-MaterialManager* matMgr;
-SkeletonManager* skelMgr;
-MeshSerializer* meshSerializer;
-XMLMeshSerializer* xmlMeshSerializer;
-SkeletonSerializer* skeletonSerializer;
-XMLSkeletonSerializer* xmlSkeletonSerializer;
-DefaultHardwareBufferManager *bufferManager;
-MeshManager* meshMgr;
-ResourceGroupManager* rgm;
+LogManager* logMgr = 0;
+Math* mth = 0;
+MaterialManager* matMgr = 0;
+SkeletonManager* skelMgr = 0;
+MeshSerializer* meshSerializer = 0;
+XMLMeshSerializer* xmlMeshSerializer = 0;
+SkeletonSerializer* skeletonSerializer = 0;
+XMLSkeletonSerializer* xmlSkeletonSerializer = 0;
+DefaultHardwareBufferManager *bufferManager = 0;
+MeshManager* meshMgr = 0;
+ResourceGroupManager* rgm = 0;
 
 
 void meshToXML(XmlOptions opts)
@@ -729,43 +729,53 @@ int main(int numargs, char** args)
         return -1;
     }
 
-    XmlOptions opts = parseArgs(numargs, args);
+	// Assume success
+	int retCode = 0;
 
-    logMgr = new LogManager();
-	logMgr->createLog(opts.logFile, false, !opts.quietMode); 
-    rgm = new ResourceGroupManager();
-    mth = new Math();
-    meshMgr = new MeshManager();
-    matMgr = new MaterialManager();
-    matMgr->initialise();
-    skelMgr = new SkeletonManager();
-    meshSerializer = new MeshSerializer();
-    xmlMeshSerializer = new XMLMeshSerializer();
-    skeletonSerializer = new SkeletonSerializer();
-    xmlSkeletonSerializer = new XMLSkeletonSerializer();
-    bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
+	try 
+	{
+		XmlOptions opts = parseArgs(numargs, args);
+
+		logMgr = new LogManager();
+		logMgr->createLog(opts.logFile, false, !opts.quietMode); 
+		rgm = new ResourceGroupManager();
+		mth = new Math();
+		meshMgr = new MeshManager();
+		matMgr = new MaterialManager();
+		matMgr->initialise();
+		skelMgr = new SkeletonManager();
+		meshSerializer = new MeshSerializer();
+		xmlMeshSerializer = new XMLMeshSerializer();
+		skeletonSerializer = new SkeletonSerializer();
+		xmlSkeletonSerializer = new XMLSkeletonSerializer();
+		bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
 
 
 
-    if (opts.sourceExt == "mesh")
-    {
-        meshToXML(opts);
-    }
-    else if (opts.sourceExt == "skeleton")
-    {
-        skeletonToXML(opts);
-    }
-    else if (opts.sourceExt == "xml")
-    {
-        XMLToBinary(opts);
-    }
-    else
-    {
-        cout << "Unknown input type.\n";
-        exit(1); 
-    }
+		if (opts.sourceExt == "mesh")
+		{
+			meshToXML(opts);
+		}
+		else if (opts.sourceExt == "skeleton")
+		{
+			skeletonToXML(opts);
+		}
+		else if (opts.sourceExt == "xml")
+		{
+			XMLToBinary(opts);
+		}
+		else
+		{
+			cout << "Unknown input type.\n";
+			retCode = 1;
+		}
 
-    
+	}
+	catch(Exception& e)
+	{
+		cout << "Exception caught: " << e.getDescription();
+		retCode = 1;
+	}
 
     delete xmlSkeletonSerializer;
     delete skeletonSerializer;
@@ -779,7 +789,7 @@ int main(int numargs, char** args)
     delete rgm;
     delete logMgr;
 
-    return 0;
+    return retCode;
 
 }
 
