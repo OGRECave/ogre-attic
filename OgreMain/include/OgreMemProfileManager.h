@@ -32,7 +32,6 @@ Torus Knot Software Ltd.
 
 #include "OgrePrerequisites.h"
 
-#include "OgreSingleton.h"
 #include "OgreMemProfilerBase.h"
 #include <vector>
 #include <iostream>
@@ -47,7 +46,7 @@ namespace Ogre{
     * all registered profiles and builds an information report
     * see OgreMemProfiler.h
     */
-    class _OgreExport MemProfileManager : public Singleton<MemProfileManager>
+    class _OgreExport MemProfileManager 
     {
     public:
         explicit MemProfileManager();
@@ -56,10 +55,10 @@ namespace Ogre{
         ~MemProfileManager();
 
         /**
-        * Register a memory profile with the manager
-        * @param profile the memory profile.
-        * @return the profiles ID
-        */
+         * Register a memory profile with the manager
+         * @param profile the memory profile.
+         * @return the profiles ID
+         */
         uint32 registerProfile(MemProfilerBase* profile);
         
         /**
@@ -69,58 +68,31 @@ namespace Ogre{
         void removeProfile(MemProfilerBase* profile);
 
         /**
-        * Update, called once a frame to collect profile stats
-        * from all registered profiles and build the global
-        * profile information.
-        */
+         * Update, called once a frame to collect profile stats
+         * from all registered profiles and build the global
+         *  profile information.
+         */
         void update();
 
         /**
-        * flush the stats to our log file, this records the
-        * stats for all allocations since the last call to flush
-        * this collection of stats is reffered to as a section. The
-        * section stats are zeroed after flushing, note that this
-        * will not zero the global stats that hold details on all
-        * allocations within the liftime of the memory system.
-        *
-        * @param message a message that will appear in the stats log
-        * to identify the section.
-        */
+         * flush the stats to our log file, this records the
+         * stats for all allocations since the last call to flush
+         * this collection of stats is reffered to as a section. The
+         * section stats are zeroed after flushing, note that this
+         * will not zero the global stats that hold details on all
+         * allocations within the liftime of the memory system.
+         *
+         * @param message a message that will appear in the stats log
+         * to identify the section.
+         */
         void flush(String const& message);
 
-        /** 
-        Override standard Singleton retrieval.
-        @remarks
-        Why do we do this? Well, it's because the Singleton
-        implementation is in a .h file, which means it gets compiled
-        into anybody who includes it. This is needed for the
-        Singleton template to work, but we actually only want it
-        compiled into the implementation of the class based on the
-        Singleton, not all of them. If we don't change this, we get
-        link errors when trying to use the Singleton-based class from
-        an outside dll.
-        @par
-        This method just delegates to the template version anyway,
-        but the implementation stays in this single compilation unit,
-        preventing link errors.
-        */
-        static MemProfileManager& getSingleton(void);
-        /** Override standard Singleton retrieval.
-        @remarks
-        Why do we do this? Well, it's because the Singleton
-        implementation is in a .h file, which means it gets compiled
-        into anybody who includes it. This is needed for the
-        Singleton template to work, but we actually only want it
-        compiled into the implementation of the class based on the
-        Singleton, not all of them. If we don't change this, we get
-        link errors when trying to use the Singleton-based class from
-        an outside dll.
-        @par
-        This method just delegates to the template version anyway,
-        but the implementation stays in this single compilation unit,
-        preventing link errors.
-        */
-        static MemProfileManager* getSingletonPtr(void);
+        /// @return singleton instance
+        static MemProfileManager& getSingleton()
+        {
+        	return smInstance;
+        }
+        
         
         /// log out a message to the memory logfile
         /// @param message info to be logged
@@ -131,18 +103,6 @@ namespace Ogre{
         	return *this;
         }
         
-        /// log out a message to the memory logfile
-        /// @param message info to be logged
-        /*
-        template<typename T>
-        inline const MemProfileManager& operator << (T const& message) const
-        {
-        	mReportLog << message;
-        	return *this;
-        }
-        * */
-        
-
     protected:
     	// shutdown the memory profiler, unregisters any memory 
     	// profilers and flushes the global memory stats. Any outstanding
@@ -182,16 +142,6 @@ namespace Ogre{
     		    	mLogFile << ipt;
     		    	return *this;
     		    }
-    		    
-    		    /*
-    		    template<typename T>
-    	        inline Logger& operator << (T const& ipt)
-    		    {
-    		    	std::cout << ipt;
-    		    	mLogFile << ipt;
-    		    	return *this;
-    		    }
-    		    * */
     	};
     
     
@@ -227,6 +177,7 @@ namespace Ogre{
         #endif
 
     private:
+        static MemProfileManager smInstance;
     };
 }
 

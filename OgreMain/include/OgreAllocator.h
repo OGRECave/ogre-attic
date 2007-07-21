@@ -134,8 +134,9 @@ namespace Ogre{
                                  typename std::allocator<void>::const_pointer ptr = 0 )
         {
         	register size_type sz = count*sizeof( T );
-            ProfilePolicy::note_allocation( AllocPolicy::alloc_size( sz ), ptr );
-            return AllocPolicy::allocate( sz, ptr );
+        	pointer p  = AllocPolicy::allocate( sz, ptr );
+            ProfilePolicy::note_allocation( AllocPolicy::block_size( p ), ptr );
+            return p;
         }
 
         /// memory dealocation (elements)
@@ -152,8 +153,9 @@ namespace Ogre{
         inline pointer allocateBytes( size_type count,
                                       typename std::allocator<void>::const_pointer ptr = 0 )
         {
-            ProfilePolicy::note_allocation( AllocPolicy::alloc_size( count ), ptr );
-            return AllocPolicy::allocate( count, ptr );
+            pointer p = AllocPolicy::allocate( count, ptr );
+            ProfilePolicy::note_allocation( AllocPolicy::block_size( p ), ptr );
+            return p;
         }
 
         /// memory dealocation (bytes)

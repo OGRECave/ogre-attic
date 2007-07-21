@@ -1742,9 +1742,20 @@ static Ogre::Allocator<unsigned char> sAllocator;
 
 Ogre::MemoryManager::MemoryManager()
 {
+}
+
+Ogre::MemoryManager::~MemoryManager()
+{
+}
+
+void Ogre::MemoryManager::init()
+{
+	mInited = true;
     // init the profile manager
-    mMemProfileManager = new MemProfileManager();
     MemProfileManager::getSingleton() << "Memory System Started: ";
+    
+    // setup bins
+    memset(mBin,0,sizeof(MemFree*)*NUM_BINS);
     
     // init memory system
 #ifdef WIN32
@@ -1766,29 +1777,25 @@ Ogre::MemoryManager::MemoryManager()
     // TODO windows bit
     
 #elif defined(__GNUC__)
-    mVmemStart = sbrk(0);
+    mVmemStart = mVmemStop = sbrk(0);
     MemProfileManager::getSingleton() << "Process Virtual Memory begins : " << mVmemStart;
     mVmemStart=sbrk((uint32)(mVmemStart)%mPageSize);   
     MemProfileManager::getSingleton() << "\n alligned to : " << mVmemStart << "\n";
 #endif
-
-    // setup bins
-    memset(mpBin,0,sizeof(void*)*NUM_BINS);
 }
 
-Ogre::MemoryManager::~MemoryManager()
+void* Ogre::MemoryManager::allocMem(size_t size) //throw(ogre::Exception)
 {
-	// clean up
-	delete MemProfileManager::getSingletonPtr();
-}
+	if(!mInited)
+		init();
 
-void* Ogre::MemoryManager::allocMem(size_t size)
-{
-/*
 #ifdef __GNUC__
-    // pad up to min aloc size
+	MemBlock memBlock;
+	MemCtrl* ret;
+	MemCtrl* tmp;
+	
+    size+=OVERHEAD;	// pad up to min aloc size
 	size+=MIN_ALOC_SIZE-(size%MIN_ALOC_SIZE);
-	size+=OVERHEAD;	
 	
 	// find a bin index
 	register uint32 idx=0;      // bins start at 0
@@ -1804,107 +1811,161 @@ void* Ogre::MemoryManager::allocMem(size_t size)
 	// alloc memory from the bin
 	if(idx==NUM_BINS)
 	{
-		// asked to aloc a bad size (sz>4G)
-		OGRE_EXCEPT(0, "asked to alloc a bad size (sz>4G)", 0);
+		MemProfileManager::getSingleton() << "ERROR: asked to alloc a bad size (sz>4G)!";
+		throw std::bad_alloc();
 		return NULL; 
 	}
 	else
 	{
-		if(!mpBin[idx])
-			moreCore(idx); // add more memory to bin
+		if(mBin[idx]==NULL) // add more memory
+		{
+			memBlock = moreCore(idx,shiftVal); 	
+		}
+		else // alloc from bin
+		{
+			memBlock.memory = (char*)mBin[idx];
+			memBlock.size = shiftVal;
+			mBin[idx] = mBin[idx]->next;
+		}		
 		
-		// alloc from bin
-		register MemCtrl* ret=(MemCtrl*)mpBin[idx];
-		mpBin[idx]  = mpBin[idx]->next;
+		// build the header block
+		ret=(MemCtrl*)memBlock.memory;
 		ret->size   = size;
 		ret->bin_id = idx;
 		ret->magic  = MAGIC;
+		
+		// build the tail block
+		tmp = (MemCtrl*)((char*)ret + (size - sizeof(MemCtrl)));
+		ret->size   = size;
+		ret->bin_id = idx;
+		ret->magic  = MAGIC;
+		
+		// distribute any remainder
+		memBlock.size -= size;
+		if(memBlock.size)
+		{
+			memBlock.memory += size;
+			distributeCore(memBlock);
+		}
+		
+		// return the result trimmed of the header
 		return (void*)((char*)ret+sizeof(MemCtrl));
 	}	
 	
 #elif defined(WIN32)
 	return malloc(size);
 #endif
-* */
-	return malloc(size);
 }
 
 void Ogre::MemoryManager::purgeMem(void* ptr)
 {
-	//TODO
-	free(ptr);
-}
+#ifdef __GNUC__
 
-void Ogre::MemoryManager::moreCore(uint32 idx)
-{
-	assert(false && "this is broken for now"); 
+	MemCtrl* head = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
+	if(head->magic != MAGIC)
+	{
+		MemProfileManager::getSingleton() << "Bad pointer passed to purgeMem(), "
+		<< "double delete or memory corruption";
+		throw std::bad_alloc();
+	}
 	/*
-	register uint32 amnt = 1 << (idx+3);
+	MemCtrl* tail = (MemCtrl*)(((char*)ptr)+head->size-sizeof(MemCtrl));
+	if(tail->magic != MAGIC)
+	{
+		OGRE_EXCEPT(0, "purgeMemory(), Memory corruption detected" , 0);
+	}
+	* */
 	
-	register uint32 numBlks;
-	MemFree*	     memNext;
+	MemBlock memBlock;
+	memBlock.memory = (char*)head;
+	memBlock.size = head->size;
+	distributeCore(memBlock);
 	
-	//-----------------------------------------------------------------
-	// try to split a bigger bin
-	//-----------------------------------------------------------------
- 	numBlks = idx+1;
-    while ( !mpBin[i] && i<NUM_BINS )
-        ++numBlks;
-    if ( numBlks < NUM_BINS )
-    {
-    	register uint32 tmp = 1 << ( i+3 );
-		// first we add memory to the requested bucket
-		mBin[idx]=mBin[i];
-		mBin[i]=mBin[i]->next;
-		
-		// then we distribute the rest
-		distributCore(tmp-amnt,mBin[i]+amnt);	
-    }
-    //-----------------------------------------------------------------
-    
-    //-----------------------------------------------------------------
-    // we need to grab more core
-    //-----------------------------------------------------------------
-    else 
-    {	
-    	
-		if(amnt<PAGE_SIZE)
-		{
-			// amount smaller than a page, so alloc a full page 
-			// and divide it into bits, build the free list 
-			if(( memNext=( MemFree* )sbrk( mPageSize ))<0 )
-				OGRE_EXCEPT(0, "Out of memory (sbrk()<0)", 0);
+	// TODO, coalesce memory
+	// TODO, restore the wilderness
 
-			mpBin[idx]=memNext;
-			numBlks=mPageSize/amnt;
-			while(--numBlks > 0)
-			{
-				memNext->next=( MemFree* )((( char* )memNext )+amnt );
-				memNext=memNext->next;
-			}
-			memNext->next=NULL;
-			mVmemLast+=mPageSize;
-			return;
+#elif defined(WIN32)	
+	free(ptr);
+#endif
+}
+
+void Ogre::MemoryManager::distributeCore(MemBlock& block)
+{	
+	MemFree* memFree;
+	uint32 shiftVal = (1 << NUM_BINS+2); 
+	int idx = NUM_BINS-1;
+	
+	while(idx>=0 && block.size)
+	{
+		if(shiftVal <= block.size)
+		{			
+			memFree = (MemFree*)block.memory;
+			memFree->next = mBin[idx];
+			
+			mBin[idx] = memFree;
+			block.size -= shiftVal;
+			block.memory += shiftVal;
 		}
-		else
+		--idx;
+		shiftVal >>= 1;
+	}
+	assert(!block.size); // there should never be any left over
+}
+
+Ogre::MemoryManager::MemBlock Ogre::MemoryManager::moreCore(uint32 idx, uint32 size)
+{	
+	MemBlock ret;
+
+	// try to find a bigger bin
+	register uint32 shiftVal = size;
+	register uint32 i=idx+1;
+	while ( !mBin[i] && i<NUM_BINS )
+	{
+		++i;
+		shiftVal <<= 1;
+	}
+	if ( i < NUM_BINS )
+	{
+		ret.size = shiftVal;
+		ret.memory = (char*)mBin[i];
+		mBin[i] = mBin[i]->next;
+	}
+    else // we need to grab more core
+    {    	
+		if(size<mPageSize)
+			size = mPageSize;
+			
+		ret.size = size;
+		if(( ret.memory=( char* )sbrk( size ))<0 )
 		{
-			// amount is a multiple of PAGE_SIZE
-			mpBin[idx]=( memFree* )sbrk( amnt );
-			mpBin[idx]->next=NULL;
-			mpLast+=amnt;
-			return;
+			MemProfileManager::getSingleton() << "Out of memory (sbrk()<0)";
+			throw std::bad_alloc();
 		}
+		mVmemStop=(void*)((char*)mVmemStop+size);
     }
-    //-----------------------------------------------------------------
-    * */
+    return ret;
 }
 
 
-int Ogre::MemoryManager::sizeOfStorage(void* ptr)
+int Ogre::MemoryManager::sizeOfStorage(const void* ptr) //throw (Ogre::Exception)
 {
-	//TODO
-	(void)ptr;
-	return -1;
+	if(!ptr)
+	{
+		MemProfileManager::getSingleton() << "Bad pointer passed to sizeOfStorage(), "
+		<< " (NULL) ";
+		throw std::bad_alloc();
+	}
+	
+	MemCtrl* head = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
+	
+	if(head->magic != MAGIC)
+	{
+		
+		MemProfileManager::getSingleton() << "Bad pointer passed to sizeOfStorage(), "
+		<< "or memory corruption";
+		throw std::bad_alloc();
+	}
+	return head->size;
 }
 
 _OgreExport void *operator new(std::size_t size)

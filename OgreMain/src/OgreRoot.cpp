@@ -134,12 +134,6 @@ namespace Ogre {
 			mLogManager->createLog(logFileName, true, true);
 		}
 
-	    // now create the memory profile manager
-	    if(MemProfileManager::getSingletonPtr() == 0)
-	    {
-	    	mMemProfileManager = new MemProfileManager();
-	    }
-
         // Dynamic library manager
         mDynLibManager = new DynLibManager();
 
@@ -306,11 +300,8 @@ namespace Ogre {
 		mFirstTimePostWindowInit = false;
         StringInterface::cleanupDictionary ();
 
-	    // clean up the profiler, last posible moment so we catch all info
 	    if(mLogManager)
             delete mLogManager;
-        if(mMemProfileManager)
-            delete mMemProfileManager;
     }
 
     //-----------------------------------------------------------------------

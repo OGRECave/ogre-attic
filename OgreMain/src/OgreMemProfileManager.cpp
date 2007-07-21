@@ -31,21 +31,10 @@ Torus Knot Software Ltd.
 #include "OgreMemProfileManager.h"
 #include <sstream>
 
+// realise statics
+Ogre::MemProfileManager Ogre::MemProfileManager::smInstance;
 
 namespace Ogre{
-
-    template<> MemProfileManager* Singleton<MemProfileManager>::ms_Singleton = 0;
-
-    MemProfileManager* MemProfileManager::getSingletonPtr(void)
-    {
-        return ms_Singleton;
-    }
-
-    MemProfileManager& MemProfileManager::getSingleton(void)
-    {
-        assert( ms_Singleton );  
-        return ( *ms_Singleton );
-    }
 
     MemProfileManager::~MemProfileManager()
     { 

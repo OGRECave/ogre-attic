@@ -428,6 +428,8 @@ inline void operator delete[](void *reportedAddress)
 // overload new/delete to plug-in our gloabl scheme, maybe do this with macros later on
 // for now I just want to direct allocations to the right place
 
+
+
 /// overloaded operator new, points back to the 
 /// allocation wrapper function
 _OgreExport void *operator new(std::size_t size);
@@ -459,6 +461,7 @@ _OgreExport void operator delete[](void *ptr);
 
 namespace Ogre
 {
+	class Exception;
 	class MemProfileManager;
 
 	/**
@@ -482,8 +485,9 @@ namespace Ogre
 		/// size of overhead (at start of block)
 		static const uint32 OVERHEAD = 16;	
 		
-		/// 2^32 max aloc = 4Gig
-		static const uint32 NUM_BINS = 30;
+		/// 2^31 max aloc = 4Gig
+		/// bin n = 2^(n+2)
+		static const uint32 NUM_BINS = 29;
     
 		// this struct is added to the head and tail of a block
 		// we need to add it to the head to hold allocation info.
@@ -492,9 +496,10 @@ namespace Ogre
 		// block at the end allows us to detect corruption as well.
 		struct MemCtrl
 		{
-			uint32 size;   // 31 bits used for size info, 1 bit empty flag
-			uint16 bin_id; // id of the bucket we came from 
 			uint16 magic;  // magic value, for detecting corruption
+			uint16 bin_id; // id of the bucket we came from 
+			uint32 size;   // 31 bits used for size info, 1 bit empty flag
+			
 		};
 		
 		// this struct is used to form a linked list of empty 
@@ -506,9 +511,16 @@ namespace Ogre
 			MemFree* prev; // prev empty block in list, maybe not be adjacent
 		};
 		
+		// used to pass about chuncks of memory internally within the manager 
+		struct MemBlock
+		{
+			char*  memory;
+			uint32 size;
+		};
+		
 		// bin[n] holds chunks of size 2^(n+3) smallest is 8.
 		// Overhead is before and after data
-        MemFree* mpBin[NUM_BINS];
+        MemFree* mBin[NUM_BINS];
         
         void* mVmemStart;  // start of process virtual address space
         void* mVmemStop;   // end of process virtual address space
@@ -519,13 +531,15 @@ namespace Ogre
         MemoryManager();
         ~MemoryManager();
         
+        void init();
+        
         /**
          * allocate memory from the free store. This will expand the 
          * process virtual address space and "touch" the resulting 
          * memory, the OS should map some form of phisical storage as
          * a result. Normal paging rules still apply.
          */
-        void* allocMem(size_t size);
+        void* allocMem(size_t size);// throw(Exception);
         
         /**
          * return memory to be re-used, note, this may not release the
@@ -542,7 +556,7 @@ namespace Ogre
          * @param pointer to stroage
          * @return size of storage or -1 on invlaid pointer
          */
-        int sizeOfStorage(void* ptr);
+        int sizeOfStorage(const void* ptr);// throw(Exception);
         
         /// @return static instance of MemoryManager
         static inline MemoryManager& getSingleton()
@@ -551,12 +565,11 @@ namespace Ogre
         }
         
     private:
-    	void moreCore(uint32 id);
-    	void distributeCore(uint32 size, void* core);
-    
-        
-        MemProfileManager*    mMemProfileManager;
+    	MemBlock moreCore(uint32 id, uint32 size);
+    	void distributeCore(MemBlock& block);
         static MemoryManager smInstance;	
+        
+        bool mInited;
         
     };
 }
