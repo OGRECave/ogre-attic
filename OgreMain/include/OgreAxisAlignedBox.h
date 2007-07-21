@@ -48,13 +48,14 @@ namespace Ogre {
 	*/
 	class _OgreExport AxisAlignedBox
 	{
-	protected:
+	public:
 		enum Extent
 		{
 			EXTENT_NULL,
 			EXTENT_FINITE,
 			EXTENT_INFINITE
 		};
+	protected:
 
 		Vector3 mMinimum;
 		Vector3 mMaximum;
@@ -88,6 +89,12 @@ namespace Ogre {
 			setMinimum( -0.5, -0.5, -0.5 );
 			setMaximum( 0.5, 0.5, 0.5 );
 			mExtent = EXTENT_NULL;
+		}
+		inline AxisAlignedBox(Extent e) : mpCorners(0)
+		{
+			setMinimum( -0.5, -0.5, -0.5 );
+			setMaximum( 0.5, 0.5, 0.5 );
+			mExtent = e;
 		}
 
 		inline AxisAlignedBox(const AxisAlignedBox & rkBox) : mpCorners(0)
@@ -782,6 +789,11 @@ namespace Ogre {
         {
             return !(*this == rhs);
         }
+
+		// special values
+		static const AxisAlignedBox BOX_NULL;
+		static const AxisAlignedBox BOX_INFINITE;
+
 
 	};
 

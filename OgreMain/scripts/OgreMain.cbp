@@ -317,6 +317,7 @@
 		<Unit filename="..\src\OgreAnimationTrack.cpp" />
 		<Unit filename="..\src\OgreArchiveManager.cpp" />
 		<Unit filename="..\src\OgreAutoParamDataSource.cpp" />
+		<Unit filename="..\src\OgreAxisAlignedBox.cpp" />
 		<Unit filename="..\src\OgreBillboard.cpp" />
 		<Unit filename="..\src\OgreBillboardChain.cpp" />
 		<Unit filename="..\src\OgreBillboardParticleRenderer.cpp" />

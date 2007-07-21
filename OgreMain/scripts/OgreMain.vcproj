@@ -290,6 +290,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreAutoParamDataSource.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreAxisAlignedBox.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreBillboard.cpp">
 			</File>
 			<File
