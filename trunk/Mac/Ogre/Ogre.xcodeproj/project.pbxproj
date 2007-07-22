@@ -585,6 +585,7 @@
 		00DDBBD80B4CEEE100E8E1C9 /* OgreOSXContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB9C0B4CE1C700E8E1C9 /* OgreOSXContext.cpp */; };
 		00DDBBD90B4CEEEF00E8E1C9 /* OgreOSXCarbonContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB790B4CDB7000E8E1C9 /* OgreOSXCarbonContext.cpp */; };
 		00DDBBDA0B4CEEFA00E8E1C9 /* OgreOSXCGLContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB980B4CE0E500E8E1C9 /* OgreOSXCGLContext.cpp */; };
+		AA123E6F0C53FAB9000009B6 /* OgreGLSLPreprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA123E390C53F7F9000009B6 /* OgreGLSLPreprocessor.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1356,6 +1357,8 @@
 		00DDBB8C0B4CDE9100E8E1C9 /* OgreOSXCGLContext.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreOSXCGLContext.h; path = ../../RenderSystems/GL/include/OSX/OgreOSXCGLContext.h; sourceTree = SOURCE_ROOT; };
 		00DDBB980B4CE0E500E8E1C9 /* OgreOSXCGLContext.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreOSXCGLContext.cpp; path = ../../RenderSystems/GL/src/OSX/OgreOSXCGLContext.cpp; sourceTree = SOURCE_ROOT; };
 		00DDBB9C0B4CE1C700E8E1C9 /* OgreOSXContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OgreOSXContext.cpp; path = ../../RenderSystems/GL/src/OSX/OgreOSXContext.cpp; sourceTree = SOURCE_ROOT; };
+		AA123E380C53F7DA000009B6 /* OgreGLSLPreprocessor.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreGLSLPreprocessor.h; path = ../../RenderSystems/GL/src/GLSL/include/OgreGLSLPreprocessor.h; sourceTree = SOURCE_ROOT; };
+		AA123E390C53F7F9000009B6 /* OgreGLSLPreprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreGLSLPreprocessor.cpp; path = ../../RenderSystems/GL/src/GLSL/src/OgreGLSLPreprocessor.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2098,18 +2101,20 @@
 		000E21210B38D98D004EA2DF /* GLSL */ = {
 			isa = PBXGroup;
 			children = (
-				000E212E0B38D9DE004EA2DF /* OgreGLSLExtSupport.h */,
-				000E212F0B38D9DE004EA2DF /* OgreGLSLGpuProgram.h */,
-				000E21300B38D9DE004EA2DF /* OgreGLSLLinkProgram.h */,
-				000E21310B38D9DE004EA2DF /* OgreGLSLLinkProgramManager.h */,
-				000E21320B38D9DE004EA2DF /* OgreGLSLProgram.h */,
-				000E21330B38D9DE004EA2DF /* OgreGLSLProgramFactory.h */,
 				000E21220B38D9C0004EA2DF /* OgreGLSLExtSupport.cpp */,
 				000E21230B38D9C0004EA2DF /* OgreGLSLGpuProgram.cpp */,
 				000E21240B38D9C0004EA2DF /* OgreGLSLLinkProgram.cpp */,
 				000E21250B38D9C0004EA2DF /* OgreGLSLLinkProgramManager.cpp */,
+				AA123E390C53F7F9000009B6 /* OgreGLSLPreprocessor.cpp */,
 				000E21260B38D9C0004EA2DF /* OgreGLSLProgram.cpp */,
 				000E21270B38D9C0004EA2DF /* OgreGLSLProgramFactory.cpp */,
+				000E212E0B38D9DE004EA2DF /* OgreGLSLExtSupport.h */,
+				000E212F0B38D9DE004EA2DF /* OgreGLSLGpuProgram.h */,
+				000E21300B38D9DE004EA2DF /* OgreGLSLLinkProgram.h */,
+				000E21310B38D9DE004EA2DF /* OgreGLSLLinkProgramManager.h */,
+				AA123E380C53F7DA000009B6 /* OgreGLSLPreprocessor.h */,
+				000E21320B38D9DE004EA2DF /* OgreGLSLProgram.h */,
+				000E21330B38D9DE004EA2DF /* OgreGLSLProgramFactory.h */,
 			);
 			name = GLSL;
 			sourceTree = "<group>";
@@ -3024,6 +3029,7 @@
 				00ABEAF70B4D69960059129A /* OgreOSXCocoaWindow.mm in Sources */,
 				003C21120B51AE990090A344 /* OgreOSXWindow.cpp in Sources */,
 				005E5EB50B7F3BA700658C32 /* OgreGLPlugin.cpp in Sources */,
+				AA123E6F0C53FAB9000009B6 /* OgreGLSLPreprocessor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
