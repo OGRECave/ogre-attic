@@ -86,6 +86,20 @@ PassController* TechniqueController::createPass(void)
 	return pc;
 }
 
+PassController* TechniqueController::createPass(const String& name)
+{
+	Pass* pass = mTechnique->createPass();
+	pass->setName(name);
+
+	// Create controller
+	PassController* pc = new PassController(this, pass);
+	mPassControllers.push_back(pc);
+
+	fireEvent(PassAdded, TechniqueEventArgs(this, pc));
+
+	return pc;
+}
+
 void TechniqueController::removeAllPasses(void)
 {
 }

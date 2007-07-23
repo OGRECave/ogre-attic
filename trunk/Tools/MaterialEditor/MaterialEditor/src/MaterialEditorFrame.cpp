@@ -46,20 +46,21 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreStringConverter.h"
 #include "OgreVector3.h"
 
-#include "LogPanel.h"
-#include "ResourcePanel.h"
-#include "wxOgre.h"
 #include "CodeEditor.h"
+#include "LogPanel.h"
 #include "MaterialController.h"
 #include "MaterialPropertyGridPage.h"
 #include "MaterialWizard.h"
+#include "PropertiesPanel.h"
 #include "TechniqueController.h"
 #include "TechniquePropertyGridPage.h"
 #include "PassController.h"
 #include "PassPropertyGridPage.h"
 #include "ProjectPage.h"
 #include "ProjectWizard.h"
+#include "ResourcePanel.h"
 #include "WorkspacePanel.h"
+#include "wxOgre.h"
 
 using Ogre::Camera;
 using Ogre::ColourValue;
@@ -245,23 +246,7 @@ void MaterialEditorFrame::createLogPane()
 
 void MaterialEditorFrame::createPropertiesPane()
 {
-	mPropertyGrid = new wxPropertyGridManager(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-		wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER | wxPG_TOOLBAR | wxPG_DESCRIPTION | wxPGMAN_DEFAULT_STYLE);
-
-	// Adding a page sets target page to the one added, so
-	// we don't have to call SetTargetPage if we are filling
-	// it right after adding.
-	MaterialController* controller = new MaterialController((MaterialPtr)MaterialManager::getSingletonPtr()->create("Test", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
-	TechniqueController* tc = controller->createTechnique();
-	PassController* pc = tc->createPass();
-	PassPropertyGridPage* page = new PassPropertyGridPage(pc);
-	//TechniquePropertyGridPage* page = new TechniquePropertyGridPage(tc);
-	//MaterialPropertyGridPage* page = new MaterialPropertyGridPage(controller);
-	mPropertyGrid->AddPage(wxEmptyString, wxPG_NULL_BITMAP, page);
-	page->populate();
-
-	// For total safety, finally reset the target page.
-	mPropertyGrid->SetTargetPage(0);
+	mPropertiesPanel = new PropertiesPanel(this);
 
 	wxAuiPaneInfo info;
 	info.Caption(_("Properties"));
@@ -270,7 +255,7 @@ void MaterialEditorFrame::createPropertiesPane()
 	info.Left();
 	info.Layer(1);
 
-	mAuiManager->AddPane(mPropertyGrid, info);
+	mAuiManager->AddPane(mPropertiesPanel, info);
 }
 
 void MaterialEditorFrame::createOgrePane()

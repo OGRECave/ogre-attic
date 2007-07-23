@@ -40,6 +40,7 @@ typedef std::list<boost::any> SelectionList;
 class SelectionEventArgs : public EventArgs
 {
 public:
+	SelectionEventArgs(SelectionList& selection);
 	SelectionEventArgs(boost::any& source, SelectionList& selection);
 	virtual ~SelectionEventArgs();
 	

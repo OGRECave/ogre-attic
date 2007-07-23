@@ -28,6 +28,8 @@ Torus Knot Software Ltd.
 */
 #include "SelectionService.h"
 
+#include "SelectionEventArgs.h"
+
 template<> SelectionService* Ogre::Singleton<SelectionService>::ms_Singleton = 0;
 
 SelectionService& SelectionService::getSingleton(void)
@@ -65,10 +67,13 @@ void SelectionService::setSelection(boost::any& sel)
 	
 	mSelection.push_back(sel);
 	
-	// TODO: Fire selection changed
+	fireEvent(SelectionChanged, SelectionEventArgs(mSelection));
 }
 
 void SelectionService::setSelection(const SelectionList& sel)
 {
+	mSelection = sel;
+
+	fireEvent(SelectionChanged, SelectionEventArgs(mSelection));
 }
 

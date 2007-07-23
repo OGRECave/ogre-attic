@@ -40,7 +40,7 @@ namespace boost
 
 typedef std::list<boost::any> SelectionList;
 
-class SelectionService : public Ogre::Singleton<SelectionService>, EventContainer
+class SelectionService : public Ogre::Singleton<SelectionService>, public EventContainer
 {
 public:
 	enum SelectionEvent

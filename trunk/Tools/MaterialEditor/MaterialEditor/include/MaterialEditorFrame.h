@@ -45,6 +45,7 @@ namespace
 }
 
 class LogPanel;
+class PropertiesPanel;
 class ResourcePanel;
 class WorkspacePanel;
 class wxOgre;
@@ -96,7 +97,7 @@ private:
 	wxAuiNotebook* mManagementNotebook;
 	WorkspacePanel* mWorkspacePanel;
 	ResourcePanel* mResourcePanel;
-	wxPropertyGridManager* mPropertyGrid;
+	PropertiesPanel* mPropertiesPanel;
 
 	wxControl* mDummy;
 
