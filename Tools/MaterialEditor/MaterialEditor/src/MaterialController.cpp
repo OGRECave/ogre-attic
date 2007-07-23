@@ -65,6 +65,19 @@ void MaterialController::setMaterial(MaterialPtr mp)
 	mMaterialPtr = mp;
 }
 
+TechniqueController* MaterialController::getTechniqueController(const String& name)
+{
+	TechniqueController* tc;
+	TechniqueControllerList::iterator it;
+	for(it = mTechniqueControllers.begin(); it != mTechniqueControllers.end(); ++it)
+	{
+		tc = (*it);
+		if(tc->getTechnique()->getName() == name) return tc;
+	}
+
+	return NULL;
+}
+
 const TechniqueControllerList* MaterialController::getTechniqueControllers() const
 {
 	return &mTechniqueControllers;

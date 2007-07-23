@@ -63,6 +63,7 @@ public:
 	MaterialPtr getMaterial() const;
 	void setMaterial(MaterialPtr mp);
 	
+	TechniqueController* getTechniqueController(const String& name);
 	const TechniqueControllerList* getTechniqueControllers() const;		
 
 	void setReceiveShadows(bool enabled);
