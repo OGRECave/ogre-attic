@@ -45,9 +45,11 @@ Torus Knot Software Ltd.
 #include "MaterialEventArgs.h"
 #include "MaterialWizard.h"
 #include "PassController.h"
+#include "PassWizard.h"
 #include "Project.h"
 #include "ProjectEventArgs.h"
 #include "ProjectWizard.h"
+#include "SelectionService.h"
 #include "TechniqueController.h"
 #include "TechniqueEventArgs.h"
 #include "TechniqueWizard.h"
@@ -71,6 +73,7 @@ const long ID_MENU_DELETE = wxNewId();
 
 BEGIN_EVENT_TABLE(WorkspacePanel, wxPanel)
 	EVT_TREE_ITEM_RIGHT_CLICK(ID_TREE_CTRL, WorkspacePanel::OnRightClick)
+	EVT_TREE_SEL_CHANGED(ID_TREE_CTRL, WorkspacePanel::OnSelectionChanged)
 	EVT_MENU(ID_MENU_NEW_PROJECT, WorkspacePanel::OnNewProject)
 	EVT_MENU(ID_MENU_NEW_MATERIAL, WorkspacePanel::OnNewMaterial)
 	EVT_MENU(ID_MENU_NEW_TECHNIQUE, WorkspacePanel::OnNewTechnique)
@@ -247,6 +250,11 @@ bool WorkspacePanel::isTechnique(wxTreeItemId id)
 	return getTechnique(id) != NULL;
 }
 
+bool WorkspacePanel::isPass(wxTreeItemId id)
+{
+	return getPass(id) != NULL;
+}
+
 void WorkspacePanel::subscribe(Project* project)
 {
 	project->subscribe(Project::NameChanged, boost::bind(&WorkspacePanel::projectNameChanged, this, _1));
@@ -273,6 +281,19 @@ void WorkspacePanel::OnRightClick(wxTreeEvent& event)
 	showContextMenu(event.GetPoint(), event.GetItem());
 }
 
+void WorkspacePanel::OnSelectionChanged(wxTreeEvent& event)
+{
+	SelectionList list;
+	wxTreeItemId id = event.GetItem();
+	if(isProject(id)) list.push_back(getProject(id));
+	else if(isMaterial(id)) list.push_back(getMaterial(id));
+	else if(isTechnique(id)) list.push_back(getTechnique(id));
+	else if(isPass(id)) list.push_back(getPass(id));
+	// else its the workspace so just leave the list empty as if nothing were selected
+
+	SelectionService::getSingletonPtr()->setSelection(list);
+}
+
 void WorkspacePanel::OnNewProject(wxCommandEvent& event)
 {
 	ProjectWizard* wizard = new ProjectWizard();
@@ -280,6 +301,8 @@ void WorkspacePanel::OnNewProject(wxCommandEvent& event)
 	wizard->RunWizard(wizard->getProjectPage()); // This seems unnatural, seems there must be a better way to deal with wizards
 
 	wizard->Destroy();
+
+	delete wizard;
 }
 
 void WorkspacePanel::OnNewMaterial(wxCommandEvent& event)
@@ -292,6 +315,8 @@ void WorkspacePanel::OnNewMaterial(wxCommandEvent& event)
 	wizard->RunWizard(wizard->getMaterialPage()); // This seems unnatural, seems there must be a better way to deal with wizards
 
 	wizard->Destroy();
+
+	delete wizard;
 }
 
 void WorkspacePanel::OnNewTechnique(wxCommandEvent& event)
@@ -319,11 +344,49 @@ void WorkspacePanel::OnNewTechnique(wxCommandEvent& event)
 	wizard->RunWizard(wizard->getTechniquePage()); // This seems unnatural, seems there must be a better way to deal with wizards
 
 	wizard->Destroy();
+
+	delete wizard;
 }
 
 void WorkspacePanel::OnNewPass(wxCommandEvent& event)
 {
+	Project* project = NULL;
+	MaterialController* material = NULL;
+	TechniqueController* technique = NULL;
 
+	wxTreeItemId selId = mTreeCtrl->GetSelection();
+	if(isProject(selId))
+	{
+		project = getProject(selId);
+	}
+	else if(isMaterial(selId))
+	{
+		wxTreeItemId projectId = mTreeCtrl->GetItemParent(selId);
+		project = getProject(projectId);
+
+		material = getMaterial(selId);
+	}
+	else if(isTechnique(selId))
+	{
+		wxTreeItemId materialId = mTreeCtrl->GetItemParent(selId);
+		material = getMaterial(materialId);
+
+		wxTreeItemId projectId = mTreeCtrl->GetItemParent(materialId);
+		project = getProject(projectId);
+	
+		technique = getTechnique(selId);
+	}
+
+	PassWizard* wizard = new PassWizard();
+	wizard->Create(this, wxID_ANY, wxT("New Pass"), wxNullBitmap, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+	wizard->getPassPage()->setProject(project);
+	wizard->getPassPage()->setMaterial(material);
+	wizard->getPassPage()->setTechnique(technique);
+	wizard->RunWizard(wizard->getPassPage());
+
+	wizard->Destroy();
+
+	delete wizard;
 }
 
 void WorkspacePanel::projectAdded(EventArgs& args)
@@ -390,6 +453,8 @@ void WorkspacePanel::materialTechniqueAdded(EventArgs& args)
 	wxTreeItemId materialId = mMaterialIdMap[mc];
 	wxTreeItemId id = mTreeCtrl->AppendItem(materialId, tc->getTechnique()->getName().c_str(), TECHNIQUE_IMAGE);
 	mTreeCtrl->SelectItem(id, true);
+	
+	mTechniqueIdMap[tc] = id;
 
 	subscribe(tc);
 }

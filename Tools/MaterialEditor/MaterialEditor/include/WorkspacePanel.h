@@ -64,6 +64,7 @@ public:
 	virtual ~WorkspacePanel();
 
 	void OnRightClick(wxTreeEvent& event);
+	void OnSelectionChanged(wxTreeEvent& event);
 	void OnNewProject(wxCommandEvent& event);
 	void OnNewMaterial(wxCommandEvent& event);
 	void OnNewTechnique(wxCommandEvent& event);
@@ -107,6 +108,7 @@ protected:
 	bool isProject(wxTreeItemId id);
 	bool isMaterial(wxTreeItemId id);
 	bool isTechnique(wxTreeItemId id);
+	bool isPass(wxTreeItemId id);
 
 	// Event Handling Utils
 	void subscribe(Project* project);

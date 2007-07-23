@@ -53,7 +53,7 @@ RootEventPlugin::~RootEventPlugin()
 
 const String& RootEventPlugin::getName() const
 {
-	return NULL;
+	return "Root Event Plugin";
 }
 
 void RootEventPlugin::install()

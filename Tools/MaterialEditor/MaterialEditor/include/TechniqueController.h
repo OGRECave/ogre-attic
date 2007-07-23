@@ -71,6 +71,7 @@ public:
 	const PassControllerList* getPassControllers() const;
 
 	PassController* createPass(void);
+	PassController* createPass(const String& name);
 	void removeAllPasses(void);
 	void removePass(unsigned short index);
 

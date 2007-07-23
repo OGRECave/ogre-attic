@@ -251,7 +251,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\PassPage.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\PassPropertyGridPage.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\PassWizard.cpp"
 				>
 			</File>
 			<File
@@ -268,6 +276,10 @@
 			</File>
 			<File
 				RelativePath="..\src\ProjectWizard.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\PropertiesPanel.cpp"
 				>
 			</File>
 			<File
@@ -405,7 +417,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\PassPage.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\PassPropertyGridPage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\PassWizard.h"
 				>
 			</File>
 			<File
@@ -422,6 +442,10 @@
 			</File>
 			<File
 				RelativePath="..\include\ProjectWizard.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\PropertiesPanel.h"
 				>
 			</File>
 			<File

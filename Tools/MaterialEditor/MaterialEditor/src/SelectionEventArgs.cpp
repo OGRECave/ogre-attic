@@ -30,6 +30,11 @@ Torus Knot Software Ltd.
 
 #include <boost/any.hpp>
 
+SelectionEventArgs::SelectionEventArgs(SelectionList& selection)
+: mSelection(selection)
+{
+}
+
 SelectionEventArgs::SelectionEventArgs(boost::any& source, SelectionList& selection)
 : mSource(source), mSelection(selection)
 {
