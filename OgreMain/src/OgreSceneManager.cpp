@@ -1097,6 +1097,10 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 	mActiveQueuedRenderableVisitor->targetSceneMgr = this;
 	mAutoParamDataSource.setCurrentSceneManager(this);
 
+	// Also set the internal viewport pointer at this point, for calls that need it
+	// However don't call setViewport just yet (see below)
+	mCurrentViewport = vp;
+
     if (isShadowTechniqueInUse())
     {
         // Prepare shadow materials
@@ -1188,7 +1192,7 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 
 		// Tell params about viewport
 		mAutoParamDataSource.setCurrentViewport(vp);
-		// Set the viewport
+		// Set the viewport - this is deliberately after the shadow texture update
 		setViewport(vp);
 
 		// Tell params about camera
