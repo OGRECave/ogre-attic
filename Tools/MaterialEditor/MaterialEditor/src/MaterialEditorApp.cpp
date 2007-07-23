@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreResourceManager.h"
 
 #include "MaterialEditorFrame.h"
+#include "SelectionService.h"
 #include "Workspace.h"
 
 using Ogre::ConfigFile;
@@ -55,6 +56,9 @@ bool MaterialEditorApp::OnInit()
 	}
 
 	wxYield();
+
+	// Create Selection Service
+	new SelectionService();
 
 	// Create Log Manager and default log
 	new LogManager();
