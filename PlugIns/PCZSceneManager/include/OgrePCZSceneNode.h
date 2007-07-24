@@ -68,6 +68,8 @@ namespace Ogre
 		void		setHomeZone(PCZone * zone);
 		void		anchorToHomeZone(PCZone * zone);
 		bool		isAnchored(void) {return mAnchored;}
+		void		allowToVisit(bool yesno) {mAllowedToVisit = yesno;}
+		bool		allowedToVisit(void) {return mAllowedToVisit;}
 		void		addZoneToVisitingZonesMap(PCZone * zone);
 		void		clearVisitingZonesMap(void);
 		void		clearNodeFromVisitedZones( void );
@@ -87,6 +89,7 @@ namespace Ogre
 	protected:
 		PCZone *	mHomeZone;
 		bool		mAnchored;
+		bool		mAllowedToVisit;
 		ZoneMap		mVisitingZones;
 		Vector3		mPrevPosition;
 		long		mLastVisibleFrame;

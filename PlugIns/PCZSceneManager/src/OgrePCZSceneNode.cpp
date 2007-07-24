@@ -55,12 +55,14 @@ namespace Ogre
 	{
 		mHomeZone = 0;
 		mAnchored = false;
+		mAllowedToVisit = true;
 		mLastVisibleFrame = 0;
 	}
 	PCZSceneNode::PCZSceneNode( SceneManager* creator, const String& name ) : SceneNode( creator, name )
 	{
 		mHomeZone = 0;
 		mAnchored = false;
+		mAllowedToVisit = true;
 		mLastVisibleFrame = 0;
 	}
 	PCZSceneNode::~PCZSceneNode()

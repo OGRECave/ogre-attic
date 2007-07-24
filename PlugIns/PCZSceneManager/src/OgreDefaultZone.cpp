@@ -156,7 +156,8 @@ namespace Ogre
 
 	void DefaultZone::_checkNodeAgainstPortals(PCZSceneNode * pczsn, Portal * ignorePortal)
 	{
-		if (pczsn == mEnclosureNode)
+		if (pczsn == mEnclosureNode ||
+			pczsn->allowedToVisit() == false)
 		{
 			// don't do any checking of enclosure node versus portals
 			return;
