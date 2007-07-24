@@ -789,6 +789,12 @@ void SceneManager::destroySceneNode(const String& name)
     delete i->second;
     mSceneNodes.erase(i);
 }
+//---------------------------------------------------------------------
+void SceneManager::destroySceneNode(SceneNode* sn)
+{
+	destroySceneNode(sn->getName());
+
+}
 //-----------------------------------------------------------------------
 SceneNode* SceneManager::getRootSceneNode(void) const
 {
