@@ -50,7 +50,7 @@ namespace Ogre {
         virtual ~RenderSystemCapabilitiesSerializer() {};
 
         /** Writes a RenderSystemCapabilities object to a data stream */
-        void writeScript(RenderSystemCapabilities* caps, String name, String filename);
+        void writeScript(const RenderSystemCapabilities* caps, String name, String filename);
 
         /** Parses a RenderSystemCapabilities script file passed as a stream.
             Adds it to RenderSystemCapabilitiesManager::_addRenderSystemCapabilities
