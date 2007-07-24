@@ -76,7 +76,6 @@ namespace Ogre
 
 		virtual void bindSurface(size_t attachment, RenderTexture *target)
 		{
-			size_t oldSize = mBoundSurfaces.size();
 			for (size_t i = mBoundSurfaces.size(); i <= attachment; ++i)
 			{
 				mBoundSurfaces.push_back(0);

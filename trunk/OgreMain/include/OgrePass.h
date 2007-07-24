@@ -228,7 +228,7 @@ namespace Ogre {
         Pass(Technique* parent, unsigned short index, const Pass& oth );
         /// Operator = overload
         Pass& operator=(const Pass& oth);
-        ~Pass();
+        virtual ~Pass();
 
         /// Returns true if this pass is programmable ie includes either a vertex or fragment program.
         bool isProgrammable(void) const { return mVertexProgramUsage || mFragmentProgramUsage; }
