@@ -38,6 +38,7 @@
 			<Add directory="/usr/include/qt4" />
 			<Add directory="/usr/include/qt4/QtGui" />
 			<Add directory="/usr/include/qxcppunit" />
+			<Add directory="../include" />
 		</Compiler>
 		<Linker>
 			<Add library="QtCore" />
