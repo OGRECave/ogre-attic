@@ -489,7 +489,8 @@ namespace Ogre
 		* 2) Recurse into visited zones in case the node spans several zones
 		*/
 		// (recursively) check each portal of home zone to see if the node is touching 
-		if (pczsn->getHomeZone())
+		if (pczsn->getHomeZone() &&
+			pczsn->allowedToVisit() == true)
 		{
 			pczsn->getHomeZone()->_checkNodeAgainstPortals(pczsn, 0);
 		}
