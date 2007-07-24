@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Tests/OgreMain/include $(CPPUNIT_CFLAGS)
+INCLUDES = -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Tests/OgreMain/include $(CPPUNIT_CFLAGS) -I../include
 
 TESTS = TestSuite
 check_PROGRAMS  = TestSuite
