@@ -505,17 +505,17 @@ namespace Ogre {
         if(customCapabilitiesConfig != StringUtil::BLANK)
         {
             ConfigFile cfg;
-            cfg.load(mConfigFileName, "\t:=", false);
+            cfg.load(customCapabilitiesConfig, "\t:=", false);
 
             // Capabilities Database setting must be in the same format as
             // resources.cfg in Ogre examples.
             ConfigFile::SettingsIterator iter = cfg.getSettingsIterator("Capabilities Database");
             while(iter.hasMoreElements())
             {
-                String key = iter.peekNextKey();
-                String val = iter.getNext();
+                String archType = iter.peekNextKey();
+                String filename = iter.getNext();
 
-                rscManager.parseCapabilitiesFromArchive(key, val, true);
+                rscManager.parseCapabilitiesFromArchive(filename, archType, true);
             }
 
             String capsName = cfg.getSetting("Custom Capabilities");
