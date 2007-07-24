@@ -1784,7 +1784,7 @@ void Ogre::MemoryManager::init()
 #endif
 }
 
-void* Ogre::MemoryManager::allocMem(size_t size) //throw(ogre::Exception)
+void* Ogre::MemoryManager::allocMem(size_t size) throw(std::bad_alloc)
 {
 	if(!mInited)
 		init();
@@ -1830,15 +1830,15 @@ void* Ogre::MemoryManager::allocMem(size_t size) //throw(ogre::Exception)
 		
 		// build the header block
 		ret=(MemCtrl*)memBlock.memory;
-		ret->size   = size;
+		ret->size   = size^MASK;
 		ret->bin_id = idx;
 		ret->magic  = MAGIC;
 		
 		// build the tail block
-		tmp = (MemCtrl*)((char*)ret + (size - sizeof(MemCtrl)));
-		ret->size   = size;
-		ret->bin_id = idx;
-		ret->magic  = MAGIC;
+		tmp = (MemCtrl*)(memBlock.memory + (size - sizeof(MemCtrl)));
+		tmp->size   = size^MASK;
+		tmp->bin_id = idx;
+		tmp->magic  = MAGIC;
 		
 		// distribute any remainder
 		memBlock.size -= size;
@@ -1857,31 +1857,50 @@ void* Ogre::MemoryManager::allocMem(size_t size) //throw(ogre::Exception)
 #endif
 }
 
-void Ogre::MemoryManager::purgeMem(void* ptr)
+void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 {
 #ifdef __GNUC__
 
-	MemCtrl* head = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
-	if(head->magic != MAGIC)
+	MemBlock memBlock;
+	memBlock.memory = (char*)ptr-sizeof(MemCtrl);
+	memBlock.size = ((MemCtrl*)memBlock.memory)->size^MASK; // get the size
+	
+	// get the head block magic value
+	if(((MemCtrl*)memBlock.memory)->magic != MAGIC)
 	{
-		MemProfileManager::getSingleton() << "Bad pointer passed to purgeMem(), "
-		<< "double delete or memory corruption";
+		MemProfileManager::getSingleton() << 
+		"Bad pointer passed to purgeMem(), double delete or memory corruption";
 		throw std::bad_alloc();
 	}
-	/*
-	MemCtrl* tail = (MemCtrl*)(((char*)ptr)+head->size-sizeof(MemCtrl));
-	if(tail->magic != MAGIC)
+	
+	// get the tail block magic value
+	if(((MemCtrl*)(memBlock.memory+(memBlock.size-sizeof(MemCtrl))))->magic != MAGIC)
 	{
-		OGRE_EXCEPT(0, "purgeMemory(), Memory corruption detected" , 0);
+		MemProfileManager::getSingleton() <<
+		 "purgeMemory(), Memory corruption detected";
+		throw std::bad_alloc();
+	}
+	
+	// coalesce memory
+	/*
+	register uint32 tmp;
+	while(memBlock.memory + memBlock.size != mVmemStop)
+	{
+		tmp = (uint32)(*(memBlock.memory + memBlock.size))&MASK;
+		if(tmp) // the block is full, terminate run
+		{
+			//std::cout << "FULL " << std::endl;
+			break;
+		}
+		else // the block is empty, coalesce it
+		{
+			//std::cout << "EMPTY " << std::endl;
+			
+		}
 	}
 	* */
-	
-	MemBlock memBlock;
-	memBlock.memory = (char*)head;
-	memBlock.size = head->size;
 	distributeCore(memBlock);
 	
-	// TODO, coalesce memory
 	// TODO, restore the wilderness
 
 #elif defined(WIN32)	
@@ -1898,10 +1917,17 @@ void Ogre::MemoryManager::distributeCore(MemBlock& block)
 	while(idx>=0 && block.size)
 	{
 		if(shiftVal <= block.size)
-		{			
+		{	
+			
 			memFree = (MemFree*)block.memory;
+			memFree->size = shiftVal;
 			memFree->next = mBin[idx];
 			
+			//std::cout << idx << std::endl;		
+			if(mBin[idx])
+				//mBin[idx]->prev = memFree;
+				//mBin[idx]->prev = (MemFree*)0x10;
+				
 			mBin[idx] = memFree;
 			block.size -= shiftVal;
 			block.memory += shiftVal;
@@ -1947,22 +1973,22 @@ Ogre::MemoryManager::MemBlock Ogre::MemoryManager::moreCore(uint32 idx, uint32 s
 }
 
 
-int Ogre::MemoryManager::sizeOfStorage(const void* ptr) //throw (Ogre::Exception)
+int Ogre::MemoryManager::sizeOfStorage(const void* ptr) throw (std::bad_alloc)
 {
 	if(!ptr)
 	{
-		MemProfileManager::getSingleton() << "Bad pointer passed to sizeOfStorage(), "
-		<< " (NULL) ";
+		MemProfileManager::getSingleton() << 
+		"Bad pointer passed to sizeOfStorage(), (NULL) ";
 		throw std::bad_alloc();
 	}
 	
-	MemCtrl* head = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
-	
+	register MemCtrl* head = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
 	if(head->magic != MAGIC)
 	{
 		
-		MemProfileManager::getSingleton() << "Bad pointer passed to sizeOfStorage(), "
-		<< "or memory corruption";
+		MemProfileManager::getSingleton() << 
+		"Bad pointer passed to sizeOfStorage(), or memory corruption" <<
+		(void*)head->magic;
 		throw std::bad_alloc();
 	}
 	return head->size;

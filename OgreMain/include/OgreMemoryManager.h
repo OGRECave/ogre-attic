@@ -428,7 +428,7 @@ inline void operator delete[](void *reportedAddress)
 // overload new/delete to plug-in our gloabl scheme, maybe do this with macros later on
 // for now I just want to direct allocations to the right place
 
-
+#include <memory>
 
 /// overloaded operator new, points back to the 
 /// allocation wrapper function
@@ -496,10 +496,9 @@ namespace Ogre
 		// block at the end allows us to detect corruption as well.
 		struct MemCtrl
 		{
+			uint32 size;   // 31 bits used for size info, 1 bit empty flag
 			uint16 magic;  // magic value, for detecting corruption
 			uint16 bin_id; // id of the bucket we came from 
-			uint32 size;   // 31 bits used for size info, 1 bit empty flag
-			
 		};
 		
 		// this struct is used to form a linked list of empty 
@@ -507,6 +506,7 @@ namespace Ogre
 		// struct used, when a block is full we use MemCtrl
 		struct MemFree
 		{
+			uint32 size;   // 31 bits used for size info, 1 bit empty flag
 			MemFree* next; // next empty block in list, maybe not be adjacent 
 			MemFree* prev; // prev empty block in list, maybe not be adjacent
 		};
@@ -514,8 +514,8 @@ namespace Ogre
 		// used to pass about chuncks of memory internally within the manager 
 		struct MemBlock
 		{
-			char*  memory;
-			uint32 size;
+			uint32 size;    // size of memory chunk
+			char*  memory; // start of memory chunk
 		};
 		
 		// bin[n] holds chunks of size 2^(n+3) smallest is 8.
@@ -539,7 +539,7 @@ namespace Ogre
          * memory, the OS should map some form of phisical storage as
          * a result. Normal paging rules still apply.
          */
-        void* allocMem(size_t size);// throw(Exception);
+        void* allocMem(size_t size) throw(std::bad_alloc);
         
         /**
          * return memory to be re-used, note, this may not release the
@@ -547,7 +547,7 @@ namespace Ogre
          * some memory to be re-used later, its kinder to the OS memory
          * mapping stuff.
          */
-        void purgeMem(void* ptr);
+        void purgeMem(void* ptr) throw(std::bad_alloc);
         
         /**
          * this lets us ask the manager how large a block of memory is.
@@ -556,7 +556,7 @@ namespace Ogre
          * @param pointer to stroage
          * @return size of storage or -1 on invlaid pointer
          */
-        int sizeOfStorage(const void* ptr);// throw(Exception);
+        int sizeOfStorage(const void* ptr) throw(std::bad_alloc);
         
         /// @return static instance of MemoryManager
         static inline MemoryManager& getSingleton()
