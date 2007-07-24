@@ -291,6 +291,8 @@ namespace Ogre {
 		class Visitor
 		{
 		public:
+            /** Virtual destructor needed as class has virtual methods. */
+            virtual ~Visitor() { }
 			/** Generic visitor method. 
 			@param rend The Renderable instance being visited
 			@param lodIndex The LOD index to which this Renderable belongs. Some

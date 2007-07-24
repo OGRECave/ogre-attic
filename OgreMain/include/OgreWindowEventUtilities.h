@@ -66,9 +66,23 @@ namespace Ogre
 
 		/**
 		@Remarks
-			Window has been closed
+			Window is closing (Only triggered if user pressed the [X] button)
 		@param rw
 			The RenderWindow which created this events
+		@return True will close the window(default).
+		*/
+		virtual bool windowClosing(RenderWindow* rw)
+		{ return true; }
+
+		/**
+		@Remarks
+			Window has been closed (Only triggered if user pressed the [X] button)
+		@param rw
+			The RenderWindow which created this events
+		@note
+			The window has not actually close yet when this event triggers. It's only closed after
+			all windowClosed events are triggered. This allows apps to deinitialise properly if they
+			have services that needs the window to exist when deinitialising.
 		*/
 		virtual void windowClosed(RenderWindow* rw)  {}
 

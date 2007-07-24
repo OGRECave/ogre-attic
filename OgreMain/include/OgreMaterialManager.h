@@ -72,6 +72,8 @@ namespace Ogre {
 		class Listener
 		{
 		public:
+            /** Virtual destructor needed as class has virtual methods. */
+            virtual ~Listener() { }
 			/** Called if a technique for a given scheme is not found within a material,
 				allows the application to specify a Technique instance manually.
 			@remarks
