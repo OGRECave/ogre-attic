@@ -58,6 +58,54 @@ protected:
 	
 	PassController* mController;
 
+	wxPGId mNameId;
+
+	wxPGId mAmbientId;
+	wxPGId mDiffuseId;
+	wxPGId mSpecularId;
+	wxPGId mShininessId;
+
+	wxPGId mPointSizeId;
+	wxPGId mPointSpritesId;
+	wxPGId mAttenuationId;
+	wxPGId mPointAttenuationId;
+	wxPGId mPointMinSizeId;
+	wxPGId mPointMaxSizeId;
+	wxPGId mPointAttenuationConstantId;
+	wxPGId mPointAttenuationLinearId;
+	wxPGId mPointAttenuationQuadraticId;
+
+	wxPGId mSceneBlendTypeId;
+	wxPGId mSrcSceneBlendTypeId;
+	wxPGId mDestSceneBlendTypeId;
+
+	wxPGId mDepthCheckId;
+	wxPGId mDepthWriteId;
+	wxPGId mDepthFunctionId;
+	wxPGId mDepthBiasId;
+	wxPGId mDepthBiasConstantId;
+	wxPGId mDepthBiasSlopeId;
+
+	wxPGId mManualCullingModeId;
+
+	wxPGId mLightingId;
+	wxPGId mMaxLightsId;
+	wxPGId mStartLightId;
+	wxPGId mIterationId;
+	wxPGId mShadingModeId;
+	wxPGId mSelfIlluminationId;
+
+	wxPGId mOverrideSceneId;
+	wxPGId mFogOverrideId;
+	wxPGId mFogModeId;
+
+	wxPGId mAlphaRejectFuncId;
+	wxPGId mAlphaRejectValueId;
+
+	wxPGId mColourWriteId;
+	wxPGId mPolygonModeId;
+	wxPGId mTrackVertexColourTypeId;
+
 	DECLARE_EVENT_TABLE();
 };
 

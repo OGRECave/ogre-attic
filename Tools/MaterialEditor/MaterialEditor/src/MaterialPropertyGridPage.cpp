@@ -24,12 +24,14 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
 -------------------------------------------------------------------------
 */
+#pragma warning(disable:4800)
+
 #include "MaterialPropertyGridPage.h"
 
 #include "MaterialController.h"
 
 BEGIN_EVENT_TABLE(MaterialPropertyGridPage, wxPropertyGridPage)
-	EVT_PG_CHANGED(1, MaterialPropertyGridPage::propertyChange)
+	EVT_PG_CHANGED(-1, MaterialPropertyGridPage::propertyChange)
 END_EVENT_TABLE()
 
 MaterialPropertyGridPage::MaterialPropertyGridPage(MaterialController* controller)
@@ -44,12 +46,24 @@ MaterialPropertyGridPage::~MaterialPropertyGridPage()
 
 void MaterialPropertyGridPage::populate()
 {
-	Append(wxStringProperty(wxT("Name"), wxPG_LABEL, mController->getMaterial()->getName()));
-	Append(wxBoolProperty(wxT("Receive Shadows"), wxPG_LABEL, mController->getMaterial()->getReceiveShadows()));
-	Append(wxBoolProperty(wxT("Transparency Casts Shadows"), wxPG_LABEL, mController->getMaterial()->getTransparencyCastsShadows()));
+	mPropertyNameId = Append(wxStringProperty(wxT("Name"), wxPG_LABEL, mController->getMaterial()->getName()));
+	mPropertyReceiveShadowsId = Append(wxBoolProperty(wxT("Receive Shadows"), wxPG_LABEL, mController->getMaterial()->getReceiveShadows()));
+	mPropertyTransparencyCastsShadowsId = Append(wxBoolProperty(wxT("Transparency Casts Shadows"), wxPG_LABEL, mController->getMaterial()->getTransparencyCastsShadows()));
 }
 
 void MaterialPropertyGridPage::propertyChange(wxPropertyGridEvent& event)
 {
-
+	wxPGId id = event.GetProperty();
+	if(id == mPropertyNameId)
+	{
+		
+	}
+	else if(id == mPropertyReceiveShadowsId)
+	{
+		mController->setReceiveShadows(event.GetPropertyValueAsBool());
+	}
+	else if(id == mPropertyTransparencyCastsShadowsId)
+	{
+		mController->setTransparencyCastsShadows(event.GetPropertyValueAsBool());
+	}
 }
