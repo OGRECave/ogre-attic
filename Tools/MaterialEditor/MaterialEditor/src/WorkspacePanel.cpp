@@ -271,7 +271,7 @@ void WorkspacePanel::subscribe(MaterialController* material)
 
 void WorkspacePanel::subscribe(TechniqueController* technique)
 {
-	//technique->subscribe(TechniqueController::NameChanged, boost::bind(&WorkspacePanel::projectNameChanged, this, _1));
+	technique->subscribe(TechniqueController::NameChanged, boost::bind(&WorkspacePanel::techniqueNameChanged, this, _1));
 	technique->subscribe(TechniqueController::PassAdded, boost::bind(&WorkspacePanel::techniquePassAdded, this, _1));
 	technique->subscribe(TechniqueController::PassRemoved, boost::bind(&WorkspacePanel::techniquePassRemoved, this, _1));
 }
@@ -462,6 +462,15 @@ void WorkspacePanel::materialTechniqueAdded(EventArgs& args)
 void WorkspacePanel::materialTechniqueRemoved(EventArgs& args)
 {
 	// TODO: Implement materialTechniqueRemoved
+}
+
+void WorkspacePanel::techniqueNameChanged(EventArgs& args)
+{
+	TechniqueEventArgs tea = dynamic_cast<TechniqueEventArgs&>(args);
+	TechniqueController* tc = tea.getTechniqueController();
+
+	wxTreeItemId techniqueId = mTechniqueIdMap[tc];
+	mTreeCtrl->SetItemText(techniqueId, tc->getTechnique()->getName().c_str());
 }
 
 void WorkspacePanel::techniquePassAdded(EventArgs& args)
