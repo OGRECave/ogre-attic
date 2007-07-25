@@ -83,6 +83,11 @@ const TechniqueControllerList* MaterialController::getTechniqueControllers() con
 	return &mTechniqueControllers;
 }
 
+void MaterialController::setName(const String& name)
+{
+	// ???
+}
+
 void MaterialController::setReceiveShadows(bool enabled)
 {
 	mMaterialPtr->setReceiveShadows(enabled);

@@ -66,6 +66,7 @@ public:
 	TechniqueController* getTechniqueController(const String& name);
 	const TechniqueControllerList* getTechniqueControllers() const;		
 
+	void setName(const String& name);
 	void setReceiveShadows(bool enabled);
 	void setTransparencyCastsShadows(bool enabled);
 	TechniqueController* createTechnique(void);

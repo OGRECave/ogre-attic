@@ -85,6 +85,7 @@ public:
 	void materialTechniqueRemoved(EventArgs& args);
 
 	// Technique Event Handlers
+	void techniqueNameChanged(EventArgs& args);
 	void techniquePassAdded(EventArgs& args);
 	void techniquePassRemoved(EventArgs& args);
 

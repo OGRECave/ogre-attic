@@ -203,10 +203,10 @@ void PropertiesPanel::materialRemoved(EventArgs& args)
 	//           of the page associated with this Materials, Techniques,
 	//           and Passes?
 
-	ProjectEventArgs pea = dynamic_cast<ProjectEventArgs&>args;
+	ProjectEventArgs pea = dynamic_cast<ProjectEventArgs&>(args);
 	MaterialController* mc = pea.getMaterial();
 
-	mMaterialPageIndexMap::iterator it = mMaterialPageIndexMap.find(mc);
+	MaterialPageIndexMap::iterator it = mMaterialPageIndexMap.find(mc);
 	if(it != mMaterialPageIndexMap.end())
 	{
 		mPropertyGrid->RemovePage(mMaterialPageIndexMap[mc]);
@@ -219,26 +219,26 @@ void PropertiesPanel::techniqueRemoved(EventArgs& args)
 	// Consider: Should this method also attempt to remove all
 	//           of the page associated with this Techniques, Passes?
 
-	MaterialEventArgs mea = dynamic_cast<MaterialEventArgs&>args;
+	MaterialEventArgs mea = dynamic_cast<MaterialEventArgs&>(args);
 	TechniqueController* tc = mea.getTechniqueController();
 
 	TechniquePageIndexMap::iterator it = mTechniquePageIndexMap.find(tc);
 	if(it != mTechniquePageIndexMap.end())
 	{
-		mPropertyGrid->RemovePage(mTechniquePageIndexMap[mc]);
+		mPropertyGrid->RemovePage(mTechniquePageIndexMap[tc]);
 		mTechniquePageIndexMap.erase(it);
 	}
 }
 
 void PropertiesPanel::passRemoved(EventArgs& args)
 {
-	TechniqueEventArgs tea = dynamic_cast<TechniqueEventArgs&>args;
+	TechniqueEventArgs tea = dynamic_cast<TechniqueEventArgs&>(args);
 	PassController* pc = tea.getPassController();
 
-	PassPageIndexMap::iterator it = mPassPageIndexMap.find(tc);
+	PassPageIndexMap::iterator it = mPassPageIndexMap.find(pc);
 	if(it != mPassPageIndexMap.end())
 	{
-		mPropertyGrid->RemovePage(mPassPageIndexMap[mc]);
+		mPropertyGrid->RemovePage(mPassPageIndexMap[pc]);
 		mPassPageIndexMap.erase(it);
 	}
 }
