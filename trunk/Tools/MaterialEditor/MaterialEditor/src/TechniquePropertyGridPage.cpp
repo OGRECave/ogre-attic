@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 #include "TechniqueController.h"
 
 BEGIN_EVENT_TABLE(TechniquePropertyGridPage, wxPropertyGridPage)
-	EVT_PG_CHANGED(1, TechniquePropertyGridPage::propertyChanged)
+	EVT_PG_CHANGED(-1, TechniquePropertyGridPage::propertyChanged)
 END_EVENT_TABLE()
 
 TechniquePropertyGridPage::TechniquePropertyGridPage(TechniqueController* controller)
@@ -49,13 +49,26 @@ TechniquePropertyGridPage::~TechniquePropertyGridPage()
 
 void TechniquePropertyGridPage::populate()
 {
-	Append(wxStringProperty(wxT("Name"), wxPG_LABEL, mController->getTechnique()->getName()));
-	Append(wxStringProperty(wxT("Scheme Name"), wxPG_LABEL, mController->getTechnique()->getSchemeName()));
-	Append(wxIntProperty(wxT("LOD Index"), wxPG_LABEL, mController->getTechnique()->getLodIndex()));
+	mNameId = Append(wxStringProperty(wxT("Name"), wxPG_LABEL, mController->getTechnique()->getName()));
+	mSchemeNameId = Append(wxStringProperty(wxT("Scheme Name"), wxPG_LABEL, mController->getTechnique()->getSchemeName()));
+	mLodIndexId = Append(wxIntProperty(wxT("LOD Index"), wxPG_LABEL, mController->getTechnique()->getLodIndex()));
 }
 
 void TechniquePropertyGridPage::propertyChanged(wxPropertyGridEvent& event)
 {
+	wxPGId id = event.GetProperty();
+	if(id == mNameId)
+	{
+		mController->setName(event.GetPropertyValueAsString().c_str());
+	}
+	else if(id == mSchemeNameId)
+	{
+		mController->setSchemeName(event.GetPropertyValueAsString().c_str());
+	}
+	else if(id = mLodIndexId)
+	{
+		mController->setLodIndex(event.GetPropertyValueAsInt());
+	}
 }
 
 

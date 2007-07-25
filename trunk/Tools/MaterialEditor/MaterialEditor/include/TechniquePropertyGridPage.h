@@ -47,6 +47,10 @@ protected:
 	
 	TechniqueController* mController;
 
+	wxPGId mNameId;
+	wxPGId mSchemeNameId;
+	wxPGId mLodIndexId;
+
 	DECLARE_EVENT_TABLE();
 };
 

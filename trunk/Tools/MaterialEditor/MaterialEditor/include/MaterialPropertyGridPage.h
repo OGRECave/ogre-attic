@@ -40,10 +40,13 @@ public:
 	virtual void populate();
 
 protected:
-	
 	virtual void propertyChange(wxPropertyGridEvent& event);
 
 	MaterialController* mController;
+
+	wxPGId mPropertyNameId;
+	wxPGId mPropertyReceiveShadowsId;
+	wxPGId mPropertyTransparencyCastsShadowsId;
 
 	DECLARE_EVENT_TABLE();
 };
