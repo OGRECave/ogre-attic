@@ -60,7 +60,6 @@ private:
 	void	ReadConfig( const CDDObject* pConfig );
 	void	ReindexIntermediateBuffers( CIntermediateMesh* pIntermediateMesh );
 	void	OptimizeVertexDeclaration( void );
-	Ogre::VertexData* GetVertexData( bool sharedGeometry, unsigned int subMeshindex=0 );
 	CMeshArray* ExtractSubMeshData_Vec3( CMeshArray* pMeshArray, CIntermediateMesh* pIMesh, CIntermediateMaterial* pIMat, std::map< unsigned int, unsigned int>& lIndexMap );
 	CMeshArray* ExtractSubMeshData_Vec4( CMeshArray* pMeshArray, CIntermediateMesh* pIMesh, CIntermediateMaterial* pIMat, std::map< unsigned int, unsigned int>& lIndexMap );
 	CMeshArray* ExtractSubMeshDataFromIndexMap_Vec4( CMeshArray* pMeshArray, std::map< unsigned int, unsigned int>& lIndexMap );
@@ -95,10 +94,6 @@ private:
 	std::map<CIntermediateMaterial*, Ogre::SubMesh*>	m_lMaterialSubMeshMap;
 	std::map<Ogre::SubMesh*, std::map<unsigned int, unsigned int> >	m_lSubMeshIndexReMap; // old index -> newIndex
 
-	//Ogre::HardwareVertexBufferSharedPtr vBuf;
 	Ogre::VertexDeclaration* m_pVertexDecl;
 	unsigned int m_iNrVerts;
-
-	int m_iPoseBufferIndexs[2];
-
 };

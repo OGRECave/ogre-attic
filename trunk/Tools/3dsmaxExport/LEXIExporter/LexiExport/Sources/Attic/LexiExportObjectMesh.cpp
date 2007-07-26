@@ -336,7 +336,7 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 	START_PROFILE("CMeshExportObject::Export()");
 	bool returnVal = false;
 	COgreMeshCompiler* pOgreMeshCompiler = NULL;
-	Ogre::SceneNode* pNode;
+	Ogre::SceneNode* pNode = NULL;
 
 	if(m_bEnabled || bForceAll)
 	{
@@ -361,10 +361,10 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 			/////////////////////////////////////
 
 
-			pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), true, false);
+			pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), false, false);
 			if(pNode == NULL)
 			{
-				LOGERROR "No node with such ID: %d", GetMAXNodeID());
+				LOGERROR "ERROR during export. Export Aborted!");
 				return false;
 			}
 
@@ -391,21 +391,21 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 				int index = m_pDDConfig->GetInt("extensionID");
 				sExtension = lExtensions.at(index).c_str();
 			}
-			if(bCollaps)
-			{
-				pProgressDlg->LocalStep("StaticMesh: Collapsing Mesh");
-				std::list<std::string> clist;
-				clist.push_back("position");
-				clist.push_back("normal");
-				clist.push_back("uv1");
-				Ogre::SceneNode* pColNode = CIntermediateBuilder::Get()->CollapseHierarchy(pNode, clist, "Collapsed");
-				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
-				pNode = pColNode;
-			}
-			else
-			{
+			//if(bCollaps)
+			//{
+			//	pProgressDlg->LocalStep("StaticMesh: Collapsing Mesh");
+			//	std::list<std::string> clist;
+			//	clist.push_back("position");
+			//	clist.push_back("normal");
+			//	clist.push_back("uv1");
+			//	Ogre::SceneNode* pColNode = CIntermediateBuilder::Get()->CollapseHierarchy(pNode, clist, "Collapsed");
+			//	CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+			//	pNode = pColNode;
+			//}
+			//else
+			//{
 				pProgressDlg->LocalStep();
-			}
+			//}
 
 
 			m_pIMesh = (CIntermediateMesh*)pNode->getAttachedObject(0);
@@ -478,7 +478,8 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 			{
 				LOGERROR "Error while attempting to create path: %s", sMeshPath.c_str());
 				delete pOgreMeshCompiler;
-				delete m_pIMesh;
+				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+				CIntermediateBuilder::Get()->Clear();
 				return false;
 			}
 
@@ -486,7 +487,8 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 			{
 				LOGERROR "Error while attempting to create path: %s", sMaterialPath.c_str());
 				delete pOgreMeshCompiler;
-				delete m_pIMesh;
+				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+				CIntermediateBuilder::Get()->Clear();
 				return false;
 			}
 
@@ -494,7 +496,8 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 			{
 				LOGERROR "Error while attempting to create path: %s", sTexturePath.c_str());
 				delete pOgreMeshCompiler;
-				delete m_pIMesh;
+				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+				CIntermediateBuilder::Get()->Clear();
 				return false;
 			}
 
@@ -502,7 +505,8 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 			{
 				LOGERROR "Error while attempting to create path: %s", sShaderPath.c_str());
 				delete pOgreMeshCompiler;
-				delete m_pIMesh;
+				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+				CIntermediateBuilder::Get()->Clear();
 				return false;
 			}
 
@@ -584,7 +588,7 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 		
 		LOGDEBUG "Cleaning up...");
 		delete pOgreMeshCompiler;
-		//delete m_pIMesh; // We should do a general Cleanup from the imtermediateBuilder since there might be several objects in the hierarchy
+		// We should do a general Cleanup from the imtermediateBuilder since there might be several objects in the hierarchy
 		CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
 		CIntermediateBuilder::Get()->Clear();
 

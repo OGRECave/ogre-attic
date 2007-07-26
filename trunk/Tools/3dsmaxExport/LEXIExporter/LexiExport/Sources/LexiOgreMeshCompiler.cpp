@@ -115,8 +115,21 @@ COgreMeshCompiler::~COgreMeshCompiler()
 {
 	LOGDEBUG "OgreMeshCompiler cleaned..");
 
+	if(m_bUseSharedGeometry)
+	{
+		delete m_pOgreMesh->sharedVertexData;
+	}
+	else
+	{
+		Ogre::Mesh::SubMeshIterator it = m_pOgreMesh->getSubMeshIterator();
+		while(it.hasMoreElements())
+		{
+			Ogre::SubMesh* curSubMesh = it.getNext();
+			delete curSubMesh->vertexData;
+		}
+	}
+
 	Ogre::MeshManager* pMeshMgr = Ogre::MeshManager::getSingletonPtr();
-	//delete m_pOgreMesh->sharedVertexData; // Ogre handles this
 	pMeshMgr->unloadAll();
 
 	UNREGISTER_MODULE
@@ -208,22 +221,6 @@ void COgreMeshCompiler::ReindexIntermediateBuffers( CIntermediateMesh* pIntermed
 			delete boneBuffer[i];
 		}
 		boneBuffer.clear();
-	}
-
-}
-
-Ogre::VertexData* COgreMeshCompiler::GetVertexData( bool sharedGeometry, unsigned int subMeshindex )
-{
-	if(sharedGeometry)
-	{
-		return m_pOgreMesh->sharedVertexData;
-	}
-	else
-	{
-		// hardcoded for one shubmesh only!!!
-		std::map<CIntermediateMaterial*, Ogre::SubMesh*>::iterator it = m_lMaterialSubMeshMap.begin();
-		Ogre::SubMesh* pSubMesh = it->second;
-		return pSubMesh->vertexData;
 	}
 
 }
@@ -338,14 +335,12 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 	if(m_bUseSharedGeometry)
 	{
 		// SHARED GEOMETRY BUFFER
-		//vertexData = GetVertexData(m_bUseSharedGeometry);
 		vertexData = m_pOgreMesh->sharedVertexData;
 
 		Ogre::VertexDeclaration* vertexDecl = vertexData->vertexDeclaration;
 		m_pVertexDecl = vertexDecl;
 
 		// allocate the position vertex buffer
-		//unsigned int iBind = vertexDecl->getElementCount();
 		vertexDecl->addElement(m_iBind, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
 		vertexData->vertexCount = m_iNrVerts;
 
@@ -356,13 +351,11 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 		unsigned char* vertex = static_cast<unsigned char*>(vBuf->lock(Ogre::HardwareBuffer::HBL_NORMAL));
 		m_iBind++;
 
-
 		// Ok, Let´s fill in the buffer with data  :D
 		const Ogre::Vector3* data = (const Ogre::Vector3*)pMeshArray->Data();
 		Ogre::Real* pReal;
 		posElem->baseVertexPointerToElement(vertex, &pReal);
 
-		//m_pProgressDlg->InitLocal(m_iNrVerts);
 		m_pProgressDlg->LocalStep("Writing Shared Vertex Buffer..");
 		
 		unsigned int j = 0;
@@ -380,7 +373,6 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 			// update AABB
 			m_AABB.merge( vert );
 
-			//m_pProgressDlg->LocalStep();
 		}
 		vBuf->unlock();
 	}
@@ -409,30 +401,21 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 
 			m_iBind = vertexDecl->getElementCount();
 			// allocate the position vertex buffer
-			//unsigned int iBind = vertexDecl->getElementCount();
 			vertexDecl->addElement(m_iBind, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
 			vertexData->vertexCount = iVertCount;
 
-			// REMOVE:
-			m_iPoseBufferIndexs[i++]=m_iBind;
-			//
-
 			Ogre::HardwareVertexBufferSharedPtr vBuf = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(vertexDecl->getVertexSize(m_iBind), vertexData->vertexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
 			Ogre::VertexBufferBinding* binding = vertexData->vertexBufferBinding;
-			binding->setBinding(m_iBind, vBuf); // HACK!
-			//binding->setBinding(posElem->getIndex(), vBuf);
+			binding->setBinding(m_iBind, vBuf); 
 			const Ogre::VertexElement* posElem = vertexDecl->findElementBySemantic(Ogre::VES_POSITION);
 			unsigned char* vertex = static_cast<unsigned char*>(vBuf->lock(Ogre::HardwareBuffer::HBL_NORMAL));
 			m_iBind++;
-
-
 
 			// Ok, Let´s fill in the buffer with data  :D
 			const Ogre::Vector3* data = (const Ogre::Vector3*)pSubMeshData->Data();
 			Ogre::Real* pReal;
 			posElem->baseVertexPointerToElement(vertex, &pReal);
 
-			//m_pProgressDlg->InitLocal(iVertCount);
 			m_pProgressDlg->LocalStep("Writing Dedicated Vertex Buffers..");
 
 			unsigned int j = 0;
@@ -449,8 +432,6 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 
 				// update AABB
 				m_AABB.merge( vert );
-
-				//m_pProgressDlg->LocalStep();
 			}
 			vBuf->unlock();
 
@@ -460,9 +441,7 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 		}
 
 	}
-	//Ogre::StringUtil::StrStreamType strStrm;
-	//strStrm << "Export: #Vertices: " << iNrVerts;
-	//Ogre::LogManager::getSingletonPtr()->logMessage(strStrm.str());
+
 	END_PROFILE("COgreMeshCompiler::CreateVertexBuffer()");
 }
 
@@ -486,8 +465,6 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 
 		std::vector< unsigned int > lMatTriangles;
 		pIntermediateMesh->GetTrianglesUsingMaterial( pMat, lMatTriangles);
-
-
 
 		//submesh index lookup
 		std::map< unsigned int, unsigned int> lIndexReMap;
@@ -550,7 +527,6 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 
 				// skeleton
 				SetBoneAssignments(face,pIntermediateMesh, pSubMesh);
-				//m_pProgressDlg->LocalStep();
 			}
 		
 
@@ -562,10 +538,6 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 		{	// 16 Bit Index Buffer
 			LOGINFO "Locking 16bit IndexBuffer");
 			unsigned short* pIndices = static_cast<unsigned short*>(iBuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
-
-			//Ogre::StringUtil::StrStreamType strStrm3;
-			//strStrm3 << "Export: #Indices: " << iBuf->getNumIndexes();
-			//Ogre::LogManager::getSingletonPtr()->logMessage(strStrm3.str());
 
 			m_pProgressDlg->InitLocal(lMatTriangles.size()/100);
 			Ogre::String msg = "Writing 16bit Index Buffers";
@@ -595,10 +567,8 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 
 				}
 
-				//m_pProgressDlg->LocalStep("Assigning Bone Weights..");
 				// skeleton
 				SetBoneAssignments(face,pIntermediateMesh, pSubMesh);
-				//m_pProgressDlg->LocalStep();
 			}
 
 			// Unlock
@@ -625,25 +595,15 @@ void COgreMeshCompiler::SetBoneAssignments( const CTriangle& face, CIntermediate
 
 		for (int w=0; w < 3; w++)
 		{
-			int vertIndex = face.m_Vertices[w];//startIndex-3+w;
+			int vertIndex = face.m_Vertices[w];
 			int iBoneCount = pISkel->GetNrOfAssignmentsOnVertex(vertIndex);
-
-			//std::vector<SVertexBoneData>* pDataCollection;
-			//if(!pISkel->GetVertexDataCollection(vertIndex, &pDataCollection))
-			//{
-			//	LOGERROR "Error retrieving bone assignment data.");
-			//	return;
-			//}
-			//int iBoneCount = pDataCollection->size();
 
 			SVertexBoneData maxBoneData;
 			maxBoneData.weight = 0;
 			int maxVertIndex = 0;
-//			std::vector<SVertexBoneData>::iterator iter = pDataCollection->begin();
-//			while(iter!=pDataCollection->end())
 			for (int i=0; i < iBoneCount; i++)
 			{
-				SVertexBoneData boneData;// = &((*pDataCollection)[i]);
+				SVertexBoneData boneData;
 				if(pISkel->GetVertexData(vertIndex,i,boneData))
 				{
 					if(maxBoneData.weight < boneData.weight)
@@ -674,7 +634,6 @@ void COgreMeshCompiler::SetBoneAssignments( const CTriangle& face, CIntermediate
 						pSubMesh->addBoneAssignment(vertexBoneAssignment);
 					}
 				}
-				//iter++;
 			}
 		}
 	}
@@ -715,11 +674,6 @@ void COgreMeshCompiler::CreateNormalBuffer( CIntermediateMesh* pIntermediateMesh
 		Ogre::Real* pReal;
 		posElem->baseVertexPointerToElement(vertex, &pReal);
 
-		//Ogre::StringUtil::StrStreamType strStrm3;
-		//strStrm3 << "Export: #Normals2Export: " << iNrNormals;
-		//Ogre::LogManager::getSingletonPtr()->logMessage(strStrm3.str());
-
-		//m_pProgressDlg->InitLocal(iNrNormals);
 		m_pProgressDlg->LocalStep("Writing Shared Normal Buffer..");
 
 		const Ogre::Vector3* data = (const Ogre::Vector3*)pNormalArray->Data();
@@ -731,7 +685,6 @@ void COgreMeshCompiler::CreateNormalBuffer( CIntermediateMesh* pIntermediateMesh
 			*pReal++ = vert.x;
 			*pReal++ = vert.y;
 			*pReal++ = vert.z;
-			//m_pProgressDlg->LocalStep();
 		}
 		nBuf->unlock();
 	}
@@ -756,7 +709,6 @@ void COgreMeshCompiler::CreateNormalBuffer( CIntermediateMesh* pIntermediateMesh
 			CMeshArray* pSubMeshData = ExtractSubMeshData_Vec3(pNormalArray, pIntermediateMesh, pMat,lIndexReMap);
 			unsigned int iVertCount = pSubMeshData->Size();
 
-			//m_iBind = vertexDecl->getElementCount();
 			// allocate the position vertex buffer
 			unsigned int iBind = vertexDecl->getElementCount();
 			vertexDecl->addElement(iBind, 0, Ogre::VET_FLOAT3, Ogre::VES_NORMAL);
@@ -765,20 +717,15 @@ void COgreMeshCompiler::CreateNormalBuffer( CIntermediateMesh* pIntermediateMesh
 			Ogre::HardwareVertexBufferSharedPtr vBuf = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(vertexDecl->getVertexSize(iBind), vertexData->vertexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
 			Ogre::VertexBufferBinding* binding = vertexData->vertexBufferBinding;
 			binding->setBinding(iBind, vBuf); // HACK!
-			//binding->setBinding(posElem->getIndex(), vBuf);
 			const Ogre::VertexElement* posElem = vertexDecl->findElementBySemantic(Ogre::VES_NORMAL);
 			unsigned char* vertex = static_cast<unsigned char*>(vBuf->lock(Ogre::HardwareBuffer::HBL_NORMAL));
-			//m_iBind++;
 
-
-			//m_pProgressDlg->InitLocal(iVertCount);
 			m_pProgressDlg->LocalStep("Writing Dedicated Normal Buffers..");
 
 			// Ok, Let´s fill in the buffer with data  :D
 			const Ogre::Vector3* data = (const Ogre::Vector3*)pSubMeshData->Data();
 			Ogre::Real* pReal;
 			posElem->baseVertexPointerToElement(vertex, &pReal);
-
 
 			unsigned int j = 0;
 			for(unsigned int i=0; i< iVertCount; i++) 
@@ -788,8 +735,6 @@ void COgreMeshCompiler::CreateNormalBuffer( CIntermediateMesh* pIntermediateMesh
 				*pReal++ = vert.x;
 				*pReal++ = vert.y;
 				*pReal++ = vert.z;
-
-				//m_pProgressDlg->LocalStep();
 			}
 			vBuf->unlock();
 
@@ -857,7 +802,6 @@ void COgreMeshCompiler::CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMes
 		Ogre::ARGB* pReal;
 		diffuseElem->baseVertexPointerToElement(vertex, &pReal);
 
-		//m_pProgressDlg->InitLocal(iNrVerts);
 		m_pProgressDlg->LocalStep("Writing Shared Vertex Colour Buffer..");
 
 		const Ogre::Vector4* data = (const Ogre::Vector4*)pDiffuseArray->Data();
@@ -869,8 +813,6 @@ void COgreMeshCompiler::CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMes
 						(((unsigned int)(vert.x*255.0))<<16)|
 						(((unsigned int)(vert.y*255.0))<<8)|
 						(((unsigned int)(vert.z*255.0)));
-
-			//m_pProgressDlg->LocalStep();
 		}
 		dBuf->unlock();
 	}
@@ -885,9 +827,6 @@ void COgreMeshCompiler::CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMes
 			Ogre::SubMesh* pSubMesh = it->second;
 			vertexData = pSubMesh->vertexData;
 			Ogre::VertexDeclaration* vertexDecl = vertexData->vertexDeclaration;
-			
-			//std::vector< unsigned int > lMatTriangles;
-			//pIntermediateMesh->GetTrianglesUsingMaterial( pMat, lMatTriangles);
 
 			//submesh index lookup
 			std::map< unsigned int, unsigned int> lIndexReMap;
@@ -904,7 +843,6 @@ void COgreMeshCompiler::CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMes
 			Ogre::VertexBufferBinding* binding = vertexData->vertexBufferBinding;
 			binding->setBinding(iBind, dBuf); // Hmm.. seems like the index parameter really should be the source
 			const Ogre::VertexElement* diffuseElem = vertexDecl->findElementBySemantic(Ogre::VES_DIFFUSE);
-			//binding->setBinding(diffuseElem->getIndex(), dBuf);
 			unsigned char* vertex = static_cast<unsigned char*>(dBuf->lock(Ogre::HardwareBuffer::HBL_NORMAL));
 
 			//m_pProgressDlg->InitLocal(iVertCount);
@@ -922,8 +860,6 @@ void COgreMeshCompiler::CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMes
 							(((unsigned int)(vert.x*255.0))<<16)|
 							(((unsigned int)(vert.y*255.0))<<8)|
 							(((unsigned int)(vert.z*255.0)));
-
-				//m_pProgressDlg->LocalStep();
 			}
 
 			dBuf->unlock();
@@ -950,7 +886,6 @@ void COgreMeshCompiler::CreateTexCoordBuffer( CIntermediateMesh* pIntermediateMe
 		char temp[32];
 		sprintf(temp, "uv%i", x);
 		CMeshArray* pUVArray = pIntermediateMesh->GetArray(temp,0);
-		//iUVIndex = x;
 
 		if(pUVArray == NULL)
 			continue;
@@ -982,7 +917,6 @@ void COgreMeshCompiler::CreateTexCoordBuffer( CIntermediateMesh* pIntermediateMe
 			Ogre::Real* pReal;
 			uvElem->baseVertexPointerToElement(vertex, &pReal);
 
-			//m_pProgressDlg->InitLocal(iNrUVs);
 			m_pProgressDlg->LocalStep("Writing Shared Texture Coordinate Buffer..");
 
 			const Ogre::Vector2* data = (const Ogre::Vector2*)pUVArray->Data();
@@ -992,7 +926,6 @@ void COgreMeshCompiler::CreateTexCoordBuffer( CIntermediateMesh* pIntermediateMe
 				const Ogre::Vector2& vert = data[i];
 				*pReal++= vert.x;
 				*pReal++= vert.y;
-				//m_pProgressDlg->LocalStep();
 			}
 			uvBuf->unlock();
 		}
@@ -1024,14 +957,11 @@ void COgreMeshCompiler::CreateTexCoordBuffer( CIntermediateMesh* pIntermediateMe
 				binding->setBinding(iBind, uvBuf);
 
 				const Ogre::VertexElement* uvElem = vertexData->vertexDeclaration->findElementBySemantic(Ogre::VES_TEXTURE_COORDINATES, iUVIndex-1);
-				//binding->setBinding(uvElem->getIndex(), uvBuf);
 				unsigned char* vertex = static_cast<unsigned char*>(uvBuf->lock(Ogre::HardwareBuffer::HBL_NORMAL));
-				//m_iBind++;
 
 				Ogre::Real* pReal;
 				uvElem->baseVertexPointerToElement(vertex, &pReal);
 			
-				//m_pProgressDlg->InitLocal(iUVCount);
 				m_pProgressDlg->LocalStep("Writing Dedicated Texture Coordinate Buffers..");
 
 				const Ogre::Vector2* data = (const Ogre::Vector2*)pSubMeshData->Data();
@@ -1041,7 +971,6 @@ void COgreMeshCompiler::CreateTexCoordBuffer( CIntermediateMesh* pIntermediateMe
 					const Ogre::Vector2& vert = data[i];
 					*pReal++= vert.x;
 					*pReal++= vert.y;
-					//m_pProgressDlg->LocalStep();
 				}
 				uvBuf->unlock();
 				it++;
@@ -1148,8 +1077,6 @@ void COgreMeshCompiler::CreatePoseBuffers( CIntermediateMesh* pIntermediateMesh 
 	// Create pose animations
 	unsigned int iPoseAnimCount = pIntermediateMesh->GetPoseAnimCount();
 
-
-
 	for(unsigned int i=0; i<iPoseAnimCount; i++)
 	{
 		
@@ -1186,7 +1113,6 @@ void COgreMeshCompiler::CreatePoseBuffers( CIntermediateMesh* pIntermediateMesh 
 			poseName += Ogre::StringConverter::toString(frameCount++);
 
 			int* pIndices = NULL;
-			//unsigned int poseID = CreatePose(pindices, pIntermediateMesh, poseName, x*GetTicksPerFrame(), bOptimize );
 			unsigned int iNrPosesCreated = CreatePose(&pIndices, pIntermediateMesh, poseName, x*GetTicksPerFrame(), bOptimize );
 
 			for(int j=0; j<iNrPosesCreated; j++)
@@ -1194,7 +1120,7 @@ void COgreMeshCompiler::CreatePoseBuffers( CIntermediateMesh* pIntermediateMesh 
 				int poseIndex = pIndices[j]-1;
 				int iTarget = m_pOgreMesh->getPose(poseIndex)->getTarget();
 
-				Ogre::VertexAnimationTrack* pTrack = NULL;//pAnim->createVertexTrack(iTarget, Ogre::VAT_POSE);
+				Ogre::VertexAnimationTrack* pTrack = NULL;
 				std::map< int, Ogre::VertexAnimationTrack* >::iterator it = lTracks.find(iTarget);
 				if(it == lTracks.end())
 				{
@@ -1405,7 +1331,6 @@ CMeshArray* COgreMeshCompiler::ExtractSubMeshData_Vec3( CMeshArray* pMeshArray, 
 	std::vector< unsigned int > lMatTriangles;
 	pIMesh->GetTrianglesUsingMaterial( pIMat, lMatTriangles);
 
-	//std::map< unsigned int, const Ogre::Vector3* > lVertexMap;
 	unsigned int iThird = lMatTriangles.size()/3;
 	SharedUtilities::fastintmap< unsigned int > lVertexMap(iThird,iThird);
 
@@ -1417,22 +1342,16 @@ CMeshArray* COgreMeshCompiler::ExtractSubMeshData_Vec3( CMeshArray* pMeshArray, 
 		for(unsigned int x = 0; x< 3; x++) 
 		{
 			unsigned int iOldIndex = face.m_Vertices[x];
-			//const Ogre::Vector3* pVert = &(data[ iOldIndex ]);
 
 			if(m_bReindex)
 			{
 				unsigned int returnVal;
 				if(!lVertexMap.find(iOldIndex,returnVal))
 					lVertexMap.map(iOldIndex,iOldIndex);
-				
-				//std::map<unsigned int, const Ogre::Vector3*>::iterator it = lVertexMap.find(index);
-				//if(it == lVertexMap.end())
-				//	lVertexMap.insert( std::pair<unsigned int, const Ogre::Vector3*>(index,pVert) );
 			}
 			else
 			{
-				//lVertexMap.insert( std::pair<unsigned int, const Ogre::Vector3*>(index,pVert) ); // All indices are already unique
-				lVertexMap.map(iOldIndex,iOldIndex);
+				lVertexMap.map(iOldIndex,iOldIndex); // If it already exists, its just overwritten
 			}
 		}
 	}
@@ -1445,8 +1364,6 @@ CMeshArray* COgreMeshCompiler::ExtractSubMeshData_Vec3( CMeshArray* pMeshArray, 
 	unsigned int newIndex=0;
 
 	START_PROFILE("COgreMeshCompiler::ExtractSubMeshData_Vec3():BuildIndexmap");
-	//std::map< unsigned int, const Ogre::Vector3* >::iterator it = lVertexMap.begin();
-	//while(it != lVertexMap.end())
 	SharedUtilities::fastvector<unsigned int> lVertexList = lVertexMap.data();
 	unsigned int iVertCount = lVertexList.size();
 
@@ -1454,40 +1371,14 @@ CMeshArray* COgreMeshCompiler::ExtractSubMeshData_Vec3( CMeshArray* pMeshArray, 
 
 	for(unsigned int i = 0; i< iVertCount; i++) 
 	{
-		//unsigned int oldIndex = it->first;
 		unsigned int oldIndex = lVertexList[i];
 		const Ogre::Vector3* pVert = &(data[ oldIndex ]);// = it->second;
 
 		(*pArray)[i] = *pVert;
 
-
-		//std::map< const Ogre::Vector3*, unsigned int >::iterator it2 = lHelperMap.find(pVert);
-		//if(it2 == lHelperMap.end())
-		//{
-		//	lHelperMap.insert( std::pair< const Ogre::Vector3*, unsigned int >(pVert,newIndex) );
-		//	lUniqueVerts.push_back(pVert);
-		//	lIndexMap.insert( std::pair< unsigned int, unsigned int>(oldIndex, newIndex++) );
-		//}
-		//else
-		//{
-		//	unsigned int registeredIndex = it2->second;
-			lIndexMap.insert( std::pair< unsigned int, unsigned int>(oldIndex,i) );// registeredIndex) );
-		//}
-		//it++;
+		lIndexMap.insert( std::pair< unsigned int, unsigned int>(oldIndex,i) );// registeredIndex) );
 	}
 	END_PROFILE("COgreMeshCompiler::ExtractSubMeshData_Vec3():BuildIndexmap");
-
-	// Again we make a complete copy.. pretty inefficient - we might want to optimize.
-
-	START_PROFILE("COgreMeshCompiler::ExtractSubMeshData_Vec3():BuildArrayCopy");
-	// Build SubMeshArray
-	//unsigned int iVertCount = lUniqueVerts.size();
-	//CVec3Array* pArray = new CVec3Array(iVertCount);
-	//for(unsigned int j=0; j < iVertCount; j++)
-	//{
-	//	(*pArray)[j] = *(lUniqueVerts[j]);
-	//}
-	END_PROFILE("COgreMeshCompiler::ExtractSubMeshData_Vec3():BuildArrayCopy");
 
 	pSubMeshArray = pArray;
 

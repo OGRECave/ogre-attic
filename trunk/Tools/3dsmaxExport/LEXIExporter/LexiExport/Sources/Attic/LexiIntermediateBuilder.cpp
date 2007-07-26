@@ -335,14 +335,22 @@ Ogre::SceneNode* CIntermediateBuilder::CreateHierarchy(unsigned int iNodeID, boo
 
 Ogre::SceneNode* CIntermediateBuilder::CreateHierarchy(unsigned int iNodeID, Ogre::SceneNode* pParent, bool bRecursive, bool bHidden)
 {
-	LOGDEBUG "CIntermediate::CreateHierarchy() - recursive call..");
+	LOGDEBUG "CIntermediate::CreateHierarchy() - recursive call (MaxNode: %i)..", iNodeID);
 	INode* pRoot = GetNodeFromID(iNodeID);
-	if(!pRoot) return NULL;
+	if(!pRoot)
+	{
+		LOGERROR "No node with such ID: %d", iNodeID);
+		return NULL;
+	}
 
 	LOGDEBUG "CIntermediate::CreateHierarchy() - Creating Intermediate Mesh");
 
 	CIntermediateMesh* pIMesh = CreateMesh(iNodeID);
-	if(!pIMesh) return NULL;
+	if(!pIMesh)
+	{
+		LOGERROR "Error reading mesh data from Max. Sinner mesh is: %s", pRoot->NodeName());
+		return NULL;
+	}
 
 	m_lIMPool.push_back(pIMesh);
 
@@ -419,6 +427,11 @@ Ogre::SceneNode* CIntermediateBuilder::CreateHierarchy(unsigned int iNodeID, Ogr
 
 void CIntermediateBuilder::CleanUpHierarchy( Ogre::SceneNode* pNode )
 {
+	if(pNode == NULL)
+	{
+		return;
+	}
+
 	std::vector<Ogre::MovableObject*> lDeleteThese;
 
 	Ogre::SceneNode::ObjectIterator it = pNode->getAttachedObjectIterator();
@@ -549,9 +562,21 @@ CIntermediateMesh* CIntermediateBuilder::CreateMesh(unsigned int iNodeID)
 		tri.m_Vertices[wind[1]] = iVIndex++;
 		tri.m_Vertices[wind[2]] = iVIndex++;
 
+		
+
 		Mtl* pMat = maxMtl;
 		if (bMultiMat)
-			pMat = maxMtl->GetSubMtl( pMesh->getFaceMtlIndex(x) );
+		{
+			int subCount = maxMtl->NumSubMtls();
+			MtlID matID = pMesh->getFaceMtlIndex(x) %subCount;
+			pMat = maxMtl->GetSubMtl( matID );
+			if(pMat == NULL)
+			{
+				Ogre::String str("No SubMaterial with ID"+Ogre::StringConverter::toString(matID) );
+				LOGERROR str.c_str());
+				return NULL;
+			}
+		}
 
 		tri.m_pMaterial = CreateMaterial( pMat );
 
@@ -790,14 +815,17 @@ CIntermediateMaterial* CIntermediateBuilder::CreateMaterial( Mtl* pMaxMaterial )
 
 		newMat->SetGlosiness( pMaxMaterial->GetShininess() );
 		newMat->SetSpecularLevel( pMaxMaterial->GetShinStr() );
-		newMat->SetOpacity( 1.0f - pMaxMaterial->GetXParency() );
+		//LOGDEBUG "newMat->SetOpacity( 1.0f - pMaxMaterial->GetXParency()");
+		//newMat->SetOpacity( 1.0f - pMaxMaterial->GetXParency() );
 
 		// Check to see if it's a Standard material
 		if (pMaxMaterial->ClassID() == Class_ID(DMTL_CLASS_ID, 0))
 		{
+			
 			StdMat* std = (StdMat *)pMaxMaterial;
 			newMat->Set2Sided( std->GetTwoSided() ? true : false );
 			newMat->SetWired( std->GetWire() ? true : false );
+			//LOGDEBUG "newMat->SetOpacity( std->GetOpacity(0) )");
 			newMat->SetOpacity( std->GetOpacity(0) );
 
 			//if (std->ClassID() == Class_ID(DMTL2_CLASS_ID, 0))

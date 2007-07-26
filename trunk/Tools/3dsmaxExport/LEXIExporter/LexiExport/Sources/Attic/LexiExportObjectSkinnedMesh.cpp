@@ -335,6 +335,7 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 	//CIntermediateMesh* pIMesh = NULL;
 	COgreMeshCompiler* pOgreMeshCompiler = NULL;
 	COgreSkeletonCompiler* pSkeletonCompiler = NULL;
+	Ogre::SceneNode* pNode = NULL;
 
 	if(m_bEnabled || bForceAll)
 	{
@@ -357,7 +358,7 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 
 			LOGDEBUG "Creating Hierarchy...");
 
-			Ogre::SceneNode* pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), true, false);
+			pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), false, false);
 			if(pNode == NULL)
 			{
 				LOGERROR "No node with such ID: %d", GetMAXNodeID());
@@ -392,7 +393,7 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			const Ogre::String& sMaterialFilename = FixupFilename(sOrigFilename.c_str(), "material");
 			const Ogre::String& sTextureFilename = FixupFilename(sOrigFilename.c_str(), "texture");
 			const Ogre::String& sShaderFilename = FixupFilename(sOrigFilename.c_str(), "shader");
-			const Ogre::String& sSkeletonFilename = FixupFilename(sOrigFilename.c_str(), "shader");
+			const Ogre::String& sSkeletonFilename = FixupFilename(sOrigFilename.c_str(), "skeleton");
 
 			Ogre::String sBaseName;
 			Ogre::String sMeshPath;
@@ -445,7 +446,8 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			{
 				LOGERROR "Error while attempting to create path: %s", sMeshPath.c_str());
 				delete pOgreMeshCompiler;
-				delete m_pIMesh;
+				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+				CIntermediateBuilder::Get()->Clear();
 				return false;
 			}
 
@@ -453,7 +455,8 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			{
 				LOGERROR "Error while attempting to create path: %s", sMeshPath.c_str());
 				delete pOgreMeshCompiler;
-				delete m_pIMesh;
+				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+				CIntermediateBuilder::Get()->Clear();
 				return false;
 			}
 
@@ -461,7 +464,8 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			{
 				LOGERROR "Error while attempting to create path: %s", sMaterialPath.c_str());
 				delete pOgreMeshCompiler;
-				delete m_pIMesh;
+				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+				CIntermediateBuilder::Get()->Clear();
 				return false;
 			}
 
@@ -469,7 +473,8 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			{
 				LOGERROR "Error while attempting to create path: %s", sTexturePath.c_str());
 				delete pOgreMeshCompiler;
-				delete m_pIMesh;
+				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+				CIntermediateBuilder::Get()->Clear();
 				return false;
 			}
 
@@ -477,7 +482,8 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			{
 				LOGERROR "Error while attempting to create path: %s", sShaderPath.c_str());
 				delete pOgreMeshCompiler;
-				delete m_pIMesh;
+				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+				CIntermediateBuilder::Get()->Clear();
 				return false;
 			}
 
@@ -574,12 +580,14 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 
 		LOGDEBUG "Cleaning up...");
 		delete pOgreMeshCompiler;
-		delete m_pIMesh;
+		
+		CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+		CIntermediateBuilder::Get()->Clear();
 		m_pIMesh = NULL;
+
 		delete pSkeletonCompiler;
 
 		LOGINFO "..Done!");
-
 	}
 
 	END_PROFILE("CSkinnedMeshExportObject::Export()");

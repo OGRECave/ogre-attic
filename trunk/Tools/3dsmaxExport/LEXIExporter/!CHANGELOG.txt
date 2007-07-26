@@ -1,3 +1,12 @@
+version 1.0.7
+=============
+- Easier build from source process.
+- Bug Fixes:
+	* Skeletons are always written to shader folder - FIXED
+	* Submaterial IDs doesn't wrap around like in max - FIXED
+	* Crash bug on exports with more than 4 submeshes using dedicated geometry buffers - FIXED
+	* Memory leak in static and skinned mesh export. - FIXED
+
 version 1.0.6
 =============
 - 3DS Max 9 compatibility
