@@ -52,5 +52,4 @@ public:
     void testCustomCapabilitiesGL();
     void testCustomCapabilitiesDX9();
 
-    Root* mRoot;
 };
