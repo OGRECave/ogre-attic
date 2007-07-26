@@ -13,7 +13,7 @@ TestSuite_SOURCES = main.cpp \
                     ../OgreMain/src/PixelFormatTests.cpp \
                     ../OgreMain/src/RadixSort.cpp \
 										../OgreMain/src/RenderSystemCapabilitiesTests.cpp
-										../OgreMain/src/UsingCustomCapabilities.cpp
+										../OgreMain/src/UseCustomCapabilitiesTest.cpp
 
 TestSuite_LDFLAGS = -L$(top_builddir)/OgreMain/src $(CPPUNIT_LIBS)
 TestSuite_LDADD = -lOgreMain
