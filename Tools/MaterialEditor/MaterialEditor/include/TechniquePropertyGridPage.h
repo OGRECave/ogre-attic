@@ -33,6 +33,7 @@ Torus Knot Software Ltd.
 #include <wx/propgrid/manager.h>
 
 class TechniqueController;
+class EventArgs;
 
 class TechniquePropertyGridPage : public wxPropertyGridPage
 {
@@ -41,6 +42,10 @@ public:
 	virtual ~TechniquePropertyGridPage();
 
 	virtual void populate();
+
+	void nameChanged(EventArgs& args);
+	void schemeNameChanged(EventArgs& args);
+	void lodIndexChanged(EventArgs& args);
 
 protected:
 	virtual void propertyChanged(wxPropertyGridEvent& event);
