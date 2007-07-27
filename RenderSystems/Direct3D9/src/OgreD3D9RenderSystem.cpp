@@ -681,7 +681,10 @@ namespace Ogre
 
 
             // Initialise the capabilities structures
-						mRealCapabilities = createRenderSystemCurrentCapabilities();							
+			// get caps
+			mpD3DDevice->GetDeviceCaps(&mCaps);
+
+			mRealCapabilities = createRenderSystemCapabilities();							
             mRealCapabilities->addShaderProfile("hlsl");
 
 						// if we are using custom capabilities, then 
@@ -689,7 +692,7 @@ namespace Ogre
 						if(!mUseCustomCapabilities)
 								mCurrentCapabilities = mRealCapabilities;
 
-						initialiseFromRenderSystemCurrentCapabilities(mCurrentCapabilities, mPrimaryWindow);
+						initialiseFromRenderSystemCapabilities(mCurrentCapabilities, mPrimaryWindow);
 
 		}
 		else
@@ -701,12 +704,8 @@ namespace Ogre
 
 	}
     //---------------------------------------------------------------------
-		RenderSystemCurrentCapabilities* D3D9RenderSystem::createRenderSystemCurrentCapabilities(void)
+		RenderSystemCapabilities* D3D9RenderSystem::createRenderSystemCapabilities(void) const
 		{
-		
-				// get caps
-				mpD3DDevice->GetDeviceCaps( &mCaps );
-
         // Check for hardware stencil support
 				LPDIRECT3DSURFACE9 pSurf;
 				D3DSURFACE_DESC surfDesc;
@@ -714,7 +713,7 @@ namespace Ogre
 				pSurf->GetDesc(&surfDesc);
 				pSurf->Release();
 
-				RenderSystemCurrentCapabilities* rsc = new RenderSystemCurrentCapabilities();
+				RenderSystemCapabilities* rsc = new RenderSystemCapabilities();
 
 				if (surfDesc.Format == D3DFMT_D24S8 || surfDesc.Format == D3DFMT_D24X8)
 				{
@@ -765,8 +764,9 @@ namespace Ogre
         {
             rsc->setCapability(RSC_HWOCCLUSION);
         }
-        convertVertexShaderCaps();
-        convertPixelShaderCaps();
+
+        convertVertexShaderCaps(rsc);
+        convertPixelShaderCaps(rsc);
 
 				// User clip planes
         if (mCaps.MaxUserClipPlanes > 0)
@@ -899,11 +899,13 @@ namespace Ogre
 		// HACK - ATI drivers seem to be buggy and don't support per-stage constants properly?
 		// TODO: move this to RSC
 		 if((mCaps.PrimitiveMiscCaps & D3DPMISCCAPS_PERSTAGECONSTANT) != 0)
-				rsc->hasCapability(RSC_PERSTAGECONSTANT);
+				rsc->setCapability(RSC_PERSTAGECONSTANT);
+
+		 return rsc;
 
     }
     //---------------------------------------------------------------------
-    void D3D9RenderSystem::convertVertexShaderCaps(RenderSystemCurrentCapabilities* rsc)
+    void D3D9RenderSystem::convertVertexShaderCaps(RenderSystemCapabilities* rsc) const
     {
         ushort major, minor;
         major = static_cast<ushort>((mCaps.VertexShaderVersion & 0x0000FF00) >> 8);
@@ -995,7 +997,7 @@ namespace Ogre
         }
     }
     //---------------------------------------------------------------------
-    void D3D9RenderSystem::convertPixelShaderCaps(RenderSystemCurrentCapabilities* rsc)
+    void D3D9RenderSystem::convertPixelShaderCaps(RenderSystemCapabilities* rsc) const
     {
         ushort major, minor;
         major = static_cast<ushort>((mCaps.PixelShaderVersion & 0x0000FF00) >> 8);
@@ -1133,7 +1135,7 @@ namespace Ogre
         }
     }
 	//-----------------------------------------------------------------------
-	bool D3D9RenderSystem::checkVertexTextureFormats(void)
+	bool D3D9RenderSystem::checkVertexTextureFormats(void) const
 	{
 		bool anySupported = false;
 
@@ -1167,7 +1169,7 @@ namespace Ogre
 	}
 
 		//-----------------------------------------------------------------------
-		void D3D9RenderSystem::initialiseFromRenderSystemCurrentCapabilities(RenderSystemCurrentCapabilities* caps, RenderTarget* primary)
+		void D3D9RenderSystem::initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary)
 		{
 				if(caps->isShaderProfileSupported("hlsl"))
 		        HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
@@ -2465,7 +2467,7 @@ namespace Ogre
 				pDepth = _getDepthStencilFor(srfDesc.Format, srfDesc.MultiSampleType, srfDesc.Width, srfDesc.Height);
 			}
 			// Bind render targets
-			uint count = mCurrentCapabilities->numMultiRenderTargets();
+			uint count = mCurrentCapabilities->getNumMultiRenderTargets();
 			for(uint x=0; x<count; ++x)
 			{
 				hr = mpD3DDevice->SetRenderTarget(x, pBack[x]);

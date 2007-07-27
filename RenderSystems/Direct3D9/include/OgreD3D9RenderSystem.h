@@ -33,6 +33,7 @@ Torus Knot Software Ltd.
 #include "OgreString.h"
 #include "OgreStringConverter.h"
 #include "OgreRenderSystem.h"
+#include "OgreRenderSystemCapabilities.h"
 #include "OgreD3D9Mappings.h"
 
 #include "OgreNoMemoryMacros.h"
@@ -143,15 +144,15 @@ namespace Ogre
 
 
         /// Internal method for populating the capabilities structure
-				void RenderSystemCapabilities* createRenderSystemCapabilities();
+		RenderSystemCapabilities* createRenderSystemCapabilities() const;
 
-				/** See RenderSystem definition */
-				virtual void initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary);
+		/** See RenderSystem definition */
+		virtual void initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary);
 
 
-        void convertVertexShaderCaps(RenderSystemCapabilities* rsc);
-        void convertPixelShaderCaps(RenderSystemCapabilities* rsc);
-		bool checkVertexTextureFormats(void);
+        void convertVertexShaderCaps(RenderSystemCapabilities* rsc) const;
+        void convertPixelShaderCaps(RenderSystemCapabilities* rsc) const;
+		bool checkVertexTextureFormats(void) const;
 
         unsigned short mCurrentLights;
         /// Saved last view matrix
