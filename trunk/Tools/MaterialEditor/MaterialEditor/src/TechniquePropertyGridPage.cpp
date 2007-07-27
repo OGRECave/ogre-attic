@@ -28,11 +28,14 @@ Torus Knot Software Ltd.
 */
 #include "TechniquePropertyGridPage.h"
 
+#include <boost/bind.hpp>
+
 #include <wx/propgrid/advprops.h>
 
 #include "OgreTechnique.h"
 
 #include "TechniqueController.h"
+#include "TechniqueEventArgs.h"
 
 BEGIN_EVENT_TABLE(TechniquePropertyGridPage, wxPropertyGridPage)
 	EVT_PG_CHANGED(-1, TechniquePropertyGridPage::propertyChanged)
@@ -41,6 +44,9 @@ END_EVENT_TABLE()
 TechniquePropertyGridPage::TechniquePropertyGridPage(TechniqueController* controller)
 : mController(controller)
 {
+	mController->subscribe(TechniqueController::NameChanged, boost::bind(&TechniquePropertyGridPage::nameChanged, this, _1));
+	mController->subscribe(TechniqueController::SchemeChanged, boost::bind(&TechniquePropertyGridPage::schemeNameChanged, this, _1));
+	mController->subscribe(TechniqueController::LodIndexChanged, boost::bind(&TechniquePropertyGridPage::lodIndexChanged, this, _1));
 }
 
 TechniquePropertyGridPage::~TechniquePropertyGridPage()
@@ -69,6 +75,36 @@ void TechniquePropertyGridPage::propertyChanged(wxPropertyGridEvent& event)
 	{
 		mController->setLodIndex(event.GetPropertyValueAsInt());
 	}
+}
+
+void TechniquePropertyGridPage::nameChanged(EventArgs& args)
+{
+	TechniqueEventArgs tea = dynamic_cast<TechniqueEventArgs&>(args);
+	TechniqueController* tc = tea.getTechniqueController();
+
+	wxPGProperty* prop = GetPropertyPtr(mNameId);
+	if(prop == NULL) return;
+	prop->SetValueFromString(tc->getTechnique()->getName().c_str());
+}
+
+void TechniquePropertyGridPage::schemeNameChanged(EventArgs& args)
+{
+	TechniqueEventArgs tea = dynamic_cast<TechniqueEventArgs&>(args);
+	TechniqueController* tc = tea.getTechniqueController();
+
+	wxPGProperty* prop = GetPropertyPtr(mSchemeNameId);
+	if(prop == NULL) return;
+	prop->SetValueFromString(tc->getTechnique()->getSchemeName().c_str());
+}
+
+void TechniquePropertyGridPage::lodIndexChanged(EventArgs& args)
+{
+	TechniqueEventArgs tea = dynamic_cast<TechniqueEventArgs&>(args);
+	TechniqueController* tc = tea.getTechniqueController();
+
+	wxPGProperty* prop = GetPropertyPtr(mLodIndexId);
+	if(prop == NULL) return;
+	prop->SetValueFromInt(tc->getTechnique()->getLodIndex());
 }
 
 
