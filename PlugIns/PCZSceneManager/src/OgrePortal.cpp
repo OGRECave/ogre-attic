@@ -54,8 +54,8 @@ Portal::Portal(const String & name, const PORTAL_TYPE type)
 	mRadius = 0.0;
 	mDirection = Vector3::UNIT_Z;
 	mLocalsUpToDate = false;
-	// flag as uninitialized
-	mIsInitialized = false;
+	// set prevWorldTransform to a zero'd out matrix
+	prevWorldTransform = Matrix4::ZERO;
 	switch (mType)
 	{
 	default:
@@ -131,6 +131,7 @@ void Portal::setCorners( Vector3 * corners )
 	case PORTAL_TYPE_AABB:
 		mCorners[0] = corners[0]; // minimum corner
 		mCorners[1] = corners[1]; // maximum corner (opposite from min corner)
+		break;
 	case PORTAL_TYPE_SPHERE:
 		mCorners[0] = corners[0]; // center point
 		mCorners[1] = corners[1]; // point on sphere surface
@@ -259,60 +260,74 @@ void Portal::updateDerivedValues(void)
 	// calculate derived values
 	if (mNode)
 	{
-		if (mIsInitialized)
+		if (prevWorldTransform != mNode->_getFullTransform())
 		{
+			// save world transform
+			Matrix4 transform = mNode->_getFullTransform();
+			Matrix3 rotation;
 			// save off the current DerivedCP
 			mPrevDerivedCP = mDerivedCP;
-			mDerivedCP = (mNode->_getDerivedOrientation() * mLocalCP) + mNode->_getDerivedPosition();
-			for (int i=0;i<numCorners;i++)
-			{
-				mDerivedCorners[i] = (mNode->_getDerivedOrientation() * mCorners[i]) + mNode->_getDerivedPosition();
-			}
+			mDerivedCP = transform * mLocalCP;
 			mDerivedSphere.setCenter(mDerivedCP);
-			if (mType == PORTAL_TYPE_QUAD)
+			switch(mType)
 			{
-				mDerivedDirection = mNode->_getDerivedOrientation() * mDirection;
+			case PORTAL_TYPE_QUAD:
+				for (int i=0;i<numCorners;i++)
+				{
+					mDerivedCorners[i] =  transform * mCorners[i];
+				}
+				transform.extract3x3Matrix(rotation);
+				mDerivedDirection = rotation * mDirection;
+				break;
+			case PORTAL_TYPE_AABB:
+				{
+					AxisAlignedBox aabb;
+					aabb.setExtents(mCorners[0], mCorners[1]);
+					aabb.transform(mNode->_getFullTransform());
+					mDerivedCorners[0] = aabb.getMinimum();
+					mDerivedCorners[1] = aabb.getMaximum();
+					mDerivedDirection = mDirection;
+				}
+				break;
+			case PORTAL_TYPE_SPHERE:
+				{
+					mDerivedCorners[0] = mDerivedCP;
+					mDerivedCorners[1] = transform * mCorners[1];
+					mDerivedDirection = mDirection;
+				}
+				break;
+			}
+			if (prevWorldTransform != Matrix4::ZERO)
+			{
+				// save previous calc'd plane
+				mPrevDerivedPlane = mDerivedPlane;
+				// calc new plane
+				mDerivedPlane = Ogre::Plane(mDerivedDirection, mDerivedCP);
+				// only update prevWorldTransform if did not move
+				// we need to add this conditional to ensure that
+				// the portal fully updates when it changes position.
+				if (mPrevDerivedPlane == mDerivedPlane &&
+					mPrevDerivedCP == mDerivedCP)
+				{
+					prevWorldTransform = transform;
+				}
+				mPrevDerivedCP = mDerivedCP;
 			}
 			else
 			{
-				mDerivedDirection = mDirection;
+				// calc new plane
+				mDerivedPlane = Ogre::Plane(mDerivedDirection, mDerivedCP);
+				// this is first time, so there is no previous, so prev = current.
+				mPrevDerivedPlane = mDerivedPlane;
+				mPrevDerivedCP = mDerivedCP;
+				prevWorldTransform = Matrix4::IDENTITY;
+				prevWorldTransform = transform;
 			}
-			// save previous calc'd plane
-			mPrevDerivedPlane = mDerivedPlane;
-			// calc new plane
-			mDerivedPlane = Ogre::Plane(mDerivedDirection, mDerivedCP);
-		}
-		else
-		{
-			// this is the first time the derived CP has been calculated, so there
-			// is no "previous" value, so set previous = current.
-			mDerivedCP = (mNode->_getDerivedOrientation() * mLocalCP) + mNode->_getDerivedPosition();
-			mPrevDerivedCP = mDerivedCP;
-			mDerivedSphere.setCenter(mDerivedCP);
-			for (int i=0;i<numCorners;i++)
-			{
-				mDerivedCorners[i] = (mNode->_getDerivedOrientation() * mCorners[i]) + mNode->_getDerivedPosition();
-			}
-			if (mType == PORTAL_TYPE_QUAD)
-			{
-				mDerivedDirection = mNode->_getDerivedOrientation() * mDirection;
-			}
-			else
-			{
-				mDerivedDirection = mDirection;
-			}
-			// calc new plane
-			mDerivedPlane = Ogre::Plane(mDerivedDirection, mDerivedCP);
-			// this is first time, so there is no previous, so prev = current.
-			mPrevDerivedPlane = mDerivedPlane;
-			// flag as initialized
-			mIsInitialized = true;
 		}
 	}
 	else // no associated node, so just use the local values as derived values
 	{
-		// save off the current DerivedCP
-		if (mIsInitialized)
+		if (prevWorldTransform != Matrix4::ZERO)
 		{
 			// save off the current DerivedCP
 			mPrevDerivedCP = mDerivedCP;
@@ -345,7 +360,7 @@ void Portal::updateDerivedValues(void)
 			// this is first time, so there is no previous, so prev = current.
 			mPrevDerivedPlane = mDerivedPlane;
 			// flag as initialized
-			mIsInitialized = true;
+			prevWorldTransform = Matrix4::IDENTITY;
 		}
 	}
 }

@@ -1167,16 +1167,15 @@ namespace Ogre
 
 	//-------------------------------------------------------------------------
 	// OctreeZoneFactory functions
-	OctreeZoneFactory::OctreeZoneFactory() 
+	OctreeZoneFactory::OctreeZoneFactory() : PCZoneFactory(String("ZoneType_Octree"))
 	{
 	}
 	OctreeZoneFactory::~OctreeZoneFactory()
 	{
 	}
-	const String OctreeZoneFactory::FACTORY_TYPE_NAME = "ZoneType_Octree";
 	bool OctreeZoneFactory::supportsPCZoneType(const String& zoneType)
 	{
-		if (OctreeZoneFactory::FACTORY_TYPE_NAME == zoneType)
+		if (mFactoryTypeName == zoneType)
 		{
 			return true;
 		}

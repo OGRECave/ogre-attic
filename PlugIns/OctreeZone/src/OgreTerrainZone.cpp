@@ -940,9 +940,8 @@ namespace Ogre
 
 	//-------------------------------------------------------------------------
 	// TerrainZoneFactory functions
-	const String TerrainZoneFactory::FACTORY_TYPE_NAME = "ZoneType_Terrain";
 	//-----------------------------------------------------------------------
-	TerrainZoneFactory::TerrainZoneFactory()
+	TerrainZoneFactory::TerrainZoneFactory() : PCZoneFactory(String("ZoneType_Terrain"))
 	{
 	}
 	//-----------------------------------------------------------------------
@@ -957,7 +956,7 @@ namespace Ogre
 	}
 	bool TerrainZoneFactory::supportsPCZoneType(const String& zoneType)
 	{
-		if (TerrainZoneFactory::FACTORY_TYPE_NAME == zoneType)
+		if (mFactoryTypeName == zoneType)
 		{
 			return true;
 		}

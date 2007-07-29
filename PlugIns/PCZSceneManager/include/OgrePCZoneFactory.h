@@ -49,12 +49,13 @@ namespace Ogre
     class _OgrePCZPluginExport PCZoneFactory 
     {
 	public:
-		PCZoneFactory();
+		PCZoneFactory(String & typeName);
 		virtual ~PCZoneFactory();
 		virtual bool supportsPCZoneType(const String& zoneType) = 0;
 		virtual PCZone* createPCZone(PCZSceneManager * pczsm, const String& zoneName) = 0;
+		const String& getFactoryTypeName() const { return mFactoryTypeName; }
 		/// Factory type name
-		static const String FACTORY_TYPE_NAME;
+		String mFactoryTypeName;
     };
 
 	// Factory for default zone
@@ -65,8 +66,6 @@ namespace Ogre
 		virtual ~DefaultZoneFactory();
 		bool supportsPCZoneType(const String& zoneType);
 		PCZone* createPCZone(PCZSceneManager * pczsm, const String& zoneName);
-		/// Factory type name
-		static const String FACTORY_TYPE_NAME;
 	};
 
 	// PCZoneFactory manager class

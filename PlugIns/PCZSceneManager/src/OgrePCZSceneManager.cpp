@@ -41,7 +41,7 @@ email                : ericc@xenopi.com
 #include "OgrePortal.h"
 #include "OgreSceneNode.h"
 #include "OgreMesh.h"
-#include "OgreSubmesh.h"
+#include "OgreSubMesh.h"
 #include <OgreRenderSystem.h>
 
 
