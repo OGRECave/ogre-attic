@@ -254,8 +254,8 @@ namespace Ogre
 		Plane mPrevDerivedPlane;
 		/// flag indicating whether or not local values are up-to-date
 		bool mLocalsUpToDate;
-		// flag indicating whether or not the portal has been through it's first update
-		bool mIsInitialized;
+		// previous world transform
+		Matrix4 prevWorldTransform;
     };
 
 }

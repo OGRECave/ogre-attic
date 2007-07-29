@@ -41,7 +41,7 @@ email                : ericc@xenopi.com
 #include "OgrePCZSceneManager.h"
 #include "OgreEntity.h"
 #include "OgreMesh.h"
-#include "OgreSubmesh.h"
+#include "OgreSubMesh.h"
 #include "OgrePCZLight.h"
 
 namespace Ogre

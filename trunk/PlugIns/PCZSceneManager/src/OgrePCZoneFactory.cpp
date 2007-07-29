@@ -43,7 +43,7 @@ namespace Ogre
 {
 	//-------------------------------------------------------------------------
 	// PCZoneFactory functions
-	PCZoneFactory::PCZoneFactory() 
+	PCZoneFactory::PCZoneFactory(String & typeName) : mFactoryTypeName(typeName)
 	{
 	}
 	PCZoneFactory::~PCZoneFactory()
@@ -51,16 +51,15 @@ namespace Ogre
 	}
 	//-------------------------------------------------------------------------
 	// DefaultZoneFactory functions
-	DefaultZoneFactory::DefaultZoneFactory() 
+	DefaultZoneFactory::DefaultZoneFactory() : PCZoneFactory(String("ZoneType_Default"))
 	{
 	}
 	DefaultZoneFactory::~DefaultZoneFactory()
 	{
 	}
-	const String DefaultZoneFactory::FACTORY_TYPE_NAME = "ZoneType_Default";
 	bool DefaultZoneFactory::supportsPCZoneType(const String& zoneType)
 	{
-		if (DefaultZoneFactory::FACTORY_TYPE_NAME == zoneType)
+		if (mFactoryTypeName == zoneType)
 		{
 			return true;
 		}

@@ -392,8 +392,6 @@ namespace Ogre
 		/// Factory type name
 		bool supportsPCZoneType(const String& zoneType);
 		PCZone* createPCZone(PCZSceneManager * pczsm, const String& zoneName);
-		/// Factory type name
-		static const String FACTORY_TYPE_NAME;
 	};
 
 }
