@@ -2,7 +2,7 @@
 
 # """
 # Name: 'OGRE Meshes'
-# Blender: 242
+# Blender: 244
 # Group: 'Export'
 # Tooltip: 'Export meshes and animations to OGRE'
 # """
