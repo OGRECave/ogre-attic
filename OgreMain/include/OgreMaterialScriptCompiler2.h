@@ -52,6 +52,8 @@ namespace Ogre{
 		virtual HighLevelGpuProgram *getHighLevelGpuProgram(const String &name, const String &group, GpuProgramType type, const String &language);
 		/// This is called just before texture aliases found in a script are applied to a material
 		virtual void preApplyTextureAliases(Ogre::AliasTextureNamePairList &aliases);
+		/// This accepts the name of a texture to be referenced, and is expected to ensure it loads and return the real name for it
+		virtual String getTexture(const String &name);
 	};
 	
 	/** This is the new compiler for material scripts. It uses the parser to parse the material
@@ -115,6 +117,32 @@ namespace Ogre{
 		void compilePointSizeAttenuation(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
 		void compilePointSizeMin(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
 		void compilePointSizeMax(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+
+		void compileTextureUnit(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileTextureAlias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileAnimTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileCubicTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileTexCoordSet(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileTexAddressMode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileTexBorderColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileFiltering(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileMaxAnisotropy(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileMipmapBias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileColourOp(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileColourOpEx(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileColourOpMultipassFallback(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileAlphaOpEx(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileEnvMap(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileScroll(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileScrollAnim(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileRotate(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileRotateAnim(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileScale(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileWaveXForm(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileTransform(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileBindingType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+		void compileContentType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
 		
 		bool parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
 		bool parseBlendFactor(const String &str, SceneBlendFactor &factor);
