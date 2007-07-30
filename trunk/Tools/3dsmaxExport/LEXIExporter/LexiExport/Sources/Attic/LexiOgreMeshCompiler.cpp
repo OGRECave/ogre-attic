@@ -439,9 +439,10 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 			m_lSubMeshIndexReMap.insert( std::pair<Ogre::SubMesh*, std::map< unsigned int, unsigned int>>(pSubMesh, lIndexReMap ) );
 			delete pSubMeshData;
 		}
-
 	}
-
+ 
+ 	OgreAssert(_CrtCheckMemory(), "Memory corruption");
+ 
 	END_PROFILE("COgreMeshCompiler::CreateVertexBuffer()");
 }
 
@@ -467,11 +468,13 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 		pIntermediateMesh->GetTrianglesUsingMaterial( pMat, lMatTriangles);
 
 		//submesh index lookup
-		std::map< unsigned int, unsigned int> lIndexReMap;
+		std::map< unsigned int, unsigned int> localMap;
+		std::map< unsigned int, unsigned int> *tempRemap = &localMap;
 		if(!m_bUseSharedGeometry)
 		{
-			lIndexReMap = m_lSubMeshIndexReMap.find(pSubMesh)->second;
+			tempRemap = &(m_lSubMeshIndexReMap.find(pSubMesh)->second);
 		}
+		std::map< unsigned int, unsigned int> &lIndexReMap = *tempRemap;
 
 		int iNrIndices = lMatTriangles.size() *3;
 		pSubMesh->indexData->indexCount = iNrIndices;
@@ -584,6 +587,9 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 		if(iBuf->isLocked())
 			iBuf->unlock();
 	}
+
+	OgreAssert(_CrtCheckMemory(), "Memory corruption");
+
 	END_PROFILE("COgreMeshCompiler::CreateIndexBuffer()");
 }
 
@@ -614,7 +620,8 @@ void COgreMeshCompiler::SetBoneAssignments( const CTriangle& face, CIntermediate
 
 					if(!m_bUseSharedGeometry)
 					{
-						std::map< unsigned int, unsigned int> lIndexReMap = m_lSubMeshIndexReMap.find(pSubMesh)->second;
+					  OgreAssert(m_lSubMeshIndexReMap.find(pSubMesh) != m_lSubMeshIndexReMap.end(), "submesh in submeshindexremap not found");
+						std::map< unsigned int, unsigned int> &lIndexReMap = m_lSubMeshIndexReMap.find(pSubMesh)->second;
 						vertexBoneAssignment.vertexIndex = lIndexReMap.find(vertIndex)->second;
 					}
 					else
@@ -744,6 +751,8 @@ void COgreMeshCompiler::CreateNormalBuffer( CIntermediateMesh* pIntermediateMesh
 		}
 	}
 
+	OgreAssert(_CrtCheckMemory(), "Memory corruption");
+
 	END_PROFILE("COgreMeshCompiler::CreateNormalBuffer()");
 }
 
@@ -829,8 +838,9 @@ void COgreMeshCompiler::CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMes
 			Ogre::VertexDeclaration* vertexDecl = vertexData->vertexDeclaration;
 
 			//submesh index lookup
-			std::map< unsigned int, unsigned int> lIndexReMap;
-			lIndexReMap = m_lSubMeshIndexReMap.find(pSubMesh)->second;
+			OgreAssert(m_lSubMeshIndexReMap.find(pSubMesh) != m_lSubMeshIndexReMap.end(), "submesh not found in submesindexremap");
+			std::map< unsigned int, unsigned int> &lIndexReMap
+			  = m_lSubMeshIndexReMap.find(pSubMesh)->second;
 			CMeshArray* pSubMeshData = ExtractSubMeshDataFromIndexMap_Vec4(pDiffuseArray,lIndexReMap);
 			unsigned int iVertCount = pSubMeshData->Size();
 
@@ -870,6 +880,8 @@ void COgreMeshCompiler::CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMes
 
 	if(bCleanUp)
 		delete pDiffuseArray;
+
+	OgreAssert(_CrtCheckMemory(), "Memory corruption");
 
 	END_PROFILE("COgreMeshCompiler::CreateDiffuseBuffer()");
 }
@@ -942,8 +954,9 @@ void COgreMeshCompiler::CreateTexCoordBuffer( CIntermediateMesh* pIntermediateMe
 				Ogre::VertexDeclaration* vertexDecl = vertexData->vertexDeclaration;
 
 				//submesh index lookup
-				std::map< unsigned int, unsigned int> lIndexReMap;
-				lIndexReMap = m_lSubMeshIndexReMap.find(pSubMesh)->second;
+			  OgreAssert(m_lSubMeshIndexReMap.find(pSubMesh) != m_lSubMeshIndexReMap.end(), "submesh not found in submesindexremap");
+				std::map< unsigned int, unsigned int> &lIndexReMap
+				  = m_lSubMeshIndexReMap.find(pSubMesh)->second;
 				CMeshArray* pSubMeshData = ExtractSubMeshDataFromIndexMap_Vec2(pUVArray,lIndexReMap);
 				unsigned int iUVCount = pSubMeshData->Size();
 
@@ -1248,8 +1261,9 @@ unsigned int COgreMeshCompiler::CreatePose( int** poseIndex, CIntermediateMesh* 
 			}
 
 			// pose reference
-			std::map< unsigned int, unsigned int> lIndexReMap;
-			lIndexReMap = m_lSubMeshIndexReMap.find(pSubMesh)->second;
+			OgreAssert(m_lSubMeshIndexReMap.find(pSubMesh) != m_lSubMeshIndexReMap.end(), "submesh not found in submesindexremap");
+			std::map< unsigned int, unsigned int> &lIndexReMap
+			    = m_lSubMeshIndexReMap.find(pSubMesh)->second;
 			CMeshArray* pSubMeshData = ExtractSubMeshDataFromIndexMap_Vec3(pVerts,lIndexReMap);
 
 			// binding reference (frame 0)
@@ -1286,6 +1300,8 @@ unsigned int COgreMeshCompiler::CreatePose( int** poseIndex, CIntermediateMesh* 
 	}
 	delete pOrigVerts;
 	delete pVerts;
+
+	OgreAssert(_CrtCheckMemory(), "Memory corruption");
 
 	END_PROFILE("COgreMeshCompiler::CreatePose()");
 
