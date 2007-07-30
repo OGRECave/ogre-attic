@@ -67,9 +67,13 @@ class ArmatureAction:
 		try:
 			while not(hasEffect):
 				channelName = channelIterator.next()
-				if ((channelName in self.armatureExporter.boneIndices.keys())
-					and channelIpoDict[channelName].getNcurves()):
-					hasEffect = 1
+				if (channelName in self.armatureExporter.boneIndices.keys()):
+					bIpo = channelIpoDict[channelName]
+					if bIpo is not None:
+						# channel has Ipo
+						if (len(bIpo) > 0):
+							# Ipo with at least one curve
+							hasEffect = 1
 		except StopIteration:
 			pass
 		return hasEffect
