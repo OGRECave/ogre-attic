@@ -78,6 +78,13 @@ namespace Ogre{
 	{
 	}
 
+	String MaterialScriptCompilerListener::getTexture(const Ogre::String &name)
+	{
+		// Return the name un-transformed
+		// We trust that the texture will exist in the manager by the time it is needed
+		return name;
+	}
+
 	// MaterialScriptCompiler2
 	MaterialScriptCompiler2::MaterialScriptCompiler2()
 		:mListener(0)
@@ -463,6 +470,8 @@ namespace Ogre{
 					compilePointSizeMin(j, (*i)->children.end(), pass);
 				else if((*j)->token == "point_size_max")
 					compilePointSizeMax(j, (*i)->children.end(), pass);
+				else if((*j)->token == "texture_unit")
+					compileTextureUnit(j, (*i)->children.end(), pass);
 				else
 				{
 					addError(CE_UNKNOWNTOKEN, (*i)->file, (*i)->line, (*i)->column);
@@ -1217,6 +1226,210 @@ namespace Ogre{
 		
 		pass->setPointMaxSize(StringConverter::parseReal((*i)->token));
 		++i;
+	}
+
+	void MaterialScriptCompiler2::compileTextureUnit(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass)
+	{
+		REQUIRE(1, CE_OPENBRACEEXPECTED)
+		++i;
+
+		TextureUnitState *texUnit = pass->createTextureUnitState();
+
+		if((*i)->type != SNT_LBRACE)
+		{
+			texUnit->setName((*i)->token);
+			
+			REQUIRE(1, CE_OPENBRACEEXPECTED)
+			++i;
+		}
+
+		if((*i)->type != SNT_LBRACE)
+		{
+			addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
+		{
+			if((*j)->token == "texture_alias")
+			{
+				compileTextureAlias(j, (*i)->children.end(), texUnit); 
+			}
+			else if((*j)->token == "texture")
+			{
+				compileTexture(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "anim_texture")
+			{
+				compileAnimTexture(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "cubic_texture")
+			{
+				compileCubicTexture(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "tex_coord_set")
+			{
+				compileTexCoordSet(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "tex_address_mode")
+			{
+				compileTexAddressMode(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "tex_border_colour")
+			{
+				compileTexBorderColour(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "filtering")
+			{
+				compileFiltering(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "max_anisotropy")
+			{
+				compileMaxAnisotropy(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "mipmap_bias")
+			{
+				compileMipmapBias(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "colour_op")
+			{
+				compileColourOp(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "colour_op_ex")
+			{
+				compileColourOpEx(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "colour_op_multipass_fallback")
+			{
+				compileColourOpMultipassFallback(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "alpha_op_ex")
+			{
+				compileAlphaOpEx(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "env_map")
+			{
+				compileEnvMap(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "scroll")
+			{
+				compileScroll(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "scroll_anim")
+			{
+				compileScrollAnim(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "rotate")
+			{
+				compileRotate(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "rotate_anim")
+			{
+				compileRotateAnim(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "scale")
+			{
+				compileScale(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "wave_xform")
+			{
+				compileWaveXForm(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "transform")
+			{
+				compileTransform(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "binding_type")
+			{
+				compileBindingType(j, (*i)->children.end(), texUnit);
+			}
+			else if((*j)->token == "content_type")
+			{
+				compileContentType(j, (*i)->children.end(), texUnit);
+			}
+			else
+			{
+				addError(CE_UNKNOWNTOKEN, (*j)->file, (*j)->line, (*j)->column);
+				++j;
+			}
+		}
+
+		++i; // Consume the '{'
+		++i; // Consume the '}'
+	}
+
+	void MaterialScriptCompiler2::compileTextureAlias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileAnimTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileCubicTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileTexCoordSet(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileTexAddressMode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileTexBorderColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileFiltering(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileMaxAnisotropy(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileMipmapBias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileColourOp(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileColourOpEx(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileColourOpMultipassFallback(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileAlphaOpEx(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileEnvMap(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileScroll(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileScrollAnim(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileRotate(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileRotateAnim(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileScale(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileWaveXForm(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileTransform(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileBindingType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
+	}
+	void MaterialScriptCompiler2::compileContentType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
+	{
 	}
 
 	bool MaterialScriptCompiler2::parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::ColourValue &c)
