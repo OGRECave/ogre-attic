@@ -1361,75 +1361,805 @@ namespace Ogre{
 
 	void MaterialScriptCompiler2::compileTextureAlias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_STRINGEXPECTED)
+		++i;
+		unitState->setTextureNameAlias((*i)->token);
+		++i;
 	}
 	void MaterialScriptCompiler2::compileTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_STRINGEXPECTED)
+		++i;
+
+		// Read the name
+		String name = (*i)->token;
+		++i;
+		
+		// Read the type
+		Ogre::TextureType type = Ogre::TEX_TYPE_2D;
+		if(i != end)
+		{
+			bool increment = true;
+			if((*i)->token == "1d" || (*i)->token == "1D")
+				type = Ogre::TEX_TYPE_1D;
+			else if((*i)->token == "2d" || (*i)->token == "2D")
+				type = Ogre::TEX_TYPE_2D;
+			else if((*i)->token == "3d" || (*i)->token == "3D")
+				type = Ogre::TEX_TYPE_3D;
+			else if(Ogre::StringUtil::match((*i)->token, "cubic", false))
+				type = Ogre::TEX_TYPE_CUBE_MAP;
+			else
+				increment = false;
+
+			if(increment)
+				++i;
+		}
+
+		// Set the texture option
+		unitState->setTextureName(name, type);
+
+		// Check for mipmapping options
+		if(i != end && ((*i)->type == SNT_NUMBER || StringUtil::match((*i)->token, "unlimited", false)))
+		{
+			int n = (*i)->type == SNT_NUMBER ? StringConverter::parseInt((*i)->token) : -1;
+			unitState->setNumMipmaps(n);
+			++i;
+		}
+		else
+		{
+			// Bail out to short-circuit further processing
+			return;
+		}
+
+		// Check for the 'alpha' option
+		if(i != end && StringUtil::match((*i)->token, "alpha", false))
+		{
+			unitState->setIsAlpha(true);
+			++i;
+		}
+
+		// Check now for the pixel format
+		if(i != end)
+		{
+			Ogre::PixelFormat pf = Ogre::PixelUtil::getFormatFromName((*i)->token, true);
+			if(pf != PF_UNKNOWN)
+			{
+				unitState->setDesiredFormat(pf);
+				++i;
+			}
+		}
 	}
 	void MaterialScriptCompiler2::compileAnimTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(3, CE_STRINGEXPECTED)
+		++i;
+
+		// Read in the first name
+		String name = (*i)->token;
+		++i;
+
+		// If the next is a string as well then it is assumed to be the long form
+		if((*i)->type == SNT_NUMBER)
+		{
+			int numFrames = StringConverter::parseInt((*i)->token);
+			++i;
+			Real duration = StringConverter::parseReal((*i)->token);
+			++i;
+			unitState->setAnimatedTextureName(name, numFrames, duration);
+		}
+		else
+		{
+			std::vector<String> names;
+			names.push_back(name);
+
+			while(i != end && (*i)->type != SNT_NUMBER)
+			{
+				names.push_back((*i)->token);
+				++i;
+			}
+			if(i == end)
+				return;
+			
+			String *strs = new String[names.size()];
+			for(size_t j = 0; j < names.size(); ++j)
+				strs[j] = names[j];
+			unitState->setAnimatedTextureName(strs, names.size(), StringConverter::parseReal((*i)->token));
+			delete[] strs;
+		}
 	}
 	void MaterialScriptCompiler2::compileCubicTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(2, CE_STRINGEXPECTED)
+		++i;
+
+		String name = (*i)->token;
+		++i;
+		if(StringUtil::match((*i)->token, "combinedUVW", false) ||
+			StringUtil::match((*i)->token, "separateUV", false))
+		{
+			unitState->setCubicTextureName(name, StringUtil::match((*i)->token, "combinedUVW", false));
+			++i;
+		}
+		else
+		{
+			String names[6];
+			names[0] = name;
+			names[1] = (*i)->token;
+
+			REQUIRE(5, CE_STRINGEXPECTED)
+			++i;
+			names[2] = (*i)->token;
+			++i;
+			names[3] = (*i)->token;
+			++i;
+			names[4] = (*i)->token;
+			++i;
+			names[5] = (*i)->token;
+			++i;
+			unitState->setCubicTextureName(names);
+			++i;
+		}
 	}
 	void MaterialScriptCompiler2::compileTexCoordSet(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_NUMBEREXPECTED)
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		unitState->setTextureCoordSet(StringConverter::parseUnsignedInt((*i)->token));
 	}
 	void MaterialScriptCompiler2::compileTexAddressMode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_STRINGEXPECTED)
+		++i;
+
+		Ogre::TextureUnitState::TextureAddressingMode uMode, vMode, wMode;
+		if(StringUtil::match((*i)->token, "wrap", false))
+		{
+			uMode = TextureUnitState::TAM_WRAP;
+			++i;
+		}
+		else if(StringUtil::match((*i)->token, "clamp", false))
+		{
+			uMode = TextureUnitState::TAM_CLAMP;
+			++i;
+		}
+		else if(StringUtil::match((*i)->token, "mirror", false))
+		{
+			uMode = TextureUnitState::TAM_MIRROR;
+			++i;
+		}
+		else if(StringUtil::match((*i)->token, "border", false))
+		{
+			uMode = TextureUnitState::TAM_BORDER;
+			++i;
+		}
+		else
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		if(i == end)
+		{
+			unitState->setTextureAddressingMode(uMode);
+			return;
+		}
+		else
+		{
+			// Read the V addressing mode
+			if(StringUtil::match((*i)->token, "wrap", false))
+			{
+				vMode = TextureUnitState::TAM_WRAP;
+				++i;
+			}
+			else if(StringUtil::match((*i)->token, "clamp", false))
+			{
+				vMode = TextureUnitState::TAM_CLAMP;
+				++i;
+			}
+			else if(StringUtil::match((*i)->token, "mirror", false))
+			{
+				vMode = TextureUnitState::TAM_MIRROR;
+				++i;
+			}
+			else if(StringUtil::match((*i)->token, "border", false))
+			{
+				vMode = TextureUnitState::TAM_BORDER;
+				++i;
+			}
+			else
+			{
+				unitState->setTextureAddressingMode(uMode);
+				return;
+			}
+
+			// Bail out again
+			if(i == end)
+			{
+				unitState->setTextureAddressingMode(uMode, vMode, TextureUnitState::TAM_WRAP);
+				return;
+			}
+
+			// Read w addressing mode
+			if(StringUtil::match((*i)->token, "wrap", false))
+			{
+				wMode = TextureUnitState::TAM_WRAP;
+				unitState->setTextureAddressingMode(uMode, vMode, wMode);
+				++i;
+			}
+			else if(StringUtil::match((*i)->token, "clamp", false))
+			{
+				wMode = TextureUnitState::TAM_CLAMP;
+				unitState->setTextureAddressingMode(uMode, vMode, wMode);
+				++i;
+			}
+			else if(StringUtil::match((*i)->token, "mirror", false))
+			{
+				wMode = TextureUnitState::TAM_MIRROR;
+				unitState->setTextureAddressingMode(uMode, vMode, wMode);
+				++i;
+			}
+			else if(StringUtil::match((*i)->token, "border", false))
+			{
+				wMode = TextureUnitState::TAM_BORDER;
+				unitState->setTextureAddressingMode(uMode, vMode, wMode);
+				++i;
+			}
+			else
+			{
+				unitState->setTextureAddressingMode(uMode, vMode, TextureUnitState::TAM_WRAP);
+			}
+		}
 	}
 	void MaterialScriptCompiler2::compileTexBorderColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		++i;
+
+		ColourValue clr;
+		if(parseColour(i, end, clr))
+			unitState->setTextureBorderColour(clr);
+		else
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
 	}
 	void MaterialScriptCompiler2::compileFiltering(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_STRINGEXPECTED)
+		++i;
+
+		// Use a look-ahead to find if there are filter options indicating it's the extended form
+		// Otherwise, assume it is the simple form
+		bool extended = false;
+		ScriptNodeList::iterator j = i;
+		++j;
+		if(j != end && (StringUtil::match((*j)->token, "none", false) || StringUtil::match((*j)->token, "point", false) ||
+			StringUtil::match((*j)->token, "linear", false) || StringUtil::match((*j)->token, "anisotropic", false)))
+			extended = true;
+
+		if(extended)
+		{
+			FilterOptions min, mag, mip;
+
+			if((*i)->token == "point")
+				min = FO_POINT;
+			else if((*i)->token == "linear")
+				min = FO_LINEAR;
+			else if((*i)->token == "anisotropic")
+				min = FO_ANISOTROPIC;
+			else
+			{
+				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+				return;
+			}
+
+			++i;
+			if((*i)->token == "point")
+				mag = FO_POINT;
+			else if((*i)->token == "linear")
+				mag = FO_LINEAR;
+			else if((*i)->token == "anisotropic")
+				mag = FO_ANISOTROPIC;
+			else
+			{
+				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+				return;
+			}
+
+			++i;
+			if((*i)->token == "point")
+				mip = FO_POINT;
+			else if((*i)->token == "linear")
+				mip = FO_LINEAR;
+			else if((*i)->token == "anisotropic")
+				mip = FO_ANISOTROPIC;
+			else if((*i)->token == "none")
+				mip = FO_NONE;
+			else
+			{
+				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+				return;
+			}
+
+			unitState->setTextureFiltering(min, mag, mip);
+			++i;
+		}
+		else
+		{
+			Ogre::TextureFilterOptions tfo;
+			if((*i)->token == "none")
+				tfo = Ogre::TFO_NONE;
+			else if((*i)->token == "bilinear")
+				tfo = TFO_BILINEAR;
+			else if((*i)->token == "trilinear")
+				tfo = TFO_TRILINEAR;
+			else if((*i)->token == "anisotropic")
+				tfo = TFO_ANISOTROPIC;
+			else
+			{
+				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+				return;
+			}
+
+			unitState->setTextureFiltering(tfo);
+			++i;
+		}
 	}
 	void MaterialScriptCompiler2::compileMaxAnisotropy(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_NUMBEREXPECTED)
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		unitState->setTextureAnisotropy(StringConverter::parseUnsignedInt((*i)->token));
+		++i;
 	}
 	void MaterialScriptCompiler2::compileMipmapBias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_NUMBEREXPECTED)
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		unitState->setTextureMipmapBias(StringConverter::parseReal((*i)->token));
+		++i;
 	}
 	void MaterialScriptCompiler2::compileColourOp(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_STRINGEXPECTED)
+		++i;
+
+		if(StringUtil::match((*i)->token, "replace", false))
+		{
+			unitState->setColourOperation(Ogre::LBO_REPLACE);
+			++i;
+		}
+		else if(StringUtil::match((*i)->token, "add", false))
+		{
+			unitState->setColourOperation(LBO_ADD);
+			++i;
+		}
+		else if(StringUtil::match((*i)->token, "modulate", false))
+		{
+			unitState->setColourOperation(LBO_MODULATE);
+			++i;
+		}
+		else if(StringUtil::match((*i)->token, "alpha_blend", false))
+		{
+			unitState->setColourOperation(Ogre::LBO_ALPHA_BLEND);
+			++i;
+		}
+		else
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
 	}
 	void MaterialScriptCompiler2::compileColourOpEx(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(3, CE_STRINGEXPECTED)
+		++i;
+
+		LayerBlendOperationEx op;
+        LayerBlendSource src1, src2;
+        Real manual = 0.0;
+        ColourValue colSrc1 = ColourValue::White;
+        ColourValue colSrc2 = ColourValue::White;
+
+		// Parse the blend operation
+		if(!parseBlendOp((*i)->token, op))
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
+
+		// Parse the blend source 1
+		if(!parseBlendSource((*i)->token, src1))
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
+
+		// Parse the blend source 2
+		if(!parseBlendSource((*i)->token, src2))
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
+
+		if(i == end)
+		{
+			unitState->setColourOperationEx(op, src1, src2, colSrc1, colSrc2, manual);
+			return;
+		}
+
+		// Get the manual blend amount
+		if(op == Ogre::LBX_BLEND_MANUAL)
+		{
+			if((*i)->type == SNT_NUMBER)
+			{
+				manual = StringConverter::parseReal((*i)->token);
+				++i;
+			}
+			else
+			{
+				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			}
+		}
+
+		// Get the colors for manual modes
+		if(src1 == Ogre::LBS_MANUAL)
+		{
+			if(!parseColour(i, end, colSrc1))
+				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+		}
+		if(src2 == Ogre::LBS_MANUAL)
+		{
+			if(!parseColour(i, end, colSrc2))
+				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+		}
+
+		unitState->setColourOperationEx(op, src1, src2, colSrc1, colSrc2, manual);
 	}
 	void MaterialScriptCompiler2::compileColourOpMultipassFallback(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(2, CE_STRINGEXPECTED)
+		++i;
+
+		Ogre::SceneBlendFactor src, dst;
+		if(!parseBlendFactor((*i)->token, src))
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
+		if(!parseBlendFactor((*i)->token, dst))
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
+
+		unitState->setColourOpMultipassFallback(src, dst);
 	}
 	void MaterialScriptCompiler2::compileAlphaOpEx(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(3, CE_STRINGEXPECTED)
+		++i;
+
+		LayerBlendOperationEx op;
+        LayerBlendSource src1, src2;
+        Real manual = 0.0, alphaSrc1 = 0.0, alphaSrc2 = 0.0;
+
+		// Parse the blend operation
+		if(!parseBlendOp((*i)->token, op))
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
+
+		// Parse the blend source 1
+		if(!parseBlendSource((*i)->token, src1))
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
+
+		// Parse the blend source 2
+		if(!parseBlendSource((*i)->token, src2))
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
+
+		if(i == end)
+		{
+			unitState->setAlphaOperation(op, src1, src2, alphaSrc1, alphaSrc2, manual);
+			return;
+		}
+
+		// Get the manual blend amount
+		if(op == Ogre::LBX_BLEND_MANUAL)
+		{
+			if((*i)->type == SNT_NUMBER)
+			{
+				manual = StringConverter::parseReal((*i)->token);
+				++i;
+			}
+			else
+			{
+				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			}
+		}
+
+		// Get the colors for manual modes
+		if(src1 == Ogre::LBS_MANUAL)
+		{
+			if((*i)->type != SNT_NUMBER)
+				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			else
+			{
+				alphaSrc1 = StringConverter::parseReal((*i)->token);
+				++i;
+			}
+		}
+		if(src2 == Ogre::LBS_MANUAL)
+		{
+			if((*i)->type != SNT_NUMBER)
+				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			else
+			{
+				alphaSrc2 = StringConverter::parseReal((*i)->token);
+				++i;
+			}
+		}
+
+		unitState->setAlphaOperation(op, src1, src2, alphaSrc1, alphaSrc2, manual);
 	}
 	void MaterialScriptCompiler2::compileEnvMap(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_STRINGEXPECTED)
+		++i;
+
+		if(StringUtil::match((*i)->token, "off", false))
+		{
+			unitState->setEnvironmentMap(false);
+			++i;
+		}
+		else if(StringUtil::match((*i)->token, "spherical", false))
+		{
+			unitState->setEnvironmentMap(true, TextureUnitState::ENV_CURVED);
+			++i;
+		}
+		else if(StringUtil::match((*i)->token, "planar", false))
+		{
+			unitState->setEnvironmentMap(true, TextureUnitState::ENV_PLANAR);
+			++i;
+		}
+		else if(StringUtil::match((*i)->token, "cubic_reflection", false))
+		{
+			unitState->setEnvironmentMap(true, TextureUnitState::ENV_REFLECTION);
+			++i;
+		}
+		else if(StringUtil::match((*i)->token, "cubic_normal", false))
+		{
+			unitState->setEnvironmentMap(true, TextureUnitState::ENV_NORMAL);
+			++i;
+		}
+		else
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+		}
 	}
 	void MaterialScriptCompiler2::compileScroll(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(2, CE_NUMBEREXPECTED)
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		Real uScroll = StringConverter::parseReal((*i)->token);
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		Real vScroll = StringConverter::parseReal((*i)->token);
+		++i;
+
+		unitState->setTextureScroll(uScroll, vScroll);
 	}
 	void MaterialScriptCompiler2::compileScrollAnim(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(2, CE_NUMBEREXPECTED)
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		Real uScroll = StringConverter::parseReal((*i)->token);
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		Real vScroll = StringConverter::parseReal((*i)->token);
+		++i;
+
+		unitState->setScrollAnimation(uScroll, vScroll);
 	}
 	void MaterialScriptCompiler2::compileRotate(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_NUMBEREXPECTED)
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		unitState->setTextureRotate(Degree(StringConverter::parseReal((*i)->token)));
+		++i;
 	}
 	void MaterialScriptCompiler2::compileRotateAnim(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_NUMBEREXPECTED)
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		unitState->setRotateAnimation(StringConverter::parseReal((*i)->token));
+		++i;
 	}
 	void MaterialScriptCompiler2::compileScale(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(2, CE_NUMBEREXPECTED)
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		Real xScale = StringConverter::parseReal((*i)->token);
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		Real yScale = StringConverter::parseReal((*i)->token);
+		++i;
+
+		unitState->setTextureScale(xScale, yScale);
 	}
 	void MaterialScriptCompiler2::compileWaveXForm(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(6, CE_STRINGEXPECTED)
+		++i;
+
+		TextureUnitState::TextureTransformType tt;
+		Ogre::WaveformType wt;
+		Real base = 0.0, freq = 0.0, phase = 0.0, amp = 0.0;
+
+		if(!parseXFormType((*i)->token, tt))
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
+
+		if(!parseWaveType((*i)->token, wt))
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		base = StringConverter::parseReal((*i)->token);
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		freq = StringConverter::parseReal((*i)->token);
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		phase = StringConverter::parseReal((*i)->token);
+		++i;
+
+		if((*i)->type != SNT_NUMBER)
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		amp = StringConverter::parseReal((*i)->token);
+		++i;
+
+		unitState->setTransformAnimation(tt, wt, base, freq, phase, amp);
 	}
 	void MaterialScriptCompiler2::compileTransform(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(16, CE_NUMBEREXPECTED)
+		++i;
 	}
 	void MaterialScriptCompiler2::compileBindingType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_STRINGEXPECTED)
+		++i;
+
+		TextureUnitState::BindingType type;
+		if(StringUtil::match((*i)->token, "vertex", false))
+			type = TextureUnitState::BT_VERTEX;
+		else if(StringUtil::match((*i)->token, "fragment", false))
+			type = TextureUnitState::BT_FRAGMENT;
+		else
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		unitState->setBindingType(type);
+		++i;
 	}
 	void MaterialScriptCompiler2::compileContentType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
+		REQUIRE(1, CE_STRINGEXPECTED)
+		++i;
+
+		TextureUnitState::ContentType type;
+		if(StringUtil::match((*i)->token, "named", false))
+			type = TextureUnitState::CONTENT_NAMED;
+		else if(StringUtil::match((*i)->token, "shadow", false))
+			type = TextureUnitState::CONTENT_SHADOW;
+		else
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		unitState->setContentType(type);
+		++i;
 	}
 
 	bool MaterialScriptCompiler2::parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::ColourValue &c)
@@ -1509,6 +2239,95 @@ namespace Ogre{
 		return retval;
 	}
 
+	bool MaterialScriptCompiler2::parseBlendOp(const Ogre::String &str, Ogre::LayerBlendOperationEx &op)
+	{
+		bool retval = true;
+		if(str == "source1")
+			op = Ogre::LBX_SOURCE1;
+		else if(str == "source2")
+			op = LBX_SOURCE2;
+		else if(str == "modulate")
+			op = LBX_MODULATE;
+		else if(str == "modulate_x2")
+			op = Ogre::LBX_MODULATE_X2;
+		else if(str == "modulate_x4")
+			op = LBX_MODULATE_X4;
+		else if(str == "add")
+			op = LBX_ADD;
+		else if(str == "add_signed")
+			op = Ogre::LBX_ADD_SIGNED;
+		else if(str == "add_smooth")
+			op = LBX_ADD_SMOOTH;
+		else if(str == "subtract")
+			op = LBX_SUBTRACT;
+		else if(str == "blend_diffuse_alpha")
+			op = Ogre::LBX_BLEND_DIFFUSE_ALPHA;
+		else if(str == "blend_texture_alpha")
+			op = LBX_BLEND_TEXTURE_ALPHA;
+		else if(str == "blend_current_alpha")
+			op = LBX_BLEND_CURRENT_ALPHA;
+		else if(str == "blend_manual")
+			op = LBX_BLEND_MANUAL;
+		else if(str == "dotproduct")
+			op = LBX_DOTPRODUCT;
+		else if(str == "blend_diffuse_colour")
+			op = LBX_BLEND_DIFFUSE_COLOUR;
+		else
+			retval = false;
+		return retval;
+	}
+
+	bool MaterialScriptCompiler2::parseBlendSource(const Ogre::String &str, Ogre::LayerBlendSource &source)
+	{
+		bool retval = true;
+		if(str == "src_current")
+			source = Ogre::LBS_CURRENT;
+		else if(str == "src_texture")
+			source = LBS_TEXTURE;
+		else if(str == "src_diffuse")
+			source = LBS_DIFFUSE;
+		else if(str == "src_specular")
+			source = LBS_SPECULAR;
+		else if(str == "src_manual")
+			source = LBS_MANUAL;
+		return retval;
+	}
+
+	bool MaterialScriptCompiler2::parseXFormType(const String &str, TextureUnitState::TextureTransformType &type)
+	{
+		bool retval = true;
+		if(str == "scroll_x")
+			type = TextureUnitState::TT_TRANSLATE_U;
+		else if(str == "scroll_y")
+			type = TextureUnitState::TT_TRANSLATE_V;
+		else if(str == "rotate")
+			type = TextureUnitState::TT_ROTATE;
+		else if(str == "scale_x")
+			type = TextureUnitState::TT_SCALE_U;
+		else if(str == "scale_y")
+			type = TextureUnitState::TT_SCALE_V;
+		else
+			retval = false;
+		return retval;
+	}
+
+	bool MaterialScriptCompiler2::parseWaveType(const Ogre::String &str, Ogre::WaveformType &wave)
+	{
+		bool retval = true;
+		if(str == "sine")
+			wave = Ogre::WFT_SINE;
+		else if(str == "triangle")
+			wave = WFT_TRIANGLE;
+		else if(str == "square")
+			wave = WFT_SQUARE;
+		else if(str == "sawtooth")
+			wave = WFT_SAWTOOTH;
+		else if(str == "inverse_sawtooth")
+			wave = WFT_INVERSE_SAWTOOTH;
+		else
+			retval = false;
+		return retval;
+	}
 }
 
 #undef REQUIRE
