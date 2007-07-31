@@ -47,6 +47,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreVector3.h"
 
 #include "CodeEditor.h"
+#include "EditorManager.h"
 #include "LogPanel.h"
 #include "MaterialController.h"
 #include "MaterialPropertyGridPage.h"
@@ -173,7 +174,7 @@ void MaterialEditorFrame::createAuiManager()
 
 	createAuiNotebookPane();
 	createManagementPane();
-	createLogPane();
+	createInformationPane();
 	createPropertiesPane();
 
 	// TEMP
@@ -199,6 +200,9 @@ void MaterialEditorFrame::createAuiManager()
 void MaterialEditorFrame::createAuiNotebookPane()
 {
 	mAuiNotebook = new wxAuiNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_NB_DEFAULT_STYLE | wxNO_BORDER);
+
+	// Create EditorManager singleton
+	new EditorManager(mAuiNotebook);
 
 	wxAuiPaneInfo info;
 
@@ -230,18 +234,20 @@ void MaterialEditorFrame::createManagementPane()
 	mAuiManager->AddPane(mManagementNotebook, info);
 }
 
-void MaterialEditorFrame::createLogPane()
+void MaterialEditorFrame::createInformationPane()
 {
-	mLogPanel = new LogPanel(this);
-	mLogPanel->setLog("OGRE");
+	mInformationNotebook = new wxAuiNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | wxAUI_NB_SCROLL_BUTTONS | wxNO_BORDER);
+
+	mLogPanel = new LogPanel(mInformationNotebook);
+	mInformationNotebook->AddPage(mLogPanel, "Log");
 
 	wxAuiPaneInfo info;
-	info.Caption(_("Log"));
+	info.Caption(_("Information"));
 	info.MaximizeButton(true);
 	info.BestSize(256, 128);
 	info.Bottom();
 
-	mAuiManager->AddPane(mLogPanel, info);
+	mAuiManager->AddPane(mInformationNotebook, info);
 }
 
 void MaterialEditorFrame::createPropertiesPane()
