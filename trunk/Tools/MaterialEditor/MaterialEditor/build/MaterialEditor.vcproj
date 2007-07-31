@@ -291,6 +291,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\ScintillaEditor.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\SelectionEventArgs.cpp"
 				>
 			</File>
@@ -458,6 +462,10 @@
 			</File>
 			<File
 				RelativePath="..\include\RootEventPlugin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\ScintillaEditor.h"
 				>
 			</File>
 			<File
