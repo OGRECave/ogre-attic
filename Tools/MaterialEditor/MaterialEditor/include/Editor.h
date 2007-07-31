@@ -31,25 +31,54 @@ Torus Knot Software Ltd.
 
 #include "OgreString.h"
 
+#include "EventContainer.h"
+
+class wxControl;
+
 class EditorInput;
 
 using Ogre::String;
 
-class Editor
+class Editor : public EventContainer
 {
 public:
+	enum EditorEvent
+	{
+		DirtyStateChanged
+	};
+
 	Editor();
 	Editor(EditorInput* input);
 	virtual ~Editor();
 
+	wxControl* getControl() const;
+	void setControl(wxControl* control);
+
 	EditorInput* getEditorInput();
 	void setEditorInput(EditorInput* input);
 
-	void activate();
-	void deactivate();
+	virtual void activate();
+	virtual void deactivate();
+
+	virtual bool isDirty() const;
+	virtual void save();
+	virtual void saveAs();
+	virtual bool isSaveAsAllowed() const;
+
+	virtual bool isRedoable() const;
+	virtual void redo();
+	virtual bool isUndoable() const;
+	virtual void undo();
+
+	virtual void cut();
+	virtual void copy();
+	virtual void paste();
 
 private:
+	void registerEvents();
+
 	EditorInput* mEditorInput;
+	wxControl* mControl;
 };
 
 #endif // _EDITORINPUT_H_
