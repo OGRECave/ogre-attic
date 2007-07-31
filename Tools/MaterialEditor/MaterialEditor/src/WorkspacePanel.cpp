@@ -37,6 +37,7 @@ Torus Knot Software Ltd.
 #include <wx/sizer.h>
 
 #include "OgreMaterial.h"
+#include "OgreMaterialSerializer.h"
 #include "OgrePass.h"
 #include "OgreTechnique.h"
 
@@ -62,12 +63,18 @@ Torus Knot Software Ltd.
 #define TECHNIQUE_IMAGE 3
 #define PASS_IMAGE 4
 
+namespace
+{
+	class Ogre::MaterialSerializer;
+}
+
 const long ID_TREE_CTRL = wxNewId();
 const long ID_MENU_NEW = wxNewId();
 const long ID_MENU_NEW_PROJECT = wxNewId();
 const long ID_MENU_NEW_MATERIAL = wxNewId();
 const long ID_MENU_NEW_TECHNIQUE = wxNewId();
 const long ID_MENU_NEW_PASS = wxNewId();
+const long ID_MENU_EDIT = wxNewId();
 const long ID_MENU_PASS_ENABLED = wxNewId();
 const long ID_MENU_DELETE = wxNewId();
 
@@ -78,6 +85,7 @@ BEGIN_EVENT_TABLE(WorkspacePanel, wxPanel)
 	EVT_MENU(ID_MENU_NEW_MATERIAL, WorkspacePanel::OnNewMaterial)
 	EVT_MENU(ID_MENU_NEW_TECHNIQUE, WorkspacePanel::OnNewTechnique)
 	EVT_MENU(ID_MENU_NEW_PASS, WorkspacePanel::OnNewPass)
+	EVT_MENU(ID_MENU_EDIT, WorkspacePanel::OnEdit)
 END_EVENT_TABLE()
 
 WorkspacePanel::WorkspacePanel(wxWindow* parent,
@@ -158,7 +166,7 @@ void WorkspacePanel::showContextMenu(wxPoint point, wxTreeItemId id)
 	else if(isMaterial(id)) appendMaterialMenuItems(&contextMenu);
 	else if(isTechnique(id)) appendTechniqueMenuItems(&contextMenu);
 	//else appendPassMenuItems(&contextMenu);
-
+	contextMenu.Append(ID_MENU_EDIT, wxT("Edit"));
 	PopupMenu(&contextMenu, point);
 }
 
@@ -387,6 +395,18 @@ void WorkspacePanel::OnNewPass(wxCommandEvent& event)
 	wizard->Destroy();
 
 	delete wizard;
+}
+
+void WorkspacePanel::OnEdit(wxCommandEvent& event)
+{
+	wxTreeItemId selId = mTreeCtrl->GetSelection();
+	if(isMaterial(selId))
+	{
+		MaterialSerializer* ms = new MaterialSerializer();
+		ms->queueForExport(getMaterial(selId)->getMaterial(), true);
+		String script = ms->getQueuedAsString();
+		script = script + "!";
+	}
 }
 
 void WorkspacePanel::projectAdded(EventArgs& args)

@@ -69,6 +69,7 @@ public:
 	void OnNewMaterial(wxCommandEvent& event);
 	void OnNewTechnique(wxCommandEvent& event);
 	void OnNewPass(wxCommandEvent& event);
+	void OnEdit(wxCommandEvent& event);
 
 	// Workspace Event Handlers
 	void projectAdded(EventArgs& args);
