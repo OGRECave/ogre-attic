@@ -28,6 +28,8 @@ Torus Knot Software Ltd.
 */
 #include "EditorManager.h"
 
+#include <wx/aui/auibook.h>
+
 #include "Editor.h"
 
 template<> EditorManager* Ogre::Singleton<EditorManager>::ms_Singleton = 0;
@@ -42,10 +44,12 @@ EditorManager* EditorManager::getSingletonPtr(void)
 	return ms_Singleton;
 }
 
-EditorManager::EditorManager()
-: mActiveEditor(NULL)
+EditorManager::EditorManager(wxAuiNotebook* notebook)
+: mEditorNotebook(notebook), mActiveEditor(NULL)
 {
 	registerEvents();
+
+	//Connect(mEditorNotebook->GetId(), EVT_COMMAND_AUINOTEBOOK_PAGE_CHANGED, wxAuiNotebookEventHandler(EditorManager::OnPageChanged));
 }
 
 EditorManager::~EditorManager()
@@ -55,14 +59,15 @@ EditorManager::~EditorManager()
 
 void EditorManager::openEditor(Editor* editor)
 {
+	
 }
 
 void EditorManager::closeEditor(Editor* editor)
 {
-
 }
 
-Editor*  EditorManager::getActiveEditor()
+
+Editor* EditorManager::getActiveEditor()
 {
 	return mActiveEditor;
 }
@@ -79,4 +84,7 @@ void EditorManager::setActiveEditor(Editor* editor)
 void EditorManager::registerEvents()
 {
 
+}
+void EditorManager::OnPageChanged(wxAuiNotebookEvent& event)
+{
 }

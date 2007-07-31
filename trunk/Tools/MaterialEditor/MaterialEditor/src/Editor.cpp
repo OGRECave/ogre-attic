@@ -28,21 +28,41 @@ Torus Knot Software Ltd.
 */
 #include "Editor.h"
 
+#include <wx/control.h>
+
 #include "EditorInput.h"
 
 Editor::Editor()
 : mEditorInput(NULL)
 {
+	registerEvents();
 }
 
 Editor::Editor(EditorInput* input)
 : mEditorInput(input)
 {
+	registerEvents();
 }
 
 Editor::~Editor()
 {
 }
+
+wxControl* Editor::getControl() const
+{
+	return mControl;
+}
+
+void Editor::setControl(wxControl* control)
+{
+	mControl = control;
+}
+
+void Editor::registerEvents()
+{
+	registerEvent(DirtyStateChanged);
+}
+
 
 EditorInput* Editor::getEditorInput()
 {
@@ -61,5 +81,59 @@ void Editor::activate()
 
 void Editor::deactivate()
 {
-	// DO nothing
+	// Do nothing
+}
+
+bool Editor::isDirty() const
+{
+	return false;
+}
+
+void Editor::save()
+{
+	// Do nothing
+}
+
+void Editor::saveAs()
+{
+	// Do nothing
+}
+
+bool Editor::isSaveAsAllowed() const
+{
+	return false;
+}
+
+bool Editor::isRedoable() const
+{
+	return false;
+}
+
+void Editor::redo()
+{
+}
+
+bool Editor::isUndoable() const
+{
+	return false;
+}
+
+void Editor::undo()
+{
+
+}
+
+void Editor::cut()
+{
+	// Do nothing
+}
+
+void Editor::copy()
+{
+	// Do nothing
+}
+
+void Editor::paste()
+{
+	// Do nothing
 }
