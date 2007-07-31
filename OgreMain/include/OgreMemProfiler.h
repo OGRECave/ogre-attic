@@ -72,7 +72,6 @@ namespace Ogre{
 
         inline ~MemProfiler()
         { 
-        	//remove from profile manager
         	MemProfileManager::getSingleton().removeProfile(this);
         }
 

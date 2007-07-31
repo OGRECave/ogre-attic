@@ -1751,11 +1751,13 @@ Ogre::MemoryManager::~MemoryManager()
 void Ogre::MemoryManager::init()
 {
 	mInited = true;
+	
     // init the profile manager
     MemProfileManager::getSingleton() << "Memory System Started: ";
     
     // setup bins
     memset(mBin,0,sizeof(MemFree*)*NUM_BINS);
+    m24ByteBin = NULL;
     
     // init memory system
 #ifdef WIN32
@@ -1887,20 +1889,20 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 	
 	// coalesce memory
 	//-----------------------------------------------------------------
-	// /*
+	 /*
 	MemBlock oldMemBlock = memBlock;
 	
 	MemFree* memFree;
 	register uint32 size;
 	while(memBlock.memory + memBlock.size != mVmemStop)
 	{	
-		std::cout << "block " << (void*)(memBlock.memory) << " : " << memBlock.size << std::endl;
+		//std::cout << "block " << (void*)(memBlock.memory) << " : " << memBlock.size << std::endl;
 		memFree = (MemFree*)(memBlock.memory + memBlock.size);
-		size = memFree->size;
+		size = memFree->size; // <---- ERROR
 		
 		std::cout << " ---------- SIZE -------> " << size << std::endl; 
 		
-		if(size == 0)
+		if(size == 0) // <----- ERROR
 			break;
 		//assert(size && "f00");
 		
@@ -1913,7 +1915,7 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 		{
 			memBlock.size += size;	
 			
-			/*
+			/ *
 			// stitch up the bin
 			if(memFree->next)
 				memFree->next->prev = memFree->prev; 
@@ -1942,13 +1944,14 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 					}
 				}
 			}
-			*/
+			* /
 		}
 	}
 	// * */
 	//-----------------------------------------------------------------
 	
-	distributeCore(oldMemBlock);
+	//distributeCore(oldMemBlock);
+	distributeCore(memBlock);
 	
 	// TODO, restore the wilderness
 
@@ -1971,12 +1974,13 @@ void Ogre::MemoryManager::distributeCore(MemBlock& block)
 	while(idx>=0 && block.size)
 	{
 		// There is one problem with allowing this algorithm to 
-		// naturally terminate. In some cases an 8byte block is
+		// naturally terminate. In some cases an 8 byte block is
 		// created and needs to be stored, unfortunatly we need
-		// at least 12bytes to hold the header of an un-allocated
+		// at least 12 bytes to hold the header of an un-allocated
 		// memory block. So I terminate the algorithm early and 
 		// allow an out of sequence 24 byte bin to hold the block
 		// that would otherwise form one 16 and one 8 byte block 
+		// /*
 		if(block.size == 24)
 		{
 			memFree = (MemFree*)block.memory;
@@ -1991,6 +1995,7 @@ void Ogre::MemoryManager::distributeCore(MemBlock& block)
 			block.size = 0;
 			break;	// induced termination
 		}
+		// * */
 		
 		// general case distribution		
 		if(shiftVal <= block.size)
@@ -2009,11 +2014,11 @@ void Ogre::MemoryManager::distributeCore(MemBlock& block)
 				block.size -= shiftVal;
 				block.memory += shiftVal;
 			}
-			else
-			{
-				std::cout << "forced " << block.size << " " << shiftVal << std::endl;
-				
-			}
+			//else
+			//{
+				// force 24byte handling
+			//	std::cout << "forced " << block.size << " " << shiftVal << std::endl;
+			//}
 		}
 		--idx;
 		shiftVal >>= 1;
@@ -2076,7 +2081,7 @@ int Ogre::MemoryManager::sizeOfStorage(const void* ptr) throw (std::bad_alloc)
 		(void*)head->magic;
 		throw std::bad_alloc();
 	}
-	return head->size;
+	return head->size^MASK;
 }
 
 _OgreExport void *operator new(std::size_t size)

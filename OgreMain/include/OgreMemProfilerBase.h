@@ -39,7 +39,6 @@ Torus Knot Software Ltd.
 #endif
 #include <cstring> // memset
 
-
 namespace Ogre{
 
     /// Base class for memory profiler policies
@@ -108,7 +107,7 @@ namespace Ogre{
         }
 
     protected:
-        MemStats mStats;
+        MemStats mStats; // stats package
         
         /// we use a mutex to maintain sync between allocations 
         /// updating our information and the manager reading it
