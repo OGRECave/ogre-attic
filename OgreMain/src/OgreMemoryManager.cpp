@@ -1831,7 +1831,7 @@ void* Ogre::MemoryManager::allocMem(size_t size) throw(std::bad_alloc)
 		if(memBlock.size - size ==8)
 			size+=8; // just use the entire thing, we cant make any savings
 		
-		std::cout << "SIZE " << size << std::endl;
+		//std::cout << "SIZE " << size << std::endl;
 		
 		// build the header block
 		ret = (MemCtrl*)memBlock.memory;
@@ -1887,7 +1887,9 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 	
 	// coalesce memory
 	//-----------------------------------------------------------------
-	/*
+	// /*
+	MemBlock oldMemBlock = memBlock;
+	
 	MemFree* memFree;
 	register uint32 size;
 	while(memBlock.memory + memBlock.size != mVmemStop)
@@ -1896,7 +1898,11 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 		memFree = (MemFree*)(memBlock.memory + memBlock.size);
 		size = memFree->size;
 		
-		assert(size && "f00");
+		std::cout << " ---------- SIZE -------> " << size << std::endl; 
+		
+		if(size == 0)
+			break;
+		//assert(size && "f00");
 		
 		if(size & MASK) // the block is full, terminate run
 		{
@@ -1907,6 +1913,7 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 		{
 			memBlock.size += size;	
 			
+			/*
 			// stitch up the bin
 			if(memFree->next)
 				memFree->next->prev = memFree->prev; 
@@ -1915,7 +1922,7 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 				memFree->prev->next = memFree->next;
 				
 			else 
-			{
+			{ 
 				// we have depleated a bin so we need to mark it empty
 				if(m24ByteBin == memFree)
 				{
@@ -1935,12 +1942,13 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 					}
 				}
 			}
+			*/
 		}
 	}
 	// * */
 	//-----------------------------------------------------------------
 	
-	distributeCore(memBlock);
+	distributeCore(oldMemBlock);
 	
 	// TODO, restore the wilderness
 
@@ -1987,24 +1995,25 @@ void Ogre::MemoryManager::distributeCore(MemBlock& block)
 		// general case distribution		
 		if(shiftVal <= block.size)
 		{	
-			if(block.size - shiftVal == 8)
-			{
-				--idx;
-				shiftVal >>= 1;
-			    continue; // special case to force 24byte handling
+			if(block.size - shiftVal != 8)
+			{			 
+				memFree = (MemFree*)block.memory;
+				memFree->size = shiftVal;
+				memFree->next = mBin[idx];			
+				memFree->prev = NULL;
+				
+				if(mBin[idx])
+					mBin[idx]->prev = memFree;
+				mBin[idx] = memFree;
+				
+				block.size -= shiftVal;
+				block.memory += shiftVal;
 			}
-			 
-			memFree = (MemFree*)block.memory;
-			memFree->size = shiftVal;
-			memFree->next = mBin[idx];			
-			memFree->prev = NULL;
-			
-			if(mBin[idx])
-				mBin[idx]->prev = memFree;
-			mBin[idx] = memFree;
-			
-			block.size -= shiftVal;
-			block.memory += shiftVal;
+			else
+			{
+				std::cout << block.size << " " << shiftVal << std::endl;
+				std::cout << "F00!!" << std::endl;
+			}
 		}
 		--idx;
 		shiftVal >>= 1;
