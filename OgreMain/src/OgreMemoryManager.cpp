@@ -2011,8 +2011,8 @@ void Ogre::MemoryManager::distributeCore(MemBlock& block)
 			}
 			else
 			{
-				std::cout << block.size << " " << shiftVal << std::endl;
-				std::cout << "F00!!" << std::endl;
+				std::cout << "forced " << block.size << " " << shiftVal << std::endl;
+				
 			}
 		}
 		--idx;
