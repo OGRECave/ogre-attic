@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 #define __MATERIALSCRIPTCOMPILER2_H_
 
 #include "OgreScriptCompiler.h"
+#include "OgreTextureUnitState.h"
 
 namespace Ogre{
 
@@ -147,6 +148,10 @@ namespace Ogre{
 		bool parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
 		bool parseBlendFactor(const String &str, SceneBlendFactor &factor);
 		bool parseCompareFunction(const String &str, CompareFunction &func);
+		bool parseBlendOp(const String &str, LayerBlendOperationEx &op);
+		bool parseBlendSource(const String &str, LayerBlendSource &source);
+		bool parseXFormType(const String &str, TextureUnitState::TextureTransformType &type);
+		bool parseWaveType(const String &str, WaveformType &wave);
 	private:
 		// The listener
 		MaterialScriptCompilerListener *mListener;
