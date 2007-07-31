@@ -61,7 +61,7 @@ protected:
 	void createAuiManager(void);
 	void createAuiNotebookPane(void);
 	void createManagementPane(void);
-	void createLogPane(void);
+	void createInformationPane(void);
 	void createPropertiesPane();
 	void createOgrePane(void);
 
@@ -95,6 +95,7 @@ private:
 
 	wxAuiNotebook* mAuiNotebook;
 	wxAuiNotebook* mManagementNotebook;
+	wxAuiNotebook* mInformationNotebook;
 	WorkspacePanel* mWorkspacePanel;
 	ResourcePanel* mResourcePanel;
 	PropertiesPanel* mPropertiesPanel;
