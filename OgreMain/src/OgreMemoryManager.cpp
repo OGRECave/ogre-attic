@@ -1825,11 +1825,16 @@ void* Ogre::MemoryManager::allocMem(size_t size) throw(std::bad_alloc)
 		{
 			memBlock.memory = (char*)mBin[idx];
 			memBlock.size = shiftVal;
-			mBin[idx] = mBin[idx]->next;
-		}		
+			mBin[idx] = mBin[idx]->next;			
+		}
+		
+		if(memBlock.size - size ==8)
+			size+=8; // just use the entire thing, we cant make any savings
+		
+		std::cout << "SIZE " << size << std::endl;
 		
 		// build the header block
-		ret=(MemCtrl*)memBlock.memory;
+		ret = (MemCtrl*)memBlock.memory;
 		ret->size   = size^MASK;
 		ret->bin_id = idx;
 		ret->magic  = MAGIC;
@@ -1847,7 +1852,7 @@ void* Ogre::MemoryManager::allocMem(size_t size) throw(std::bad_alloc)
 			memBlock.memory += size;
 			distributeCore(memBlock);
 		}
-		
+
 		// return the result trimmed of the header
 		return (void*)((char*)ret+sizeof(MemCtrl));
 	}	
@@ -1876,29 +1881,65 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 	// get the tail block magic value
 	if(((MemCtrl*)(memBlock.memory+(memBlock.size-sizeof(MemCtrl))))->magic != MAGIC)
 	{
-		MemProfileManager::getSingleton() <<
-		 "purgeMemory(), Memory corruption detected";
+		MemProfileManager::getSingleton() << "purgeMemory(), Memory corruption detected";
 		throw std::bad_alloc();
 	}
 	
 	// coalesce memory
+	//-----------------------------------------------------------------
 	/*
-	register uint32 tmp;
+	MemFree* memFree;
+	register uint32 size;
 	while(memBlock.memory + memBlock.size != mVmemStop)
-	{
-		tmp = (uint32)(*(memBlock.memory + memBlock.size))&MASK;
-		if(tmp) // the block is full, terminate run
+	{	
+		std::cout << "block " << (void*)(memBlock.memory) << " : " << memBlock.size << std::endl;
+		memFree = (MemFree*)(memBlock.memory + memBlock.size);
+		size = memFree->size;
+		
+		assert(size && "f00");
+		
+		if(size & MASK) // the block is full, terminate run
 		{
-			//std::cout << "FULL " << std::endl;
+			std::cout << "break at " << memBlock.size << "\n" << std::endl;
 			break;
 		}
 		else // the block is empty, coalesce it
 		{
-			//std::cout << "EMPTY " << std::endl;
+			memBlock.size += size;	
 			
+			// stitch up the bin
+			if(memFree->next)
+				memFree->next->prev = memFree->prev; 
+				
+			if(memFree->prev)
+				memFree->prev->next = memFree->next;
+				
+			else 
+			{
+				// we have depleated a bin so we need to mark it empty
+				if(m24ByteBin == memFree)
+				{
+					std::cout << "--- 24byte depleated" << std::endl;
+					m24ByteBin=NULL;
+				}
+				else
+				{
+					for(uint32 i=0;i<NUM_BINS;++i)
+					{
+						if(mBin[i]==memFree)
+						{
+							std::cout << "--- mBin " << i << " depleated" << std::endl;
+							mBin[i]=NULL;
+							break;
+						}
+					}
+				}
+			}
 		}
 	}
-	* */
+	// * */
+	//-----------------------------------------------------------------
+	
 	distributeCore(memBlock);
 	
 	// TODO, restore the wilderness
@@ -1910,32 +1951,67 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 
 void Ogre::MemoryManager::distributeCore(MemBlock& block)
 {	
+	// we should never have to deal with a block this small
+	assert(block.size > 8 && "Block size too small");
+	
 	MemFree* memFree;
 	uint32 shiftVal = (1 << NUM_BINS+2); 
 	int idx = NUM_BINS-1;
 	
+	// while we have memory to work for, distribute it
+	//std::cout << "-----------------------------------" << std::endl;
 	while(idx>=0 && block.size)
 	{
+		// There is one problem with allowing this algorithm to 
+		// naturally terminate. In some cases an 8byte block is
+		// created and needs to be stored, unfortunatly we need
+		// at least 12bytes to hold the header of an un-allocated
+		// memory block. So I terminate the algorithm early and 
+		// allow an out of sequence 24 byte bin to hold the block
+		// that would otherwise form one 16 and one 8 byte block 
+		if(block.size == 24)
+		{
+			memFree = (MemFree*)block.memory;
+			memFree->size = 24;
+			memFree->next = m24ByteBin;
+			memFree->prev = NULL;
+			
+			if(m24ByteBin)
+				m24ByteBin->prev = memFree;
+			m24ByteBin = memFree;			
+			
+			block.size = 0;
+			break;	// induced termination
+		}
+		
+		// general case distribution		
 		if(shiftVal <= block.size)
 		{	
-			
+			if(block.size - shiftVal == 8)
+			{
+				--idx;
+				shiftVal >>= 1;
+			    continue; // special case to force 24byte handling
+			}
+			 
 			memFree = (MemFree*)block.memory;
 			memFree->size = shiftVal;
-			memFree->next = mBin[idx];
+			memFree->next = mBin[idx];			
+			memFree->prev = NULL;
 			
-			//std::cout << idx << std::endl;		
 			if(mBin[idx])
-				//mBin[idx]->prev = memFree;
-				//mBin[idx]->prev = (MemFree*)0x10;
-				
+				mBin[idx]->prev = memFree;
 			mBin[idx] = memFree;
+			
 			block.size -= shiftVal;
 			block.memory += shiftVal;
 		}
 		--idx;
 		shiftVal >>= 1;
 	}
-	assert(!block.size); // there should never be any left over
+	//std::cout << "-----------------------------------" << std::endl;
+	// there should never be any left over
+	assert(!block.size && "Orphan memory chunck"); 
 }
 
 Ogre::MemoryManager::MemBlock Ogre::MemoryManager::moreCore(uint32 idx, uint32 size)
@@ -1978,7 +2054,7 @@ int Ogre::MemoryManager::sizeOfStorage(const void* ptr) throw (std::bad_alloc)
 	if(!ptr)
 	{
 		MemProfileManager::getSingleton() << 
-		"Bad pointer passed to sizeOfStorage(), (NULL) ";
+		"Bad pointer passed to sizeOfStorage() \"NULL\" ";
 		throw std::bad_alloc();
 	}
 	
@@ -1987,7 +2063,7 @@ int Ogre::MemoryManager::sizeOfStorage(const void* ptr) throw (std::bad_alloc)
 	{
 		
 		MemProfileManager::getSingleton() << 
-		"Bad pointer passed to sizeOfStorage(), or memory corruption" <<
+		"Bad pointer passed to sizeOfStorage() or memory corruption" <<
 		(void*)head->magic;
 		throw std::bad_alloc();
 	}

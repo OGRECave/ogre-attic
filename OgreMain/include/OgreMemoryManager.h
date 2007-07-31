@@ -521,6 +521,7 @@ namespace Ogre
 		// bin[n] holds chunks of size 2^(n+3) smallest is 8.
 		// Overhead is before and after data
         MemFree* mBin[NUM_BINS];
+        MemFree* m24ByteBin;
         
         void* mVmemStart;  // start of process virtual address space
         void* mVmemStop;   // end of process virtual address space
