@@ -30,21 +30,29 @@ Torus Knot Software Ltd.
 #define _EDITORMANAGER_H_
 
 #include <list>
+#include <map>
+
+#include <wx/event.h>
 
 #include "OgreSingleton.h"
 
 #include "EventContainer.h"
 
+class wxAuiNotebook;
+class wxAuiNotebookEvent;
+
 class Editor;
+class EditorInput;
 class EventArgs;
 class Project;
 class Workspace;
 
 typedef std::list<Editor*> EditorList;
+typedef std::map<Editor*, int> EditorIndexMap;
 
 using Ogre::String;
 
-class EditorManager : public Ogre::Singleton<EditorManager>, public EventContainer
+class EditorManager : public Ogre::Singleton<EditorManager>, public EventContainer, public wxEvtHandler
 {
 public:
 	enum EditorManagerEvent
@@ -54,14 +62,19 @@ public:
 		ActiveEditorChanged
 	};
 
-	EditorManager();
+	EditorManager(wxAuiNotebook* notebook);
 	virtual ~EditorManager();
 
 	void openEditor(Editor* editor);
+	//void openEditor(EditorInput* input);
 	void closeEditor(Editor* editor);
+	//void closeEditor(EditorInput* input);
+	//Editor* findEditor(const EditorInput* input);
 
 	Editor* getActiveEditor();
 	void setActiveEditor(Editor* editor);
+
+	void OnPageChanged(wxAuiNotebookEvent& event);
 
 	/** Override standard Singleton retrieval.
 	@remarks
@@ -101,7 +114,9 @@ protected:
 	void registerEvents();
 
 	EditorList mEditors;
+	EditorIndexMap mEditorIndexMap;
 	Editor* mActiveEditor;
+	wxAuiNotebook* mEditorNotebook;
 };
 
 #endif // _EDITORMANAGER_H_
