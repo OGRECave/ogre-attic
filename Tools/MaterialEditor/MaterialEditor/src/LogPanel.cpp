@@ -21,7 +21,7 @@ LogPanel::LogPanel(wxWindow* parent, wxWindowID id /* = wxID_ANY */, const wxPoi
 	
 	mTextControl = new wxTextCtrl(this, -1, _(""), wxDefaultPosition, wxSize(200,150), wxNO_BORDER | wxTE_MULTILINE);
 	mTextControl->SetEditable(false);
-	mBoxSizer->Add(mTextControl, 1, wxEXPAND | wxALL, 5);
+	mBoxSizer->Add(mTextControl, 1, wxEXPAND | wxALL, 0);
 
 	SetSizer(mBoxSizer);
 	Layout();
