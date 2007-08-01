@@ -283,7 +283,8 @@ void Portal::updateDerivedValues(void)
 				{
 					AxisAlignedBox aabb;
 					aabb.setExtents(mCorners[0], mCorners[1]);
-					aabb.transform(mNode->_getFullTransform());
+					aabb = mNode->_getWorldAABB();
+					//aabb.transform(mNode->_getFullTransform());
 					mDerivedCorners[0] = aabb.getMinimum();
 					mDerivedCorners[1] = aabb.getMaximum();
 					mDerivedDirection = mDirection;
