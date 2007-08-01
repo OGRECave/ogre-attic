@@ -93,7 +93,7 @@ namespace Ogre
 									PCZSceneNode * parentNode,
 									const String & filename);
 
-		/** Overridden from regular scene manager */
+		/** Set the "main" geometry of the zone */
 		virtual void setZoneGeometry(const String & zoneName,
 									 PCZSceneNode * parentNode,
 									 const String &filename);
