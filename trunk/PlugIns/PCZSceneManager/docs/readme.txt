@@ -49,10 +49,12 @@ a tunnel in a dungeon.  Zones can be of any size or shape, and can move.
 
 NOTE: In the PCZSM, sky rendering (domes, boxes, planes) is associated 
 with a specific zone.  For example, if the user has a building on a terrain,
-the sky should be associated with the terrain (i.e. the "outdoors") using
+the sky could be associated with the terrain (i.e. the "outdoors") using
 the function PCZSceneManager::setSkyZone(zone).  This tells the PCZSM to
 only draw the sky when the designated zone is visible.  (i.e. only draw
-the sky when the 'outdoor' zone is visible).
+the sky when the 'outdoor' zone is visible).  Usually, the Sky should be
+associated with the default zone (which is usually used as the "all
+encompassing exterior zone").
 
 CREATING PORTALS:
 
@@ -70,13 +72,38 @@ NOTE: Portals currently only connect different zones.  The user can't
 connect portals to the same zone yet (i.e. no teleporters).  This functionality
 could be added later.
 
-Portals require 4 corner points which are co-planar and form a polygon which
-is convex. They also (currently) require a "matching" portal for proper
-scene traversal.  In other words, portals always exist in pairs - one in 
-each zone connected and co-existing in the same location, but facing in 
-opposite directions.  Portal corners are specified in right-handed counter-
+NEW IN VERSION 1.2: Portals can take 3 different forms: quad portals, AAB portals, 
+and Sphere portals.  AAB and Sphere portals do not add any culling planes to the
+frustum, and just serve to serve as enclosures for zones which aren't naturally
+surrounded by geometry.  They function a little different than traditional quad
+portals in that they are volumetric, instead of planar (crossing is determined
+by going from "inside" to "outside" or vice versa).
+
+Quad Portals require 4 corner points which are co-planar and form a polygon which
+is convex. Quad Portal corners are specified in right-handed counter-
 clockwise winding order so that the norm of the portal would be facing 
 the viewer.  
+
+AAB Portals require 2 corner points (minimum & maximum corners) and form an axis-
+aligned box around the zone.  IMPORTANT: The AAB portals that are associated with
+a node require a node which has the correct size AAB (node->_getWorldAABB()).
+
+Sphere Portals require 2 corner points (center point, and point on the surface of 
+the sphere).  
+
+The "direction" norm of AAB and Sphere portals is specified as either 
+Vector3::UNIT_NEGATIVE_Z or Vector3::UNIT_Z.  The first corresponds to a portal
+with norm facing 'inward' and the latter corresponds to a portal with norm facing
+'outward'.  
+
+NOTE regarding Portal Norms: The Norm of a portal should always point away from the 
+zone the portal leads to.  Another way to think of this is a node will only cross
+a portal if it crosses the portal traveling opposite direction of the norm).
+
+Portals also (currently) require a "matching" portal for proper
+scene traversal.  In other words, portals always exist in pairs - one in 
+each zone connected and co-existing in the same location, but facing in 
+opposite directions.  
 
 While it is technically not required that a portal be associated with a 
 scene node, it is STRONGLY recommended.  Use Portal::setNode() to associate
@@ -85,10 +112,10 @@ node, it will move with the scene node (including rotations or translations).
 Because of this, it is also highly recommended (although not required) that
 the node a portal is associated with be located at the center of the portal.
 
-NOTE: Scaling of a portal is not yet supported.  Scaling a node will not scale 
-the portal (although it might change position...) Also, if you don't associate
-the portal with a scene node, you will NOT be able to move it short of redefining
-the cornerpoints manually (and who wants to do that?).   
+NOTE: Scaling of a portal is not yet *tested*.  Scaling a node should scale 
+the portal (but don't cry to me if it doesn't work right yet...) Also, if you 
+don't associate the portal with a scene node, you will NOT be able to move it 
+short of redefining the cornerpoints manually (and who wants to do that?).   
 
 Once all portals in the scene have been created, the user can either manually 
 assign their zone targets (i.e. the zone which they connect to) or they can
