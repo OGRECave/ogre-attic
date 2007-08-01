@@ -875,6 +875,14 @@ namespace Ogre
 							}
 						}
 					}
+					if (foundMatch == false)
+					{
+						// error, didn't find a matching portal!
+						OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+							"Could not find matching portal for portal " + portal->getName(), 
+							"PCZSceneManager::connectPortalsToTargetZonesByLocation");
+
+					}
 				}
 			}			
 		}
