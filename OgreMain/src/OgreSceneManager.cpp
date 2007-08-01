@@ -3063,13 +3063,16 @@ void SceneManager::_applySceneAnimations(void)
         while(nodeTrackIt.hasMoreElements())
         {
             Node* nd = nodeTrackIt.getNext()->getAssociatedNode();
-            nd->resetToInitialState();
+			if (nd)
+				nd->resetToInitialState();
         }
 
         Animation::NumericTrackIterator numTrackIt = anim->getNumericTrackIterator();
         while(numTrackIt.hasMoreElements())
         {
-            numTrackIt.getNext()->getAssociatedAnimable()->resetToBaseValue();
+            const AnimableValuePtr& anim = numTrackIt.getNext()->getAssociatedAnimable();
+			if (!anim.isNull())
+				anim->resetToBaseValue();
         }
 
         // Apply the animation
