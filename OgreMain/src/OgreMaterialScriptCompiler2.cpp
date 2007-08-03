@@ -32,6 +32,8 @@ Torus Knot Software Ltd.
 #include "OgreMaterialManager.h"
 #include "OgreTechnique.h"
 #include "OgrePass.h"
+#include "OgreGpuProgramManager.h"
+#include "OgreHighLevelGpuProgramManager.h"
 
 #define REQUIRE(num,err)	if(!nodeExists(i, end, num))\
 							{\
@@ -64,14 +66,14 @@ namespace Ogre{
 		return material;
 	}
 
-	GpuProgram *MaterialScriptCompilerListener::getGpuProgram(const String &name, const String &group, GpuProgramType type, const String &syntax)
+	GpuProgram *MaterialScriptCompilerListener::getGpuProgram(const String &name, const String &group, GpuProgramType type, const String &syntax, const String &source)
 	{
-		return 0;
+		return GpuProgramManager::getSingleton().createProgram(name, group, source, type, syntax).get();
 	}
 
 	HighLevelGpuProgram *MaterialScriptCompilerListener::getHighLevelGpuProgram(const String &name, const String &group, GpuProgramType type, const String &language)
 	{
-		return 0;
+		return HighLevelGpuProgramManager::getSingleton().createProgram(name, group, language, type).get();
 	}
 
 	void MaterialScriptCompilerListener::preApplyTextureAliases(Ogre::AliasTextureNamePairList &aliases)
@@ -116,6 +118,10 @@ namespace Ogre{
 				else if((*i)->token == "material")
 				{
 					compileMaterial(i, nodes->end());
+				}
+				else if((*i)->token == "vertex_program" || (*i)->token == "fragment_program")
+				{
+					compileGpuProgram(i, nodes->end());
 				}
 			}
 		}
@@ -2160,6 +2166,220 @@ namespace Ogre{
 
 		unitState->setContentType(type);
 		++i;
+	}
+
+	void MaterialScriptCompiler2::compileGpuProgram(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	{
+		REQUIRE(2, CE_STRINGEXPECTED)
+
+		// We want to collect information: program type, name, language
+		GpuProgramType type;
+		if((*i)->token == "vertex_program")
+			type = GPT_VERTEX_PROGRAM;
+		else if((*i)->token == "fragment_program")
+			type = GPT_FRAGMENT_PROGRAM;
+		else
+		{
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		String origin = (*i)->file;
+		++i;
+		String name = (*i)->token;
+		++i;
+		String lang = (*i)->token;
+		++i;
+
+		// The next token should be the '{'
+		REQUIRE(1, CE_OPENBRACEEXPECTED)
+		if((*i)->type != SNT_LBRACE)
+		{
+			addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		std::vector<std::pair<String, String> > customParams;
+		if(lang == "asm")
+		{
+			String syntax, source;
+			ScriptNodeList::iterator j = (*i)->children.begin();
+			while(j != (*i)->children.end())
+			{
+				if((*j)->token == "syntax")
+				{
+					ScriptNodeList::iterator k = j;
+					++k;
+					if(k == end)
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					syntax = (*k)->token;
+					j = k;
+					++j;
+				}
+				else if((*j)->token == "source")
+				{
+					ScriptNodeList::iterator k = j;
+					++k;
+					if(k == end)
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					source = (*k)->token;
+					j = k;
+					++j;
+				}
+				else if((*j)->token == "default_params")
+				{
+					compileProgramParameters(j, (*i)->children.end());
+				}
+				else
+				{
+					String name = (*j)->token, value;
+					ScriptNodeList::iterator k = j;
+					++k;
+					if(k == (*i)->children.end())
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					value = (*k)->token;
+					j = k;
+					++j;
+
+					customParams.push_back(std::make_pair(name, value));
+				}
+			}
+
+			if(syntax.empty() || syntax.empty())
+			{
+				addError(CE_OBJECTALLOCATIONERROR, (*i)->file, (*i)->line, (*i)->column);
+				return;
+			}
+
+			// Finally, create the program
+			if(mListener)
+				mProgram = mListener->getGpuProgram(name, mGroup, type, syntax, source);
+			else
+				mProgram = GpuProgramManager::getSingleton().createProgram(name, mGroup, source, type, syntax).get();
+		}
+		else
+		{
+			// Create the high-level program right away
+			HighLevelGpuProgram *prog = 0;
+			if(mListener)
+				prog = mListener->getHighLevelGpuProgram(name, mGroup, type, lang);
+			else
+				prog = HighLevelGpuProgramManager::getSingleton().createProgram(name, mGroup, lang, type).get();
+
+			if(!prog)
+			{
+				addError(CE_OBJECTALLOCATIONERROR, (*i)->file, (*i)->line, (*i)->column);
+				return;
+			}
+
+			// Create a parameters object to be used for the default params
+			mParams = prog->createParameters();
+
+			// Read the properties in
+			ScriptNodeList::iterator j = (*i)->children.begin();
+			while(j != (*i)->children.end())
+			{
+				if((*j)->token == "profiles")
+				{
+					// Treat profiles special, since they can contain multiple values
+					compileProgramProfiles(j, (*i)->children.end());
+				}
+				if((*j)->token == "source")
+				{
+					ScriptNodeList::iterator k = j;
+					++k;
+					if(k == end)
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					prog->setSourceFile((*k)->token);
+					j = k;
+					++j;
+				}
+				else if((*i)->token == "default_params")
+				{
+					compileProgramParameters(j, (*i)->children.end());
+				}
+				else
+				{
+					String name = (*j)->token, value;
+					ScriptNodeList::iterator k = j;
+					++k;
+					if(k == (*i)->children.end())
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					value = (*k)->token;
+					j = k;
+					++j;
+
+					customParams.push_back(std::make_pair(name, value));
+				}
+			}
+		}
+
+		if(mProgram)
+		{
+			mProgram->_notifyOrigin(origin);
+
+			if(!mParams.isNull())
+			{
+				mProgram->getDefaultParameters()->copyConstantsFrom(*mParams.get());
+			}
+		}
+
+		// Consume the '{' and the '}'
+		++i;
+		++i;
+
+		// Clear the program
+		mProgram = 0;
+		mParams.setNull();
+	}
+
+	void MaterialScriptCompiler2::compileProgramProfiles(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	{
+		REQUIRE(1, CE_STRINGEXPECTED)
+		++i;
+
+		// Read in as long as we can. Only keep those profiles which are supported.
+		// The first token after the 'profiles' token MUST be a profile
+		ScriptNodeList::iterator marker = i, j = i;
+		String profiles = (*i)->token;
+
+		++j;
+		while(j != end)
+		{
+			if(GpuProgramManager::getSingleton().isSyntaxSupported((*j)->token))
+			{
+				profiles = profiles + " " + (*j)->token;
+				marker = j; // Mark our maximum progress
+			}
+			++j;
+		}
+
+		// Set the profiles
+		mProgram->setParameter("profiles", profiles);
+
+		// Update the current iterator to one more than our marker
+		i = marker;
+		++i;
+	}
+
+	void MaterialScriptCompiler2::compileProgramParameters(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	{
+
 	}
 
 	bool MaterialScriptCompiler2::parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::ColourValue &c)

@@ -48,7 +48,7 @@ namespace Ogre{
 		/// Overriding this method allows for custom material allocation
 		virtual Material *getMaterial(const String &name, const String &group);
 		/// Overriding this method allows for custom asm GPU program allocation
-		virtual GpuProgram *getGpuProgram(const String &name, const String &group, GpuProgramType type, const String &syntax);
+		virtual GpuProgram *getGpuProgram(const String &name, const String &group, GpuProgramType type, const String &syntax, const String &source);
 		/// Overriding this method allows for custom high-level GPU program allocation
 		virtual HighLevelGpuProgram *getHighLevelGpuProgram(const String &name, const String &group, GpuProgramType type, const String &language);
 		/// This is called just before texture aliases found in a script are applied to a material
@@ -144,6 +144,10 @@ namespace Ogre{
 		void compileTransform(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
 		void compileBindingType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
 		void compileContentType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
+
+		void compileGpuProgram(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileProgramProfiles(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileProgramParameters(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
 		
 		bool parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
 		bool parseBlendFactor(const String &str, SceneBlendFactor &factor);
@@ -161,8 +165,8 @@ namespace Ogre{
 		Ogre::AliasTextureNamePairList mTextureAliases;
 		// This is the GpuProgram that is being set up
 		GpuProgram *mProgram;
-		// This is the GpuProgramParameters being built for the program
-		GpuProgramParametersSharedPtr mProgramParameters;
+		// These are the default parameters of the compiling program
+		GpuProgramParametersSharedPtr mParams;
 	};
 
 }
