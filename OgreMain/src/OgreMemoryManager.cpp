@@ -33,11 +33,15 @@ http://www.gnu.org/copyleft/lesser.txt
 #include <iostream>
 #include <cassert>
 
+// just a handy debugging macro
+#define DBG_PROBE(a) std::cout << #a << " : " << a << std::endl;
+
 // OS specific includes
 #ifdef WIN32
 # include <windows.h>
 #elif defined(__GNUC__)
 # include <unistd.h>    // sysconf(3)
+# include <errno.h>
 #endif
 
 // allocator 
@@ -112,7 +116,7 @@ void* Ogre::MemoryManager::allocMem(size_t size) throw(std::bad_alloc)
         }
         else // alloc from bin
         {
-            memBlock.memory = (char*)mBin[idx];
+		    memBlock.memory = (char*)mBin[idx];
             memBlock.size = shiftVal;
             mBin[idx] = mBin[idx]->next;
             if(mBin[idx])
@@ -143,7 +147,9 @@ void* Ogre::MemoryManager::allocMem(size_t size) throw(std::bad_alloc)
         }
 
         // return the result trimmed of the header
-        return (void*)((char*)ret+sizeof(MemCtrl));
+        register void* value = (void*)((char*)ret+sizeof(MemCtrl));
+        assert(value < mVmemStop);
+        return value;
     }
 
 #elif defined(WIN32)
@@ -154,6 +160,8 @@ void* Ogre::MemoryManager::allocMem(size_t size) throw(std::bad_alloc)
 void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 {
 #ifdef __GNUC__
+	assert(ptr < mVmemStop && "BAD POINTER");
+
 
     MemBlock memBlock;
     memBlock.memory = (char*)ptr-sizeof(MemCtrl);
@@ -180,8 +188,10 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
     register uint32 size;
     while(memBlock.memory + memBlock.size != mVmemStop)
     {   
+       assert(memBlock.memory + memBlock.size < mVmemStop && "Over running VAS"); 
        memFree = (MemFree*)(memBlock.memory + memBlock.size);
        size = memFree->size;
+       assert(size);
        
        if(size & MASK) // the block is full, terminate run
        {
@@ -365,7 +375,6 @@ Ogre::MemoryManager::MemBlock Ogre::MemoryManager::moreCore(uint32 idx, uint32 s
     }
     if ( i < NUM_BINS ) // split a bigger bins memory
     {
-        //std::cout << "found bin " << i << std::endl;
         assert(shiftVal == mBin[i]->size );
         
         ret.size = shiftVal;
@@ -376,19 +385,25 @@ Ogre::MemoryManager::MemBlock Ogre::MemoryManager::moreCore(uint32 idx, uint32 s
             mBin[i]->prev = NULL;
     }
     else // we need to grab more core
-    {
-        //std::cout << "---------------------->>>>> more core <<<<<----------------" << std::endl;
+    {   
         if(size<mPageSize)
             size = mPageSize;
 
+		//std::cout << "SBRK " << sbrk(0) << " size " << size;
+		
         ret.size = size;
         ret.memory=( char* )sbrk( size );
+        
+        //std::cout <<  " : " << sbrk(0) << std::endl;
+        
         if(ret.memory < 0 )
         {
             MemProfileManager::getSingleton() << "Out of memory (sbrk()<0)";
             throw std::bad_alloc();
         }        
-        mVmemStop=(void*)((char*)mVmemStop+size);
+        //mVmemStop=ret.memory+ret.size;
+        mVmemStop=((char*)mVmemStop)+size;
+        assert(errno!=ENOMEM);
     }
     return ret;
 }
@@ -418,14 +433,14 @@ int Ogre::MemoryManager::sizeOfStorage(const void* ptr) throw (std::bad_alloc)
 
 _OgreExport void *operator new(std::size_t size)
 {
-	assert(size && "0 alloc");
+	//assert(size && "0 alloc");
 	return Ogre::MemoryManager::getSingleton().allocMem(size);
 	//return static_cast<void*>(sAllocator.allocateBytes(size));
 }
 
 _OgreExport void *operator new[](std::size_t size)
 {
-	assert(size && "0 alloc");
+	//assert(size && "0 alloc");
 	return Ogre::MemoryManager::getSingleton().allocMem(size);
 	//return static_cast<void*>(sAllocator.allocateBytes(size));
 }
@@ -445,12 +460,16 @@ _OgreExport void operator delete[](void *ptr, std::size_t size)
 // /*
 _OgreExport void operator delete(void *ptr)
 {
+	if(ptr==NULL)
+		return;
 	//sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),0);
 	Ogre::MemoryManager::getSingleton().purgeMem(ptr);
 }
 
 _OgreExport void operator delete[](void *ptr)
 {
+	if(ptr==NULL)
+		return;
 	//sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),0);
 	Ogre::MemoryManager::getSingleton().purgeMem(ptr);
 }

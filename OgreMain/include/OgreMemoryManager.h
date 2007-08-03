@@ -82,7 +82,7 @@ namespace Ogre
         static const uint32 MASK  = 0x80000000;
     
         /// min alloc size
-        static const uint32 MIN_ALOC_SIZE = 8;
+        static const uint32 MIN_ALOC_SIZE = 16;
     
         /// size of overhead (at start of block)
         static const uint32 OVERHEAD = 16;
