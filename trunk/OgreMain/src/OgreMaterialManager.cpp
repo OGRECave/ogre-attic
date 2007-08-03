@@ -140,6 +140,12 @@ namespace Ogre {
         // Delegate to serializer
 #if OGRE_MATERIAL_SCRIPT_COMPILER
 #if OGRE_THREAD_SUPPORT
+#if OGRE_USE_NEW_COMPILERS
+		if(!mScriptCompiler2.get())
+		{
+			mScriptCompiler2.reset(new MaterialScriptCompiler2());
+		}
+#else
 		// check we have an instance for this thread (should always have one for main thread)
 		if (!mScriptCompiler.get())
 		{
@@ -148,7 +154,12 @@ namespace Ogre {
 			mScriptCompiler.reset(new MaterialScriptCompiler());
 		}
 #endif
+#endif
+#if OGRE_USE_NEW_COMPILERS
+		mScriptCompiler2->compile(stream, groupName);
+#else
         mScriptCompiler->parseScript(stream, groupName);
+#endif
 #else
 #if OGRE_THREAD_SUPPORT
 		// check we have an instance for this thread (should always have one for main thread)

@@ -127,8 +127,8 @@ WARNING: Use only when you want to provide your own image loading code via codec
 
 /** Enables the use of the new script compilers when Ogre compiles resource scripts.
 */
-#ifndef OGRE_USER_NEW_COMPILERS
-#define OGRE_USER_NEW_COMPILERS 0
+#ifndef OGRE_USE_NEW_COMPILERS
+#define OGRE_USE_NEW_COMPILERS 0
 #endif
 
 #endif
