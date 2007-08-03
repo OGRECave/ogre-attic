@@ -41,7 +41,9 @@ http://www.gnu.org/copyleft/lesser.txt
 # include <windows.h>
 #elif defined(__GNUC__)
 # include <unistd.h>    // sysconf(3)
+# include <sys/mman.h>      // mmap(2)
 # include <errno.h>
+# define USE_MMAP 1
 #endif
 
 // allocator 
@@ -378,7 +380,7 @@ Ogre::MemoryManager::MemBlock Ogre::MemoryManager::moreCore(uint32 idx, uint32 s
         assert(shiftVal == mBin[i]->size );
         
         ret.size = shiftVal;
-        ret.memory = (char*)mBin[i];
+        ret.memory = ( char* ) mBin[i];
         
         mBin[i] = mBin[i]->next;
         if(mBin[i])
@@ -392,7 +394,11 @@ Ogre::MemoryManager::MemBlock Ogre::MemoryManager::moreCore(uint32 idx, uint32 s
 		//std::cout << "SBRK " << sbrk(0) << " size " << size;
 		
         ret.size = size;
-        ret.memory=( char* )sbrk( size );
+#ifndef USE_MMAP
+        ret.memory= (char*) sbrk( size );
+#else
+        ret.memory = (char*) mmap(mVmemStop, size, PROT_READ|PROT_WRITE, MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+#endif
         
         //std::cout <<  " : " << sbrk(0) << std::endl;
         
@@ -402,7 +408,7 @@ Ogre::MemoryManager::MemBlock Ogre::MemoryManager::moreCore(uint32 idx, uint32 s
             throw std::bad_alloc();
         }        
         //mVmemStop=ret.memory+ret.size;
-        mVmemStop=((char*)mVmemStop)+size;
+        mVmemStop=( (char*) mVmemStop)+size;
         assert(errno!=ENOMEM);
     }
     return ret;
