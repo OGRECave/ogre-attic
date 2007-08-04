@@ -70,6 +70,10 @@ namespace Ogre {
 
 		// Create primary thread copies of script compiler / serializer
 		// other copies for other threads may also be instantiated
+#if OGRE_USE_NEW_COMPILERS
+		OGRE_THREAD_POINTER_SET(mScriptCompiler2, new MaterialScriptCompiler2());
+#endif
+
 #if OGRE_MATERIAL_SCRIPT_COMPILER
         OGRE_THREAD_POINTER_SET(mScriptCompiler, new MaterialScriptCompiler());
 #endif
@@ -137,15 +141,18 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
-        // Delegate to serializer
-#if OGRE_MATERIAL_SCRIPT_COMPILER
-#if OGRE_THREAD_SUPPORT
 #if OGRE_USE_NEW_COMPILERS
+#if OGRE_THREAD_SUPPORT
 		if(!mScriptCompiler2.get())
 		{
 			mScriptCompiler2.reset(new MaterialScriptCompiler2());
 		}
+#endif
+		mScriptCompiler2->compile(stream, groupName);
 #else
+        // Delegate to serializer
+#if OGRE_MATERIAL_SCRIPT_COMPILER
+#if OGRE_THREAD_SUPPORT
 		// check we have an instance for this thread (should always have one for main thread)
 		if (!mScriptCompiler.get())
 		{
@@ -154,12 +161,7 @@ namespace Ogre {
 			mScriptCompiler.reset(new MaterialScriptCompiler());
 		}
 #endif
-#endif
-#if OGRE_USE_NEW_COMPILERS
-		mScriptCompiler2->compile(stream, groupName);
-#else
         mScriptCompiler->parseScript(stream, groupName);
-#endif
 #else
 #if OGRE_THREAD_SUPPORT
 		// check we have an instance for this thread (should always have one for main thread)
@@ -171,6 +173,7 @@ namespace Ogre {
 		}
 #endif
         mSerializer->parseScript(stream, groupName);
+#endif
 #endif
     }
     //-----------------------------------------------------------------------

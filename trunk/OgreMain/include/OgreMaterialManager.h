@@ -36,6 +36,9 @@ Torus Knot Software Ltd.
 #include "OgreMaterial.h"
 #include "OgreStringVector.h"
 #include "OgreMaterialSerializer.h"
+#if OGRE_USE_NEW_COMPILERS
+#include "OgreMaterialScriptCompiler2.h"
+#endif
 
 #if OGRE_THREAD_SUPPORT
 // boost::thread_specific_ptr has 'new' in header but delete in lib
