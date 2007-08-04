@@ -44,12 +44,20 @@ void setUpSuite()
 void tearDownSuite()
 {
     // shutdown and release managers that might have been created
-    delete Ogre::HighLevelGpuProgramManager::getSingletonPtr();
-    delete Ogre::GpuProgramManager::getSingletonPtr();
-    delete Ogre::CompositorManager::getSingletonPtr();
-    delete Ogre::MaterialManager::getSingletonPtr();
-    delete Ogre::ResourceGroupManager::getSingletonPtr();
+	if(Ogre::HighLevelGpuProgramManager::getSingletonPtr())
+		delete Ogre::HighLevelGpuProgramManager::getSingletonPtr();
+	if(Ogre::GpuProgramManager::getSingletonPtr())
+		delete Ogre::GpuProgramManager::getSingletonPtr();
+	if(Ogre::CompositorManager::getSingletonPtr())
+		delete Ogre::CompositorManager::getSingletonPtr();
+	if(Ogre::MaterialManager::getSingletonPtr())
+		delete Ogre::MaterialManager::getSingletonPtr();
+	if(Ogre::ResourceGroupManager::getSingletonPtr())
+		delete Ogre::ResourceGroupManager::getSingletonPtr();
 
-    delete logMgr;
+	if(Ogre::LogManager::getSingletonPtr())
+		delete Ogre::LogManager::getSingletonPtr();
+
+    logMgr = 0;
 }
 

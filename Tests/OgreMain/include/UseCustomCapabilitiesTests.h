@@ -32,6 +32,13 @@ Torus Knot Software Ltd.
 #include "OgrePrerequisites.h"
 #include "OgreRoot.h"
 
+#include "OgreHighLevelGpuProgramManager.h"
+#include "OgreGpuProgramManager.h"
+#include "OgreCompositorManager.h"
+#include "OgreMaterialManager.h"
+#include "OgreResourceGroupManager.h"
+
+
 using namespace Ogre;
 
 
@@ -41,7 +48,7 @@ class UseCustomCapabilitiesTests : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( UseCustomCapabilitiesTests );
 
     CPPUNIT_TEST(testCustomCapabilitiesGL);
-    CPPUNIT_TEST(testCustomCapabilitiesDX9);
+    CPPUNIT_TEST(testCustomCapabilitiesD3D9);
 
     CPPUNIT_TEST_SUITE_END();
 public:
@@ -50,6 +57,6 @@ public:
 
     // Test the full stack of custom capabilities use (including config file and initializatio)
     void testCustomCapabilitiesGL();
-    void testCustomCapabilitiesDX9();
+    void testCustomCapabilitiesD3D9();
 
 };

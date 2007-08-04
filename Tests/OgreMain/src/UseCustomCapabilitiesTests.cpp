@@ -33,6 +33,9 @@ Torus Knot Software Ltd.
 #include "OgreRenderSystemCapabilitiesSerializer.h"
 #include "OgreRenderSystemCapabilitiesManager.h"
 #include "OgreStringConverter.h"
+#include "OgreLogManager.h"
+#include "OgreLog.h"
+
 
 
 // Regsiter the suite
@@ -41,11 +44,25 @@ CPPUNIT_TEST_SUITE_REGISTRATION( UseCustomCapabilitiesTests );
 void UseCustomCapabilitiesTests::setUp()
 {
     using namespace Ogre;
-
+	
+	if(Ogre::HighLevelGpuProgramManager::getSingletonPtr())
+		delete Ogre::HighLevelGpuProgramManager::getSingletonPtr();
+	if(Ogre::GpuProgramManager::getSingletonPtr())
+		delete Ogre::GpuProgramManager::getSingletonPtr();
+	if(Ogre::CompositorManager::getSingletonPtr())
+		delete Ogre::CompositorManager::getSingletonPtr();
+	if(Ogre::MaterialManager::getSingletonPtr())
+		delete Ogre::MaterialManager::getSingletonPtr();
+	if(Ogre::ResourceGroupManager::getSingletonPtr())
+		delete Ogre::ResourceGroupManager::getSingletonPtr();
 }
 
 void UseCustomCapabilitiesTests::tearDown()
 {
+	using namespace Ogre;
+	// set up silent logging to not polute output
+	if(LogManager::getSingletonPtr())
+		delete Ogre::LogManager::getSingletonPtr();
 
 }
 
@@ -123,29 +140,130 @@ void checkCaps(const Ogre::RenderSystemCapabilities* caps)
     CPPUNIT_ASSERT_EQUAL(caps->getMaxFragmentProgramVersion(), String("arbfp1"));
 }
 
+void setUpGLRenderSystemOptions(Ogre::RenderSystem* rs)
+{
+	using namespace Ogre;
+	ConfigOptionMap options = rs->getConfigOptions();
+	// set default options
+	// this should work on every semi-normal system
+	rs->setConfigOption(String("Colour Depth"), String("32"));
+	rs->setConfigOption(String("FSAA"), String("0"));
+	rs->setConfigOption(String("Full Screen"), String("No"));
+	rs->setConfigOption(String("VSync"), String("No"));
+	rs->setConfigOption(String("Video Mode"), String("800 x 600"));
+	
+	// use the best RTT
+	ConfigOption optionRTT = options["RTT Preferred Mode"];
+	
+	if(find(optionRTT.possibleValues.begin(), optionRTT.possibleValues.end(), "FBO") != optionRTT.possibleValues.end())
+	{
+		rs->setConfigOption(String("RTT Preferred Mode"), String("FBO"));
+	}
+	else if(find(optionRTT.possibleValues.begin(), optionRTT.possibleValues.end(), "PBuffer") != optionRTT.possibleValues.end())
+	{
+		rs->setConfigOption(String("RTT Preferred Mode"), String("PBuffer"));
+	}
+	else
+		rs->setConfigOption(String("RTT Preferred Mode"), String("Copy"));
+}
+
 void UseCustomCapabilitiesTests::testCustomCapabilitiesGL()
 {
     using namespace Ogre;
 
-    Root* root = new Root("../gl_plugins.cfg", "../gl_ogre.cfg");
-    root->restoreConfig();
-    root->initialise(true,"OGRE testCustomCapabilitiesGL Window",
-                                    "../Media/CustomCapabilities/customCapabilitiesTest.cfg");
+	// set up silent logging to not polute output
+	if(LogManager::getSingletonPtr())
+		delete Ogre::LogManager::getSingletonPtr();
+	
+	if(LogManager::getSingletonPtr() == 0)
+	{
+		LogManager* logManager = new LogManager();
+		logManager->createLog("testCustomCapabilitiesGL.log", true, false);
+	}
 
+    Root* root = new Root("plugins.cfg");
+	RenderSystem* rs = root->getRenderSystemByName("OpenGL Rendering Subsystem");
+	if(rs == 0)
+	{
+		CPPUNIT_ASSERT_ASSERTION_PASS_MESSAGE("This test is irrelevant because GL RenderSystem is not available", true);
+	}
+	else
+	{
+		try {
+			setUpGLRenderSystemOptions(rs);
+			root->setRenderSystem(rs);
+			root->initialise(true, "OGRE testCustomCapabilitiesGL Window",
+											"../../../Media/CustomCapabilities/customCapabilitiesTest.cfg");
 
-    RenderSystem* rs = root->getRenderSystem();
-    const RenderSystemCapabilities* caps = rs->getCapabilities();
+			const RenderSystemCapabilities* caps = rs->getCapabilities();
 
-    checkCaps(caps);
-
+			checkCaps(caps);
+		}
+		// clean up root, in case of error, and let cppunit to handle the exception
+		catch(...)
+		{
+			delete root;
+			throw;
+		}
+	}
     delete root;
-
-
 }
 
-void UseCustomCapabilitiesTests::testCustomCapabilitiesDX9()
+void setUpD3D9RenderSystemOptions(Ogre::RenderSystem* rs)
 {
-    CPPUNIT_ASSERT(false);
+	using namespace Ogre;
+	ConfigOptionMap options = rs->getConfigOptions();
+	// set default options
+	// this should work on every semi-normal system
+	rs->setConfigOption(String("Anti aliasing"), String("None"));
+	rs->setConfigOption(String("Full Screen"), String("No"));
+	rs->setConfigOption(String("VSync"), String("No"));
+	rs->setConfigOption(String("Video Mode"), String("800 x 600 @ 32-bit colour"));
+	
+	// pick first available device
+	ConfigOption optionDevice = options["Rendering Device"];
+
+	rs->setConfigOption(optionDevice.name, optionDevice.currentValue);
+}
+
+void UseCustomCapabilitiesTests::testCustomCapabilitiesD3D9()
+{
+	// set up silent logging to not polute output
+	if(LogManager::getSingletonPtr())
+		delete Ogre::LogManager::getSingletonPtr();
+	
+	if(LogManager::getSingletonPtr() == 0)
+	{
+		LogManager* logManager = new LogManager();
+		logManager->createLog("testCustomCapabilitiesD3D9.log", true, false);
+	}
+
+    Root* root = new Root("plugins.cfg");
+	RenderSystem* rs = root->getRenderSystemByName("Direct3D9 Rendering Subsystem");
+	if(rs == 0)
+	{
+		CPPUNIT_ASSERT_ASSERTION_PASS_MESSAGE("This test is irrelevant because D3D9 RenderSystem is not available", true);
+	}
+	else
+	{	
+		try {
+			setUpD3D9RenderSystemOptions(rs);
+			root->initialise(true, "OGRE testCustomCapabilitiesD3D9 Window",
+											"../../../Media/CustomCapabilities/customCapabilitiesTest.cfg");
+
+			const RenderSystemCapabilities* caps = rs->getCapabilities();
+
+			checkCaps(caps);
+		}
+		// clean up root, in case of error, and let cppunit to handle the exception
+		catch(...)
+		{
+			delete root;
+			throw;
+		}
+	}
+
+    delete root;
 }
 
 

@@ -52,7 +52,7 @@ void RenderSystemCapabilitiesTests::setUp()
 
     mRenderSystemCapabilitiesManager = new RenderSystemCapabilitiesManager();
     // actual parsing happens here. test methods confirm parse results only
-    mRenderSystemCapabilitiesManager->parseCapabilitiesFromArchive("../Media/CustomCapabilities", "FileSystem", true);
+    mRenderSystemCapabilitiesManager->parseCapabilitiesFromArchive("../../../Media/CustomCapabilities", "FileSystem", true);
 }
 
 void RenderSystemCapabilitiesTests::tearDown()
