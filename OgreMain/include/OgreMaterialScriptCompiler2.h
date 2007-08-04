@@ -145,9 +145,11 @@ namespace Ogre{
 		void compileBindingType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
 		void compileContentType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
 
-		void compileGpuProgram(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileProgramProfiles(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileProgramParameters(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileVertexProgram(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileFragmentProgram(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileDefaultParameters(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::GpuProgramParametersSharedPtr &params);
+		void compileManualConstant(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::GpuProgramParametersSharedPtr &params);
+		void compileAutoConstant(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::GpuProgramParametersSharedPtr &params);
 		
 		bool parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
 		bool parseBlendFactor(const String &str, SceneBlendFactor &factor);
@@ -156,6 +158,7 @@ namespace Ogre{
 		bool parseBlendSource(const String &str, LayerBlendSource &source);
 		bool parseXFormType(const String &str, TextureUnitState::TextureTransformType &type);
 		bool parseWaveType(const String &str, WaveformType &wave);
+		bool parseProfiles(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, String &profiles);
 	private:
 		// The listener
 		MaterialScriptCompilerListener *mListener;
@@ -167,6 +170,8 @@ namespace Ogre{
 		GpuProgram *mProgram;
 		// These are the default parameters of the compiling program
 		GpuProgramParametersSharedPtr mParams;
+		// These are the program syntax codes recognized
+		std::set<String> mSyntaxCodes;
 	};
 
 }

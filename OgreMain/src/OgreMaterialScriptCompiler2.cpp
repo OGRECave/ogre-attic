@@ -92,6 +92,28 @@ namespace Ogre{
 		:mListener(0)
 	{
 		mAllowNontypedObjects = false; // All material objects must be typed
+
+		mSyntaxCodes.insert("vs_1_1");
+		mSyntaxCodes.insert("vs_2_0");
+		mSyntaxCodes.insert("vs_2_x");
+		mSyntaxCodes.insert("vs_3_0");
+		mSyntaxCodes.insert("vs_1_1");
+		mSyntaxCodes.insert("arbvp1");
+		mSyntaxCodes.insert("vp20");
+		mSyntaxCodes.insert("vp30");
+		mSyntaxCodes.insert("vp40");
+		mSyntaxCodes.insert("ps_1_1");
+		mSyntaxCodes.insert("ps_1_2");
+		mSyntaxCodes.insert("ps_1_3");
+		mSyntaxCodes.insert("ps_1_4");
+		mSyntaxCodes.insert("ps_2_0");
+		mSyntaxCodes.insert("ps_2_x");
+		mSyntaxCodes.insert("ps_3_0");
+		mSyntaxCodes.insert("ps_3_x");
+		mSyntaxCodes.insert("arbfp1");
+		mSyntaxCodes.insert("fp20");
+		mSyntaxCodes.insert("fp30");
+		mSyntaxCodes.insert("fp40");
 	}
 
 	void MaterialScriptCompiler2::setListener(MaterialScriptCompilerListener *listener)
@@ -119,9 +141,17 @@ namespace Ogre{
 				{
 					compileMaterial(i, nodes->end());
 				}
-				else if((*i)->token == "vertex_program" || (*i)->token == "fragment_program")
+				else if((*i)->token == "vertex_program")
 				{
-					compileGpuProgram(i, nodes->end());
+					compileVertexProgram(i, nodes->end());
+				}
+				else if((*i)->token == "fragment_program")
+				{
+					compileFragmentProgram(i, nodes->end());
+				}
+				else
+				{
+
 				}
 			}
 		}
@@ -607,8 +637,8 @@ namespace Ogre{
 			}
 
 			pass->setSceneBlending(src, dst);
-			++i;
 		}
+		++i;
 	}
 
 	void MaterialScriptCompiler2::compileSeparateSceneBlend(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass)
@@ -1524,22 +1554,22 @@ namespace Ogre{
 		++i;
 
 		Ogre::TextureUnitState::TextureAddressingMode uMode, vMode, wMode;
-		if(StringUtil::match((*i)->token, "wrap", false))
+		if((*i)->token == "wrap")
 		{
 			uMode = TextureUnitState::TAM_WRAP;
 			++i;
 		}
-		else if(StringUtil::match((*i)->token, "clamp", false))
+		else if((*i)->token == "clamp")
 		{
 			uMode = TextureUnitState::TAM_CLAMP;
 			++i;
 		}
-		else if(StringUtil::match((*i)->token, "mirror", false))
+		else if((*i)->token == "mirror")
 		{
 			uMode = TextureUnitState::TAM_MIRROR;
 			++i;
 		}
-		else if(StringUtil::match((*i)->token, "border", false))
+		else if((*i)->token == "border")
 		{
 			uMode = TextureUnitState::TAM_BORDER;
 			++i;
@@ -1558,22 +1588,22 @@ namespace Ogre{
 		else
 		{
 			// Read the V addressing mode
-			if(StringUtil::match((*i)->token, "wrap", false))
+			if((*i)->token == "wrap")
 			{
 				vMode = TextureUnitState::TAM_WRAP;
 				++i;
 			}
-			else if(StringUtil::match((*i)->token, "clamp", false))
+			else if((*i)->token == "clamp")
 			{
 				vMode = TextureUnitState::TAM_CLAMP;
 				++i;
 			}
-			else if(StringUtil::match((*i)->token, "mirror", false))
+			else if((*i)->token == "mirror")
 			{
 				vMode = TextureUnitState::TAM_MIRROR;
 				++i;
 			}
-			else if(StringUtil::match((*i)->token, "border", false))
+			else if((*i)->token == "border")
 			{
 				vMode = TextureUnitState::TAM_BORDER;
 				++i;
@@ -1592,25 +1622,25 @@ namespace Ogre{
 			}
 
 			// Read w addressing mode
-			if(StringUtil::match((*i)->token, "wrap", false))
+			if((*i)->token == "wrap")
 			{
 				wMode = TextureUnitState::TAM_WRAP;
 				unitState->setTextureAddressingMode(uMode, vMode, wMode);
 				++i;
 			}
-			else if(StringUtil::match((*i)->token, "clamp", false))
+			else if((*i)->token == "clamp")
 			{
 				wMode = TextureUnitState::TAM_CLAMP;
 				unitState->setTextureAddressingMode(uMode, vMode, wMode);
 				++i;
 			}
-			else if(StringUtil::match((*i)->token, "mirror", false))
+			else if((*i)->token == "mirror")
 			{
 				wMode = TextureUnitState::TAM_MIRROR;
 				unitState->setTextureAddressingMode(uMode, vMode, wMode);
 				++i;
 			}
-			else if(StringUtil::match((*i)->token, "border", false))
+			else if((*i)->token == "border")
 			{
 				wMode = TextureUnitState::TAM_BORDER;
 				unitState->setTextureAddressingMode(uMode, vMode, wMode);
@@ -1642,8 +1672,8 @@ namespace Ogre{
 		bool extended = false;
 		ScriptNodeList::iterator j = i;
 		++j;
-		if(j != end && (StringUtil::match((*j)->token, "none", false) || StringUtil::match((*j)->token, "point", false) ||
-			StringUtil::match((*j)->token, "linear", false) || StringUtil::match((*j)->token, "anisotropic", false)))
+		if(j != end && ((*j)->token == "none" || (*j)->token == "point" ||
+			(*j)->token == "linear" || (*j)->token == "anisotropic"))
 			extended = true;
 
 		if(extended)
@@ -1747,22 +1777,22 @@ namespace Ogre{
 		REQUIRE(1, CE_STRINGEXPECTED)
 		++i;
 
-		if(StringUtil::match((*i)->token, "replace", false))
+		if((*i)->token == "replace")
 		{
 			unitState->setColourOperation(Ogre::LBO_REPLACE);
 			++i;
 		}
-		else if(StringUtil::match((*i)->token, "add", false))
+		else if((*i)->token == "add")
 		{
 			unitState->setColourOperation(LBO_ADD);
 			++i;
 		}
-		else if(StringUtil::match((*i)->token, "modulate", false))
+		else if((*i)->token == "modulate")
 		{
 			unitState->setColourOperation(LBO_MODULATE);
 			++i;
 		}
-		else if(StringUtil::match((*i)->token, "alpha_blend", false))
+		else if((*i)->token == "alpha_blend")
 		{
 			unitState->setColourOperation(Ogre::LBO_ALPHA_BLEND);
 			++i;
@@ -1770,6 +1800,7 @@ namespace Ogre{
 		else
 			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
 	}
+
 	void MaterialScriptCompiler2::compileColourOpEx(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState)
 	{
 		REQUIRE(3, CE_STRINGEXPECTED)
@@ -1942,27 +1973,27 @@ namespace Ogre{
 		REQUIRE(1, CE_STRINGEXPECTED)
 		++i;
 
-		if(StringUtil::match((*i)->token, "off", false))
+		if((*i)->token == "off")
 		{
 			unitState->setEnvironmentMap(false);
 			++i;
 		}
-		else if(StringUtil::match((*i)->token, "spherical", false))
+		else if((*i)->token == "spherical")
 		{
 			unitState->setEnvironmentMap(true, TextureUnitState::ENV_CURVED);
 			++i;
 		}
-		else if(StringUtil::match((*i)->token, "planar", false))
+		else if((*i)->token == "planar")
 		{
 			unitState->setEnvironmentMap(true, TextureUnitState::ENV_PLANAR);
 			++i;
 		}
-		else if(StringUtil::match((*i)->token, "cubic_reflection", false))
+		else if((*i)->token == "cubic_reflection")
 		{
 			unitState->setEnvironmentMap(true, TextureUnitState::ENV_REFLECTION);
 			++i;
 		}
-		else if(StringUtil::match((*i)->token, "cubic_normal", false))
+		else if((*i)->token == "cubic_normal")
 		{
 			unitState->setEnvironmentMap(true, TextureUnitState::ENV_NORMAL);
 			++i;
@@ -2135,9 +2166,9 @@ namespace Ogre{
 		++i;
 
 		TextureUnitState::BindingType type;
-		if(StringUtil::match((*i)->token, "vertex", false))
+		if((*i)->token == "vertex")
 			type = TextureUnitState::BT_VERTEX;
-		else if(StringUtil::match((*i)->token, "fragment", false))
+		else if((*i)->token == "fragment")
 			type = TextureUnitState::BT_FRAGMENT;
 		else
 		{
@@ -2154,9 +2185,9 @@ namespace Ogre{
 		++i;
 
 		TextureUnitState::ContentType type;
-		if(StringUtil::match((*i)->token, "named", false))
+		if((*i)->token == "named")
 			type = TextureUnitState::CONTENT_NAMED;
-		else if(StringUtil::match((*i)->token, "shadow", false))
+		else if((*i)->token == "shadow")
 			type = TextureUnitState::CONTENT_SHADOW;
 		else
 		{
@@ -2168,27 +2199,21 @@ namespace Ogre{
 		++i;
 	}
 
-	void MaterialScriptCompiler2::compileGpuProgram(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	void MaterialScriptCompiler2::compileVertexProgram(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
 	{
 		REQUIRE(2, CE_STRINGEXPECTED)
-
-		// We want to collect information: program type, name, language
-		GpuProgramType type;
-		if((*i)->token == "vertex_program")
-			type = GPT_VERTEX_PROGRAM;
-		else if((*i)->token == "fragment_program")
-			type = GPT_FRAGMENT_PROGRAM;
-		else
-		{
-			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
-			return;
-		}
-
-		String origin = (*i)->file;
 		++i;
-		String name = (*i)->token;
+
+		// Declare all of the variables
+		GpuProgramType type = Ogre::GPT_VERTEX_PROGRAM;
+		String origin = (*i)->file, name, lang, source, syntax, profiles;
+		ScriptNodeList::iterator iterDefaultParams = end;
+		std::vector<std::pair<String,String> > customParams;
+		bool includesSkeletalAnimation = false, includesMorphAnimation = false, usesVertexTextureFetch = false;
+		int includesPoseAnimation = 0;
+		name = (*i)->token;
 		++i;
-		String lang = (*i)->token;
+		lang = (*i)->token;
 		++i;
 
 		// The next token should be the '{'
@@ -2199,143 +2224,127 @@ namespace Ogre{
 			return;
 		}
 
-		std::vector<std::pair<String, String> > customParams;
-		if(lang == "asm")
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
 		{
-			String syntax, source;
-			ScriptNodeList::iterator j = (*i)->children.begin();
-			while(j != (*i)->children.end())
+			if((*j)->token == "syntax")
 			{
-				if((*j)->token == "syntax")
+				// Check that the next token exists
+				ScriptNodeList::iterator k = j;
+				++k;
+				if(k == (*i)->children.end())
 				{
-					ScriptNodeList::iterator k = j;
-					++k;
-					if(k == end)
-					{
-						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
-						break;
-					}
-					syntax = (*k)->token;
-					j = k;
-					++j;
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					break;
 				}
-				else if((*j)->token == "source")
+				syntax = (*k)->token;
+				j = k;
+				++j;
+			}
+			else if((*j)->token == "source")
+			{
+				// Check that the next token exists
+				ScriptNodeList::iterator k = j;
+				++k;
+				if(k == (*i)->children.end())
 				{
-					ScriptNodeList::iterator k = j;
-					++k;
-					if(k == end)
-					{
-						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
-						break;
-					}
-					source = (*k)->token;
-					j = k;
-					++j;
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					break;
 				}
-				else if((*j)->token == "default_params")
-				{
-					compileProgramParameters(j, (*i)->children.end());
-				}
-				else
-				{
-					String name = (*j)->token, value;
-					ScriptNodeList::iterator k = j;
-					++k;
-					if(k == (*i)->children.end())
-					{
-						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
-						break;
-					}
-					value = (*k)->token;
-					j = k;
+				source = (*k)->token;
+				j = k;
+				++j;
+			}
+			else if((*j)->token == "default_params")
+			{
+				iterDefaultParams = j;
+				++j; // Consume "default_params"
+				if(j != (*i)->children.end()) // Consume '{'
 					++j;
-
-					customParams.push_back(std::make_pair(name, value));
+				if(j != (*i)->children.end()) // Consume '}'
+					++j;
+			}
+			else if((*j)->token == "profiles")
+			{
+				++j;
+				if(!parseProfiles(j, (*i)->children.end(), profiles))
+				{
+					addError(CE_INVALIDPROPERTYVALUE, (*j)->file, (*j)->line, (*j)->column);
+					break;
 				}
 			}
-
-			if(syntax.empty() || syntax.empty())
+			else if((*j)->token == "includes_skeletal_animation")
 			{
-				addError(CE_OBJECTALLOCATIONERROR, (*i)->file, (*i)->line, (*i)->column);
-				return;
+				// Check that the next token exists
+				ScriptNodeList::iterator k = j;
+				++k;
+				if(k == (*i)->children.end())
+				{
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					break;
+				}
+				includesSkeletalAnimation = isTruthValue((*k)->token);
+				j = k;
+				++j;
 			}
-
-			// Finally, create the program
-			if(mListener)
-				mProgram = mListener->getGpuProgram(name, mGroup, type, syntax, source);
+			else if((*j)->token == "includes_morph_animation")
+			{
+				// Check that the next token exists
+				ScriptNodeList::iterator k = j;
+				++k;
+				if(k == (*i)->children.end())
+				{
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					break;
+				}
+				includesMorphAnimation = isTruthValue((*k)->token);
+				j = k;
+				++j;
+			}
+			else if((*j)->token == "includes_pose_animation")
+			{
+				// Check that the next token exists
+				ScriptNodeList::iterator k = j;
+				++k;
+				if(k == (*i)->children.end())
+				{
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					break;
+				}
+				includesPoseAnimation = StringConverter::parseInt((*k)->token);
+				j = k;
+				++j;
+			}
+			else if((*j)->token == "uses_vertex_texture_fetch")
+			{
+				// Check that the next token exists
+				ScriptNodeList::iterator k = j;
+				++k;
+				if(k == (*i)->children.end())
+				{
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					break;
+				}
+				usesVertexTextureFetch = isTruthValue((*k)->token);
+				j = k;
+				++j;
+			}
 			else
-				mProgram = GpuProgramManager::getSingleton().createProgram(name, mGroup, source, type, syntax).get();
-		}
-		else
-		{
-			// Create the high-level program right away
-			HighLevelGpuProgram *prog = 0;
-			if(mListener)
-				prog = mListener->getHighLevelGpuProgram(name, mGroup, type, lang);
-			else
-				prog = HighLevelGpuProgramManager::getSingleton().createProgram(name, mGroup, lang, type).get();
-
-			if(!prog)
 			{
-				addError(CE_OBJECTALLOCATIONERROR, (*i)->file, (*i)->line, (*i)->column);
-				return;
-			}
+				String name = (*j)->token, value;
 
-			// Create a parameters object to be used for the default params
-			mParams = prog->createParameters();
-
-			// Read the properties in
-			ScriptNodeList::iterator j = (*i)->children.begin();
-			while(j != (*i)->children.end())
-			{
-				if((*j)->token == "profiles")
+				// Check that the next token exists
+				ScriptNodeList::iterator k = j;
+				++k;
+				if(k == (*i)->children.end())
 				{
-					// Treat profiles special, since they can contain multiple values
-					compileProgramProfiles(j, (*i)->children.end());
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					break;
 				}
-				if((*j)->token == "source")
-				{
-					ScriptNodeList::iterator k = j;
-					++k;
-					if(k == end)
-					{
-						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
-						break;
-					}
-					prog->setSourceFile((*k)->token);
-					j = k;
-					++j;
-				}
-				else if((*i)->token == "default_params")
-				{
-					compileProgramParameters(j, (*i)->children.end());
-				}
-				else
-				{
-					String name = (*j)->token, value;
-					ScriptNodeList::iterator k = j;
-					++k;
-					if(k == (*i)->children.end())
-					{
-						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
-						break;
-					}
-					value = (*k)->token;
-					j = k;
-					++j;
-
-					customParams.push_back(std::make_pair(name, value));
-				}
-			}
-		}
-
-		if(mProgram)
-		{
-			mProgram->_notifyOrigin(origin);
-
-			if(!mParams.isNull())
-			{
-				mProgram->getDefaultParameters()->copyConstantsFrom(*mParams.get());
+				value = (*k)->token;
+				customParams.push_back(std::make_pair(name, value));
+				j = k;
+				++j;
 			}
 		}
 
@@ -2348,36 +2357,133 @@ namespace Ogre{
 		mParams.setNull();
 	}
 
-	void MaterialScriptCompiler2::compileProgramProfiles(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	void MaterialScriptCompiler2::compileFragmentProgram(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
 	{
-		REQUIRE(1, CE_STRINGEXPECTED)
+		REQUIRE(2, CE_STRINGEXPECTED)
 		++i;
 
-		// Read in as long as we can. Only keep those profiles which are supported.
-		// The first token after the 'profiles' token MUST be a profile
-		ScriptNodeList::iterator marker = i, j = i;
-		String profiles = (*i)->token;
+		// Declare all of the variables
+		GpuProgramType type = Ogre::GPT_FRAGMENT_PROGRAM;
+		String origin = (*i)->file, name, lang, source, syntax, profiles;
+		ScriptNodeList::iterator iterDefaultParams = end;
+		std::vector<std::pair<String,String> > customParams;
+		name = (*i)->token;
+		++i;
+		lang = (*i)->token;
+		++i;
 
-		++j;
-		while(j != end)
+		// The next token should be the '{'
+		REQUIRE(1, CE_OPENBRACEEXPECTED)
+		if((*i)->type != SNT_LBRACE)
 		{
-			if(GpuProgramManager::getSingleton().isSyntaxSupported((*j)->token))
-			{
-				profiles = profiles + " " + (*j)->token;
-				marker = j; // Mark our maximum progress
-			}
-			++j;
+			addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
 		}
 
-		// Set the profiles
-		mProgram->setParameter("profiles", profiles);
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
+		{
+			if((*j)->token == "syntax")
+			{
+				// Check that the next token exists
+				ScriptNodeList::iterator k = j;
+				++k;
+				if(k == (*i)->children.end())
+				{
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					break;
+				}
+				syntax = (*k)->token;
+				j = k;
+				++j;
+			}
+			else if((*j)->token == "source")
+			{
+				// Check that the next token exists
+				ScriptNodeList::iterator k = j;
+				++k;
+				if(k == (*i)->children.end())
+				{
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					break;
+				}
+				source = (*k)->token;
+				j = k;
+				++j;
+			}
+			else if((*j)->token == "default_params")
+			{
+				iterDefaultParams = j;
+				++j; // Consume "default_params"
+				if(j != (*i)->children.end()) // Consume '{'
+					++j;
+				if(j != (*i)->children.end()) // Consume '}'
+					++j;
+			}
+			else if((*j)->token == "profiles")
+			{
+				++j;
+				if(!parseProfiles(j, (*i)->children.end(), profiles))
+				{
+					addError(CE_INVALIDPROPERTYVALUE, (*j)->file, (*j)->line, (*j)->column);
+					break;
+				}
+			}
+			else
+			{
+				String name = (*j)->token, value;
 
-		// Update the current iterator to one more than our marker
-		i = marker;
+				// Check that the next token exists
+				ScriptNodeList::iterator k = j;
+				++k;
+				if(k == (*i)->children.end())
+				{
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					break;
+				}
+				value = (*k)->token;
+				customParams.push_back(std::make_pair(name, value));
+				j = k;
+				++j;
+			}
+		}
+
+		// Consume the '{' and the '}'
 		++i;
+		++i;
+
+		// Clear the program
+		mProgram = 0;
+		mParams.setNull();
 	}
 
-	void MaterialScriptCompiler2::compileProgramParameters(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	void MaterialScriptCompiler2::compileDefaultParameters(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::GpuProgramParametersSharedPtr &params)
+	{
+		REQUIRE(1, CE_OPENBRACEEXPECTED)
+		++i;
+
+		if((*i)->type != SNT_LBRACE)
+		{
+			addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
+		{
+			
+		}
+
+		++i; // Consume the '{'
+		++i; // Consume the '}'
+	}
+
+	void MaterialScriptCompiler2::compileManualConstant(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::GpuProgramParametersSharedPtr &params)
+	{
+
+	}
+
+	void MaterialScriptCompiler2::compileAutoConstant(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::GpuProgramParametersSharedPtr &params)
 	{
 
 	}
@@ -2422,7 +2528,7 @@ namespace Ogre{
 			factor = SBF_ONE_MINUS_DEST_COLOUR;
 		else if(str == "one_minus_src_colour")
 			factor = SBF_ONE_MINUS_SOURCE_COLOUR;
-		if(str == "dest_alpha")
+		else if(str == "dest_alpha")
 			factor = SBF_DEST_ALPHA;
 		else if(str == "src_alpha")
 			factor = SBF_SOURCE_ALPHA;
@@ -2547,6 +2653,20 @@ namespace Ogre{
 		else
 			retval = false;
 		return retval;
+	}
+
+	bool MaterialScriptCompiler2::parseProfiles(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, String &profiles)
+	{
+		while(i != end && mSyntaxCodes.find((*i)->token) != mSyntaxCodes.end())
+		{
+			if(profiles.empty())
+				profiles = (*i)->token;
+			else
+				profiles = profiles + " " + (*i)->token;
+			++i;
+		}
+
+		return !profiles.empty();
 	}
 }
 
