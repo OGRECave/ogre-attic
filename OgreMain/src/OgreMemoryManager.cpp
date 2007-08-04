@@ -41,7 +41,7 @@ http://www.gnu.org/copyleft/lesser.txt
 # include <windows.h>
 #elif defined(__GNUC__)
 # include <unistd.h>    // sysconf(3)
-# include <sys/mman.h>      // mmap(2)
+# include <sys/mman.h>  // mmap(2)
 # include <errno.h>
 # define USE_MMAP 1
 #endif
@@ -52,6 +52,89 @@ http://www.gnu.org/copyleft/lesser.txt
 
 // realise static instance member for the init class
 Ogre::MemoryManager Ogre::MemoryManager::smInstance;
+
+
+#ifdef WIN32
+// win32 POSIX(ish) memory emulation
+//--------------------------------------------------------------------
+
+// spin lock
+static int gSpinLock;
+
+long getpagesize (void) 
+{
+    static long gPageSize = 0;
+    if (! gPageSize)
+    {
+        SYSTEM_INFO system_info;
+        GetSystemInfo (&system_info);
+        gPageSize = system_info.dwPageSize;
+    }
+    return gPageSize;
+}
+
+long getregionsize (void) 
+{
+    static long gRegionSize = 0;
+    if (! gRegionSize) 
+    {
+        SYSTEM_INFO system_info;
+        GetSystemInfo (&system_info);
+        gRegionSize = system_info.dwAllocationGranularity;
+    }
+    return gRegionSize;
+}
+
+void *mmap (void *ptr, long size, long prot, long type, long handle, long arg) 
+{
+    static long gPageSize;
+    static long gRegionSize;
+    
+    // Wait for spin lock
+    while (InterlockedCompareExchange ((void **) &gSpinLock, (void *) 1, (void *) 0) != 0) 
+		Sleep (0);
+   
+    // First time initialisation
+    if (! gPageSize) 
+        gPageSize = getpagesize ();
+    if (! gRegionSize) 
+        gRegionSize = getregionsize ();
+        
+    // Allocate this
+    ptr = VirtualAlloc (ptr, size, MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN, PAGE_READWRITE);
+    if (! ptr) 
+        ptr = MMAP_FAILURE;
+        
+    // Release spin lock
+    InterlockedExchange (&gSpinLock, 0);
+    return ptr;
+}
+
+long munmap (void *ptr, long size) 
+{
+    static long gPageSize;
+    static long gRegionSize;
+    int rc = MUNMAP_FAILURE;
+    // Wait for spin lock
+    while (InterlockedCompareExchange ((void **) &gSpinLock, (void *) 1, (void *) 0) != 0) 
+		Sleep (0);
+    
+    // First time initialisation
+    if (! g_pagesize) 
+        g_pagesize = getpagesize ();
+    if (! g_regionsize) 
+        g_regionsize = getregionsize ();
+        
+    // Free this
+    if ( VirtualFree (ptr, 0, MEM_RELEASE))
+    	rc = 0;
+
+    // Release spin lock
+    InterlockedExchange (&gSpinLock, 0);
+    return rc;
+}
+//--------------------------------------------------------------------
+#endif
 
 Ogre::MemoryManager::MemoryManager()
 {
@@ -65,9 +148,9 @@ Ogre::MemoryManager::~MemoryManager()
 void Ogre::MemoryManager::init()
 {
     mInited = true;
+    mPageSize = getpagesize();
     
  #ifdef __GNUC__
-    mPageSize = sysconf(_SC_PAGESIZE); //_SC_PAGE_SIZE
     mVmemStart = mVmemStop = sbrk(0);
     mVmemStart=sbrk((uint32)(mVmemStart)%mPageSize);
     MemProfileManager::getSingleton() << "UNIX/Linux (GNU) Page size is " << mPageSize << " bytes " << mVmemStart << "\n";
