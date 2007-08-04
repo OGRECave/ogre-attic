@@ -521,9 +521,15 @@ namespace Ogre {
             String capsName = cfg.getSetting("Custom Capabilities");
             // The custom capabilities have been parsed, let's retrieve them
             RenderSystemCapabilities* rsc = rscManager.loadParsedCapabilities(capsName);
+			if(rsc == 0)
+			{
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+					String("Cannot load a RenderSystemCapability named ") + capsName,
+					"Root::initialise");
+			}
+
             // Tell RenderSystem to use the comon rsc
             useCustomRenderSystemCapabilities(rsc);
-
         }
 
 

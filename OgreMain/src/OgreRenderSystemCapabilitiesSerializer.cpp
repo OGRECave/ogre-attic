@@ -54,7 +54,7 @@ namespace Ogre
     {
         using namespace std;
 
-        ofstream file(filename.c_str());
+		ofstream file(filename.c_str());
 
         file << "render_system_capabilities \"" << name << "\"" << endl;
         file << "{" << endl;
@@ -148,12 +148,17 @@ namespace Ogre
         // comment or empty line) for further processing
         CapabilitiesLinesList capabilitiesLines;
 
+		// for reading data
+		char tmpBuf[OGRE_STREAM_TEMP_SIZE]; 
+
 
         // TODO: build a smarter tokenizer so that "{" and "}"
         // don't need separate lines
         while (!stream->eof())
         {
-            line = stream->getLine();
+			stream->readLine(tmpBuf, OGRE_STREAM_TEMP_SIZE-1);
+            line = String(tmpBuf);
+			StringUtil::trim(line);
 
             // keep track of parse position
             mCurrentLine = &line;

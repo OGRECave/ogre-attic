@@ -72,7 +72,10 @@ namespace Ogre {
         /** @see ScriptLoader::parseScript
         */
         void parseCapabilitiesFromArchive(const String& filename, const String& archiveType, bool recursive = true);
-
+		
+		/** Retriurnseve a capabality loaded with RenderSystemCapabilitiesManager::parseCapabilitiesFromArchive method
+		* @return NULL if the name is invalid, a parsed RenderSystemCapabilities otherwise.
+		*/
         RenderSystemCapabilities* loadParsedCapabilities(const String& name);
 
         /** Method used by RenderSystemCapabilitiesSerializer::parseScript */
