@@ -499,14 +499,15 @@ namespace Ogre
 
 				if (mUseNVPerfHUD)
 				{
-					// Look for 'NVIDIA NVPerfHUD' adapter
+					// Look for 'NVIDIA NVPerfHUD' adapter (<= v4)
+					// or 'NVIDIA PerfHUD' (v5)
 					// If it is present, override default settings
 					for (UINT adapter=0; adapter < mDriver->getD3D()->GetAdapterCount(); ++adapter)
 					{
 						D3DADAPTER_IDENTIFIER9 identifier;
 						HRESULT res;
 						res = mDriver->getD3D()->GetAdapterIdentifier(adapter,0,&identifier);
-						if (strstr(identifier.Description,"NVPerfHUD") != 0)
+						if (strstr(identifier.Description,"PerfHUD") != 0)
 						{
 							adapterToUse = adapter;
 							devType = D3DDEVTYPE_REF;

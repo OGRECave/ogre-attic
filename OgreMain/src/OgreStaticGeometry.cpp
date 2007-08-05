@@ -1606,7 +1606,10 @@ namespace Ogre {
 							tmp.x = *pSrcReal++;
 							tmp.y = *pSrcReal++;
 							tmp.z = *pSrcReal++;
-							// rotation only
+							// scale (invert)
+							tmp = tmp / geom->scale;
+							tmp.normalise();
+							// rotation
 							tmp = geom->orientation * tmp;
 							*pDstReal++ = tmp.x;
 							*pDstReal++ = tmp.y;
