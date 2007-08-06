@@ -277,7 +277,7 @@ namespace Ogre {
 		*/
 		LoadingState isLoading() const
 		{
-			return mLoadingState;
+			return (mLoadingState == LOADSTATE_LOADING);
 		}
 
 		/** Returns the current loading state.
