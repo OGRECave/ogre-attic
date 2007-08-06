@@ -35,15 +35,18 @@ Torus Knot Software Ltd.
 #include <wx/imaglist.h>
 #include <wx/menu.h>
 #include <wx/sizer.h>
+#include <wx/aui/auibook.h>
 
 #include "OgreMaterial.h"
 #include "OgreMaterialSerializer.h"
 #include "OgrePass.h"
 #include "OgreTechnique.h"
 
+#include "EditorManager.h"
 #include "EventArgs.h"
 #include "MaterialController.h"
 #include "MaterialEventArgs.h"
+#include "MaterialScriptEditor.h"
 #include "MaterialWizard.h"
 #include "PassController.h"
 #include "PassWizard.h"
@@ -86,6 +89,9 @@ BEGIN_EVENT_TABLE(WorkspacePanel, wxPanel)
 	EVT_MENU(ID_MENU_NEW_TECHNIQUE, WorkspacePanel::OnNewTechnique)
 	EVT_MENU(ID_MENU_NEW_PASS, WorkspacePanel::OnNewPass)
 	EVT_MENU(ID_MENU_EDIT, WorkspacePanel::OnEdit)
+	EVT_UPDATE_UI(ID_MENU_NEW_MATERIAL, WorkspacePanel::OnUpdateMaterialMenuItem)
+	EVT_UPDATE_UI(ID_MENU_NEW_TECHNIQUE, WorkspacePanel::OnUpdateTechniqueMenuItem)
+	EVT_UPDATE_UI(ID_MENU_NEW_PASS, WorkspacePanel::OnUpdatePassMenuItem)
 END_EVENT_TABLE()
 
 WorkspacePanel::WorkspacePanel(wxWindow* parent,
@@ -402,11 +408,75 @@ void WorkspacePanel::OnEdit(wxCommandEvent& event)
 	wxTreeItemId selId = mTreeCtrl->GetSelection();
 	if(isMaterial(selId))
 	{
-		MaterialSerializer* ms = new MaterialSerializer();
-		ms->queueForExport(getMaterial(selId)->getMaterial(), true);
-		String script = ms->getQueuedAsString();
-		script = script + "!";
+		MaterialController* mc = getMaterial(selId);
+		
+		EditorManager* editorManager = EditorManager::getSingletonPtr();
+		Editor* editor = editorManager->findEditor(mc->getMaterial()->getName().c_str());
+		if(editor != NULL)
+		{
+			editorManager->setActiveEditor(editor);
+		}
+		else
+		{
+			MaterialSerializer* ms = new MaterialSerializer();
+			ms->queueForExport(mc->getMaterial(), true);
+			String script = ms->getQueuedAsString();
+
+			MaterialScriptEditor* materialEditor = new MaterialScriptEditor(editorManager->getEditorNotebook(), wxID_ANY);
+			wxString name = mc->getMaterial()->getName().c_str();
+			name += wxT(".material");
+			materialEditor->setName(name);
+			materialEditor->SetText(script);
+
+			editorManager->openEditor(materialEditor);
+		}
 	}
+}
+
+void WorkspacePanel::OnUpdateMaterialMenuItem(wxUpdateUIEvent& event)
+{
+	event.Enable(!Workspace::getSingletonPtr()->getProjects()->empty());
+}
+
+void WorkspacePanel::OnUpdateTechniqueMenuItem(wxUpdateUIEvent& event)
+{
+	bool enable = false;
+	const ProjectList* projects = Workspace::getSingletonPtr()->getProjects();
+	
+	ProjectList::const_iterator it;
+	for(it = projects->begin(); it != projects->end(); ++it)
+	{
+		if(!(*it)->getMaterials()->empty())
+		{
+			enable = true;
+			break;
+		}
+	}
+	
+	event.Enable(enable);
+}
+
+void WorkspacePanel::OnUpdatePassMenuItem(wxUpdateUIEvent& event)
+{
+	bool enable = false;
+	const ProjectList* projects = Workspace::getSingletonPtr()->getProjects();
+	
+	ProjectList::const_iterator pit;
+	for(pit = projects->begin(); pit != projects->end(); ++pit)
+	{
+		const MaterialControllerList* materials = (*pit)->getMaterials();
+		MaterialControllerList::const_iterator mit;
+		for(mit = materials->begin(); mit != materials->end(); ++mit)
+		{
+			if(!(*mit)->getTechniqueControllers()->empty())
+			{
+				enable = true;
+				break;
+			}
+		}
+	}
+	
+	event.Enable(enable);
 }
 
 void WorkspacePanel::projectAdded(EventArgs& args)
@@ -510,3 +580,4 @@ void WorkspacePanel::techniquePassRemoved(EventArgs& args)
 {
 	// TODO: Implement materialTechniqueRemoved
 }
+
