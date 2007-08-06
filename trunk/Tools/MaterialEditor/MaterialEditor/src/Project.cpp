@@ -28,13 +28,17 @@ Torus Knot Software Ltd.
 */
 #include "Project.h"
 
-#include "OgreSceneManager.h"
+#include "OgreEntity.h"
+#include "OgreLight.h"
 #include "OgreMaterial.h"
 #include "OgreMaterialManager.h"
+#include "OgreSceneManager.h"
 
 #include "MaterialController.h"
 #include "ProjectEventArgs.h"
 
+using Ogre::Entity;
+using Ogre::Light;
 using Ogre::MaterialManager;
 
 Project::Project() : mActiveMaterial(NULL)
@@ -177,6 +181,15 @@ void Project::close()
 
 void Project::generateScene(Ogre::SceneManager* sceneManager)
 {
+	sceneManager->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+
+	Light* light = sceneManager->createLight("MainLight");
+	light->setPosition(20,80,50);
+
+	Entity* entity = sceneManager->createEntity("head", "ogrehead.mesh");
+	entity->setMaterialName(mActiveMaterial->getMaterial()->getName());
+
+	sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(entity);
 }
 
 void Project::subscribeTo(RootEventPlugin* plugin)
