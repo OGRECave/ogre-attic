@@ -68,6 +68,7 @@ void PassController::registerEvents()
 	registerEvent(SceneBlendDestFactorChanged);
 	registerEvent(DepthCheckChanged);
 	registerEvent(DepthWriteChanged);
+	registerEvent(DepthFunctionChanged);
 	registerEvent(ColourWriteChanged);
 	registerEvent(CullingModeChanged);
 	registerEvent(ManualCullingModeChanged);
