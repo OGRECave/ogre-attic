@@ -77,7 +77,7 @@ namespace Ogre {
     void ControllerManager::updateAllControllers(void)
     {
         // Only update once per frame
-        unsigned long thisFrameNumber = Root::getSingleton().getCurrentFrameNumber();
+        unsigned long thisFrameNumber = Root::getSingleton().getNextFrameNumber();
         if (thisFrameNumber != mLastFrameNumber)
         {
             ControllerList::const_iterator ci;

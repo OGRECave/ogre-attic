@@ -40,7 +40,7 @@ public:
 
     }
 
-    bool frameStarted(const FrameEvent& evt)
+    bool frameRenderingQueued(const FrameEvent& evt)
     {
         // Change curvature / tiling
         // Delay timer to stop too quick updates of curvature
@@ -49,7 +49,7 @@ public:
         bool updateSky;
         updateSky = false;
         
-        if(!ExampleFrameListener::frameStarted(evt))
+        if(!ExampleFrameListener::frameRenderingQueued(evt))
             return false;
         
         if (mKeyboard->isKeyDown(OIS::KC_H) && timeDelay <= 0)

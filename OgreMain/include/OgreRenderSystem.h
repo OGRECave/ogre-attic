@@ -1012,7 +1012,10 @@ namespace Ogre
         virtual void _notifyCameraRemoved(const Camera* cam);
 
         /** Internal method for updating all render targets attached to this rendering system. */
-        virtual void _updateAllRenderTargets(void);
+        virtual void _updateAllRenderTargets(bool swapBuffers = true);
+        /** Internal method for swapping all the buffers on all render targets,
+			if _updateAllRenderTargets was called with a 'false' parameter. */
+        virtual void _swapAllRenderTargetBuffers(bool waitForVsync = true);
 
         /** Sets whether or not vertex windings set should be inverted; this can be important
             for rendering reflections. */

@@ -122,7 +122,7 @@ public:
     FresnelFrameListener(RenderWindow* win, Camera* cam)
         : ExampleFrameListener(win, cam, false, false)
     {}
-    bool frameStarted(const FrameEvent &evt)
+    bool frameRenderingQueued(const FrameEvent &evt)
     {
         animTime += evt.timeSinceLastFrame;
         while (animTime > FISH_PATH_LENGTH)
@@ -159,7 +159,7 @@ public:
 
 
 
-        return ExampleFrameListener::frameStarted(evt);
+        return ExampleFrameListener::frameRenderingQueued(evt);
     }
 
 };

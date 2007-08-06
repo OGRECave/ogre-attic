@@ -230,10 +230,10 @@ public:
 			->setCaption("[7/8]Diffusion 2: "+StringConverter::toString(TOFLOAT(hdiv1)));		
 	}
 
-    bool frameStarted( const FrameEvent& evt )
+    bool frameRenderingQueued( const FrameEvent& evt )
     {
 	using namespace OIS;
-        if( ExampleFrameListener::frameStarted( evt ) == false )
+        if( ExampleFrameListener::frameRenderingQueued( evt ) == false )
 		return false;
 		
         if( mKeyboard->isKeyDown( KC_1 ) ) {

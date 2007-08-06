@@ -308,8 +308,8 @@ public:
 		}
 	}
 
-	// Override frameStarted event to process that (don't care about frameEnded)
-	bool frameStarted(const FrameEvent& evt)
+	// Override frameRenderingQueued event to process that (don't care about frameEnded)
+	bool frameRenderingQueued(const FrameEvent& evt)
 	{
 		using namespace OIS;
 

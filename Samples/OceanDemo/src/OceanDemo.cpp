@@ -1091,7 +1091,7 @@ OceanDemo_FrameListener::~OceanDemo_FrameListener()
 
 
 //--------------------------------------------------------------------------
-bool OceanDemo_FrameListener::frameStarted(const Ogre::FrameEvent& evt)
+bool OceanDemo_FrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
 	mMouse->capture();
 	mKeyboard->capture();

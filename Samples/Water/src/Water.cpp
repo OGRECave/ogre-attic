@@ -454,11 +454,11 @@ public:
  			delete (this->circles[i]);
  	}
 
-    bool frameStarted(const FrameEvent& evt)
+    bool frameRenderingQueued(const FrameEvent& evt)
     {
 		using namespace OIS;
 
-		if( ExampleFrameListener::frameStarted(evt) == false )
+		if( ExampleFrameListener::frameRenderingQueued(evt) == false )
 		{
 			// check if we are exiting, if so, clear static HardwareBuffers to avoid segfault
 			WaterCircle::clearStaticBuffers();

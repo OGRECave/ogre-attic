@@ -49,9 +49,9 @@ public:
         buildingNode->translate(buildingTranslate, Node::TS_LOCAL);
 	}
 
-    bool frameStarted( const FrameEvent& evt )
+    bool frameRenderingQueued( const FrameEvent& evt )
     {
-        if( ExampleFrameListener::frameStarted( evt ) == false )
+        if( ExampleFrameListener::frameRenderingQueued( evt ) == false )
 		return false;
 
         buildingTranslate = Vector3(0,0,0);

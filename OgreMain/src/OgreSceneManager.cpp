@@ -1153,7 +1153,7 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
     ControllerManager::getSingleton().updateAllControllers();
 
     // Update the scene, only do this once per frame
-    unsigned long thisFrameNumber = Root::getSingleton().getCurrentFrameNumber();
+    unsigned long thisFrameNumber = Root::getSingleton().getNextFrameNumber();
     if (thisFrameNumber != mLastFrameNumber)
     {
         // Update animations
@@ -4487,7 +4487,7 @@ void SceneManager::resetScissor()
 //---------------------------------------------------------------------
 void SceneManager::checkCachedLightClippingInfo()
 {
-	unsigned long frame = Root::getSingleton().getCurrentFrameNumber();
+	unsigned long frame = Root::getSingleton().getNextFrameNumber();
 	if (frame != mLightClippingInfoMapFrameNumber)
 	{
 		// reset cached clip information

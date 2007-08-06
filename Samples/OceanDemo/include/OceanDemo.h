@@ -110,7 +110,7 @@ public:
 	virtual bool keyPressed ( const OIS::KeyEvent &arg );
 	virtual bool keyReleased ( const OIS::KeyEvent &arg );
 
-	bool frameStarted(const Ogre::FrameEvent& evt);
+	bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 	bool handleMouseMove(const CEGUI::EventArgs& e);
 	bool handleMouseButtonUp(const CEGUI::EventArgs& e);
 	bool handleMouseButtonDown(const CEGUI::EventArgs& e);

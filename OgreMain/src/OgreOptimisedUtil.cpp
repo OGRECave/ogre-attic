@@ -142,7 +142,7 @@ namespace Ogre {
         {
             static ProfileItems results;
             static size_t index;
-            index = Root::getSingleton().getCurrentFrameNumber() % mOptimisedUtils.size();
+            index = Root::getSingleton().getNextFrameNumber() % mOptimisedUtils.size();
             OptimisedUtil* impl = mOptimisedUtils[index];
             ProfileItem& profile = results[index];
 
@@ -172,7 +172,7 @@ namespace Ogre {
         {
             static ProfileItems results;
             static size_t index;
-            index = Root::getSingleton().getCurrentFrameNumber() % mOptimisedUtils.size();
+            index = Root::getSingleton().getNextFrameNumber() % mOptimisedUtils.size();
             OptimisedUtil* impl = mOptimisedUtils[index];
             ProfileItem& profile = results[index];
 
@@ -197,7 +197,7 @@ namespace Ogre {
         {
             static ProfileItems results;
             static size_t index;
-            index = Root::getSingleton().getCurrentFrameNumber() % mOptimisedUtils.size();
+            index = Root::getSingleton().getNextFrameNumber() % mOptimisedUtils.size();
             OptimisedUtil* impl = mOptimisedUtils[index];
             ProfileItem& profile = results[index];
 
@@ -223,7 +223,7 @@ namespace Ogre {
         {
             static ProfileItems results;
             static size_t index;
-            index = Root::getSingleton().getCurrentFrameNumber() % mOptimisedUtils.size();
+            index = Root::getSingleton().getNextFrameNumber() % mOptimisedUtils.size();
             OptimisedUtil* impl = mOptimisedUtils[index];
             ProfileItem& profile = results[index];
 
@@ -258,7 +258,7 @@ namespace Ogre {
         {
             static ProfileItems results;
             static size_t index;
-            index = Root::getSingleton().getCurrentFrameNumber() % mOptimisedUtils.size();
+            index = Root::getSingleton().getNextFrameNumber() % mOptimisedUtils.size();
             OptimisedUtil* impl = mOptimisedUtils[index];
             ProfileItem& profile = results[index];
 
@@ -293,7 +293,7 @@ namespace Ogre {
         {
             static ProfileItems results;
             static size_t index;
-            index = Root::getSingleton().getCurrentFrameNumber() % mOptimisedUtils.size();
+            index = Root::getSingleton().getNextFrameNumber() % mOptimisedUtils.size();
             OptimisedUtil* impl = mOptimisedUtils[index];
             ProfileItem& profile = results[index];
 

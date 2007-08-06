@@ -131,7 +131,7 @@ namespace Ogre {
 		mNonvisibleTimeout(0),
 		mNonvisibleTimeoutSet(false),
 		mTimeSinceLastVisible(0),
-		mLastVisibleFrame(Root::getSingleton().getCurrentFrameNumber()),
+		mLastVisibleFrame(Root::getSingleton().getNextFrameNumber()),
         mTimeController(0),
 		mEmittedEmitterPoolInitialised(false),
         mRenderer(0), 
@@ -373,7 +373,7 @@ namespace Ogre {
 		{
 			// Check whether it's been more than one frame (update is ahead of
 			// camera notification by one frame because of the ordering)
-			long frameDiff = Root::getSingleton().getCurrentFrameNumber() - mLastVisibleFrame;
+			long frameDiff = Root::getSingleton().getNextFrameNumber() - mLastVisibleFrame;
 			if (frameDiff > 1 || frameDiff < 0) // < 0 if wrap only
 			{
 				mTimeSinceLastVisible += timeElapsed;
@@ -936,7 +936,7 @@ namespace Ogre {
 		MovableObject::_notifyCurrentCamera(cam);
 
 		// Record visible
-		mLastVisibleFrame = Root::getSingleton().getCurrentFrameNumber();
+		mLastVisibleFrame = Root::getSingleton().getNextFrameNumber();
 		mTimeSinceLastVisible = 0.0f;
 
         if (mSorted)
@@ -965,7 +965,7 @@ namespace Ogre {
         {
             // Assume visible
             mTimeSinceLastVisible = 0;
-            mLastVisibleFrame = Root::getSingleton().getCurrentFrameNumber();
+            mLastVisibleFrame = Root::getSingleton().getNextFrameNumber();
 
             // Create time controller when attached
             ControllerManager& mgr = ControllerManager::getSingleton(); 

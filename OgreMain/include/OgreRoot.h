@@ -98,7 +98,7 @@ namespace Ogre
         HighLevelGpuProgramManager* mHighLevelGpuProgramManager;
 		ExternalTextureSourceManager* mExternalTextureSourceManager;
         CompositorManager* mCompositorManager;      
-        unsigned long mCurrentFrame;
+        unsigned long mNextFrame;
 		Real mFrameSmoothingTime;
 
 	public:
@@ -158,11 +158,15 @@ namespace Ogre
 
         /** Indicates the type of event to be considered by calculateEventTime(). */
         enum FrameEventTimeType {
-            FETT_ANY, FETT_STARTED, FETT_ENDED
+            FETT_ANY = 0, 
+			FETT_STARTED = 1, 
+			FETT_QUEUED = 2, 
+			FETT_ENDED = 3, 
+			FETT_COUNT = 4
         };
 
         /// Contains the times of recently fired events
-        std::deque<unsigned long> mEventTimes[3];
+        std::deque<unsigned long> mEventTimes[FETT_COUNT];
 
         /** Internal method for calculating the average time between recently fired events.
         @param now The current time in ms.
@@ -637,6 +641,17 @@ namespace Ogre
             be terminated, true otherwise.
         */
         bool _fireFrameStarted(FrameEvent& evt);
+        /** Method for raising frame rendering queued events. 
+        @remarks
+            This method is only for internal use when you use OGRE's inbuilt rendering
+            loop (Root::startRendering). However, if you run your own rendering loop then
+            you should call this method too, to ensure that all state is updated
+			correctly. You should call it after the windows have been updated
+			but before the buffers are swapped, or if you are not separating the
+			update and buffer swap, then after the update just before _fireFrameEnded.
+        */
+        bool _fireFrameRenderingQueued(FrameEvent& evt);
+
         /** Method for raising frame ended events. 
         @remarks
             This method is only for internal use when you use OGRE's inbuilt rendering
@@ -672,6 +687,17 @@ namespace Ogre
             be terminated, true otherwise.
         */
         bool _fireFrameStarted();
+        /** Method for raising frame rendering queued events. 
+        @remarks
+            This method is only for internal use when you use OGRE's inbuilt rendering
+            loop (Root::startRendering). However, if you run your own rendering loop then
+            you you may want to call this method too, although nothing in OGRE relies on this
+			particular event. Really if you're running your own rendering loop at
+			this level of detail then you can get the same effect as doing your
+			updates in a frameRenderingQueued callback by just calling 
+			RenderWindow::update with the 'swapBuffers' option set to false. 
+        */
+        bool _fireFrameRenderingQueued();
         /** Method for raising frame ended events. 
         @remarks
             This method is only for internal use when you use OGRE's inbuilt rendering
@@ -688,8 +714,15 @@ namespace Ogre
         */
         bool _fireFrameEnded();
 
-        /** Gets the number of the current frame. */
-        unsigned long getCurrentFrameNumber(void) const { return mCurrentFrame; }
+        /** Gets the number of the next frame to be rendered. 
+		@remarks
+			Note that this is 'next frame' rather than 'current frame' because
+			it indicates the frame number that current changes made to the scene
+			will take effect. It is incremented after all rendering commands for
+			the current frame have been queued, thus reflecting that if you 
+			start performing changes then, you will actually see them in the 
+			next frame. */
+        unsigned long getNextFrameNumber(void) const { return mNextFrame; }
 
         /** Returns the scene manager currently being used to render a frame.
         @remarks
@@ -711,8 +744,9 @@ namespace Ogre
             you may wish to call it to update all the render targets which are
             set to auto update (RenderTarget::setAutoUpdated). You can also update
             individual RenderTarget instances using their own update() method.
+		@returns false if a FrameListener indicated it wishes to exit the render loop
         */
-        void _updateAllRenderTargets(void);
+        bool _updateAllRenderTargets(void);
 
 		/** Create a new RenderQueueInvocationSequence, useful for linking to
 			Viewport instances to perform custom rendering.
