@@ -107,7 +107,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, 
 		const String& logFileName)
-      : mLogManager(0), mCurrentFrame(0), mFrameSmoothingTime(0.0f),
+      : mLogManager(0), mNextFrame(0), mFrameSmoothingTime(0.0f),
 	  mNextMovableObjectTypeFlag(1), mIsInitialised(false)
     {
         // superclass will do singleton checking
@@ -607,9 +607,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Root::_fireFrameStarted(FrameEvent& evt)
     {
-        // Increment frame number
-        ++mCurrentFrame;
-
         // Remove all marked listeners
         std::set<FrameListener*>::iterator i;
         for (i = mRemovedFrameListeners.begin();
@@ -623,6 +620,31 @@ namespace Ogre {
         for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
         {
             if (!(*i)->frameStarted(evt))
+                return false;
+        }
+
+        return true;
+
+    }
+	//-----------------------------------------------------------------------
+    bool Root::_fireFrameRenderingQueued(FrameEvent& evt)
+    {
+		// Increment next frame number
+		++mNextFrame;
+
+        // Remove all marked listeners
+        std::set<FrameListener*>::iterator i;
+        for (i = mRemovedFrameListeners.begin();
+            i != mRemovedFrameListeners.end(); i++)
+        {
+            mFrameListeners.erase(*i);
+        }
+        mRemovedFrameListeners.clear();
+
+        // Tell all listeners
+        for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
+        {
+            if (!(*i)->frameRenderingQueued(evt))
                 return false;
         }
 
@@ -670,6 +692,16 @@ namespace Ogre {
         evt.timeSinceLastFrame = calculateEventTime(now, FETT_STARTED);
 
         return _fireFrameStarted(evt);
+    }
+    //-----------------------------------------------------------------------
+    bool Root::_fireFrameRenderingQueued()
+    {
+        unsigned long now = mTimer->getMilliseconds();
+        FrameEvent evt;
+        evt.timeSinceLastEvent = calculateEventTime(now, FETT_ANY);
+        evt.timeSinceLastFrame = calculateEventTime(now, FETT_QUEUED);
+
+        return _fireFrameRenderingQueued(evt);
     }
     //-----------------------------------------------------------------------
     bool Root::_fireFrameEnded()
@@ -726,8 +758,7 @@ namespace Ogre {
         mActiveRenderer->_initRenderTargets();
 
         // Clear event times
-        for(int i=0; i!=3; ++i)
-            mEventTimes[i].clear();
+		clearEventTimes();
 
         // Infinite loop, until broken out of by frame listeners
         // or break out by calling queueEndRendering()
@@ -748,7 +779,8 @@ namespace Ogre {
         if(!_fireFrameStarted())
             return false;
 
-        _updateAllRenderTargets();
+		if (!_updateAllRenderTargets())
+			return false;
 
         return _fireFrameEnded();
     }
@@ -1029,16 +1061,22 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Root::_updateAllRenderTargets(void)
+    bool Root::_updateAllRenderTargets(void)
     {
-        // delegate
-        mActiveRenderer->_updateAllRenderTargets();
-    }
+        // update all targets but don't swap buffers
+        mActiveRenderer->_updateAllRenderTargets(false);
+		// give client app opportunity to use queued GPU time
+		bool ret = _fireFrameRenderingQueued();
+		// block for final swap
+		mActiveRenderer->_swapAllRenderTargetBuffers(mActiveRenderer->getWaitForVerticalBlank());
+		
+		return ret;
+	}
 	//-----------------------------------------------------------------------
 	void Root::clearEventTimes(void)
 	{
 		// Clear event times
-		for(int i=0; i<3; ++i)
+		for(int i=0; i<FETT_COUNT; ++i)
 			mEventTimes[i].clear();
 	}
 	//---------------------------------------------------------------------

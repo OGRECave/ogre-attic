@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 		delete timer;
 	}
 	//-----------------------------------------------------------------------
-	bool CrowdListener::frameStarted(const FrameEvent& evt)
+	bool CrowdListener::frameRenderingQueued(const FrameEvent& evt)
 	{
 
 		burnCPU();
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 
 		if(mRequestShutDown)
 			return false;
-		const bool returnValue = ExampleFrameListener::frameStarted(evt);
+		const bool returnValue = ExampleFrameListener::frameRenderingQueued(evt);
 		// Call default
 		return returnValue;
 	}

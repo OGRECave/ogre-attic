@@ -61,23 +61,5 @@ namespace Ogre {
     {
         return mIsPrimary;
     }
-    //-----------------------------------------------------------------------
-    void RenderWindow::update(void)
-    {
-		update(true);
-	}
-    //-----------------------------------------------------------------------
-    void RenderWindow::update(bool swap)
-    {
-        // call superclass
-        RenderTarget::update();
-
-
-		if (swap)
-		{
-			// Swap buffers
-    	    swapBuffers(Root::getSingleton().getRenderSystem()->getWaitForVerticalBlank());
-		}
-    }
 
 }

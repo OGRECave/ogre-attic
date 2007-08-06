@@ -1040,7 +1040,7 @@ namespace Ogre {
     void Entity::cacheBoneMatrices(void)
     {
         Root& root = Root::getSingleton();
-        unsigned long currentFrameNumber = root.getCurrentFrameNumber();
+        unsigned long currentFrameNumber = root.getNextFrameNumber();
         if (*mFrameBonesLastUpdated  != currentFrameNumber) {
 
             mSkeletonInstance->setAnimationState(*mAnimationState);

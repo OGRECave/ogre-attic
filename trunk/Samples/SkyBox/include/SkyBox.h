@@ -36,9 +36,9 @@ public:
     {
     }
 
-    bool frameStarted( const FrameEvent& evt )
+    bool frameRenderingQueued( const FrameEvent& evt )
     {
-        if( ExampleFrameListener::frameStarted( evt ) == false )
+        if( ExampleFrameListener::frameRenderingQueued( evt ) == false )
 		return false;
 
         if( mKeyboard->isKeyDown( OIS::KC_N ) )

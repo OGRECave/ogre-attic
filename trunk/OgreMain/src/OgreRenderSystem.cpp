@@ -95,7 +95,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void RenderSystem::_updateAllRenderTargets(void)
+    void RenderSystem::_updateAllRenderTargets(bool swapBuffers)
     {
         // Update all in order of priority
         // This ensures render-to-texture targets get updated before render windows
@@ -104,7 +104,20 @@ namespace Ogre {
 		for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
 		{
 			if( itarg->second->isActive() && itarg->second->isAutoUpdated())
-				itarg->second->update();
+				itarg->second->update(swapBuffers);
+		}
+    }
+    //-----------------------------------------------------------------------
+    void RenderSystem::_swapAllRenderTargetBuffers(bool waitForVSync)
+    {
+        // Update all in order of priority
+        // This ensures render-to-texture targets get updated before render windows
+		RenderTargetPriorityMap::iterator itarg, itargend;
+		itargend = mPrioritisedRenderTargets.end();
+		for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
+		{
+			if( itarg->second->isActive() && itarg->second->isAutoUpdated())
+				itarg->second->swapBuffers(waitForVSync);
 		}
     }
     //-----------------------------------------------------------------------

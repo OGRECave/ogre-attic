@@ -99,14 +99,14 @@ InstancingListener::~InstancingListener()
 	delete timer;
 }
 //-----------------------------------------------------------------------
-bool InstancingListener::frameStarted(const FrameEvent& evt)
+bool InstancingListener::frameRenderingQueued(const FrameEvent& evt)
 {
 	burnCPU();
 	updateStats();
 
 	if(mRequestShutDown)
 		return false;
-	const bool returnValue = ExampleFrameListener::frameStarted(evt);
+	const bool returnValue = ExampleFrameListener::frameRenderingQueued(evt);
 	// Call default
 	return returnValue;
 }

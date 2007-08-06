@@ -161,7 +161,7 @@ LGPL like the rest of the engine.
         virtual bool keyReleased(const OIS::KeyEvent &e);
 
         // Event handlers
-        bool frameStarted(const Ogre::FrameEvent& evt);
+        bool frameRenderingQueued(const Ogre::FrameEvent& evt);
         bool handleMouseMove(const CEGUI::EventArgs& e);
         bool handleMouseButtonUp(const CEGUI::EventArgs& e);
         bool handleMouseButtonDown(const CEGUI::EventArgs& e);

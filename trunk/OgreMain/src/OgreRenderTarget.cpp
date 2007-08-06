@@ -35,6 +35,7 @@ Torus Knot Software Ltd.
 #include "OgreLogManager.h"
 #include "OgreRenderTargetListener.h"
 #include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
 
@@ -93,7 +94,7 @@ namespace Ogre {
         return mColourDepth;
     }
 
-    void RenderTarget::update(void)
+    void RenderTarget::updateImpl(void)
     {
 
         // notify listeners (pre)
@@ -489,5 +490,19 @@ namespace Ogre {
     {
         return 0;
     }
+    //-----------------------------------------------------------------------
+    void RenderTarget::update(bool swap)
+    {
+        // call implementation
+        updateImpl();
+
+
+		if (swap)
+		{
+			// Swap buffers
+    	    swapBuffers(Root::getSingleton().getRenderSystem()->getWaitForVerticalBlank());
+		}
+    }
+	
 
 }        

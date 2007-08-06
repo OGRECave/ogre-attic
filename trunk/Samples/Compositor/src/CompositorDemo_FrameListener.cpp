@@ -396,7 +396,7 @@ LGPL like the rest of the engine.
         wndw->subscribeEvent(CEGUI::Window::EventKeyUp, CEGUI::Event::Subscriber(&CompositorDemo_FrameListener::handleKeyUpEvent, this ));
     }
 //--------------------------------------------------------------------------
-    bool CompositorDemo_FrameListener::frameStarted(const Ogre::FrameEvent& evt)
+    bool CompositorDemo_FrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     {
 	mMouse->capture();
 	mKeyboard->capture();
