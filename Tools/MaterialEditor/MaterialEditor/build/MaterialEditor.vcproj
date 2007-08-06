@@ -187,6 +187,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\src\CgEditor.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\CodeEditor.cpp"
 				>
 			</File>
@@ -200,6 +204,14 @@
 			</File>
 			<File
 				RelativePath="..\src\EventContainer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\GLSLEditor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\HLSLEditor.cpp"
 				>
 			</File>
 			<File
@@ -236,6 +248,10 @@
 			</File>
 			<File
 				RelativePath="..\src\MaterialPropertyGridPage.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MaterialScriptEditor.cpp"
 				>
 			</File>
 			<File
@@ -345,11 +361,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\include\CgEditor.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\CodeEditor.h"
 				>
 			</File>
 			<File
 				RelativePath="..\include\Editor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\EditorContributor.h"
 				>
 			</File>
 			<File
@@ -366,6 +390,14 @@
 			</File>
 			<File
 				RelativePath="..\include\EventContainer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\GLSLEditor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\HLSLEditor.h"
 				>
 			</File>
 			<File
@@ -402,6 +434,10 @@
 			</File>
 			<File
 				RelativePath="..\include\MaterialPropertyGridPage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\MaterialScriptEditor.h"
 				>
 			</File>
 			<File
