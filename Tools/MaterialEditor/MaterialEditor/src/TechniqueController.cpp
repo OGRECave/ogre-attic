@@ -54,6 +54,7 @@ void TechniqueController::registerEvents()
 {
 	registerEvent(NameChanged);
 	registerEvent(SchemeChanged);
+	registerEvent(LodIndexChanged);
 	registerEvent(PassAdded);
 	registerEvent(PassRemoved);
 }
