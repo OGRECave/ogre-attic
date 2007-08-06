@@ -33,7 +33,7 @@ Torus Knot Software Ltd.
 #include "EditorInput.h"
 
 Editor::Editor()
-: mEditorInput(NULL)
+: mEditorInput(NULL), mName("Editor")
 {
 	registerEvents();
 }
@@ -64,7 +64,7 @@ void Editor::registerEvents()
 }
 
 
-EditorInput* Editor::getEditorInput()
+EditorInput* Editor::getEditorInput() const
 {
 	return mEditorInput;
 }
@@ -72,6 +72,23 @@ EditorInput* Editor::getEditorInput()
 void Editor::setEditorInput(EditorInput* input)
 {
 	mEditorInput = input;
+}
+
+EditorContributor* Editor::getEditorContributor() const
+{
+	return NULL;
+}
+
+const wxString& Editor::getName() const
+{
+	return mName;
+}
+
+void Editor::setName(const wxString& name)
+{
+	mName = name;
+
+	// TODO: Fire event
 }
 
 void Editor::activate()
@@ -84,7 +101,7 @@ void Editor::deactivate()
 	// Do nothing
 }
 
-bool Editor::isDirty() const
+bool Editor::isDirty()
 {
 	return false;
 }
@@ -99,28 +116,34 @@ void Editor::saveAs()
 	// Do nothing
 }
 
-bool Editor::isSaveAsAllowed() const
+bool Editor::isSaveAsAllowed()
 {
 	return false;
 }
 
-bool Editor::isRedoable() const
+bool Editor::isRedoable()
 {
 	return false;
 }
 
 void Editor::redo()
 {
+	// Do nothing
 }
 
-bool Editor::isUndoable() const
+bool Editor::isUndoable()
 {
 	return false;
 }
 
 void Editor::undo()
 {
+	// Do nothing
+}
 
+bool Editor::isCuttable()
+{
+	return false;
 }
 
 void Editor::cut()
@@ -128,9 +151,19 @@ void Editor::cut()
 	// Do nothing
 }
 
+bool Editor::isCopyable()
+{
+	return false;
+}
+
 void Editor::copy()
 {
 	// Do nothing
+}
+
+bool Editor::isPastable()
+{
+	return false;
 }
 
 void Editor::paste()
