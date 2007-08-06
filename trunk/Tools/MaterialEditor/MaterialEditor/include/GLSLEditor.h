@@ -26,71 +26,26 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef _EDITOR_H_
-#define _EDITOR_H_
+#ifndef _GLSLEDITOR_H_
+#define _GLSLEDITOR_H_
 
-#include <wx/string.h>
+#include "ScintillaEditor.h"
 
-#include "OgreString.h"
-
-#include "EventContainer.h"
-
-class wxControl;
-
-class EditorContributor;
-class EditorInput;
-
-using Ogre::String;
-
-class Editor : public EventContainer
+class GLSLEditor : public ScintillaEditor
 {
 public:
-	enum EditorEvent
-	{
-		DirtyStateChanged
-	};
+	GLSLEditor(wxWindow* parent, wxWindowID id = -1,
+		const wxPoint& pos = wxDefaultPosition,
+		const wxSize& size = wxDefaultSize,
+		long style = wxVSCROLL
+		);
 
-	Editor();
-	Editor(EditorInput* input);
-	virtual ~Editor();
-
-	wxControl* getControl() const;
-	void setControl(wxControl* control);
-
-	EditorInput* getEditorInput() const;
-	void setEditorInput(EditorInput* input);
+	virtual ~GLSLEditor();
 	
-	EditorContributor* getEditorContributor() const;
-
-	const wxString& getName() const;
-	void setName(const wxString& name);
-
-	virtual void activate();
-	virtual void deactivate();
-
-	virtual bool isDirty();
-	virtual void save();
-	virtual void saveAs();
-	virtual bool isSaveAsAllowed();
-
-	virtual bool isRedoable();
-	virtual void redo();
-	virtual bool isUndoable();
-	virtual void undo();
-
-	virtual bool isCuttable();
-	virtual void cut();
-	virtual bool isCopyable();
-	virtual void copy();
-	virtual bool isPastable();
-	virtual void paste();
-
-private:
-	void registerEvents();
-
-	EditorInput* mEditorInput;
-	wxControl* mControl;
-	wxString mName;
+protected:
+	void initialize();
 };
 
-#endif // _EDITOR_H_
+#endif // _GLSLEDITOR_H_
+
+

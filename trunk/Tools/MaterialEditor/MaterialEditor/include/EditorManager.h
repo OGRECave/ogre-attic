@@ -52,7 +52,7 @@ typedef std::map<Editor*, int> EditorIndexMap;
 
 using Ogre::String;
 
-class EditorManager : public Ogre::Singleton<EditorManager>, public EventContainer, public wxEvtHandler
+class EditorManager : public wxEvtHandler, public Ogre::Singleton<EditorManager>, public EventContainer
 {
 public:
 	enum EditorManagerEvent
@@ -65,16 +65,20 @@ public:
 	EditorManager(wxAuiNotebook* notebook);
 	virtual ~EditorManager();
 
+	wxAuiNotebook* getEditorNotebook() const;
+	void setEditorNotebook(wxAuiNotebook* notebook);
+	
 	void openEditor(Editor* editor);
 	//void openEditor(EditorInput* input);
 	void closeEditor(Editor* editor);
 	//void closeEditor(EditorInput* input);
-	//Editor* findEditor(const EditorInput* input);
+	Editor* findEditor(const wxString& name);
 
-	Editor* getActiveEditor();
+	Editor* getActiveEditor() const;
 	void setActiveEditor(Editor* editor);
 
 	void OnPageChanged(wxAuiNotebookEvent& event);
+	void OnPageClosed(wxAuiNotebookEvent& event);
 
 	/** Override standard Singleton retrieval.
 	@remarks

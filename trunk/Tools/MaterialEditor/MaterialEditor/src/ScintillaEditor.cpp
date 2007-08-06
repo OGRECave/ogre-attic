@@ -26,6 +26,12 @@ http://www.gnu.org/copyleft/lesser.txt
 */
 #include "ScintillaEditor.h"
 
+#include "OgreDataStream.h"
+
+using Ogre::DataStream;
+using Ogre::DataStreamPtr;
+using Ogre::FileStreamDataStream;
+
 BEGIN_EVENT_TABLE(ScintillaEditor, wxScintilla)
 	EVT_SIZE (ScintillaEditor::OnSize)
 	// Scintilla
@@ -37,6 +43,8 @@ END_EVENT_TABLE()
 ScintillaEditor::ScintillaEditor(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size, long style)
 : wxScintilla (parent, id, pos, size, style), mDirty(false)
 {
+	setControl(this);
+	
 	mLineNumID = 0;
 	mLineNumMargin = TextWidth(wxSCI_STYLE_LINENUMBER, _T("99999"));
 	mFoldingID = 1;
@@ -92,6 +100,7 @@ ScintillaEditor::ScintillaEditor(wxWindow *parent, wxWindowID id, const wxPoint 
 	StyleSetBackground(wxSCI_STYLE_LINENUMBER, wxColour(wxT("WHITE")));
 	StyleSetForeground(wxSCI_STYLE_INDENTGUIDE, wxColour(wxT("DARK GREY")));
 
+	StyleSetBackground(wxSCI_STYLE_BRACELIGHT, wxColour(wxT("YELLOW")));
 	StyleSetBold(wxSCI_STYLE_BRACELIGHT, true);
 
 	SetTabWidth(4);
@@ -155,6 +164,135 @@ ScintillaEditor::ScintillaEditor(wxWindow *parent, wxWindowID id, const wxPoint 
 
 ScintillaEditor::~ScintillaEditor() 
 {
+}
+
+void ScintillaEditor::activate()
+{
+	// TODO: Connect to update ui event
+}
+
+void ScintillaEditor::deactivate()
+{
+	// TODO: Disconnect from update ui event
+}
+
+bool ScintillaEditor::isDirty()
+{
+	return mDirty;
+}
+
+void ScintillaEditor::save()
+{
+	//setDirty(false);
+}
+
+void ScintillaEditor::saveAs()
+{
+}
+
+bool ScintillaEditor::isSaveAsAllowed()
+{
+	return true;
+}
+
+bool ScintillaEditor::isRedoable()
+{
+	return CanRedo();
+}
+
+void ScintillaEditor::redo()
+{
+	if(!CanRedo()) return;
+	
+	Redo();
+}
+
+bool ScintillaEditor::isUndoable()
+{
+	return CanUndo();
+}
+
+void ScintillaEditor::undo()
+{
+	if(!CanUndo()) return;
+	
+	Undo();
+}
+
+bool ScintillaEditor::isCuttable()
+{
+	return GetReadOnly() || (GetSelectionEnd() - GetSelectionStart() <= 0);
+}
+
+void ScintillaEditor::cut()
+{
+	if(GetReadOnly() || (GetSelectionEnd() - GetSelectionStart() <= 0)) return;
+	
+	Cut();
+}
+
+bool ScintillaEditor::isCopyable()
+{
+	return GetReadOnly() || (GetSelectionEnd() - GetSelectionStart() <= 0);
+}
+
+void ScintillaEditor::copy()
+{
+	if(GetSelectionEnd() - GetSelectionStart() <= 0) return;
+	
+	Copy();
+}
+
+bool ScintillaEditor::isPastable()
+{
+	return CanPaste();
+}
+
+void ScintillaEditor::paste()
+{
+	if(!CanPaste()) return;
+	
+	Paste();
+}
+
+void ScintillaEditor::loadKeywords(wxString& path)
+{
+	std::ifstream fp;
+	fp.open(path, std::ios::in | std::ios::binary);
+	if(fp)
+	{
+		DataStreamPtr stream(new FileStreamDataStream(path.c_str(), &fp, false));
+		
+		int index = -1;
+		String line;
+		wxString keywords;
+		while(!stream->eof())
+		{
+			line = stream->getLine();
+			
+			// Ignore blank lines and comments (comment lines start with '#')
+			if(line.length() > 0 && line.at(0) != '#')
+			{
+				if(line.at(0) == '[')
+				{
+					if(index != -1)
+					{
+						SetKeyWords(index, keywords);
+						keywords.clear();
+					}
+					
+					++index;
+				}
+				else
+				{
+					keywords.Append(line);
+					keywords.Append(" ");
+				}
+			}
+		}
+		
+		SetKeyWords(index, keywords);
+	}
 }
 
 wxChar ScintillaEditor::GetLastNonWhitespaceChar(int position /* = -1 */)
@@ -260,16 +398,11 @@ void ScintillaEditor::HighlightBraces()
 	Refresh(false);
 }
 
-bool ScintillaEditor::isDirty()
-{
-	return mDirty;
-}
-
 //----------------------------------------------------------------------------
 // Common event handlers
 void ScintillaEditor::OnSize(wxSizeEvent& event)
 {
-	int x = GetClientSize().x + mLineNumMargin + mFoldingMargin;
+	int x = GetClientSize().x;// + GetMarginLeft(); //mLineNumMargin + mFoldingMargin;
 
 	if (x > 0) SetScrollWidth(x);
 

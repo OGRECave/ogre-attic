@@ -5,7 +5,7 @@
 
 #include "Editor.h"
 
-class ScintillaEditor : public wxScintilla, Editor
+class ScintillaEditor : public wxScintilla, public Editor
 {
 public:
 	ScintillaEditor(wxWindow* parent, wxWindowID id = -1,
@@ -14,9 +14,29 @@ public:
 		long style = wxVSCROLL
 		);
 
-	~ScintillaEditor();
+	virtual ~ScintillaEditor();
+
+	virtual void activate();
+	virtual void deactivate();
 
 	virtual bool isDirty();
+	virtual void save();
+	virtual void saveAs();
+	virtual bool isSaveAsAllowed();
+
+	virtual bool isRedoable();
+	virtual void redo();
+	virtual bool isUndoable();
+	virtual void undo();
+
+	virtual bool isCuttable();
+	virtual void cut();
+	virtual bool isCopyable();
+	virtual void copy();
+	virtual bool isPastable();
+	virtual void paste(); 
+	
+	virtual void loadKeywords(wxString& path);
 
 	void OnSize(wxSizeEvent &event);
 	void OnMarginClick(wxScintillaEvent &event);
@@ -50,4 +70,5 @@ private:
 };
 
 #endif // _SCINTILLAEDITOR_H_
+
 

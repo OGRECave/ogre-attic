@@ -26,71 +26,41 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef _EDITOR_H_
-#define _EDITOR_H_
+#include "CgEditor.h"
 
-#include <wx/string.h>
-
-#include "OgreString.h"
-
-#include "EventContainer.h"
-
-class wxControl;
-
-class EditorContributor;
-class EditorInput;
-
-using Ogre::String;
-
-class Editor : public EventContainer
+CgEditor::CgEditor(wxWindow* parent, wxWindowID id /*= -1*/,
+		const wxPoint& pos /*= wxDefaultPosition*/,
+		const wxSize& size /*= wxDefaultSize*/,
+		long style /*= wxVSCROLL*/
+		) : ScintillaEditor(parent, id, pos, size, style)
 {
-public:
-	enum EditorEvent
-	{
-		DirtyStateChanged
-	};
+	initialize();
+}
 
-	Editor();
-	Editor(EditorInput* input);
-	virtual ~Editor();
+CgEditor::~CgEditor()
+{
+}
 
-	wxControl* getControl() const;
-	void setControl(wxControl* control);
+void CgEditor::initialize()
+{
+	StyleClearAll();
+	SetLexer(wxSCI_LEX_OMS);
 
-	EditorInput* getEditorInput() const;
-	void setEditorInput(EditorInput* input);
+	// Load keywords
+	wxString path = wxT("resources/lexers/cg/keywords");
+	loadKeywords(path);
 	
-	EditorContributor* getEditorContributor() const;
-
-	const wxString& getName() const;
-	void setName(const wxString& name);
-
-	virtual void activate();
-	virtual void deactivate();
-
-	virtual bool isDirty();
-	virtual void save();
-	virtual void saveAs();
-	virtual bool isSaveAsAllowed();
-
-	virtual bool isRedoable();
-	virtual void redo();
-	virtual bool isUndoable();
-	virtual void undo();
-
-	virtual bool isCuttable();
-	virtual void cut();
-	virtual bool isCopyable();
-	virtual void copy();
-	virtual bool isPastable();
-	virtual void paste();
-
-private:
-	void registerEvents();
-
-	EditorInput* mEditorInput;
-	wxControl* mControl;
-	wxString mName;
-};
-
-#endif // _EDITOR_H_
+	// Set styles
+	StyleSetForeground(wxSCI_OMS_DEFAULT, wxColour(0, 0, 0));
+	StyleSetFontAttr(wxSCI_OMS_DEFAULT, 10, "Courier New", false, false, false);
+	StyleSetForeground(wxSCI_OMS_COMMENT, wxColour(0, 128, 0));
+	StyleSetFontAttr(wxSCI_OMS_COMMENT, 10, "Courier New", false, false, false);
+	StyleSetForeground(wxSCI_OMS_PRIMARY, wxColour(0, 0, 255));
+	StyleSetFontAttr(wxSCI_OMS_PRIMARY, 10, "Courier New", true, false, false);
+	StyleSetForeground(wxSCI_OMS_ATTRIBUTE, wxColour(136, 0, 0));
+	StyleSetFontAttr(wxSCI_OMS_ATTRIBUTE, 10, "Courier New", true, false, false);
+	StyleSetForeground(wxSCI_OMS_VALUE, wxColour(160, 0, 160));
+	StyleSetFontAttr(wxSCI_OMS_VALUE, 10, "Courier New", false, false, false);
+	StyleSetForeground(wxSCI_OMS_NUMBER, wxColour(0, 0, 128));
+	StyleSetFontAttr(wxSCI_OMS_NUMBER, 10, "Courier New", false, false, false);
+}
