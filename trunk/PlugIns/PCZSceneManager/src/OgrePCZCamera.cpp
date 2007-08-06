@@ -123,11 +123,11 @@ namespace Ogre
         
         switch(mExtraCullingFrustum.getVisibility(bound))
         {
-        case PCZFrustum::Visibility::NONE:
+        case PCZFrustum::NONE:
             return NONE;
-        case PCZFrustum::Visibility::PARTIAL:
+        case PCZFrustum::PARTIAL:
             return PARTIAL;
-        case PCZFrustum::Visibility::FULL:
+        case PCZFrustum::FULL:
             break;
         }
 
