@@ -70,6 +70,10 @@ public:
 	void OnNewTechnique(wxCommandEvent& event);
 	void OnNewPass(wxCommandEvent& event);
 	void OnEdit(wxCommandEvent& event);
+	void OnUpdateProjectMenuItem(wxUpdateUIEvent& event);
+	void OnUpdateMaterialMenuItem(wxUpdateUIEvent& event);
+	void OnUpdateTechniqueMenuItem(wxUpdateUIEvent& event);
+	void OnUpdatePassMenuItem(wxUpdateUIEvent& event);
 
 	// Workspace Event Handlers
 	void projectAdded(EventArgs& args);
@@ -135,3 +139,4 @@ protected:
 };
 
 #endif // _WORKSPACEPANEL_H_
+
