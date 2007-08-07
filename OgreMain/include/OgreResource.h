@@ -275,9 +275,9 @@ namespace Ogre {
 		/** Returns whether the resource is currently in the process of
 			background loading.
 		*/
-		LoadingState isLoading() const
+		bool isLoading() const
 		{
-			return mLoadingState;
+			return (mLoadingState == LOADSTATE_LOADING);
 		}
 
 		/** Returns the current loading state.
