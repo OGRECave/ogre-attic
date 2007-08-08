@@ -92,7 +92,7 @@ namespace Ogre
             /// bin n = 2^(n+2)
             static const uint32 NUM_BINS = 29;
 
-            // this struct is added to the head and tail of a block
+            // This struct is added to the head and tail of a block
             // we need to add it to the head to hold allocation info.
             // We need to add it to the tail of a block to allow for
             // auto-coelessing of adjacent empty blocks. Having a
@@ -104,12 +104,12 @@ namespace Ogre
                 uint16 bin_id; // id of the bucket we came from
             };
 
-            // this struct is used to form a linked list of empty
+            // This struct is used to form a linked list of empty
             // memory blocks. Only when a block is empty is this
             // struct used, when a block is full we use MemCtrl
             struct MemFree
             {
-                uint32 size;   // 31 bits used for size info, 1 bit empty flag
+                uint32   size; // 31 bits used for size info, 1 bit empty flag
                 MemFree* next; // next empty block in list, maybe not be adjacent
                 MemFree* prev; // prev empty block in list, maybe not be adjacent
             };
@@ -130,10 +130,8 @@ namespace Ogre
                     uint32   mIndex;
 
                 public:
-                    inline explicit Bin() // cant use init list, crazy g++ f00 :(
-                    //: mHeadPtr(NULL)
-                    //, mSize(0)
-                    //, mIndex(0)
+                    // NOTE: cant use init list, due to g++ late initialisation
+                    inline explicit Bin() 
                     {}
 
                     inline ~Bin()
@@ -197,30 +195,34 @@ namespace Ogre
                         mIndex = idx;
                         mSize = size;
                         mHeadPtr = NULL;
-                        std::cout << "setup bin " << mIndex << " size " << mSize << std::endl;
                     }
 
-                    /// dump the bins internal list
-                    void dumpInternals()
-                    {
-                        MemFree* tmp = mHeadPtr;
-                        std::cout << " Bin index " << mIndex << " size " << mSize << std::endl;
-                        while(tmp)
-                        {
-                            std::cout << " block " << (void*)tmp << " size " << tmp->size << std::endl;
-                            tmp=tmp->next;
-                        }
-                    }
+                    /// dump the bins internal list of chunks
+                    void dumpInternals();
+            };
+
+            // Struct used to hold memory regions, regions are needed because there
+            // is no way of preventing a compeating allocator from blowing a 
+            // hole in our address space. To get around this problem we maintain
+            // memory in regions. The coalescing algorithm only assumes memory
+            // is continiouse within a region. There is no requirment for reqions
+            // to be adjacent in memory, however, address space that falls betwean 
+            // reqions is invisible to this manager. This space is assumed to be
+            // maintained by the compeating allocator.
+            struct Region
+            {
+                char* head;
+                char* last;
             };
 
             // bin[n] holds chunks of size 2^(n+3) smallest is 8.
             // Overhead is before and after data
-            static Bin      mBin[NUM_BINS];
-            static Bin      m24ByteBin;
-            void*    mVmemStart;  // start of process virtual address space
-            void*    mVmemStop;   // end of process virtual address space
-            uint32   mPageSize;   // system memory page size
-            uint32   mRegionSize; // size of a virtual address space region (windows only)
+            static Bin mBin[NUM_BINS];
+            static Bin m24ByteBin;
+
+            uint32     mPageSize;   // system memory page size
+            Region     mRegion[8];  // memory regions
+            uint32     mRegionIdx;  // region index
 
         public:
             MemoryManager();
@@ -254,8 +256,7 @@ namespace Ogre
             int sizeOfStorage ( const void* ptr ) throw ( std::bad_alloc );
 
             /// @return static instance of MemoryManager
-            static
-                    inline MemoryManager& getSingleton()
+            static inline MemoryManager& getSingleton()
             {
                 return smInstance;
             }
@@ -263,12 +264,15 @@ namespace Ogre
             void dumpInternals();
 
         private:
-
+            // request more storage, this may split a larger bin if one
+            // can be found, or expand the process virtual address space 
             MemBlock moreCore ( uint32 id, uint32 size );
+
+            // distribute a block of memory across the bins, distribution
+            // prefers larger over smaller bins
             void distributeCore ( MemBlock& block );
 
             static MemoryManager smInstance;
-
             bool mInited;
     };
 }

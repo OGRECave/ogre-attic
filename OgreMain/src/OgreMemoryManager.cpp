@@ -93,7 +93,7 @@ void *mmap (void *ptr, long size, long prot, long type, long handle, long arg)
     static long gRegionSize;
 
     // Wait for spin lock
-    while (InterlockedCompareExchange ((void **) &gSpinLock, (void *) 1, (void *) 0) != 0) 
+    while (InterlockedCompareExchange ((void**) &gSpinLock, (void*) 1, (void*) 0) != 0) 
         Sleep (0);
 
     // First time initialisation
@@ -118,7 +118,7 @@ long munmap (void *ptr, long size)
     static long gRegionSize;
     int rc = MUNMAP_FAILURE;
     // Wait for spin lock
-    while (InterlockedCompareExchange ((void **) &gSpinLock, (void *) 1, (void *) 0) != 0) 
+    while (InterlockedCompareExchange ((void**) &gSpinLock, (void*) 1, (void*) 0) != 0) 
         Sleep (0);
 
     // First time initialisation
@@ -151,18 +151,19 @@ void Ogre::MemoryManager::init()
 {
     mInited = true;
     mPageSize = getpagesize();
-    
- #ifdef __GNUC__
-    mVmemStart = mVmemStop = sbrk(0);
-    mVmemStart=sbrk((uint32)(mVmemStart)%mPageSize);
-    MemProfileManager::getSingleton() << "UNIX/Linux (GNU) Page size is " << mPageSize << " bytes " << mVmemStart << "\n";
+
+#ifdef __GNUC__
+    mRegionIdx=0;
+    mRegion[0].head = mRegion[0].last = (char*) sbrk(0);
+
+    MemProfileManager::getSingleton() << "UNIX/Linux (GNU) Page size is " << 
+            mPageSize << " bytes " << (void*)(mRegion[0].head) << "\n";
 #endif
-    
+
     // setup bins
     uint32 sz = (1 << 3);
     for(uint32 i=0;i<NUM_BINS;++i)
     {
-        std::cout << "bin " << i << " is " << sz << std::endl;
         mBin[i].setup(i,sz);
         sz <<= 1;
     }
@@ -251,7 +252,7 @@ void* Ogre::MemoryManager::allocMem(size_t size) throw(std::bad_alloc)
 void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 {
 #ifdef __GNUC__
-    assert(ptr < mVmemStop && "BAD POINTER");
+    //assert(ptr < mVmemStop && "BAD POINTER");
 
     MemBlock memBlock;
     memBlock.memory = (char*)ptr-sizeof(MemCtrl);
@@ -261,6 +262,7 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
     if(((MemCtrl*)memBlock.memory)->magic != MAGIC)
     {
         MemProfileManager::getSingleton() << "Bad pointer passed to purgeMem(), double delete or memory corruption";
+        dumpInternals();
         throw std::bad_alloc();
     }
 
@@ -268,6 +270,7 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
     if(((MemCtrl*)(memBlock.memory+(memBlock.size-sizeof(MemCtrl))))->magic != MAGIC)
     {
         MemProfileManager::getSingleton() << "purgeMemory(), Memory corruption detected";
+        dumpInternals();
         throw std::bad_alloc();
     }
 
@@ -275,9 +278,23 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
     //-----------------------------------------------------------------
      /*
     MemFree* memFree;
+    Region* memRegion=NULL;
     register uint32 size;
 
-    while (memBlock.memory + memBlock.size != mVmemStop)
+    // find the containing region
+    for(uint32 i=0;i<mRegionIdx+1;++i)
+    {
+        if( memBlock.memory >= mRegion[i].head && 
+            memBlock.memory < mRegion[i].last )
+        {
+            memRegion = &mRegion[i];
+            break;
+        }
+    }
+
+    assert(memRegion);
+
+    while (memBlock.memory + memBlock.size != memRegion->last)
     {
         memFree = (MemFree*) (memBlock.memory + memBlock.size);
         size = memFree->size;
@@ -321,10 +338,8 @@ void Ogre::MemoryManager::purgeMem(void* ptr) throw(std::bad_alloc)
 
 void Ogre::MemoryManager::dumpInternals()
 {
-    MemBlock memBlock;
-    memBlock.memory=(char*)mVmemStart;
-    memBlock.size=0;
-    
+    // dump the bins
+    //--------------------------------------------------------------------
     uint32 size;
     MemFree* memFree;
     MemProfileManager::getSingleton() << "\nDummping Internal Table\n" <<
@@ -332,38 +347,58 @@ void Ogre::MemoryManager::dumpInternals()
     for (uint32 i = 0;i < NUM_BINS;++i)
         mBin[i].dumpInternals();
 
-    std::cout << "\n24 byte bin " << std::endl;
+    MemProfileManager::getSingleton() << "\n24 byte bin \n";
     m24ByteBin.dumpInternals();
+    //--------------------------------------------------------------------
 
-    std::cout << "\nDummping Memory Map\n" <<
+    // dump the memory map
+    //--------------------------------------------------------------------
+    MemBlock memBlock;
+    MemProfileManager::getSingleton() << "\nDummping Memory Map\n" <<
         "-------------------------------------------------------------\n";
-    while(memBlock.memory + memBlock.size != mVmemStop)
+
+    for(uint32 i=0;i<=mRegionIdx; ++i)
     {
-        memFree = (MemFree*)(memBlock.memory + memBlock.size);
-        size = memFree->size;
-
-        if(size & MASK)
-        {
-            MemProfileManager::getSingleton() << "1 : " 
-                << (void*)(memBlock.memory + memBlock.size) << " : " << (size^MASK) <<  "\n";
-            memBlock.size += (size^MASK);
-
-            MemCtrl* memCtrl = (MemCtrl*)memFree;
-            assert(memCtrl->magic == MAGIC);
-
-            memCtrl = (MemCtrl*)((char*)(memFree)+(size^MASK) - sizeof(MemCtrl));
-            assert(memCtrl->magic == MAGIC);
-
-        }
-        else
-        {
-            MemProfileManager::getSingleton() << "0 : " 
-                << (void*)(memBlock.memory + memBlock.size) << " : " << size << "\n";
-            memBlock.size+=size;
-        }
-        assert(size);
+        MemProfileManager::getSingleton() << "Region " << i+1 << " of " << mRegionIdx+1 << " : "
+                << (void*)(mRegion[i].head) << " to " << (void*)(mRegion[i].last) << "\n";
     }
-    MemProfileManager::getSingleton() << "-------------------------------------------------------------\n\n";
+
+    for(uint32 i=0; i<=mRegionIdx; ++i)
+    {
+        MemProfileManager::getSingleton() << "\nRegion " << i+1 << " of " << mRegionIdx+1 << "\n";
+
+        memBlock.memory=(char*)mRegion[i].head;
+        memBlock.size=0;
+
+        while(memBlock.memory + memBlock.size != mRegion[i].last)
+        {
+            memFree = (MemFree*)(memBlock.memory + memBlock.size);
+            size = memFree->size;
+
+            if(size & MASK)
+            {
+                MemProfileManager::getSingleton() << "1 : " 
+                    << (void*)(memBlock.memory + memBlock.size) << " : " << (size^MASK) <<  "\n";
+                memBlock.size += (size^MASK);
+
+                MemCtrl* memCtrl = (MemCtrl*)memFree;
+                assert(memCtrl->magic == MAGIC);
+
+                memCtrl = (MemCtrl*)((char*)(memFree)+(size^MASK) - sizeof(MemCtrl));
+                assert(memCtrl->magic == MAGIC);
+            }
+            else
+            {
+                MemProfileManager::getSingleton() << "0 : " 
+                    << (void*)(memBlock.memory + memBlock.size) << " : " << size << "\n";
+                memBlock.size+=size;
+            }
+            assert(size);
+        }
+    }
+    MemProfileManager::getSingleton() << 
+            "-------------------------------------------------------------\n\n";
+    //--------------------------------------------------------------------
 }
 
 void Ogre::MemoryManager::distributeCore(MemBlock& block)
@@ -445,16 +480,44 @@ Ogre::MemoryManager::MemBlock Ogre::MemoryManager::moreCore(uint32 idx, uint32 s
 
         ret.size = size;
 #ifndef USE_MMAP
-        ret.memory= (char*) sbrk( size );
+        if (sbrk(0)!=mRegion[mRegionIdx].last) // somthing else is eating our VAS
 #else
-        ret.memory = (char*) mmap(mVmemStop, size, PROT_READ|PROT_WRITE, MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+            ret.memory = (char*) mmap(
+                          mRegion[mRegionIdx].last, 
+                          size, PROT_READ|PROT_WRITE, 
+                          MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, 
+                          0, 0);
+
+        if (errno==ENOMEM) // we are out of memory or somthing else is eating our VAS
 #endif
-        if (errno==ENOMEM)
         {
-            MemProfileManager::getSingleton() << "Out of memory (ENOMEM)";
-            throw std::bad_alloc();
+            std::cout << "NEW REGION" << std::endl;
+            if(mRegionIdx==7)
+            {
+                MemProfileManager::getSingleton() << "Too many regions";
+                throw std::bad_alloc();
+            }
+            else
+            {
+                // find the new region bounds
+                ++mRegionIdx;
+                mRegion[mRegionIdx].head = (char*) sbrk(0);
+                mRegion[mRegionIdx].last = mRegion[mRegionIdx].head;
+
+#ifndef USE_MMAP
+                // grab VAS from the region with sbrk()
+                ret.memory= (char*) sbrk( size );
+#else
+                // grab VAS from the region with mmap()
+                ret.memory = (char*) mmap(
+                              mRegion[mRegionIdx].last, 
+                              size, PROT_READ|PROT_WRITE, 
+                              MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, 
+                              0, 0);
+#endif
+            }
         }
-        mVmemStop = (void*) ( (char*) mVmemStop + size);
+        mRegion[mRegionIdx].last = mRegion[mRegionIdx].last + size;
     }
     return ret;
 }
@@ -465,7 +528,7 @@ int Ogre::MemoryManager::sizeOfStorage(const void* ptr) throw (std::bad_alloc)
     if(!ptr)
     {
         MemProfileManager::getSingleton() <<
-            "Bad pointer passed to sizeOfStorage() \"NULL\" ";
+            "NULL pointer passed to sizeOfStorage()\n";
         throw std::bad_alloc();
     }
 
@@ -474,13 +537,26 @@ int Ogre::MemoryManager::sizeOfStorage(const void* ptr) throw (std::bad_alloc)
     {
 
         MemProfileManager::getSingleton() <<
-            "Bad pointer passed to sizeOfStorage() or memory corruption" <<
-            (void*)head->magic;
+            "Bad pointer passed to sizeOfStorage() or memory corruption " << ptr 
+                << " magic = " << (void*)(head->magic) << "\n";
+        dumpInternals();
         throw std::bad_alloc();
     }
     return head->size^MASK;
 }
 
+void Ogre::MemoryManager::Bin::dumpInternals()
+{
+    MemFree* tmp = mHeadPtr;
+    MemProfileManager::getSingleton() << 
+            "Bin index " << mIndex << " size " << mSize << "\n";
+    while(tmp)
+    {
+        MemProfileManager::getSingleton() <<
+                " block " << (void*)tmp << " size " << tmp->size << "\n";
+        tmp=tmp->next;
+    }
+}
 
 _OgreExport void *operator new(std::size_t size)
 {

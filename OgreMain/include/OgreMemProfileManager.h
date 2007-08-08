@@ -31,8 +31,8 @@ Torus Knot Software Ltd.
 #define MEMPROFILEMANAGER_H
 
 #include "OgrePrerequisites.h"
-
 #include "OgreMemProfilerBase.h"
+
 #include <vector>
 #include <iostream>
 #include <fstream>
