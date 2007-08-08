@@ -258,12 +258,12 @@ namespace Ogre
 			return false;
 	}
 	//-----------------------------------------------------------------------
-	Resource::LoadingState UnifiedHighLevelGpuProgram::isLoading() const
+	bool UnifiedHighLevelGpuProgram::isLoading() const
 	{
 		if (!_getDelegate().isNull())
 			return _getDelegate()->isLoading();
 		else
-			return Resource::LOADSTATE_UNLOADED;
+			return false;
 	}
 	//-----------------------------------------------------------------------
 	Resource::LoadingState UnifiedHighLevelGpuProgram::getLoadingState() const
