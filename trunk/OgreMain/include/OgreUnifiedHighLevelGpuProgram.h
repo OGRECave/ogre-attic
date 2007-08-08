@@ -135,7 +135,7 @@ namespace Ogre {
 		void reload(void);
 		bool isReloadable(void) const;
 		bool isLoaded(void) const;
-		LoadingState isLoading() const;
+		bool isLoading() const;
 		LoadingState getLoadingState() const;
 		void unload(void);
 		size_t getSize(void) const;
