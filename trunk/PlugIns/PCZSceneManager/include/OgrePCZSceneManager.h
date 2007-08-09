@@ -299,6 +299,10 @@ namespace Ogre
         PlaneBoundedVolumeListSceneQuery* createPlaneBoundedVolumeQuery(const PlaneBoundedVolumeList& volumes, unsigned long mask);
         RaySceneQuery* createRayQuery(const Ray& ray, unsigned long mask);
         IntersectionSceneQuery* createIntersectionQuery(unsigned long mask);
+		
+		// ZoneMap iterator for read-only access to the zonemap 
+		typedef MapIterator<ZoneMap> ZoneIterator;
+		ZoneIterator getZoneIterator(void) {return ZoneIterator(mZones.begin(), mZones.end());}
 
     protected:
 		// type of default zone to be used
