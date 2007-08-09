@@ -1582,6 +1582,8 @@ namespace Ogre {
 							*pDstReal++ = tmp.z;
 							break;
 						case VES_NORMAL:
+						case VES_TANGENT:
+						case VES_BINORMAL:
 							tmp.x = *pSrcReal++;
 							tmp.y = *pSrcReal++;
 							tmp.z = *pSrcReal++;
