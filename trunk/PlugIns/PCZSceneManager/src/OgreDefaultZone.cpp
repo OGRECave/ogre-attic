@@ -953,7 +953,7 @@ namespace Ogre
 	{
 		String entityName, nodeName;
 		entityName = this->getName() + "_entity";
-		nodeName = this->getName() + "_node";
+		nodeName = this->getName() + "_Node";
 		Entity *ent = mPCZSM->createEntity(entityName , filename );
 		// create a node for the entity
 		PCZSceneNode * node;
