@@ -512,14 +512,6 @@ namespace Ogre
 		// clear all references to the node in visited zones
 		pczsn->clearNodeFromVisitedZones();
 
-        // remove the node from it's home zone
-        PCZone * home_zone = pczsn->getHomeZone();
-
-        if ( home_zone )
-        {
-            home_zone -> removeNode( pczsn );
-        }
-
         // tell the node it's not in a zone
         pczsn->setHomeZone(0);
     }

@@ -4,18 +4,6 @@ Some items are specific, some are not, it's just a list to keep notes for myself
 
 TODO:
 -------------
-* PCZSM needs new functions for destroyLight() and hasLight() because the PCZSM has new light type definition.
-* potential crash in your PCZSeneManager.cpp line 518, the home_zone->removeNode call basically. removeNode() called twice causing crash? 
-  (well i might be wrong but i tink there's a
-potential crash in your PCZSeneManager.cpp line 518ff,
-the home_zone->removeNode call basically.
-
-This will remove the node from the zone's list, but doesn't
-reflect that in the node.
-
-a few lines later, pczsn->setHomeZone(0) does the same thing over again, now crashing because it's trying to erase from the list (and
-the erase mechanism doesn't catch the element not being in the list) )
-* Add functions to give access to the zonemap (or make it public)
 * Encapsulate Portal creation in PCZSceneManager function.
 * Test function to prevent scenenodes from crossing portals which they won't fit through
 * More testing 
