@@ -712,7 +712,27 @@ namespace Ogre
 	    return static_cast<Light*>(
 		    createMovableObject(name, PCZLightFactory::FACTORY_TYPE_NAME));
     }
-
+	//-----------------------------------------------------------------------
+	Light* PCZSceneManager::getLight(const String& name) const
+	{
+		return static_cast<Light*>(
+			getMovableObject(name, PCZLightFactory::FACTORY_TYPE_NAME));
+	}
+	//-----------------------------------------------------------------------
+	bool PCZSceneManager::hasLight(const String& name) const
+	{
+		return hasMovableObject(name, PCZLightFactory::FACTORY_TYPE_NAME);
+	}
+	//-----------------------------------------------------------------------
+	void PCZSceneManager::destroyLight(const String& name)
+	{
+		destroyMovableObject(name, PCZLightFactory::FACTORY_TYPE_NAME);
+	}
+	//-----------------------------------------------------------------------
+	void PCZSceneManager::destroyAllLights(void)
+	{
+		destroyAllMovableObjectsByType(PCZLightFactory::FACTORY_TYPE_NAME);
+	}
     //---------------------------------------------------------------------
     void PCZSceneManager::findLightsAffectingFrustum(const Camera* camera)
     {

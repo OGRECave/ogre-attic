@@ -330,6 +330,10 @@
 			RelativePath="..\docs\readme.txt"
 			>
 		</File>
+		<File
+			RelativePath="..\docs\todo.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

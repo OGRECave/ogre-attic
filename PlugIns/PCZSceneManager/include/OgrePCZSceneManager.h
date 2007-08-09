@@ -149,6 +149,25 @@ namespace Ogre
         */
         virtual Light* createLight(const String& name);
 
+        /** Returns a pointer to the named Light which has previously been added to the scene.
+		@note Throws an exception if the named instance does not exist
+        */
+        virtual Light* getLight(const String& name) const;
+
+		/** Returns whether a light with the given name exists.
+		*/
+		virtual bool hasLight(const String& name) const;
+
+		/** Removes the named light from the scene and destroys it.
+            @remarks
+                Any pointers held to this light after calling this method will be invalid.
+        */
+        virtual void destroyLight(const String& name);
+
+        /** Removes and destroys all lights in the scene.
+        */
+        virtual void destroyAllLights(void);
+
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
             Custom scene managers are encouraged to override this method to make use of their
