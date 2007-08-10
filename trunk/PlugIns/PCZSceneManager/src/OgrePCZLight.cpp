@@ -59,6 +59,11 @@ namespace Ogre
         affectedZonesList.clear();
     }
     //-----------------------------------------------------------------------
+    const String& PCZLight::getMovableType(void) const
+    {
+		return PCZLightFactory::FACTORY_TYPE_NAME;
+    }
+    //-----------------------------------------------------------------------
     /** Clear the affectedZonesList 
     */
     void PCZLight::clearAffectedZones(void)

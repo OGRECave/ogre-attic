@@ -65,6 +65,9 @@ namespace Ogre
         */
         ~PCZLight();
 
+        /** Overridden from MovableObject */
+        const String& getMovableType(void) const;
+
         /** Clear the affectedZonesList 
         */
         void clearAffectedZones(void);
