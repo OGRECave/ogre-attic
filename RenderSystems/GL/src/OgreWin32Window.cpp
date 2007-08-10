@@ -423,6 +423,11 @@ namespace Ogre {
 				ChangeDisplaySettings(NULL, 0);
 			DestroyWindow(mHWnd);
 		}
+		else
+		{
+			// just release the DC
+			ReleaseDC(mHWnd, mHDC);
+		}
 
 		mActive = false;
 		mClosed = true;
