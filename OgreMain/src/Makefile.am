@@ -25,7 +25,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreCommon.cpp \
                          OgreConfigFile.cpp \
                          OgreControllerManager.cpp \
-						 OgreConvexBody.cpp \
+			 OgreConvexBody.cpp \
                          OgreDataStream.cpp \
                          OgreDDSCodec.cpp \
                          OgreDefaultHardwareBufferManager.cpp \
@@ -52,7 +52,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
 			 OgreHighLevelGpuProgram.cpp \
 			 OgreHighLevelGpuProgramManager.cpp \
                          OgreImage.cpp \
-						 OgreInstancedGeometry.cpp \
+			 OgreInstancedGeometry.cpp \
                          OgreKeyFrame.cpp \
                          OgreLight.cpp \
                          OgreLog.cpp \
@@ -66,6 +66,8 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreMatrix3.cpp \
                          OgreMatrix4.cpp \
                          OgreMemoryManager.cpp \
+                         OgreMemoryBin.cpp \
+                         OgreMemoryRegion.cpp \
                          OgreMesh.cpp \
                          OgreMeshManager.cpp \
                          OgreMeshSerializer.cpp \
@@ -73,7 +75,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreMovableObject.cpp \
 			 OgreMovablePlane.cpp \
                          OgreNode.cpp \
-						 OgreNumerics.cpp \
+			 OgreNumerics.cpp \
                          OgreOptimisedUtil.cpp \
                          OgreOptimisedUtilGeneral.cpp \
                          OgreOverlay.cpp \
@@ -94,10 +96,10 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgrePatchSurface.cpp \
                          OgrePlane.cpp \
                          OgrePlatformInformation.cpp \
-						 OgrePolygon.cpp \
+			 OgrePolygon.cpp \
 			 OgrePose.cpp \
                          OgrePredefinedControllers.cpp \
-						 OgrePrefabFactory.cpp \
+			 OgrePrefabFactory.cpp \
 			 OgreProfiler.cpp \
                          OgreProgressiveMesh.cpp \
                          OgreQuaternion.cpp \
@@ -123,10 +125,10 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreSceneQuery.cpp \
                          OgreSearchOps.cpp \
                          OgreSerializer.cpp \
-						 OgreShadowCameraSetup.cpp \
-						 OgreShadowCameraSetupFocused.cpp \
-						 OgreShadowCameraSetupLiSPSM.cpp \
-						 OgreShadowCameraSetupPlaneOptimal.cpp \
+			 OgreShadowCameraSetup.cpp \
+			 OgreShadowCameraSetupFocused.cpp \
+			 OgreShadowCameraSetupLiSPSM.cpp \
+			 OgreShadowCameraSetupPlaneOptimal.cpp \
 			 OgreShadowCaster.cpp \
 			 OgreShadowTextureManager.cpp \
 			 OgreShadowVolumeExtrudeProgram.cpp \
@@ -148,7 +150,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreTexture.cpp \
                          OgreTextureManager.cpp \
                          OgreTextureUnitState.cpp \
-						 OgreUnifiedHighLevelGpuProgram.cpp \
+			 OgreUnifiedHighLevelGpuProgram.cpp \
                          OgreUserDefinedObject.cpp \
                          OgreVector2.cpp \
                          OgreVector3.cpp \
