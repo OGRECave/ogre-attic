@@ -40,7 +40,7 @@ namespace Ogre {
 	typedef SharedPtr<ScriptNode> ScriptNodePtr;
 
 	/** A list of nodes is the base structure of the AST */
-	typedef std::list<ScriptNodePtr> ScriptNodeList;
+	typedef std::vector<ScriptNodePtr> ScriptNodeList;
 	typedef SharedPtr<ScriptNodeList> ScriptNodeListPtr;
 
 	/** This is the basic unit of the Abstract Syntax Tree.
@@ -49,10 +49,11 @@ namespace Ogre {
 	*/
 	struct ScriptNode
 	{
-		String token;
-		uint32 type;
+		String token, file;
+		uint32 type, wordID;
 		int line, column;
-		String file;
+		Real data;
+		bool isProperty, isObject;
 		ScriptNodeList children;
 		ScriptNode *parent;
 	};
@@ -67,19 +68,25 @@ namespace Ogre {
 		PE_IMPORTTARGETEXPECTED,
 		PE_ENDQUOTEEXPECTED,
 		PE_FROMEXPECTED,
+		PE_PARENTOBJECTEXPECTED,
+		PE_VARIABLEEXPECTED,
+		PE_VARIABLEVALUEEXPECTED,
 		PE_UNKNOWN
 	};
 
 	/** This enum contains type IDs for identified built-in types */
 	enum
 	{
-		SNT_VAR,
-		SNT_STRING,
+		SNT_VARIABLE,
+		SNT_VARIABLE_ASSIGN,
+		SNT_WORD,
 		SNT_NUMBER,
 		SNT_IMPORT,
 		SNT_QUOTE,
 		SNT_LBRACE,
 		SNT_RBRACE,
+		SNT_COLON,
+		SNT_NEWLINE,
 		SNT_END_TYPES
 	};
 
