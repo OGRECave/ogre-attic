@@ -218,11 +218,19 @@ namespace Ogre {
 			word_action(script_ast **rhs, bool prop):ast(rhs),isProperty(prop){}
 			template<class IterT>void operator()(IterT first, IterT last) const{
 				ScriptNodePtr node(new ScriptNode());
+
+				bool isNumber = false;
+				if(boost::spirit::parse(first, last, real_p[assign_a(node->data)]).full)
+					isNumber = true;
+				
 				node->file = first.get_position().file;
 				node->line = first.get_position().line;
 				node->column = first.get_position().column;
-				node->type = SNT_WORD;
-				node->token.assign(first, last);
+				node->type = isNumber ? SNT_NUMBER : SNT_WORD;
+				if(!isNumber)
+				{
+					node->token.assign(first, last); // TODO: only assign if the wordID isn't found
+				}
 				node->isObject = false;
 				node->isProperty = isProperty;
 				node->wordID = 0; // TODO set this based on wordID map
@@ -682,7 +690,7 @@ namespace Ogre {
 					>>
 					(str_p("{")[lbrace_action(&self.ast)])
 					>>
-					*(*(ws|nl) >> (variable_assign|variable|object|prop))
+					*(*(ws|nl) >> (variable_assign|(variable[variable_action(&self.ast,false)])|object|prop))
 					>>
 					*(ws|nl)
 					>>
@@ -709,19 +717,24 @@ namespace Ogre {
 	struct script_grammar : public sub_grammar<script_grammar>
 	{
 		// This is type definition of the rule which this grammar defines
-		typedef boost::spirit::kleene_star<boost::spirit::alternative<boost::spirit::alternative<Ogre::import_grammar,Ogre::variable_assign_grammar>,Ogre::object_grammar> > start_t;
+		typedef boost::spirit::sequence<boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> >,boost::spirit::kleene_star<boost::spirit::sequence<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<Ogre::import_grammar,Ogre::variable_assign_grammar>,Ogre::object_grammar>,Ogre::property_grammar>,boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> > > > > start_t;
 
 		script_grammar()
-			:import(&ast), variable_assign(&ast), object(&ast),
+			:prop(&ast), import(&ast), variable_assign(&ast), object(&ast),
 			 start
 			 (
-				*(import|variable_assign|object)
+				*(ws|nl)
+				>>
+				*((import|variable_assign|object|prop) >> *(ws|nl))
 			 )
 		{
 		}
 
 		// These are this grammar's dependent grammars
+		whitespace_grammar ws;
+		newline_grammar nl;
 		import_grammar import;
+		property_grammar prop;
 		variable_assign_grammar variable_assign;
 		object_grammar object;
 

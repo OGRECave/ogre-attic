@@ -40,7 +40,7 @@ namespace Ogre {
 	typedef SharedPtr<ScriptNode> ScriptNodePtr;
 
 	/** A list of nodes is the base structure of the AST */
-	typedef std::vector<ScriptNodePtr> ScriptNodeList;
+	typedef std::list<ScriptNodePtr> ScriptNodeList;
 	typedef SharedPtr<ScriptNodeList> ScriptNodeListPtr;
 
 	/** This is the basic unit of the Abstract Syntax Tree.

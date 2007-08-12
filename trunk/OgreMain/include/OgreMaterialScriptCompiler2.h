@@ -75,90 +75,7 @@ namespace Ogre{
 		/// This is the override for loading imports
 		ScriptNodeListPtr loadImportPath(const String &name);
 	private: // Private handlers to compile pieces of the material script
-		void compileMaterial(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileLodDistances(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileReceiveShadows(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileTransparencyCastsShadows(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileSetTextureAlias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-
-		void compileTechnique(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileScheme(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Technique *technique);
-		void compileLodIndex(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Technique *technique);
-
-		void compilePass(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Technique *technique);
-		void compileAmbient(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileDiffuse(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileSpecular(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileEmissive(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileSceneBlend(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileSeparateSceneBlend(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileDepthCheck(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileDepthWrite(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileDepthFunc(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileDepthBias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileIterationDepthBias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileAlphaRejection(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileLightScissor(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileLightClipPlanes(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileIlluminationStage(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileCullHardware(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileCullSoftware(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileNormaliseNormals(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileLighting(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileShading(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compilePolygonMode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compilePolygonModeOverrideable(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileFogOverride(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileColourWrite(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileMaxLights(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileStartLight(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileIteration(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compilePointSize(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compilePointSprites(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compilePointSizeAttenuation(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compilePointSizeMin(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compilePointSizeMax(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-
-		void compileTextureUnit(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
-		void compileTextureAlias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileAnimTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileCubicTexture(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileTexCoordSet(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileTexAddressMode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileTexBorderColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileFiltering(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileMaxAnisotropy(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileMipmapBias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileColourOp(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileColourOpEx(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileColourOpMultipassFallback(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileAlphaOpEx(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileEnvMap(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileScroll(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileScrollAnim(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileRotate(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileRotateAnim(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileScale(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileWaveXForm(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileTransform(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileBindingType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-		void compileContentType(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, TextureUnitState *unitState);
-
-		void compileVertexProgram(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileFragmentProgram(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileDefaultParameters(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::GpuProgramParametersSharedPtr &params);
-		void compileManualConstant(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::GpuProgramParametersSharedPtr &params);
-		void compileAutoConstant(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::GpuProgramParametersSharedPtr &params);
 		
-		bool parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
-		bool parseBlendFactor(const String &str, SceneBlendFactor &factor);
-		bool parseCompareFunction(const String &str, CompareFunction &func);
-		bool parseBlendOp(const String &str, LayerBlendOperationEx &op);
-		bool parseBlendSource(const String &str, LayerBlendSource &source);
-		bool parseXFormType(const String &str, TextureUnitState::TextureTransformType &type);
-		bool parseWaveType(const String &str, WaveformType &wave);
-		bool parseProfiles(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, String &profiles);
 	private:
 		// The listener
 		MaterialScriptCompilerListener *mListener;
@@ -170,8 +87,6 @@ namespace Ogre{
 		GpuProgram *mProgram;
 		// These are the default parameters of the compiling program
 		GpuProgramParametersSharedPtr mParams;
-		// These are the program syntax codes recognized
-		std::set<String> mSyntaxCodes;
 	};
 
 }
