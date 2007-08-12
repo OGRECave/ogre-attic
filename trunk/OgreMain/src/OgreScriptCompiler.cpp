@@ -103,7 +103,7 @@ namespace Ogre{
 				ScriptNodePtr next1 = getNodeAt(cur, nodes.end(), 1);
 				if(next1.isNull())
 					addError(CE_VARIABLEEXPECTED, (*cur)->file, (*cur)->line, (*cur)->column);
-				else if(next1->type != SNT_VAR)
+				else if(next1->type != SNT_VARIABLE)
 					addError(CE_VARIABLEEXPECTED, next1->file, next1->line, next1->column);
 				else
 				{
@@ -152,7 +152,7 @@ namespace Ogre{
 			ScriptNodeList::iterator cur = i++;
 
 			// Handle the use of variables
-			if((*cur)->type == SNT_VAR)
+			if((*cur)->type == SNT_VARIABLE)
 			{
 				// Look up the value of the variable in the current scope
 				std::pair<bool,String> var = findVariable((*cur)->token);

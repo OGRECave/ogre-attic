@@ -30,49 +30,80 @@ Torus Knot Software Ltd.
 #include "OgreStableHeaders.h"
 #include "OgreScriptParser.h"
 #include <boost/spirit.hpp>
-#include <boost/spirit/tree/ast.hpp>
 
 using namespace boost;
 using namespace boost::spirit;
 
 namespace Ogre {
 
+	/** This class is meant to stand-in for regular spirit grammars. It is much faster,
+		using no virtual functions and storing the sub-parser by reference.
+		It is based on code in the boost spirit documentation.
+	*/
+	template<class DerivedT>
+	struct sub_grammar : parser<DerivedT>
+	{
+		typedef sub_grammar self_t;
+		typedef DerivedT const& embed_t;
+
+		template<class ScannerT>
+		struct result
+		{
+			typedef typename parser_result<typename DerivedT::start_t, ScannerT>::type type;
+		};
+
+		DerivedT const& derived() const{
+			return *static_cast<DerivedT const*>(this);
+		}
+
+		template<class ScannerT>
+		typename parser_result<self_t, ScannerT>::type parse(ScannerT const& scan) const{
+			return derived().start.parse(scan);
+		}
+	};
+	
 	/** This is the ogre skip parser grammar. The skip grammar defines what fragments of the
 		input the parser will skip over when it is doing phase-level scanning.
 	*/
-	struct SkipGrammar : public grammar<SkipGrammar>
+	struct skip_grammar : public sub_grammar<skip_grammar>
 	{
-		template<class ScannerT>
-		struct definition
-		{
-			rule<ScannerT> r;
+		typedef boost::spirit::alternative<
+			boost::spirit::confix_parser<
+				boost::spirit::impl::string_as_parser::type,
+					boost::spirit::kleene_star<boost::spirit::anychar_parser>,
+					boost::spirit::alternative<boost::spirit::eol_parser,boost::spirit::end_parser>,
+					boost::spirit::unary_parser_category,boost::spirit::non_nested,boost::spirit::is_lexeme>,
+			boost::spirit::confix_parser<
+				boost::spirit::impl::string_as_parser::type,
+					boost::spirit::kleene_star<boost::spirit::anychar_parser>,
+					boost::spirit::impl::string_as_parser::type,boost::spirit::unary_parser_category,
+					boost::spirit::non_nested,boost::spirit::is_lexeme> > 
+		start_t;
 
-			definition(SkipGrammar const& self)
-			{
-				r = space_p | comment_p("//") | comment_p("/*", "*/");
-			}
+		skip_grammar()
+			:start(comment_p("//") | comment_p("/*", "*/"))
+		{}
 
-			rule<ScannerT> const& start(){ return r; }
-		};
+		start_t start;
 	};
 
-	/** This is a fully-conforming spirit grammar which gather error information
-		and throw a ParseErrorException.
+	/** This is a fully-conforming spirit grammar which gathers error information
+		and throws a ParseErrorException.
 	*/
-	struct ErrorParser
+	struct error_parser
 	{
 		// This is the error message which is thrown from this parser
 		ParseError mError, mEofError;
 
-		ErrorParser(ParseError error, ParseError eofError)
+		error_parser(ParseError error, ParseError eofError)
 			:mError(error), mEofError(eofError){}
 
 		// A simple copy constructor
-		ErrorParser(const ErrorParser &rhs)
+		error_parser(const error_parser &rhs)
 			:mError(rhs.mError), mEofError(rhs.mEofError){}
 
 		// An assignment operator
-		ErrorParser &operator = (const ErrorParser &rhs){
+		error_parser &operator = (const error_parser &rhs){
 			mError = rhs.mError;
 			mEofError = rhs.mEofError;
 			return *this;
@@ -95,237 +126,607 @@ namespace Ogre {
 		}
 	};
 
-	/** This is the ogre script main grammar. It builds a custom AST as it parses
-		the script input. It uses the custom-made ErrorParser to handle error conditions
-		in the grammar.
-	*/
-	struct ScriptGrammar : public grammar<ScriptGrammar>
-	{
-		/** This is the AST generated from the definition in this grammar */
-		struct AST{
-			ScriptNodeListPtr nodes;
-			ScriptNode *current;
-		};
-		mutable AST ast;
+	// This parser generates specific warnings during the parsing process
+	typedef functor_parser<error_parser> functor_error_parser;
+	functor_error_parser error_p(ParseError err = PE_RESERVED, ParseError eofErr = PE_RESERVED){
+		return error_parser(err, eofErr);
+	}
 
-		template<class ScannerT>
+	// This represents the AST as it is built by the parser
+	struct script_ast
+	{
+		script_ast()
+			:nodes(ScriptNodeListPtr(new ScriptNodeList())), current(0)
+		{}
+		ScriptNodeListPtr nodes;
+		ScriptNode *current;
+	};
+
+	// Matches any length of adjacent whitespace characters
+	struct whitespace_grammar : public sub_grammar<whitespace_grammar>
+	{
+		// This is type definition of the rule which this grammar defines
+		typedef boost::spirit::positive<boost::spirit::blank_parser> start_t;
+
+		whitespace_grammar()
+			:start(+blank_p)
+		{}
+
+		start_t start;
+	};
+
+	// Matches any number of newlines as one match
+	struct newline_grammar : public sub_grammar<newline_grammar>
+	{
+		typedef boost::spirit::positive<boost::spirit::eol_parser> start_t;
+
+		newline_grammar()
+			:start(+eol_p)
+		{}
+
+		start_t start;
+	};
+
+	// Matches a word, which is a basic unit of script code
+	struct word_grammar : public sub_grammar<word_grammar>
+	{
+		typedef boost::spirit::sequence<boost::spirit::alternative<boost::spirit::alnum_parser,boost::spirit::chlit<char> >,boost::spirit::kleene_star<boost::spirit::alternative<boost::spirit::alnum_parser,boost::spirit::difference<boost::spirit::punct_parser,boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::chlit<char>,boost::spirit::chlit<char> >,boost::spirit::chlit<char> >,boost::spirit::chlit<char> > > > > > start_t;
+
+		word_grammar()
+			:start((alnum_p|'_') >> (*(alnum_p|(punct_p - (ch_p('{')|'}'|'\"'|':')))))
+		{}
+
+		start_t start;
+	};
+
+	// Matches a variable, starting with '$'
+	struct variable_grammar : public sub_grammar<variable_grammar>
+	{
+		typedef boost::spirit::sequence<boost::spirit::chlit<char>,boost::spirit::kleene_star<boost::spirit::alternative<boost::spirit::alnum_parser,boost::spirit::difference<boost::spirit::punct_parser,boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::chlit<char>,boost::spirit::chlit<char> >,boost::spirit::chlit<char> >,boost::spirit::chlit<char> > > > > > start_t;
+
+		variable_grammar()
+			:start(ch_p('$') >> (*(alnum_p|(punct_p - (ch_p('{')|'}'|'\"'|':')))))
+		{}
+
+		start_t start;
+	};
+
+	// Matches a quoted string (embedded quotes not supported)
+	struct quote_grammar : public sub_grammar<quote_grammar>
+	{
+		typedef boost::spirit::alternative<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::chlit<char>,boost::spirit::kleene_star<boost::spirit::difference<boost::spirit::alternative<boost::spirit::print_parser,boost::spirit::eol_parser>,boost::spirit::chlit<char> > > >,boost::spirit::alternative<boost::spirit::strlit<const char *>,boost::spirit::functor_parser<Ogre::error_parser> > >,boost::spirit::sequence<boost::spirit::sequence<boost::spirit::chlit<char>,boost::spirit::kleene_star<boost::spirit::difference<boost::spirit::alternative<boost::spirit::print_parser,boost::spirit::eol_parser>,boost::spirit::chlit<char> > > >,boost::spirit::alternative<boost::spirit::strlit<const char *>,boost::spirit::functor_parser<Ogre::error_parser> > > > start_t;
+
+		quote_grammar()
+			:start
+			(
+				(ch_p('\"') >> *((print_p|eol_p) - ch_p('\"')) >> ("\"" | error_p(PE_ENDQUOTEEXPECTED)))
+				|
+				(ch_p('\'') >> *((print_p|eol_p) - ch_p('\'')) >> ("\'" | error_p(PE_ENDQUOTEEXPECTED)))
+			)
+		{}
+
+		start_t start;
+	};
+
+	// Matches a property declaration
+	struct property_grammar : public sub_grammar<property_grammar>
+	{
+		struct word_action
+		{
+			bool isProperty;
+			script_ast **ast;
+			word_action(script_ast **rhs, bool prop):ast(rhs),isProperty(prop){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_WORD;
+				node->token.assign(first, last);
+				node->isObject = false;
+				node->isProperty = isProperty;
+				node->wordID = 0; // TODO set this based on wordID map
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				if(isProperty)
+					(*ast)->current = node.get();
+			}
+		};
+		struct variable_action
+		{
+			bool isProperty;
+			script_ast **ast;
+			variable_action(script_ast **rhs, bool prop):ast(rhs),isProperty(prop){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->token.assign(first, last);
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_VARIABLE;
+				node->isObject = false;
+				node->isProperty = isProperty;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				if(isProperty)
+					(*ast)->current = node.get();
+			}
+		};
+		struct end_action
+		{
+			script_ast **ast;
+			end_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				(*ast)->current = (*ast)->current->parent;
+			}
+		};
+		typedef boost::spirit::sequence<spirit::sequence<boost::spirit::sequence<boost::spirit::alternative<boost::spirit::action<Ogre::word_grammar,Ogre::property_grammar::word_action>,boost::spirit::action<Ogre::variable_grammar,Ogre::property_grammar::variable_action> >,boost::spirit::positive<boost::spirit::sequence<Ogre::whitespace_grammar,boost::spirit::alternative<boost::spirit::action<Ogre::word_grammar,Ogre::property_grammar::word_action>,boost::spirit::action<Ogre::variable_grammar,Ogre::property_grammar::variable_action> > > > >,boost::spirit::optional<Ogre::whitespace_grammar> >,boost::spirit::optional<boost::spirit::action<Ogre::newline_grammar,Ogre::property_grammar::end_action> > > start_t;
+
+		property_grammar(script_ast *rhs)
+			:ast(rhs),
+			 start
+			 (
+				((word[word_action(&ast,true)])|(variable[variable_action(&ast,true)]))
+				>>
+				+(ws
+					>>
+					((word[word_action(&ast,false)])|(variable[variable_action(&ast,false)])))
+				>>
+				!ws
+				>>
+				!(nl[end_action(&ast)])
+			 )
+		{}
+
+		// These are this grammar's dependent grammars
+		whitespace_grammar ws;
+		newline_grammar nl;
+		word_grammar word;
+		variable_grammar variable;
+
+		start_t start;
+		script_ast *ast;
+	};
+
+	// Matches an import statement
+	struct import_grammar : public sub_grammar<import_grammar>
+	{
+		struct import_action
+		{
+			script_ast **ast;
+			import_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_IMPORT;
+				node->isObject = false;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				(*ast)->current = node.get();
+			}
+		};
+		struct target_action
+		{
+			script_ast **ast;
+			target_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_WORD;
+				node->token.assign(first, last);
+				node->isObject = false;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+			}
+		};
+		struct script_action
+		{
+			script_ast **ast;
+			script_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				String token(first, last);
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_WORD;
+				node->token = token.size() == 2 ? "" : token.substr(1, token.size() - 2);
+				node->isObject = false;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				(*ast)->current = (*ast)->current->parent;
+			}
+		};
+		typedef boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::action<boost::spirit::strlit<const char *>,Ogre::import_grammar::import_action>,Ogre::whitespace_grammar>,boost::spirit::action<boost::spirit::alternative<Ogre::word_grammar,boost::spirit::strlit<const char *> >,Ogre::import_grammar::target_action> >,Ogre::whitespace_grammar>,boost::spirit::alternative<boost::spirit::strlit<const char *>,boost::spirit::functor_parser<Ogre::error_parser> > >,Ogre::whitespace_grammar>,boost::spirit::alternative<boost::spirit::action<Ogre::quote_grammar,Ogre::import_grammar::script_action>,boost::spirit::functor_parser<Ogre::error_parser> > > start_t;
+
+		import_grammar(script_ast *rhs)
+			:ast(rhs),
+			start
+			(
+				(str_p("import")[import_action(&ast)])
+				>>
+				ws
+				>>
+				((word|str_p("*"))[target_action(&ast)])
+				>>
+				ws
+				>>
+				(str_p("from")|error_p(PE_FROMEXPECTED))
+				>> 
+				ws
+				>>
+				((quote[script_action(&ast)])|error_p(PE_IMPORTPATHEXPECTED))
+			)
+		{}
+
+		whitespace_grammar ws;
+		word_grammar word;
+		quote_grammar quote;
+
+		start_t start;
+		script_ast *ast;
+	};
+
+	// Matches a variable assignment operation
+	struct variable_assign_grammar : public sub_grammar<variable_assign_grammar>
+	{
+		struct set_action
+		{
+			script_ast **ast;
+			set_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_VARIABLE_ASSIGN;
+				node->isObject = false;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				(*ast)->current = node.get();
+			}
+		};
+		struct variable_action
+		{
+			script_ast **ast;
+			variable_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_VARIABLE;
+				node->token.assign(first, last);
+				node->isObject = false;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+			}
+		};
+		struct value_action
+		{
+			script_ast **ast;
+			value_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				String token(first, last);
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_QUOTE;
+				node->token = token.size() == 2 ? "" : token.substr(1, token.size() - 2);
+				node->isObject = false;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				(*ast)->current = (*ast)->current->parent;
+			}
+		};
+		typedef boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::action<boost::spirit::strlit<const char *>,Ogre::variable_assign_grammar::set_action>,Ogre::whitespace_grammar>,boost::spirit::alternative<boost::spirit::action<Ogre::variable_grammar,Ogre::variable_assign_grammar::variable_action>,boost::spirit::functor_parser<Ogre::error_parser> > >,boost::spirit::positive<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> > >,boost::spirit::alternative<boost::spirit::action<Ogre::quote_grammar,Ogre::variable_assign_grammar::value_action>,boost::spirit::functor_parser<Ogre::error_parser> > > start_t;
+
+		variable_assign_grammar(script_ast *rhs)
+			:ast(rhs),
+			start
+			(
+				(str_p("set")[set_action(&ast)])
+				>>
+				ws
+				>>
+				((variable[variable_action(&ast)])|error_p(PE_VARIABLEEXPECTED))
+				>>
+				+(ws|nl)
+				>>
+				((quote[value_action(&ast)])|error_p(PE_VARIABLEVALUEEXPECTED))
+			)
+		{}
+
+		whitespace_grammar ws;
+		newline_grammar nl;
+		variable_grammar variable;
+		quote_grammar quote;
+
+		start_t start;
+		script_ast *ast;
+	};
+
+	// This matches an object header as a look-ahead mechanism
+	struct object_header_grammar : public sub_grammar<object_header_grammar>
+	{
+		typedef boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::alternative<Ogre::word_grammar,Ogre::variable_grammar>,boost::spirit::kleene_star<boost::spirit::sequence<Ogre::whitespace_grammar,boost::spirit::alternative<Ogre::word_grammar,Ogre::variable_grammar> > > >,boost::spirit::optional<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<Ogre::whitespace_grammar,boost::spirit::strlit<const char *> >,Ogre::whitespace_grammar>,boost::spirit::alternative<Ogre::word_grammar,Ogre::variable_grammar> > > >,boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> > >,boost::spirit::strlit<const char *> > start_t;
+
+		object_header_grammar()
+			:start
+			(
+				(word|variable)
+				>>
+				*(ws >> (word|variable))
+				>>
+				!(ws >> str_p(":") >> ws >> (word|variable))
+				>>
+				*(ws|nl)
+				>>
+				str_p("{")
+			)
+		{}
+
+		whitespace_grammar ws;
+		newline_grammar nl;
+		variable_grammar variable;
+		word_grammar word;
+
+		start_t start;
+	};
+
+	// This recognized an object declaration
+	struct object_grammar : public grammar<object_grammar>
+	{
+		mutable script_ast *ast;
+		object_grammar(script_ast *rhs):ast(rhs){}
+
+		struct ident_action
+		{
+			script_ast **ast;
+			bool isObject;
+			ident_action(script_ast **rhs, bool obj):ast(rhs), isObject(obj){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_WORD;
+				node->token.assign(first, last);
+				node->isObject = isObject;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				if(isObject)
+					(*ast)->current = node.get();
+			}
+		};
+		struct variable_action
+		{
+			script_ast **ast;
+			bool isObject;
+			variable_action(script_ast **rhs, bool obj):ast(rhs), isObject(obj){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_VARIABLE;
+				node->token.assign(first, last);
+				node->isObject = isObject;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				if(isObject)
+					(*ast)->current = node.get();
+			}
+		};
+		struct word_action
+		{
+			script_ast **ast;
+			word_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_WORD;
+				node->wordID = 0; // TODO: assigned based on wordID map
+				node->token.assign(first, last);
+				node->isObject = false;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+			}
+		};
+		struct colon_action
+		{
+			script_ast **ast;
+			colon_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_COLON;
+				node->isObject = false;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				(*ast)->current = node.get();
+			}
+		};
+		struct lbrace_action
+		{
+			script_ast **ast;
+			lbrace_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_LBRACE;
+				node->isObject = false;
+				node->isProperty = false;
+
+				// Remove the colon if it is the current parent
+				if((*ast)->current && (*ast)->current->type == SNT_COLON)
+					(*ast)->current = (*ast)->current->parent;
+
+				// Set up the new hierarchy for the children
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				(*ast)->current = node.get();
+			}
+		};
+		struct rbrace_action
+		{
+			script_ast **ast;
+			rbrace_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_RBRACE;
+				node->isObject = false;
+				node->isProperty = false;
+				
+				// End a property if it is still going
+				if((*ast)->current && (*ast)->current->isProperty)
+					(*ast)->current = (*ast)->current->parent;
+
+				// Next should be the lbrace. End it
+				if((*ast)->current)
+					(*ast)->current = (*ast)->current->parent;
+
+				// Add ourselves in here
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				
+				// Finally, end the object
+				if((*ast)->current)
+					(*ast)->current = (*ast)->current->parent;
+			}
+		};
+
+		template<typename ScannerT>
 		struct definition
 		{
-			typedef rule<ScannerT> rule_t;
-
-			rule<ScannerT> quote, word, variable, block, import, statement, statement_list;
-
-			// This parser generates specific warnings during the parsing process
-			typedef functor_parser<ErrorParser> error_parser;
-			error_parser error_p(ParseError err = PE_RESERVED, ParseError eofErr = PE_RESERVED){
-				return ErrorParser(err, eofErr);
-			}
-
-			struct ast_action{
-				AST &ast;
-				ast_action(AST &rhs):ast(rhs){}
-			};
-			struct do_import : public ast_action{
-				do_import(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					String token(first, last);
-
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = SNT_IMPORT;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					node->file = first.get_position().file;
-					node->parent = 0;
-					ast.nodes->push_back(node);
-					ast.current = node.get();
-				}
-			};
-			struct do_import_target : public ast_action{
-				do_import_target(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					String token(first, last);
-
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = SNT_STRING;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					node->file = first.get_position().file;
-					node->parent = ast.current;
-					ast.current->children.push_back(node);
-				}
-			};
-			struct do_import_path : public ast_action{
-				do_import_path(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					String token(first, last);
-
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = SNT_STRING;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					node->file = first.get_position().file;
-					node->parent = ast.current;
-					ast.current->children.push_back(node);
-					ast.current = ast.current->parent;
-				}
-			};
-			struct do_word : public ast_action{
-				do_word(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					String token(first, last);
-
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = SNT_STRING;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					node->file = first.get_position().file;
-					node->parent = ast.current;
-
-					if(ast.current)
-						ast.current->children.push_back(node);
-					else
-						ast.nodes->push_back(node);
-				}
-			};
-			struct do_variable : public ast_action{
-				do_variable(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					String token(first, last);
-
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = SNT_VAR;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					node->file = first.get_position().file;
-					node->parent = ast.current;
-
-					if(ast.current)
-						ast.current->children.push_back(node);
-					else
-						ast.nodes->push_back(node);
-				}
-			};
-			struct do_quote : public ast_action{
-				do_quote(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					String token(first, last);
-
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = SNT_QUOTE;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					node->file = first.get_position().file;
-					node->parent = ast.current;
-
-					if(ast.current)
-						ast.current->children.push_back(node);
-					else
-						ast.nodes->push_back(node);
-				}
-			};
-			struct do_number : public ast_action{
-				do_number(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					String token(first, last);
-
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = SNT_NUMBER;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					node->file = first.get_position().file;
-					node->parent = ast.current;
-
-					if(ast.current)
-						ast.current->children.push_back(node);
-					else
-						ast.nodes->push_back(node);
-				}
-			};
-			struct do_lbrace : public ast_action{
-				do_lbrace(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					String token(first, last);
-
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = SNT_LBRACE;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					node->file = first.get_position().file;
-					node->parent = ast.current;
-
-					if(ast.current)
-						ast.current->children.push_back(node);
-					else
-						ast.nodes->push_back(node);
-					ast.current = node.get();
-				}
-			};
-			struct do_rbrace : public ast_action{
-				do_rbrace(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					String token(first, last);
-
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = SNT_RBRACE;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					node->file = first.get_position().file;
-
-					ast.current = ast.current->parent;
-					node->parent = ast.current;
-					if(ast.current)
-						ast.current->children.push_back(node);
-					else
-						ast.nodes->push_back(node);
-				}
-			};
-
-			definition(ScriptGrammar const &self)
+			definition(object_grammar const& self)
+				:prop(self.ast), variable_assign(self.ast)
 			{
-				self.ast.nodes = ScriptNodeListPtr(new ScriptNodeList());
-				self.ast.current = 0;
-
-				word = lexeme_d[((alnum_p | punct_p) - (ch_p('$')|'*'|'{'|'}'|'\"')) 
-					>> *(alnum_p | (punct_p - (ch_p('{')|'}')))];
-				variable = lexeme_d[ch_p('$') >> *(alnum_p | (punct_p - (ch_p('{')|'}')))];
-				quote = ch_p('\"') >> *(print_p - '\"') >> ("\"" | error_p(PE_ENDQUOTEEXPECTED));
-				block = str_p("{")[do_lbrace(self.ast)] 
-					>> *statement 
-						>> (str_p("}")[do_rbrace(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED));
-				import = str_p("import")[do_import(self.ast)] 
-					>> ((word | '*')[do_import_target(self.ast)] | error_p(PE_IMPORTTARGETEXPECTED)) 
-						>> ("from" | error_p(PE_FROMEXPECTED))
-							>> (word[do_import_path(self.ast)] | error_p(PE_IMPORTPATHEXPECTED));
-				statement = 
-					(eps_p >> real_p)[do_number(self.ast)]
-					|word[do_word(self.ast)]
-					|variable[do_variable(self.ast)]
-					|quote[do_quote(self.ast)]
-					|block
+				object = 
+					eps_p(object_header)
+					>>
+					((word[ident_action(&self.ast, true)])|(variable[variable_action(&self.ast, true)]))
+					>>
+					*(ws >> ((word[word_action(&self.ast)])|(variable[variable_action(&self.ast,false)])))
+					>>
+					!(ws >> (str_p(":")[colon_action(&self.ast)]) >> ws >>
+						((word[ident_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
+					>>
+					*(ws|nl)
+					>>
+					(str_p("{")[lbrace_action(&self.ast)])
+					>>
+					*(*(ws|nl) >> (variable_assign|variable|object|prop))
+					>>
+					*(ws|nl)
+					>>
+					((str_p("}")[rbrace_action(&self.ast)])|error_p(PE_CLOSEBRACEEXPECTED))
 					;
-				statement_list = *(import|statement);
 			}
 
-			rule<ScannerT> const &start(){return statement_list;}
+			whitespace_grammar ws;
+			newline_grammar nl;
+			word_grammar word;
+			variable_grammar variable;
+			property_grammar prop;
+			variable_assign_grammar variable_assign;
+			object_header_grammar object_header;
+			rule<ScannerT> object;
+			rule<ScannerT> const& start() const{return object;}
 		};
+	};
+
+	/** This is the ogre script main grammar. It builds a custom AST as it parses
+		the script input. It uses the custom-made error_parser to handle error conditions
+		in the grammar.
+	*/
+	struct script_grammar : public sub_grammar<script_grammar>
+	{
+		// This is type definition of the rule which this grammar defines
+		typedef boost::spirit::kleene_star<boost::spirit::alternative<boost::spirit::alternative<Ogre::import_grammar,Ogre::variable_assign_grammar>,Ogre::object_grammar> > start_t;
+
+		script_grammar()
+			:import(&ast), variable_assign(&ast), object(&ast),
+			 start
+			 (
+				*(import|variable_assign|object)
+			 )
+		{
+		}
+
+		// These are this grammar's dependent grammars
+		import_grammar import;
+		variable_assign_grammar variable_assign;
+		object_grammar object;
+
+		start_t start;
+		script_ast ast;
 	};
 
 	/** Begin ParseErrorException definition */
@@ -395,8 +796,8 @@ namespace Ogre {
 	/** Begin parse */
 	ScriptNodeListPtr parse(const String &script, const String &source)
 	{
-		SkipGrammar skip;
-		ScriptGrammar g;
+		skip_grammar skip;
+		script_grammar g;
 
 		typedef position_iterator<String::const_iterator> iter_t;
 		iter_t first(script.begin(), script.end(), source), last;
