@@ -162,26 +162,16 @@ namespace Ogre{
 		/** This function is intended to do a search within the given level of the tree
 			for an object of the same name. If the object exists, it should return true, otherwise
 			it returns false.
-
-			This should be overridden by derived compilers.
 		*/
 		bool containsObject(const ScriptNodeList &nodes, const String &name);
-		/// This is a utility function to provide random access to a sequential list of nodes
-		ScriptNodePtr getNodeAt(const ScriptNodeList &nodes, int index) const;
-		/// This is a utility for getting random access based on current iterator position
-		ScriptNodePtr getNodeAt(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator end, int index) const;
-		// This utility gets the next node, provided it is the right type and not at the end of the input
-		bool getNextNode(ScriptNodeList::iterator &iter, ScriptNodeList::iterator end, uint32 type) const;
-		// Checks if the next node exists, and adds the given error if it doesn't
-		bool nodeExists(ScriptNodeList::iterator &iter, ScriptNodeList::iterator end, uint32 index);
-		// This is a utility for locating the position of the given token in the range provided
-		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator to, const String &token) const;
-		// This is a utility for locating the position of the given token in the range provided
-		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator to, uint32 type) const;
-		// This is a utility for locating the position of the given token in the range provided
-		ScriptNodeList::iterator findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator to, const String &token) const;
-		// This is a utility for locating the position of the given token in the range provided
-		ScriptNodeList::iterator findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator to, uint32 type) const;
+		// Retrieves the node at the index away from the current iterator, or a null node
+		ScriptNodePtr getNodeAt(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, int index) const;
+		// Retrieves an iterator to the next node of the given type
+		ScriptNodeList::iterator findNode(ScriptNodeList::iterator &from, ScriptNodeList::iterator &end, uint32 type) const;
+		// Retrieves an iterator to the next node of the given type
+		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, uint32 type) const;
+		// Verifies that the next node is the given type and that it exists
+		bool verifyNextNodeType(ScriptNodeList::const_iterator &i, ScriptNodeList::const_iterator &end, uint32 type) const;
 		// Returns true if the string value represents a value of "true", false if not
 		bool isTruthValue(const String &value) const;
 		/// This registers a new error
