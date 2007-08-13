@@ -37,6 +37,9 @@ Torus Knot Software Ltd.
 #include "OgreIteratorWrappers.h"
 #include "OgreScriptLoader.h"
 #include "OgreResourceGroupManager.h"
+#if OGRE_USE_NEW_COMPILERS
+#include "OgreParticleScriptCompiler.h"
+#endif
 
 namespace Ogre {
 
@@ -79,6 +82,12 @@ namespace Ogre {
 		typedef std::map<String, ParticleSystemRendererFactory*> ParticleSystemRendererFactoryMap;
     protected:
 		OGRE_AUTO_MUTEX
+			
+		/// This is the new compiler, in case it is enabled
+#if OGRE_USE_NEW_COMPILERS
+		OGRE_THREAD_POINTER(ParticleScriptCompiler, mScriptCompiler);
+#endif
+
         /// Templates based on scripts
         ParticleTemplateMap mSystemTemplates;
         

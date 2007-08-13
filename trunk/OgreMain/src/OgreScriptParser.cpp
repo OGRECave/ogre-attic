@@ -170,10 +170,10 @@ namespace Ogre {
 	// Matches a word, which is a basic unit of script code
 	struct word_grammar : public sub_grammar<word_grammar>
 	{
-		typedef boost::spirit::sequence<boost::spirit::alternative<boost::spirit::alnum_parser,boost::spirit::chlit<char> >,boost::spirit::kleene_star<boost::spirit::alternative<boost::spirit::alnum_parser,boost::spirit::difference<boost::spirit::punct_parser,boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::chlit<char>,boost::spirit::chlit<char> >,boost::spirit::chlit<char> >,boost::spirit::chlit<char> > > > > > start_t;
+		typedef boost::spirit::positive<boost::spirit::alternative<boost::spirit::alnum_parser,boost::spirit::difference<boost::spirit::punct_parser,boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::chlit<char>,boost::spirit::chlit<char> >,boost::spirit::chlit<char> >,boost::spirit::chlit<char> >,boost::spirit::chlit<char> >,boost::spirit::chlit<char> > > > > start_t;
 
 		word_grammar()
-			:start((alnum_p|'_') >> (*(alnum_p|(punct_p - (ch_p('{')|'}'|'\"'|':')))))
+			:start(+(alnum_p|(punct_p - (ch_p('{')|'}'|'\"'|':'|'\''|'$'))))
 		{}
 
 		start_t start;

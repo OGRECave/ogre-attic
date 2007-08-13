@@ -57,6 +57,9 @@ namespace Ogre {
     ParticleSystemManager::ParticleSystemManager()
     {
 		OGRE_LOCK_AUTO_MUTEX
+#if OGRE_USE_NEW_COMPILERS
+		OGRE_THREAD_POINTER_SET(mScriptCompiler, new ParticleScriptCompiler());
+#endif
         mScriptPatterns.push_back("*.particle");
         ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 		mFactory = new ParticleSystemFactory();
@@ -66,6 +69,11 @@ namespace Ogre {
     ParticleSystemManager::~ParticleSystemManager()
     {
 		OGRE_LOCK_AUTO_MUTEX
+
+#if OGRE_USE_NEW_COMPILERS
+		OGRE_THREAD_POINTER_DELETE(mScriptCompiler);
+#endif
+
         // Destroy all templates
         ParticleTemplateMap::iterator t;
         for (t = mSystemTemplates.begin(); t != mSystemTemplates.end(); ++t)
@@ -104,6 +112,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystemManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
+#if OGRE_USE_NEW_COMPILERS
+		mScriptCompiler->compile(stream, groupName);
+#else
         String line;
         ParticleSystem* pSys;
         std::vector<String> vecparams;
@@ -178,7 +189,7 @@ namespace Ogre {
 
 
         }
-
+#endif
 
     }
     //-----------------------------------------------------------------------

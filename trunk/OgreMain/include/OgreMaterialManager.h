@@ -122,10 +122,6 @@ namespace Ogre {
         FilterOptions mDefaultMipFilter;
         /// Default Texture anisotropy
         unsigned int mDefaultMaxAniso;
-		/// Brand new, advanced compiler. Held per thread
-#if OGRE_USE_NEW_COMPILERS
-		OGRE_THREAD_POINTER(MaterialScriptCompiler2, mScriptCompiler2);
-#endif
 		/// New material compiler. Hold instance per thread if necessary
         OGRE_THREAD_POINTER(MaterialScriptCompiler, mScriptCompiler);
         /// Serializer - Hold instance per thread if necessary
