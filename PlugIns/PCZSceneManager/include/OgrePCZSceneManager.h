@@ -108,6 +108,9 @@ namespace Ogre
         /** Deletes a scene node & corresponding PCZSceneNode */
         virtual void destroySceneNode( const String &name );
 
+		/** Checks whether a PCZSceneNode exists */
+		bool hasSceneNode( const String &name );
+
 		/** overridden to clean up zones
 		*/
 		virtual void clearScene(void);
