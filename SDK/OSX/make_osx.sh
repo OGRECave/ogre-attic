@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# TODO - invoke xcode build
+# invoke xcode build
+xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Release
+xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Debug
 
 # frameworks
 echo Copying frameworks...
@@ -35,9 +37,9 @@ popd
 
 cp -R ../../Docs/api sdk_docs/
 # delete unnecessary files
-rm -f sdk_docs/api/*.hhk
-rm -f sdk_docs/api/*.map
-rm -f sdk_docs/api/*.md5
+rm -f sdk_docs/api/html/*.hhk
+rm -f sdk_docs/api/html/*.map
+rm -f sdk_docs/api/html/*.md5
 cp -R ../../Docs/manual sdk_docs/
 cp -R ../../Docs/licenses sdk_docs/
 cp -R ../Win32/docs/ReadMe.html sdk_docs/
@@ -52,9 +54,29 @@ echo Copying samples...
 rm -rf sdk_samples
 mkdir sdk_samples
 
+# Copy project location
 cp -R ../../Mac/Samples/* sdk_samples/
+# copy source
+mkdir sdk_samples/src
+mkdir sdk_samples/include
 
-# TODO - anything to fix up?
+find ../../samples -iname *.cpp -exec cp \{\} sdk_samples/src \;
+find ../../samples -iname *.h -exec cp \{\} sdk_samples/include \;
+cp ../../ReferenceApplication/BspCollision/src/*.cpp sdk_samples/src
+
+# Copy dependencies
+mkdir sdk_samples/Dependencies
+mkdir sdk_samples/Dependencies/include
+mkdir sdk_samples/Dependencies/lib
+mkdir sdk_samples/Dependencies/lib/Debug
+mkdir sdk_samples/Dependencies/lib/Release
+cp -R ../../Dependencies/include/OIS sdk_samples/Dependencies/include
+cp ../../Dependencies/lib/Debug/libois.a sdk_samples/Dependencies/lib/Debug/
+cp ../../Dependencies/lib/Release/libois.a sdk_samples/Dependencies/lib/Release/
+
+# Fix up project references (2 stage rather than in-place since in-place only works for single sed commands)
+sed -f editsamples.sed sdk_samples/Samples.xcodeproj/project.pbxproj > tmp.xcodeproj
+mv tmp.xcodeproj sdk_samples/Samples.xcodeproj/project.pbxproj
 
 echo Samples copied.
 echo Building samples package...
