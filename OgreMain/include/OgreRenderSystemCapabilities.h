@@ -141,13 +141,13 @@ namespace Ogre {
 
             typedef std::set<String> ShaderProfiles;
         private:
-            String mGLDriver;
-            String mGLVendor;
-            String mGLRenderer;
-
-            String mDX9Driver;
-            String mDX9Vendor;
-            String mDX9Renderer;
+			/// This is used to build a database of RSC's
+			/// if a RSC with same name, but newer version is introduced, the older one 
+			/// will be removed
+            int mVersionMajor;
+			int mVersionMinor;
+			int mVersionRelease;
+            
 
             /// The number of world matricies available
             ushort mNumWorldMatrices;
@@ -185,6 +185,10 @@ namespace Ogre {
 			ushort mNumVertexTextureUnits;
 			/// Are vertex texture units shared with fragment processor?
 			bool mVertexTextureUnitsShared;
+			/// Should this RSC be used to initialize D3D9 Render System?
+			bool mCapabilitiesValidForD3D9;
+			bool mCapabilitiesValidForGL;
+
 
 			/// The list of supported shader profiles
 			ShaderProfiles mSupportedShaderProfiles;
@@ -195,67 +199,36 @@ namespace Ogre {
 
             virtual size_t calculateSize() const {return 0;}
 
-            void setGLDriver(String driver)
+            void setVersion(int major, int minor, int release)
             {
-                mGLDriver = driver;
+				mVersionMajor = major;
+				mVersionMinor = minor;
+				mVersionRelease = release;
             }
 
-            void setGLVendor(String vendor)
+			int getVersionMajor()
             {
-                mGLVendor = vendor;
+				return mVersionMajor;
             }
-
-            void setGLRenderer(String renderer)
+			int getVersionMinor()
             {
-                mGLRenderer = renderer;
+				return mVersionMinor;
             }
-
-            void setDX9Driver(String driver)
+			int getVersionRelease()
             {
-                mDX9Driver = driver;
+				return mVersionRelease;
             }
-
-            void setDX9Vendor(String vendor)
-            {
-                mDX9Vendor = vendor;
-            }
-
-            void setDX9Renderer(String renderer)
-            {
-                mDX9Renderer = renderer;
-            }
-
-            String getGLDriver()
-            {
-                return mGLDriver;
-            }
-
-            String getGLVendor()
-            {
-                return mGLVendor;
-            }
-
-            String getGLRenderer()
-            {
-                return mGLRenderer;
-            }
-
-            String getDX9Driver()
-            {
-                return mDX9Driver;
-            }
-
-            String getDX9Vendor()
-            {
-                return mDX9Vendor;
-            }
-
-            String getDX9Renderer()
-            {
-                return mDX9Renderer;
-            }
-
-
+			
+			bool isOlderThanVersion(int major, int minor, int release)
+			{
+				if (major > mVersionMajor)
+					return true;
+				else if (major == mVersionMajor && minor > mVersionMinor)
+					return true;
+				else if (major == mVersionMajor && minor == mVersionMinor && minor > mVersionMinor)
+					return true;
+				return false;
+			}
 
             void setNumWorldMatrices(ushort num)
             {
@@ -507,7 +480,33 @@ namespace Ogre {
 			{
 				return mVertexTextureUnitsShared;
 			}
+			/// Set whether the vertex texture units are shared with the fragment processor
+			void setVertexTextureUnitsShared(bool shared)
+			{
+				mVertexTextureUnitsShared = shared;
+			}
 
+			/// Get whether these capabilities are valid for D3D9
+			bool getCapabilitiesValidForD3D9(void) const
+			{
+				return mCapabilitiesValidForD3D9;
+			}
+			/// Set whether these capabilities are valid for D3D9
+			void setCapabilitiesValidForD3D9(bool valid)
+			{
+				mCapabilitiesValidForD3D9 = valid;
+			}
+
+			/// Get whether these capabilities are valid for OpenGL
+			bool getCapabilitiesValidForGL(void) const
+			{
+				return mCapabilitiesValidForD3D9;
+			}
+			/// Set whether these capabilities are valid for OpenGL
+			void setCapabilitiesValidForGL(bool valid)
+			{
+				mCapabilitiesValidForGL = valid;
+			}
 
             /** Write the capabilities to the pass in Log */
             void log(Log* pLog);
