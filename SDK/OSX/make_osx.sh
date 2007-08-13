@@ -30,7 +30,7 @@ mkdir sdk_docs
 
 # invoke doxygen
 pushd ../../Docs/src
-#doxygen html.cfg
+doxygen html.cfg
 popd
 
 cp -R ../../Docs/api sdk_docs/
