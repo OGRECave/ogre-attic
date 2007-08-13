@@ -181,7 +181,7 @@ void UseCustomCapabilitiesTests::testCustomCapabilitiesGL()
 		logManager->createLog("testCustomCapabilitiesGL.log", true, false);
 	}
 
-    Root* root = new Root("plugins.cfg");
+	Root* root = new Root("plugins.cfg");
 	RenderSystem* rs = root->getRenderSystemByName("OpenGL Rendering Subsystem");
 	if(rs == 0)
 	{
@@ -248,9 +248,10 @@ void UseCustomCapabilitiesTests::testCustomCapabilitiesD3D9()
 	{	
 		try {
 			setUpD3D9RenderSystemOptions(rs);
+			root->setRenderSystem(rs);
 			root->initialise(true, "OGRE testCustomCapabilitiesD3D9 Window",
 											"../../../Media/CustomCapabilities/customCapabilitiesTest.cfg");
-
+		
 			const RenderSystemCapabilities* caps = rs->getCapabilities();
 
 			checkCaps(caps);
