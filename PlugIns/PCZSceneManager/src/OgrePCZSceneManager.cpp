@@ -220,12 +220,6 @@ namespace Ogre
 
     }
 	//-----------------------------------------------------------------------
-	bool PCZSceneManager::hasSceneNode( const String &name )
-	{
-	   // Check if name is in use
-	   return (mSceneNodes.find(name) != mSceneNodes.end());
-	}
-	//-----------------------------------------------------------------------
 	void PCZSceneManager::clearScene(void)
 	{
 		destroyAllStaticGeometry();
