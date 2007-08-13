@@ -65,10 +65,10 @@ namespace Ogre{
 		/// This is the override for loading imports
 		ScriptNodeListPtr loadImportPath(const String &name);
 	private: // Handlers for compiling script elements
-		void compileParticleSystem(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileEmitter(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileAffector(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		String getPropertyValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileParticleSystem(const ScriptNodePtr &node);
+		void compileEmitter(const ScriptNodePtr &node);
+		void compileAffector(const ScriptNodePtr &node);
+		String getParameterValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
 	private: // Listener and context data
 		ParticleScriptCompilerListener *mListener;
 

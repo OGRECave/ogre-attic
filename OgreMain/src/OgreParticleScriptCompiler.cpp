@@ -77,18 +77,12 @@ namespace Ogre{
 			// Delegate some processing to the listener
 			if(!processNode(i, nodes->end()))
 			{
-				// At this point we expect either an abstract object
-				// Or a ParticleSystem name
-				if((*i)->token == "abstract")
+				// The first just the name of the particle system, but ignore "abstract"
+				if((*i)->token != "abstract")
 				{
-					// This is here just for inheriting from, so jump ahead
-					i = findNode(i, nodes->end(), SNT_RBRACE);
-					++i;
+					compileParticleSystem(*i);
 				}
-				else
-				{
-					compileParticleSystem(i, nodes->end());
-				}
+				++i;
 			}
 		}
 		return mErrors.empty();
@@ -116,53 +110,21 @@ namespace Ogre{
 		return nodes;
 	}
 
-	void ParticleScriptCompiler::compileParticleSystem(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	void ParticleScriptCompiler::compileParticleSystem(const ScriptNodePtr &node)
 	{
-		// We expect this token to be the name of the system to compile
-		if((*i)->type != SNT_STRING)
-		{
-			addError(CE_OBJECTNAMEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
-			return;
-		}
-
 		// Use the listener to get the particle system object
 		if(mListener)
-			mSystem = mListener->getParticleSystem((*i)->token, mGroup);
+			mSystem = mListener->getParticleSystem(node->token, mGroup);
 		else
-			mSystem = ParticleSystemManager::getSingleton().createTemplate((*i)->token, mGroup);
-
+			mSystem = ParticleSystemManager::getSingleton().createTemplate(node->token, mGroup);
 		if(!mSystem)
 		{
-			addError(CE_OBJECTALLOCATIONERROR, (*i)->file, (*i)->line, (*i)->column);
+			addError(CE_OBJECTALLOCATIONERROR, node->file, node->line, node->column);
 			return;
 		}
 
-		{
-			ScriptNodeList::iterator j = i;
-			j++;
-
-			// We can't end here!
-			if(j == end)
-			{
-				// Bail out!
-				addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
-				mSystem = 0;
-				return;
-			}
-
-			// The next token must be the '{' starting the particle system object's body
-			if((*j)->type != SNT_LBRACE)
-			{
-				addError(CE_OPENBRACEEXPECTED, (*j)->file, (*j)->line, (*j)->column);
-				mSystem = 0;
-				return;
-			}
-			
-			// We're ok, so continue on
-			i = j;
-		}
-
-		// We hit the '{', so descend into it to continue compilation
+		// The particle system does not support extra option after its name, so skip ahead to the '{'
+		ScriptNodeList::iterator i = findNode(node->children.begin(), node->children.end(), SNT_LBRACE);
 		ScriptNodeList::iterator j = (*i)->children.begin();
 		while(j != (*i)->children.end())
 		{
@@ -173,162 +135,124 @@ namespace Ogre{
 
 				if(name == "emitter")
 				{
-					++j; // Advance past the emitter tag
-					compileEmitter(j, (*i)->children.end());
+					compileEmitter(*j);
 				}
 				else if(name == "affector")
 				{
-					++j; // Advance past the affector tag
-					compileAffector(j, (*i)->children.end());
+					compileAffector(*j);
 				}
 				else
 				{
-					ScriptNodeList::iterator k = j;
-					++k; // Move forward to check for a value
-					value = getPropertyValue(k, (*i)->children.end());
-
-					// There needs to be a value set before we move on
-					if(!value.empty())
+					// Construct the parameter values from the children of the property
+					value = getParameterValue((*j)->children.begin(), (*j)->children.end());
+					if(!mSystem->setParameter(name, value))
 					{
-						bool propertySet = false;
-						// Attempt to set it on the main system
-						if(!mSystem->setParameter(name, value))
+						if(mSystem->getRenderer())
 						{
-							// Attempt to set the value on the renderer
-							if(mSystem->getRenderer())
-								propertySet = mSystem->getRenderer()->setParameter(name, value);
+							if(!mSystem->getRenderer()->setParameter(name, value))
+								addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
 						}
-						else
-							propertySet = true;
-
-						// Add an error if the property couldn't be set
-						if(!propertySet)
-							addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
 					}
-					else
-					{
-						addError(CE_VALUEEXPECTED, (*j)->file, (*j)->line, (*j)->column);
-					}
-					j = k;
 				}
+				++j;
 			}
 		}
-
-		// We are finished with the object, so consume the '}'
-		++i; // '{'
-		++i; // '}'
 
 		// Reset the pointer to the system
 		mSystem = 0;
 	}
 
-	void ParticleScriptCompiler::compileEmitter(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	void ParticleScriptCompiler::compileEmitter(const ScriptNodePtr &node)
 	{
-		// Get the next token, which should be the emitter type
-		if(i != end)
+		if(node->children.empty() || node->children.front()->type != SNT_WORD)
+			return;
+
+		// Create the emitter based on the first child
+		ParticleEmitter *emitter = 0;
+		String type = node->children.front()->token;
+		try{
+			emitter = mSystem->addEmitter(type);
+		}catch(...){
+			addError(CE_INVALIDPROPERTYVALUE, node->children.front()->file, 
+				node->children.front()->line, node->children.front()->column);
+			return;
+		}
+
+		// Jump ahead now to the '{' as the emitter does not support other parameters in the header
+		ScriptNodeList::iterator i = findNode(node->children.begin(), node->children.end(), SNT_LBRACE);
+		if(i == node->children.end())
+			return;
+
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
 		{
-			ParticleEmitter *emitter = 0;
-			String type = (*i)->token;
-			try{
-				emitter = mSystem->addEmitter(type);
-			}catch(...){
-				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
-			}
-
-			i = findNode(i, end, SNT_LBRACE);
-			if(emitter != 0 && i != end)
+			if(!processNode(j, (*i)->children.end()))
 			{
-				// Use the children of the '{' node to set the properties
-				ScriptNodeList::iterator j = (*i)->children.begin();
-				while(j != (*i)->children.end())
-				{
-					if(!processNode(j, (*i)->children.end()))
-					{
-						String name = (*j)->token, value;
-
-						ScriptNodeList::iterator k = j;
-						++k; // Move forward to check for a value
-						value = getPropertyValue(k, (*i)->children.end());
-
-						// There must be a value
-						if(!value.empty())
-						{
-							if(!emitter->setParameter(name, value))
-								addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
-						}
-						else
-						{
-							addError(CE_VALUEEXPECTED, (*j)->file, (*j)->line, (*j)->column);
-						}
-						j = k;
-					}
-				}
+				String name = (*j)->token, 
+					value = getParameterValue((*j)->children.begin(), (*j)->children.end());
+				if(!emitter->setParameter(name, value))
+					addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
+				++j;
 			}
 		}
 	}
 
-	void ParticleScriptCompiler::compileAffector(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	void ParticleScriptCompiler::compileAffector(const ScriptNodePtr &node)
 	{
-		// Get the next token, which should be the emitter type
-		if(i != end)
+		if(node->children.empty() || node->children.front()->type != SNT_WORD)
+			return;
+
+		// Create the emitter based on the first child
+		ParticleAffector *affector = 0;
+		String type = node->children.front()->token;
+		try{
+			affector = mSystem->addAffector(type);
+		}catch(...){
+			addError(CE_INVALIDPROPERTYVALUE, node->children.front()->file, 
+				node->children.front()->line, node->children.front()->column);
+			return;
+		}
+
+		// Jump ahead now to the '{' as the emitter does not support other parameters in the header
+		ScriptNodeList::iterator i = findNode(node->children.begin(), node->children.end(), SNT_LBRACE);
+		if(i == node->children.end())
+			return;
+
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
 		{
-			ParticleAffector *affector = 0;
-			String type = (*i)->token;
-			try{
-				affector = mSystem->addAffector(type);
-			}catch(...){
-				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
-			}
-
-			i = findNode(i, end, SNT_LBRACE);
-			if(affector != 0 && i != end)
+			if(!processNode(j, (*i)->children.end()))
 			{
-				// Use the children of the '{' node to set the properties
-				ScriptNodeList::iterator j = (*i)->children.begin();
-				while(j != (*i)->children.end())
-				{
-					if(!processNode(j, (*i)->children.end()))
-					{
-						String name = (*j)->token, value;
-
-						ScriptNodeList::iterator k = j;
-						++k; // Move forward to check for a value
-						value = getPropertyValue(k, (*i)->children.end());
-
-						// There must be a value
-						if(!value.empty())
-						{
-							if(!affector->setParameter(name, value))
-								addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
-						}
-						else
-						{
-							addError(CE_VALUEEXPECTED, (*j)->file, (*j)->line, (*j)->column);
-						}
-						j = k;
-					}
-				}
+				String name = (*j)->token, 
+					value = getParameterValue((*j)->children.begin(), (*j)->children.end());
+				if(!affector->setParameter(name, value))
+					addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
+				++j;
 			}
 		}
 	}
 
-	String ParticleScriptCompiler::getPropertyValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	String ParticleScriptCompiler::getParameterValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
 	{
-		String value;
-
+		String retval;
 		if(i != end)
 		{
-			// Get the first part of this value
-			value = (*i)->token;
-			++i; // Next
-
-			while(i != end && (*i)->type == SNT_NUMBER) // Multiple numbers may be grouped together into one value
-			{
-				value = value + " " + (*i)->token;
-				++i;
-			}
+			if((*i)->type == SNT_WORD || (*i)->type == SNT_QUOTE)
+				retval = (*i)->token;
+			else if((*i)->type == SNT_NUMBER)
+				retval = StringConverter::toString((*i)->data);
 		}
 
-		return value;
+		++i;
+		while(i != end)
+		{
+			if((*i)->type == SNT_WORD || (*i)->type == SNT_QUOTE)
+				retval = retval + " " + (*i)->token;
+			else if((*i)->type == SNT_NUMBER)
+				retval = retval + " " + StringConverter::toString((*i)->data);
+			++i;
+		}
+
+		return retval;
 	}
 }

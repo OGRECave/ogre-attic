@@ -358,10 +358,53 @@ namespace Ogre{
 				// Otherwise, search this node and its first child
 				if(mAllowNontypedObjects)
 				{
-					if((*i)->token == target)
+					if((*i)->token == "abstract")
 					{
-						iter = i;
-						break;
+						// It could be the first or second child
+						ScriptNodeList::iterator j = (*i)->children.begin();
+						if(j != (*i)->children.end() && (*j)->token == target)
+						{
+							iter = i;
+							break;
+						}
+
+						++j;
+						if(j != (*i)->children.end() && (*j)->token == target)
+						{
+							iter = i;
+							break;
+						}
+					}
+					else
+					{
+						if((*i)->token == target)
+						{
+							iter = i;
+							break;
+						}
+						else
+						{
+							if(!(*i)->children.empty() && (*(*i)->children.begin())->token == target)
+							{
+								iter = i;
+								break;
+							}
+						}
+					}
+				}
+				else
+				{
+					if((*i)->token == "abstract")
+					{
+						// We're looking for the second child now
+						ScriptNodeList::iterator j = (*i)->children.begin();
+						if(j != (*i)->children.end())
+							++j;
+						if(j != (*i)->children.end() && (*j)->token == target)
+						{
+							iter = i;
+							break;
+						}
 					}
 					else
 					{
@@ -370,14 +413,6 @@ namespace Ogre{
 							iter = i;
 							break;
 						}
-					}
-				}
-				else
-				{
-					if(!(*i)->children.empty() && (*(*i)->children.begin())->token == target)
-					{
-						iter = i;
-						break;
 					}
 				}
 			}
