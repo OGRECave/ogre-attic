@@ -503,16 +503,16 @@ namespace Ogre {
 	// This matches an object header as a look-ahead mechanism
 	struct object_header_grammar : public sub_grammar<object_header_grammar>
 	{
-		typedef boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::alternative<Ogre::word_grammar,Ogre::variable_grammar>,boost::spirit::kleene_star<boost::spirit::sequence<Ogre::whitespace_grammar,boost::spirit::alternative<Ogre::word_grammar,Ogre::variable_grammar> > > >,boost::spirit::optional<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<Ogre::whitespace_grammar,boost::spirit::strlit<const char *> >,Ogre::whitespace_grammar>,boost::spirit::alternative<Ogre::word_grammar,Ogre::variable_grammar> > > >,boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> > >,boost::spirit::strlit<const char *> > start_t;
+		typedef boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::alternative<boost::spirit::alternative<Ogre::quote_grammar,Ogre::word_grammar>,Ogre::variable_grammar>,boost::spirit::kleene_star<boost::spirit::sequence<Ogre::whitespace_grammar,boost::spirit::alternative<boost::spirit::alternative<Ogre::quote_grammar,Ogre::word_grammar>,Ogre::variable_grammar> > > >,boost::spirit::optional<boost::spirit::sequence<boost::spirit::sequence<boost::spirit::sequence<Ogre::whitespace_grammar,boost::spirit::strlit<const char *> >,Ogre::whitespace_grammar>,boost::spirit::alternative<boost::spirit::alternative<Ogre::quote_grammar,Ogre::word_grammar>,Ogre::variable_grammar> > > >,boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> > >,boost::spirit::strlit<const char *> > start_t;
 
 		object_header_grammar()
 			:start
 			(
-				(word|variable)
+				(quote|word|variable)
 				>>
-				*(ws >> (word|variable))
+				*(ws >> (quote|word|variable))
 				>>
-				!(ws >> str_p(":") >> ws >> (word|variable))
+				!(ws >> str_p(":") >> ws >> (quote|word|variable))
 				>>
 				*(ws|nl)
 				>>
@@ -522,6 +522,7 @@ namespace Ogre {
 
 		whitespace_grammar ws;
 		newline_grammar nl;
+		quote_grammar quote;
 		variable_grammar variable;
 		word_grammar word;
 
@@ -587,6 +588,30 @@ namespace Ogre {
 						node->wordID = i->second;
 					}
 				}
+				node->isObject = isObject;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				if(isObject)
+					(*ast)->current = node.get();
+			}
+		};
+		struct quote_action
+		{
+			script_ast **ast;
+			bool isObject;
+			quote_action(script_ast **rhs, bool obj):ast(rhs), isObject(obj){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				String token(first, last);
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_QUOTE;
+				node->token = token.size() == 2 ? "" : token.substr(1, token.size() - 2);
 				node->isObject = isObject;
 				node->isProperty = false;
 				node->parent = (*ast)->current;
@@ -687,12 +712,12 @@ namespace Ogre {
 				object = 
 					eps_p(object_header)
 					>>
-					((word[word_action(&self.ast,true)])|(variable[variable_action(&self.ast,true)]))
+					((quote[quote_action(&self.ast,true)])|(word[word_action(&self.ast,true)])|(variable[variable_action(&self.ast,true)]))
 					>>
-					*(ws >> ((word[word_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
+					*(ws >> ((quote[quote_action(&self.ast,true)])|(word[word_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
 					>>
 					!(ws >> (str_p(":")[colon_action(&self.ast)]) >> ws >>
-						((word[word_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
+						((quote[quote_action(&self.ast,true)])|(word[word_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
 					>>
 					*(ws|nl)
 					>>
@@ -712,6 +737,7 @@ namespace Ogre {
 			variable_grammar variable;
 			property_grammar prop;
 			variable_assign_grammar variable_assign;
+			quote_grammar quote;
 			object_header_grammar object_header;
 			rule<ScannerT> object;
 			rule<ScannerT> const& start() const{return object;}
