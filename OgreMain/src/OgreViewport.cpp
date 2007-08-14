@@ -118,7 +118,7 @@ namespace Ogre {
 			<< ", actual dimensions "	<< std::fixed << std::setprecision(2) 
 			<< "L: " << mActLeft << " T: " << mActTop << " W: " << mActWidth << " H: " << mActHeight;
 
-        LogManager::getSingleton().logMessage(msg.str());
+        LogManager::getSingleton().logMessage(msg.str(), LML_TRIVIAL);
 
         mUpdated = true;
     }
