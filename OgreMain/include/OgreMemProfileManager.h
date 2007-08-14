@@ -60,7 +60,7 @@ namespace Ogre{
          * @return the profiles ID
          */
         uint32 registerProfile(MemProfilerBase* profile);
-        
+
         /**
          * Remove a registered profile 
          * @param the profile ptr
@@ -90,61 +90,60 @@ namespace Ogre{
         /// @return singleton instance
         static MemProfileManager& getSingleton()
         {
-        	return smInstance;
+            return smInstance;
         }
-        
-        
+
         /// log out a message to the memory logfile
         /// @param message info to be logged
         template<typename T>
         inline MemProfileManager& operator << (T message)
         {
-        	mReportLog << message;
-        	return *this;
+            mReportLog << message;
+            return *this;
         }
         
     protected:
-    	// shutdown the memory profiler, unregisters any memory 
-    	// profilers and flushes the global memory stats. Any outstanding
-    	// allocations at this point are reguarded as memory leaks
-    	void shutdown();
-    	
-    	/***
-    	 * just as a convenient logging method
-    	 */
-    	class Logger
-    	{
-    		private:
-    			std::ofstream mLogFile;
-    			
-    	    public:
-    	    	inline explicit Logger()
-    	    	{}
-    	    		
-    	    	inline ~Logger()
-    	    	{}
-    	    		
-    	    	void open(const char* path)
-    	    	{
-    	    		mLogFile.open(path,std::ios::out);
-    	    	}
-    	    	
-    	    	void close()
-    	    	{
-    	    		mLogFile.close();
-    	    		std::cout << std::endl;
-    	    	}
-    	    
-    	        template<typename T>
-    	        inline Logger& operator << (T ipt)
-    		    {
-    		    	std::cout << ipt;
-    		    	mLogFile << ipt;
-    		    	return *this;
-    		    }
-    	};
-    
-    
+        // shutdown the memory profiler, unregisters any memory
+        // profilers and flushes the global memory stats. Any outstanding
+        // allocations at this point are reguarded as memory leaks
+        void shutdown();
+
+        /***
+         * just as a convenient logging method
+         */
+        class Logger
+        {
+            private:
+                std::ofstream mLogFile;
+
+            public:
+                inline explicit Logger()
+                {}
+
+                inline ~Logger()
+                {}
+
+                void open(const char* path)
+                {
+                    mLogFile.open(path,std::ios::out);
+                }
+
+                void close()
+                {
+                   mLogFile.close();
+                   std::cout << std::endl;
+                }
+
+                template<typename T>
+                inline Logger& operator << (T ipt)
+                {
+                    std::cout << ipt;
+                    mLogFile << ipt;
+                    return *this;
+                }
+        };
+
+
         /// used to hold a profile and pair it with a stats packet
         struct Profile
         {

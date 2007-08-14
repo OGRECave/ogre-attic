@@ -72,14 +72,14 @@ namespace Ogre{
 
         inline ~MemProfiler()
         { 
-        	MemProfileManager::getSingleton().removeProfile(this);
+            MemProfileManager::getSingleton().removeProfile(this);
         }
 
         /// copy ctor, we need to define this to be safe with our mutex
         inline explicit MemProfiler( MemProfiler<T> const& other)
         { 
-        	// syncronise other
-        	#if OGRE_THREAD_SUPPORT
+            // syncronise other
+            #if OGRE_THREAD_SUPPORT
             boost::recursive_mutex::scoped_lock scoped_lock(other.mDataMutex);
             #endif
             mStats = other.mStats;
@@ -89,8 +89,8 @@ namespace Ogre{
         template <typename U>
         inline explicit MemProfiler( MemProfiler<U> const& other)
         { 
-        	// syncronise other
-        	#if OGRE_THREAD_SUPPORT
+            // syncronise other
+            #if OGRE_THREAD_SUPPORT
             boost::recursive_mutex::scoped_lock scoped_lock(other.mDataMutex);
             #endif
             mStats = other.mStats;
@@ -116,11 +116,11 @@ namespace Ogre{
         inline void note_allocation( size_type sz,
                                      typename std::allocator<void>::const_pointer ptr = 0 )
         {
-        	// get a lock on the mutex
-        	#if OGRE_THREAD_SUPPORT
-        	boost::recursive_mutex::scoped_lock lock(mDataMutex);
-        	#endif
-        	
+            // get a lock on the mutex
+            #if OGRE_THREAD_SUPPORT
+            boost::recursive_mutex::scoped_lock lock(mDataMutex);
+            #endif
+            
             mStats.numAllocations++;
             mStats.numBytesAllocated += sz;
         }
@@ -128,11 +128,11 @@ namespace Ogre{
         /// Note information about a deallocation
         inline void note_deallocation( pointer ptr, size_type sz )
         {
-        	// get a lock on the mutex
-        	#if OGRE_THREAD_SUPPORT
-        	boost::recursive_mutex::scoped_lock lock(mDataMutex);
-        	#endif
-        	
+            // get a lock on the mutex
+            #if OGRE_THREAD_SUPPORT
+            boost::recursive_mutex::scoped_lock lock(mDataMutex);
+            #endif
+            
             mStats.numDeallocations++;
             mStats.numBytesDeallocated += sz;
         }

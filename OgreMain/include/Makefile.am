@@ -172,6 +172,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreSkeletonFileFormat.h \
                      OgreSkeletonManager.h \
                      OgreSkeletonSerializer.h \
+                     OgreSmallAllocPolicy.h \
                      OgreSphere.h \
                      OgreSpotShadowFadePng.h \
                      OgreStableHeaders.h \

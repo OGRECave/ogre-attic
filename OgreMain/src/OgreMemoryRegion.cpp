@@ -29,6 +29,7 @@ Torus Knot Software Ltd.
 
 #include "OgreStableHeaders.h"
 #include "OgreMemoryRegion.h"
+#include "OgreMemProfileManager.h"
 
 void * Ogre::MemoryRegion::allocMem(size_t size) throw( std :: bad_alloc )
 {
@@ -93,7 +94,7 @@ void Ogre::MemoryRegion::purgeMem(MemCtrl* ptr) throw( std :: bad_alloc )
     // get the head block magic value
     if(ptr->magic != MemoryBin::MAGIC)
     {
-//        MemProfileManager::getSingleton() << "Bad pointer passed to purgeMem(), double delete or memory corruption";
+        MemProfileManager::getSingleton() << "Bad pointer passed to purgeMem(), double delete or memory corruption";
         dumpInternals();
         throw std::bad_alloc();
     }
@@ -101,7 +102,7 @@ void Ogre::MemoryRegion::purgeMem(MemCtrl* ptr) throw( std :: bad_alloc )
     // get the tail block magic value
     if(((MemCtrl*)(memBlock.memory+(memBlock.size-sizeof(MemCtrl))))->magic != MemoryBin::MAGIC)
     {
-//        MemProfileManager::getSingleton() << "purgeMemory(), Memory corruption detected";
+        MemProfileManager::getSingleton() << "purgeMemory(), Memory corruption detected";
         dumpInternals();
         throw std::bad_alloc();
     }
@@ -152,10 +153,10 @@ void Ogre::MemoryRegion::dumpInternals()
 {
     for(uint32 i=0;i<NUM_BINS;++i)
         mBin[i].dumpInternals();
-    std::cout << "\n24 byte bin" << std::endl;
+    MemProfileManager::getSingleton() << "\n24 byte bin\n";
     m24ByteBin.dumpInternals();
 
-    std::cout << "\nDummping Map:-"  << std::endl;
+    MemProfileManager::getSingleton() << "\nDummping Map:-\n";
     MemFree* memFree;
     MemBlock memBlock;
     memBlock.memory=mPool;
@@ -169,8 +170,8 @@ void Ogre::MemoryRegion::dumpInternals()
 
         if(size & MemoryBin::MASK)
         {
-            std::cout << "1 : " 
-                    << (void*)(memBlock.memory + memBlock.size) << " : " << (size^MemoryBin::MASK) <<  std::endl;
+            MemProfileManager::getSingleton() << "1 : " 
+                    << (void*)(memBlock.memory + memBlock.size) << " : " << (size^MemoryBin::MASK) << "\n";
             memBlock.size += (size^MemoryBin::MASK);
 
             MemCtrl* memCtrl = (MemCtrl*)memFree;
@@ -181,8 +182,8 @@ void Ogre::MemoryRegion::dumpInternals()
         }
         else
         {
-            std::cout << "0 : " 
-                    << (void*)(memBlock.memory + memBlock.size) << " : " << size << std::endl;
+            MemProfileManager::getSingleton() << "0 : " 
+                    << (void*)(memBlock.memory + memBlock.size) << " : " << size << "\n";
             memBlock.size+=size;
         }
         assert(size);

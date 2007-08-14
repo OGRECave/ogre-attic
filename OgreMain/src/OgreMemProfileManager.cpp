@@ -37,7 +37,7 @@ Ogre::MemProfileManager Ogre::MemProfileManager::smInstance;
 namespace Ogre{
 
     MemProfileManager::~MemProfileManager()
-    { 
+    {
         update(); // collect any final info
         flush("Shutdown"); // flush a final section
         shutdown(); // flush the gloabl stats
@@ -54,7 +54,7 @@ namespace Ogre{
     {
         // reserve some memory ahead of time
         mProfArray.reserve( 10 );
-        
+
         // setup our log file
         mReportLog.open("OgreMemoryReport.log");
 
@@ -66,9 +66,8 @@ namespace Ogre{
     uint32 MemProfileManager::registerProfile( MemProfilerBase* profile )
     {
         ProfileArray::iterator iter = mProfArray.begin();
-        ProfileArray::iterator end = mProfArray.end();
-        
-        for ( ; iter != end; ++iter ) // for each profile
+
+        for ( ; iter != mProfArray.end(); ++iter ) // for each profile
         {
             if(( *iter ).mProfile == NULL) // found an empty slot
             {
@@ -76,36 +75,38 @@ namespace Ogre{
                 // NOTE: as this slot is empty, the profile will have been 
                 // removed and all counts set to 0, so we dont need to do 
                 // it again here.
-                
+
                 // update and return the ID
                 ++mProfileIdTracker;
+                ( *iter ).mStats.profileID = mProfileIdTracker;
                 return mProfileIdTracker;
             }
         }
-        
+
         // no slots found so build a new one
-        Profile profStruct;
-        profStruct.mProfile=profile;
-        memset( &( profStruct.mStats ), 0, sizeof( MemProfilerBase::MemStats ) );
-        mProfArray.push_back( profStruct ); // add the profile
-        
-        // update and return the ID
         ++mProfileIdTracker;
+        Profile profStruct;
+        profStruct.mProfile = profile;
+        profStruct.mStats.numAllocations = 0;
+        profStruct.mStats.numDeallocations = 0;
+        profStruct.mStats.numBytesAllocated = 0;
+        profStruct.mStats.numBytesDeallocated = 0;
+        profStruct.mStats.profileID = mProfileIdTracker;
+        mProfArray.push_back( profStruct ); // add the profile
         return mProfileIdTracker;
     }
-    
+
     void MemProfileManager::removeProfile(MemProfilerBase* profile)
     {
-    	// get a lock on the mutex, so we can't update stats in mid-removal
-        #if OGRE_THREAD_SUPPORT
+        // get a lock on the mutex, so we can't update stats in mid-removal
+#if OGRE_THREAD_SUPPORT
         boost::recursive_mutex::scoped_lock lock(mUpdateMutex);
-        #endif
+#endif
 
         ProfileArray::iterator iter = mProfArray.begin();
-        ProfileArray::iterator end = mProfArray.end();
         MemProfilerBase::MemStats tmpStats = profile->flush();
 
-        for ( ; iter != end; ++iter ) // for each profile
+        for ( ; iter != mProfArray.end(); ++iter ) // for each profile
         {
             // find the stats.
             if( ( *iter ).mStats.profileID == tmpStats.profileID )
@@ -119,7 +120,7 @@ namespace Ogre{
                     uint32 tmp = 
                         (( *iter ).mStats.numBytesAllocated + tmpStats.numBytesAllocated) -
                         (( *iter ).mStats.numBytesDeallocated + tmpStats.numBytesDeallocated) ;
-                        
+
                     mReportLog << "  ***MEMORY ERROR DETECTED***  \n";
                     mReportLog << "removed allocator has outstanding allocations!\n";
                     mReportLog <<  aloc - dloc << " allocations ( "<< tmp << " bytes ) \n";
@@ -128,19 +129,19 @@ namespace Ogre{
                 {
                     mReportLog << "clean removal, no memory errors detected\n";
                 }
-                
+
                 // update the global and section stats, so we keep in sync
                 mSectionStats.numAllocations += tmpStats.numAllocations;
                 mSectionStats.numBytesAllocated += tmpStats.numBytesAllocated;
                 mSectionStats.numDeallocations += tmpStats.numDeallocations;
                 mSectionStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
-                
+
                 // update the gloabl stats
                 mGlobalStats.numAllocations += tmpStats.numAllocations;
                 mGlobalStats.numBytesAllocated += tmpStats.numBytesAllocated;
                 mGlobalStats.numDeallocations += tmpStats.numDeallocations;
                 mGlobalStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
-                
+
                 // remove it
                 ( *iter ).mStats.numAllocations = 0;
                 ( *iter ).mStats.numDeallocations = 0;
@@ -148,12 +149,12 @@ namespace Ogre{
                 ( *iter ).mStats.numBytesDeallocated = 0;
                 ( *iter ).mStats.profileID = 0;
                 ( *iter ).mProfile=NULL;
-                
+
                 mReportLog << "---------------------------------------------------------\n";
                 return; // done, bail now
             }
         }
-        
+
         // if we get to this point somthing is f00-bar
         mReportLog << "  ***INTERNAL ERROR***  \n";
         mReportLog << " Cant find Memory Profile " << tmpStats.profileID << " to remove!\n";
@@ -163,19 +164,15 @@ namespace Ogre{
 
     void MemProfileManager::update()
     {
-    	// get a lock on the mutex, so we can't remove a profile untill 
-    	// we have finished the batch of updates.
-        #if OGRE_THREAD_SUPPORT
+        // get a lock on the mutex, so we can't remove a profile untill
+        // we have finished the batch of updates.
+#if OGRE_THREAD_SUPPORT
         boost::recursive_mutex::scoped_lock lock(mUpdateMutex);
-        #endif
-    	
-        ProfileArray::iterator iter, end;
+#endif
 
-        iter = mProfArray.begin();
-        end = mProfArray.end();
-
+        ProfileArray::iterator iter = mProfArray.begin();
         MemProfilerBase::MemStats tmpStats;
-        for ( ; iter != end; ++iter ) // for each profile
+        for ( ; iter != mProfArray.end(); ++iter ) // for each profile
         {
             if( ( *iter ).mProfile)
             {
@@ -225,25 +222,23 @@ namespace Ogre{
             " ( " << (mGlobalStats.numBytesAllocated-mGlobalStats.numBytesDeallocated) <<
             " bytes ) \n";
         mReportLog << "---------------------------------------------------------\n";
-        
+
         // per-allocator stats
         mReportLog << "Per allocator stats :- \n";
         ProfileArray::iterator iter = mProfArray.begin();
         ProfileArray::iterator end = mProfArray.end();
         for ( ; iter != end; ++iter ) // for each profile
         {
-        	if(( *iter ).mProfile)
-        	{
+            if(( *iter ).mProfile)
+            {
                 mReportLog << "Allocator "<< ( *iter ).mStats.profileID;
                 mReportLog << " Allocs " << ( *iter ).mStats.numAllocations;
                 mReportLog << " ( " << ( *iter ).mStats.numBytesAllocated << " )";
                 mReportLog << " De-Allocs " << ( *iter ).mStats.numDeallocations;
                 mReportLog << " ( " <<( *iter ).mStats.numBytesDeallocated << " ) \n";
-        	}
+            }
         }
         mReportLog << "---------------------------------------------------------\n";
-        
-        //mReportLog->logMessage(builder.str());
 
         // zero the counters
         mSectionStats.numAllocations      = 0;
@@ -252,7 +247,7 @@ namespace Ogre{
         mSectionStats.numBytesDeallocated = 0;
         mNumSectionUpdates                = 0;
     }
-    
+
     void MemProfileManager::shutdown()
     {
         // log the info at shutdown
@@ -266,9 +261,9 @@ namespace Ogre{
             (mGlobalStats.numAllocations/static_cast<float>(mNumUpdates)) << "\n";
         mReportLog << "Average Bytes per Allocation   :\t" <<
             (mGlobalStats.numBytesAllocated/static_cast<float>(mGlobalStats.numAllocations)) << "\n";
-        
+
         if(mGlobalStats.numAllocations-mGlobalStats.numDeallocations != 0)
-        {    
+        {
             mReportLog << "      ***LEAKED MEMORY***      \n";
             mReportLog << (mGlobalStats.numBytesAllocated-mGlobalStats.numBytesDeallocated) << " bytes in ";
             mReportLog << (mGlobalStats.numAllocations-mGlobalStats.numDeallocations) << " allocations !\n";
@@ -277,7 +272,7 @@ namespace Ogre{
         {
             mReportLog << " No memory leaks detected \n";
         }
-            
+
         mReportLog << "---------------------------------------------------------\n";
 
         // zero the counters

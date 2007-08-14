@@ -48,41 +48,40 @@ namespace Ogre{
         /// used to accumulate statisitcis between calls to flush
         struct MemStats
         {
-        	size_t profileID;
+            size_t profileID;
             size_t numBytesAllocated;
             size_t numAllocations;
             size_t numBytesDeallocated;
             size_t numDeallocations;
         };
-        
+
         inline explicit MemProfilerBase()
         {
-        	memset(&mStats,0,sizeof(MemStats));
-       	}
-        	
-        
+            memset(&mStats,0,sizeof(MemStats));
+        }
+
         /// copy ctor, we need to define this to be safe with our mutex
         inline explicit MemProfilerBase( MemProfilerBase const& other )
         { 
-        	// syncronise other
-        	#if OGRE_THREAD_SUPPORT
+            // syncronise other
+#if OGRE_THREAD_SUPPORT
             boost::recursive_mutex::scoped_lock scoped_lock(other.mDataMutex);
-            #endif
+#endif
             mStats = other.mStats;
         }
-        
+
         /// Assignment, we need to define this to be safe with our mutex
         const MemProfilerBase& operator=(const MemProfilerBase& other)
         {
             if (this == &other)
                 return *this;
-                
+
             // syncronise both sides
-            #if OGRE_THREAD_SUPPORT
+#if OGRE_THREAD_SUPPORT
             boost::recursive_mutex::scoped_lock lock1(&mDataMutex < &other.mDataMutex ? mDataMutex : other.mDataMutex);
             boost::recursive_mutex::scoped_lock lock2(&mDataMutex > &other.mDataMutex ? mDataMutex : other.mDataMutex);
-            #endif
-            
+#endif
+
             mStats=other.mStats;
             return *this;
         }
@@ -91,30 +90,29 @@ namespace Ogre{
         /// called once a frame to collect statistics
         inline MemStats flush()
         {
-        	// get a lock on the mutex
-        	#if OGRE_THREAD_SUPPORT
-        	boost::recursive_mutex::scoped_lock lock(mDataMutex);
-        	#endif
-        	
-        	// copy then reset the stats
+            // get a lock on the mutex
+#if OGRE_THREAD_SUPPORT
+            boost::recursive_mutex::scoped_lock lock(mDataMutex);
+#endif
+
+            // copy then reset the stats
             MemStats tmp = mStats;
             mStats.numBytesAllocated=0;
             mStats.numAllocations=0;
             mStats.numBytesDeallocated=0;
             mStats.numDeallocations=0;
-            
             return tmp;
         }
 
     protected:
         MemStats mStats; // stats package
-        
+
         /// we use a mutex to maintain sync between allocations 
         /// updating our information and the manager reading it
         //OGRE_MUTEX(mDataMutex);
-        #if OGRE_THREAD_SUPPORT
+#if OGRE_THREAD_SUPPORT
         mutable boost::recursive_mutex mDataMutex;
-        #endif
+#endif
     };
 
 
