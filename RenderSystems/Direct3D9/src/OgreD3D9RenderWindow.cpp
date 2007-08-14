@@ -305,6 +305,9 @@ namespace Ogre
 					//MoveWindow(mHWnd, mLeft, mTop, mWidth, mHeight, FALSE);
 					SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
 				}
+				// Set again, window events might have messed with it
+				md3dpp.BackBufferHeight = height;
+				md3dpp.BackBufferWidth = width;
 			}
 			else
 			{
@@ -325,6 +328,10 @@ namespace Ogre
 				SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
 				SetWindowPos(mHWnd, HWND_NOTOPMOST, 0, 0, winWidth, winHeight,
 					SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOACTIVATE);
+
+				// Set again, window events might have messed with it
+				md3dpp.BackBufferHeight = height;
+				md3dpp.BackBufferWidth = width;
 
 				// Note that we also set the position in the restoreLostDevice method
 				// via _finishSwitchingFullScreen
