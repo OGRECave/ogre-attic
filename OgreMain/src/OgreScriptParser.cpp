@@ -136,10 +136,11 @@ namespace Ogre {
 	struct script_ast
 	{
 		script_ast()
-			:nodes(ScriptNodeListPtr(new ScriptNodeList())), current(0)
+			:nodes(ScriptNodeListPtr(new ScriptNodeList())), current(0), ids(0)
 		{}
 		ScriptNodeListPtr nodes;
 		ScriptNode *current;
+		WordIDMap *ids;
 	};
 
 	// Matches any length of adjacent whitespace characters
@@ -215,7 +216,8 @@ namespace Ogre {
 		{
 			bool isProperty;
 			script_ast **ast;
-			word_action(script_ast **rhs, bool prop):ast(rhs),isProperty(prop){}
+			word_action(script_ast **rhs, bool prop)
+				:ast(rhs),isProperty(prop){}
 			template<class IterT>void operator()(IterT first, IterT last) const{
 				ScriptNodePtr node(new ScriptNode());
 
@@ -229,11 +231,20 @@ namespace Ogre {
 				node->type = isNumber ? SNT_NUMBER : SNT_WORD;
 				if(!isNumber)
 				{
-					node->token.assign(first, last); // TODO: only assign if the wordID isn't found
+					String token(first, last);
+					WordIDMap::const_iterator i = (*ast)->ids->find(token);
+					if(i == (*ast)->ids->end())
+					{
+						node->wordID = 0;
+						node->token = token;
+					}
+					else
+					{
+						node->wordID = i->second;
+					}
 				}
 				node->isObject = false;
 				node->isProperty = isProperty;
-				node->wordID = 0; // TODO set this based on wordID map
 				node->parent = (*ast)->current;
 				if((*ast)->current)
 					(*ast)->current->children.push_back(node);
@@ -523,29 +534,6 @@ namespace Ogre {
 		mutable script_ast *ast;
 		object_grammar(script_ast *rhs):ast(rhs){}
 
-		struct ident_action
-		{
-			script_ast **ast;
-			bool isObject;
-			ident_action(script_ast **rhs, bool obj):ast(rhs), isObject(obj){}
-			template<class IterT>void operator()(IterT first, IterT last) const{
-				ScriptNodePtr node(new ScriptNode());
-				node->file = first.get_position().file;
-				node->line = first.get_position().line;
-				node->column = first.get_position().column;
-				node->type = SNT_WORD;
-				node->token.assign(first, last);
-				node->isObject = isObject;
-				node->isProperty = false;
-				node->parent = (*ast)->current;
-				if((*ast)->current)
-					(*ast)->current->children.push_back(node);
-				else
-					(*ast)->nodes->push_back(node);
-				if(isObject)
-					(*ast)->current = node.get();
-			}
-		};
 		struct variable_action
 		{
 			script_ast **ast;
@@ -572,22 +560,42 @@ namespace Ogre {
 		struct word_action
 		{
 			script_ast **ast;
-			word_action(script_ast **rhs):ast(rhs){}
+			bool isObject;
+			word_action(script_ast **rhs, bool obj):ast(rhs),isObject(obj){}
 			template<class IterT>void operator()(IterT first, IterT last) const{
 				ScriptNodePtr node(new ScriptNode());
+
+				bool isNumber = false;
+				if(boost::spirit::parse(first, last, real_p[assign_a(node->data)]).full)
+					isNumber = true;
+
 				node->file = first.get_position().file;
 				node->line = first.get_position().line;
 				node->column = first.get_position().column;
-				node->type = SNT_WORD;
-				node->wordID = 0; // TODO: assigned based on wordID map
-				node->token.assign(first, last);
-				node->isObject = false;
+				node->type = isNumber ? SNT_NUMBER : SNT_WORD;
+				if(!isNumber)
+				{
+					String token(first, last);
+					WordIDMap::const_iterator i = (*ast)->ids->find(token);
+					if(i == (*ast)->ids->end())
+					{
+						node->wordID = 0;
+						node->token = token;
+					}
+					else
+					{
+						node->wordID = i->second;
+					}
+				}
+				node->isObject = isObject;
 				node->isProperty = false;
 				node->parent = (*ast)->current;
 				if((*ast)->current)
 					(*ast)->current->children.push_back(node);
 				else
 					(*ast)->nodes->push_back(node);
+				if(isObject)
+					(*ast)->current = node.get();
 			}
 		};
 		struct colon_action
@@ -679,12 +687,12 @@ namespace Ogre {
 				object = 
 					eps_p(object_header)
 					>>
-					((word[ident_action(&self.ast, true)])|(variable[variable_action(&self.ast, true)]))
+					((word[word_action(&self.ast,true)])|(variable[variable_action(&self.ast,true)]))
 					>>
-					*(ws >> ((word[word_action(&self.ast)])|(variable[variable_action(&self.ast,false)])))
+					*(ws >> ((word[word_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
 					>>
 					!(ws >> (str_p(":")[colon_action(&self.ast)]) >> ws >>
-						((word[ident_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
+						((word[word_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
 					>>
 					*(ws|nl)
 					>>
@@ -719,7 +727,7 @@ namespace Ogre {
 		// This is type definition of the rule which this grammar defines
 		typedef boost::spirit::sequence<boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> >,boost::spirit::kleene_star<boost::spirit::sequence<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<Ogre::import_grammar,Ogre::variable_assign_grammar>,Ogre::object_grammar>,Ogre::property_grammar>,boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> > > > > start_t;
 
-		script_grammar()
+		script_grammar(const WordIDMap &ids)
 			:prop(&ast), import(&ast), variable_assign(&ast), object(&ast),
 			 start
 			 (
@@ -728,6 +736,7 @@ namespace Ogre {
 				*((import|variable_assign|object|prop) >> *(ws|nl))
 			 )
 		{
+			ast.ids = const_cast<WordIDMap*>(&ids);
 		}
 
 		// These are this grammar's dependent grammars
@@ -807,10 +816,10 @@ namespace Ogre {
 	/** End ParseErrorException */
 
 	/** Begin parse */
-	ScriptNodeListPtr parse(const String &script, const String &source)
+	ScriptNodeListPtr parse(const String &script, const String &source, const WordIDMap &ids)
 	{
 		skip_grammar skip;
-		script_grammar g;
+		script_grammar g(ids);
 
 		typedef position_iterator<String::const_iterator> iter_t;
 		iter_t first(script.begin(), script.end(), source), last;

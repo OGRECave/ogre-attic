@@ -113,14 +113,18 @@ namespace Ogre {
 		String getErrorString() const;
 	};
 
+	/// This is the wordID map sent into the parser to identify word tokens
+	typedef std::map<String,unsigned int> WordIDMap;
+
 	/** This is the free parse function. It takes the input and parses it into
 		an AST, returning it in a ScriptNodeListPtr. If there is a parse error
 		then it will throw a ParseErrorException.
 
 		@param script This is the code for the script file
 		@param source This is the source of the code for the script, for instance the file
+		@param ids This map identifies word tokens as integer ids
 	*/
-	ScriptNodeListPtr _OgreExport parse(const String &script, const String &source);
+	ScriptNodeListPtr _OgreExport parse(const String &script, const String &source, const WordIDMap &ids = WordIDMap());
 }
 
 #endif

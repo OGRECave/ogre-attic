@@ -43,6 +43,7 @@ namespace Ogre{
 	{
 	public:
 		virtual ScriptNodeListPtr importFile(const String &name);
+		virtual void preParse(WordIDMap &ids);
 	};
 
 	enum
@@ -132,6 +133,12 @@ namespace Ogre{
 		/** Returns the list of errors from the last script compilation compilation
 		*/
 		const ScriptCompilerErrorList &getErrors() const;
+		/** Returns a constant reference to the word id map used by this compiler.
+		@remarks The word id map identifies key words and maps them to integer keys.
+		Some compilers prefer to deal with tokens as integers intead of using strings.
+		This word id map is the mechanism that links string token to integer identifier.
+		*/
+		const WordIDMap &getWordIDs() const;
 	protected: // Operations
 		/// This is the overridable function for base classes to compile the AST
 		virtual bool compileImpl(ScriptNodeListPtr nodes) = 0;
@@ -204,6 +211,9 @@ namespace Ogre{
 
 		// Error information
 		ScriptCompilerErrorList mErrors;
+
+		// This is the wordID map sent to the parser
+		WordIDMap mWordIDs;
 	};
 
 }
