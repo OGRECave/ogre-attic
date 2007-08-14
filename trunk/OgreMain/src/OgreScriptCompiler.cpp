@@ -39,6 +39,11 @@ namespace Ogre{
 		return ScriptNodeListPtr();
 	}
 
+	void ScriptCompilerListener::preParse(Ogre::WordIDMap &ids)
+	{
+
+	}
+
 	// ScriptCompiler
 	ScriptCompiler::ScriptCompiler()
 		:mAllowNontypedObjects(false)
@@ -48,7 +53,7 @@ namespace Ogre{
 	bool ScriptCompiler::compile(const String &text, const String &group, const String &source)
 	{
 		// Delegate to the other overload of this function
-		return compile(parse(text, source), group);
+		return compile(parse(text, source, mWordIDs), group);
 	}
 
 	bool ScriptCompiler::compile(ScriptNodeListPtr nodes, const String &group)
@@ -88,6 +93,11 @@ namespace Ogre{
 	const ScriptCompilerErrorList &ScriptCompiler::getErrors() const
 	{
 		return mErrors;
+	}
+
+	const WordIDMap &ScriptCompiler::getWordIDs() const
+	{
+		return mWordIDs;
 	}
 
 	void ScriptCompiler::processVariables(ScriptNodeList &nodes, const ScriptNodeListPtr &top)

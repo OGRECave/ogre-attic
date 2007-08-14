@@ -173,7 +173,7 @@ namespace Ogre{
 		try{
 			emitter = mSystem->addEmitter(type);
 		}catch(...){
-			addError(CE_INVALIDPROPERTYVALUE, node->children.front()->file, 
+			addError(CE_OBJECTALLOCATIONERROR, node->children.front()->file, 
 				node->children.front()->line, node->children.front()->column);
 			return;
 		}
@@ -208,7 +208,7 @@ namespace Ogre{
 		try{
 			affector = mSystem->addAffector(type);
 		}catch(...){
-			addError(CE_INVALIDPROPERTYVALUE, node->children.front()->file, 
+			addError(CE_OBJECTALLOCATIONERROR, node->children.front()->file, 
 				node->children.front()->line, node->children.front()->column);
 			return;
 		}
