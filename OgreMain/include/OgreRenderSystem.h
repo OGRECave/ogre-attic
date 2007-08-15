@@ -88,6 +88,13 @@ namespace Ogre
         SOP_INVERT
     };
 
+	/// DriverVersion is used by RenderSystemCapabilities
+	struct DriverVersion {
+		int major;
+		int minor;
+		int release;
+	};
+
     /** Defines the functionality of a 3D API
         @remarks
             The RenderSystem class provides a base interface
@@ -960,8 +967,13 @@ namespace Ogre
          */
         virtual void _render(const RenderOperation& op);
 
-				/** Gets the capabilities of the render system. */
-				const RenderSystemCapabilities* getCapabilities(void) const { return mCurrentCapabilities; }
+		/** Gets the capabilities of the render system. */
+		const RenderSystemCapabilities* getCapabilities(void) const { return mCurrentCapabilities; }
+
+
+		/** Returns the driver version.
+        */
+		virtual DriverVersion getDriverVersion(void) const { return mDriverVersion; }
 
         /** Binds a given GpuProgram (but not the parameters).
         @remarks Only one GpuProgram of each type can be bound at once, binding another
@@ -1237,6 +1249,8 @@ namespace Ogre
 
 		bool mVertexProgramBound;
 		bool mFragmentProgramBound;
+
+		DriverVersion mDriverVersion;
 
 
 
