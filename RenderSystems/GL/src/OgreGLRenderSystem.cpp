@@ -146,7 +146,25 @@ namespace Ogre {
 
         mClipPlanes.reserve(6);
 
+		// Set version string
+        const GLubyte* pcVer = glGetString(GL_VERSION);
 
+        assert(pcVer && "Problems getting GL version string using glGetString");
+       
+        String versionStr = (const char*)pcVer;
+
+		// the string is either "x.y.z" or "x.y.z (a.b.c)" or "x.y.x something_else"
+		// wee need x.y.z which is always separated by a space
+		String realVersion = StringUtil::split(versionStr, " ")[0];
+		if(realVersion == "")
+			assert(false && "bad version string");
+
+		StringVector tokens = StringUtil::split(realVersion, ".");
+
+		mDriverVersion.major = StringConverter::parseInt(tokens[0]);
+		mDriverVersion.minor = StringConverter::parseInt(tokens[1]);
+		mDriverVersion.release = StringConverter::parseInt(tokens[2]);
+       
     }
 
     GLRenderSystem::~GLRenderSystem()
