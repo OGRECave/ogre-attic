@@ -480,11 +480,6 @@ namespace Ogre {
 			{
 				return mVertexTextureUnitsShared;
 			}
-			/// Set whether the vertex texture units are shared with the fragment processor
-			void setVertexTextureUnitsShared(bool shared)
-			{
-				mVertexTextureUnitsShared = shared;
-			}
 
 			/// Get whether these capabilities are valid for D3D9
 			bool getCapabilitiesValidForD3D9(void) const
