@@ -437,6 +437,9 @@ namespace Ogre {
 			oldMin = mMinimum;
 			oldMax = mMaximum;
 
+			// reset
+			setNull();
+
 			// We sequentially compute the corners in the following order :
 			// 0, 6, 5, 1, 2, 4 ,7 , 3
 			// This sequence allows us to only change one member at a time to get at all corners.
