@@ -160,7 +160,7 @@ namespace Ogre {
 
 		if (!mIsExternal)
 		{
-			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN;
 			DWORD dwStyleEx = 0;
 			int outerw, outerh;
 
@@ -324,7 +324,7 @@ namespace Ogre {
 		if (mIsFullScreen != fullScreen || width != mWidth || height != mHeight)
 		{
 			mIsFullScreen = fullScreen;
-			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN;
 
 			if (mIsFullScreen)
 			{
@@ -511,11 +511,21 @@ namespace Ogre {
 		// Allocate buffer 
 		uchar* pBuffer = new uchar[mWidth * mHeight * 3];
 
+		// Switch context if different from current one
+		RenderSystem* rsys = Root::getSingleton().getRenderSystem();
+		rsys->_setViewport(this->getViewport(0));
+
+		// Must change the packing to ensure no overruns!
+		glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
 		// Read pixels
 		// I love GL: it does all the locking & colour conversion for us
 		if (mIsFullScreen)
 			glReadBuffer(GL_FRONT);
 		glReadPixels(0,0, mWidth, mHeight, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
+
+		// restore default alignment
+		glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
 		// Wrap buffer in a memory stream
 		DataStreamPtr stream(new MemoryDataStream(pBuffer, mWidth * mHeight * 3, false));
