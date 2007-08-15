@@ -1,8 +1,10 @@
 // !$*UTF8*$!
 {
 	000E1D240B38D32C004EA2DF /* Project object */ = {
-		activeBuildConfigurationName = Release;
+		activeBuildConfigurationName = Debug;
 		activeTarget = 000E22040B38E022004EA2DF /* Ogre Framework */;
+		breakpoints = (
+		);
 		breakpointsGroup = AA211BF10C6125F50047C12F /* XCBreakpointsBucket */;
 		codeSenseManager = AAD765F00C491652004D7FF4 /* Code sense */;
 		perUserDictionary = {
@@ -20,12 +22,26 @@
 					PBXErrorsWarningsDataSource_LocationID,
 				);
 			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					482.5835,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					600,
+					595,
 					20,
 					48,
 					43,
@@ -64,11 +80,10 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 208649066;
-			PBXWorkspaceStateSaveDate = 208649066;
+			PBXPerProjectTemplateStateSaveDate = 208905877;
+			PBXWorkspaceStateSaveDate = 208905877;
 		};
 		perUserProjectItems = {
-			AA211BE30C6125E80047C12F /* PBXTextBookmark */ = AA211BE30C6125E80047C12F /* PBXTextBookmark */;
 			AA211BE50C6125E80047C12F /* PBXTextBookmark */ = AA211BE50C6125E80047C12F /* PBXTextBookmark */;
 			AA211C120C613D880047C12F /* PBXTextBookmark */ = AA211C120C613D880047C12F /* PBXTextBookmark */;
 			AA211C130C613D880047C12F /* PBXTextBookmark */ = AA211C130C613D880047C12F /* PBXTextBookmark */;
@@ -96,12 +111,25 @@
 			AA48EDFF0C653ACB00DD2220 /* PBXTextBookmark */ = AA48EDFF0C653ACB00DD2220 /* PBXTextBookmark */;
 			AA48EE000C653ACB00DD2220 /* PBXTextBookmark */ = AA48EE000C653ACB00DD2220 /* PBXTextBookmark */;
 			AA48EE010C653ACB00DD2220 /* PBXTextBookmark */ = AA48EE010C653ACB00DD2220 /* PBXTextBookmark */;
-			AAD9DC770C6FBAAC005ACDA9 /* PBXTextBookmark */ = AAD9DC770C6FBAAC005ACDA9 /* PBXTextBookmark */;
-			AAD9DCA80C6FBE12005ACDA9 /* PBXTextBookmark */ = AAD9DCA80C6FBE12005ACDA9 /* PBXTextBookmark */;
+			AADA20E70C70C1B800B108BF /* PBXTextBookmark */ = AADA20E70C70C1B800B108BF /* PBXTextBookmark */;
+			AADA20E80C70C1B800B108BF /* PBXTextBookmark */ = AADA20E80C70C1B800B108BF /* PBXTextBookmark */;
+			AADA20E90C70C1B800B108BF /* PBXTextBookmark */ = AADA20E90C70C1B800B108BF /* PBXTextBookmark */;
+			AADA20EE0C70C1B800B108BF /* PBXTextBookmark */ = AADA20EE0C70C1B800B108BF /* PBXTextBookmark */;
+			AADA20EF0C70C1B800B108BF /* PBXTextBookmark */ = AADA20EF0C70C1B800B108BF /* PBXTextBookmark */;
+			AADA20F10C70C1B800B108BF /* PBXTextBookmark */ = AADA20F10C70C1B800B108BF /* PBXTextBookmark */;
+			AADA21040C70C1E700B108BF /* PBXTextBookmark */ = AADA21040C70C1E700B108BF /* PBXTextBookmark */;
+			AADA21050C70C1E700B108BF /* PBXTextBookmark */ = AADA21050C70C1E700B108BF /* PBXTextBookmark */;
+			AADA21070C70C1E700B108BF /* PBXTextBookmark */ = AADA21070C70C1E700B108BF /* PBXTextBookmark */;
+			AADA210E0C70CA1E00B108BF /* PBXTextBookmark */ = AADA210E0C70CA1E00B108BF /* PBXTextBookmark */;
+			AADEC77A0C70507400FACE11 /* PBXTextBookmark */ = AADEC77A0C70507400FACE11 /* PBXTextBookmark */;
+			AADEC77B0C70507400FACE11 /* PBXTextBookmark */ = AADEC77B0C70507400FACE11 /* PBXTextBookmark */;
+			AADEC77D0C70507400FACE11 /* PBXTextBookmark */ = AADEC77D0C70507400FACE11 /* PBXTextBookmark */;
+			AADEC77E0C70507400FACE11 /* PBXTextBookmark */ = AADEC77E0C70507400FACE11 /* PBXTextBookmark */;
+			AAFCF9210C73A6A800826CCE /* PBXTextBookmark */ = AAFCF9210C73A6A800826CCE /* PBXTextBookmark */;
 		};
 		sourceControlManager = AAD765EF0C491652004D7FF4 /* Source Control */;
 		userBuildSettings = {
-			SYMROOT = /Users/steve/projects/Eihort/ogrenew/Mac/build;
+			SYMROOT = ../build;
 		};
 	};
 	000E1D340B38D380004EA2DF /* Ogre */ = {
@@ -134,7 +162,7 @@
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {926, 5474}}";
 			sepNavSelRange = "{11098, 24}";
-			sepNavVisRect = "{{0, 4295}, {798, 358}}";
+			sepNavVisRect = "{{0, 4294}, {793, 358}}";
 			sepNavWindowFrame = "{{47, 0}, {1006, 873}}";
 		};
 	};
@@ -174,6 +202,20 @@
 			sepNavWindowFrame = "{{47, 0}, {1006, 873}}";
 		};
 	};
+	000E1DE60B38D566004EA2DF /* OgreSceneManager.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {793, 40208}}";
+			sepNavSelRange = "{45574, 0}";
+			sepNavVisRect = "{{0, 14560}, {793, 595}}";
+		};
+	};
+	000E1DF10B38D566004EA2DF /* OgreShadowCaster.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {793, 3024}}";
+			sepNavSelRange = "{5482, 90}";
+			sepNavVisRect = "{{0, 1388}, {793, 600}}";
+		};
+	};
 	000E1E010B38D566004EA2DF /* OgreStaticGeometry.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {838, 10486}}";
@@ -196,6 +238,13 @@
 			sepNavWindowFrame = "{{47, 0}, {1006, 873}}";
 		};
 	};
+	000E1F1B0B38D5AA004EA2DF /* OgreEntity.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {962, 28644}}";
+			sepNavSelRange = "{15199, 19}";
+			sepNavVisRect = "{{0, 5938}, {793, 600}}";
+		};
+	};
 	000E1F380B38D5AA004EA2DF /* OgreMaterialScriptCompiler.cpp */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1016, 42168}}";
@@ -208,6 +257,13 @@
 			sepNavIntBoundsRect = "{{0, 0}, {1034, 64722}}";
 			sepNavSelRange = "{158273, 0}";
 			sepNavVisRect = "{{0, 59012}, {839, 542}}";
+		};
+	};
+	000E1F420B38D5AA004EA2DF /* OgreMovableObject.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {793, 5516}}";
+			sepNavSelRange = "{8767, 80}";
+			sepNavVisRect = "{{0, 3446}, {793, 600}}";
 		};
 	};
 	000E1F5F0B38D5AA004EA2DF /* OgrePredefinedControllers.cpp */ = {
@@ -247,9 +303,16 @@
 	};
 	000E1F730B38D5AA004EA2DF /* OgreSceneManager.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {838, 77504}}";
-			sepNavSelRange = "{104285, 0}";
-			sepNavVisRect = "{{0, 42762}, {838, 618}}";
+			sepNavIntBoundsRect = "{{0, 0}, {793, 77504}}";
+			sepNavSelRange = "{25940, 0}";
+			sepNavVisRect = "{{0, 10920}, {793, 595}}";
+		};
+	};
+	000E1F750B38D5AA004EA2DF /* OgreSceneNode.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {793, 9450}}";
+			sepNavSelRange = "{8584, 24}";
+			sepNavVisRect = "{{0, 3542}, {793, 600}}";
 		};
 	};
 	000E1F880B38D5AA004EA2DF /* OgreStaticGeometry.cpp */ = {
@@ -270,6 +333,20 @@
 	000E20550B38D600004EA2DF /* GL Render System */ = {
 		activeExec = 0;
 	};
+	000E207D0B38D82E004EA2DF /* OgreGLRenderSystem.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {806, 6622}}";
+			sepNavSelRange = "{2218, 30}";
+			sepNavVisRect = "{{0, 592}, {793, 595}}";
+		};
+	};
+	000E20A60B38D8DB004EA2DF /* OgreGLRenderSystem.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1118, 41636}}";
+			sepNavSelRange = "{28710, 79}";
+			sepNavVisRect = "{{0, 12089}, {793, 595}}";
+		};
+	};
 	000E22040B38E022004EA2DF /* Ogre Framework */ = {
 		activeExec = 0;
 	};
@@ -285,24 +362,11 @@
 	000E24340B3902ED004EA2DF /* CgProgramManager Plugin */ = {
 		activeExec = 0;
 	};
-	000E24530B390583004EA2DF /* EXRCodec Plugin */ = {
-		activeExec = 0;
-	};
 	000E24760B390B99004EA2DF /* Bundle Resources */ = {
 		activeExec = 0;
 	};
 	000E24960B390C03004EA2DF /* Copy to Library/Frameworks */ = {
 		activeExec = 0;
-	};
-	AA211BE30C6125E80047C12F /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 000E1F730B38D5AA004EA2DF /* OgreSceneManager.cpp */;
-		name = "OgreSceneManager.cpp: 3074";
-		rLen = 0;
-		rLoc = 104285;
-		rType = 0;
-		vrLen = 1609;
-		vrLoc = 103539;
 	};
 	AA211BE50C6125E80047C12F /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -592,7 +656,107 @@
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
 	};
-	AAD9DC770C6FBAAC005ACDA9 /* PBXTextBookmark */ = {
+	AADA20E70C70C1B800B108BF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E1F730B38D5AA004EA2DF /* OgreSceneManager.cpp */;
+		name = "OgreSceneManager.cpp: 792";
+		rLen = 0;
+		rLoc = 25940;
+		rType = 0;
+		vrLen = 1396;
+		vrLoc = 25545;
+	};
+	AADA20E80C70C1B800B108BF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E207D0B38D82E004EA2DF /* OgreGLRenderSystem.h */;
+		name = "Matrix4 mWorldMatrix;";
+		rLen = 30;
+		rLoc = 2218;
+		rType = 0;
+		vrLen = 1354;
+		vrLoc = 1623;
+	};
+	AADA20E90C70C1B800B108BF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E20A60B38D8DB004EA2DF /* OgreGLRenderSystem.cpp */;
+		name = "void GLRenderSystem::makeGLMatrix(GLfloat gl_matrix[16], const Matrix4& m)";
+		rLen = 79;
+		rLoc = 28710;
+		rType = 0;
+		vrLen = 1238;
+		vrLoc = 28540;
+	};
+	AADA20EE0C70C1B800B108BF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E20A60B38D8DB004EA2DF /* OgreGLRenderSystem.cpp */;
+		name = mWorldMatrix;
+		rLen = 12;
+		rLoc = 29198;
+		rType = 0;
+		vrLen = 1238;
+		vrLoc = 28540;
+	};
+	AADA20EF0C70C1B800B108BF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E207D0B38D82E004EA2DF /* OgreGLRenderSystem.h */;
+		name = "Matrix4 mWorldMatrix;";
+		rLen = 30;
+		rLoc = 2218;
+		rType = 0;
+		vrLen = 1354;
+		vrLoc = 1623;
+	};
+	AADA20F10C70C1B800B108BF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E1F1B0B38D5AA004EA2DF /* OgreEntity.cpp */;
+		name = getWorldBoundingBox;
+		rLen = 19;
+		rLoc = 14818;
+		rType = 0;
+		vrLen = 1103;
+		vrLoc = 13957;
+	};
+	AADA21040C70C1E700B108BF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E1F750B38D5AA004EA2DF /* OgreSceneNode.cpp */;
+		name = "SceneNode::_updateBounds";
+		rLen = 24;
+		rLoc = 8584;
+		rType = 0;
+		vrLen = 1640;
+		vrLoc = 8402;
+	};
+	AADA21050C70C1E700B108BF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E1F1B0B38D5AA004EA2DF /* OgreEntity.cpp */;
+		name = getWorldBoundingBox;
+		rLen = 19;
+		rLoc = 15199;
+		rType = 0;
+		vrLen = 1466;
+		vrLoc = 14286;
+	};
+	AADA21070C70C1E700B108BF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E1F750B38D5AA004EA2DF /* OgreSceneNode.cpp */;
+		name = "SceneNode::_updateBounds";
+		rLen = 24;
+		rLoc = 8584;
+		rType = 0;
+		vrLen = 1640;
+		vrLoc = 8402;
+	};
+	AADA210E0C70CA1E00B108BF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E1F420B38D5AA004EA2DF /* OgreMovableObject.cpp */;
+		name = "const AxisAlignedBox& MovableObject::getWorldBoundingBox(bool derive) const";
+		rLen = 80;
+		rLoc = 8767;
+		rType = 0;
+		vrLen = 1344;
+		vrLoc = 8118;
+	};
+	AADEC77A0C70507400FACE11 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 000E1DCB0B38D566004EA2DF /* OgrePrerequisites.h */;
 		name = "class RenderSystem;";
@@ -602,7 +766,17 @@
 		vrLen = 692;
 		vrLoc = 10768;
 	};
-	AAD9DCA80C6FBE12005ACDA9 /* PBXTextBookmark */ = {
+	AADEC77B0C70507400FACE11 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E1DE60B38D566004EA2DF /* OgreSceneManager.h */;
+		name = "OgreSceneManager.h: 1059";
+		rLen = 0;
+		rLoc = 45574;
+		rType = 0;
+		vrLen = 1782;
+		vrLoc = 44631;
+	};
+	AADEC77D0C70507400FACE11 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 000E1DCB0B38D566004EA2DF /* OgrePrerequisites.h */;
 		name = "class RenderSystem;";
@@ -611,5 +785,25 @@
 		rType = 0;
 		vrLen = 692;
 		vrLoc = 10768;
+	};
+	AADEC77E0C70507400FACE11 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E1DE60B38D566004EA2DF /* OgreSceneManager.h */;
+		name = "OgreSceneManager.h: 1059";
+		rLen = 0;
+		rLoc = 45574;
+		rType = 0;
+		vrLen = 1782;
+		vrLoc = 44631;
+	};
+	AAFCF9210C73A6A800826CCE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 000E1F420B38D5AA004EA2DF /* OgreMovableObject.cpp */;
+		name = "const AxisAlignedBox& MovableObject::getWorldBoundingBox(bool derive) const";
+		rLen = 80;
+		rLoc = 8767;
+		rType = 0;
+		vrLen = 1344;
+		vrLoc = 8118;
 	};
 }
