@@ -53,7 +53,7 @@ namespace Ogre{
     {
     public:
         /// this typedef hides the specicifc makup of the allocator
-        typedef Alloc                              AllocatorType;
+        typedef Alloc                             AllocatorType;
         typedef typename AllocatorType::size_type SizeType;
         typedef typename AllocatorType::pointer   PointerType;
 

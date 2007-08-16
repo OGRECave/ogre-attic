@@ -35,6 +35,10 @@ Torus Knot Software Ltd.
 #include "OgreIteratorWrappers.h"
 #include "OgreAxisAlignedBox.h"
 
+#include "OgreAllocator.h"
+#include "OgreAllocWrapper.h"
+#include "OgreSmallAllocPolicy.h"
+
 namespace Ogre {
 
 	// forward decl
@@ -49,7 +53,8 @@ namespace Ogre {
             Child nodes are contained within the bounds of the parent, and so on down the
             tree, allowing for fast culling.
     */
-    class _OgreExport SceneNode : public Node
+    class _OgreExport SceneNode : public Node,
+            public AllocWrapper<Allocator<SceneNode,Ogre::SmallAllocPolicy<SceneNode> > >
     {
     public:
         typedef HashMap<String, MovableObject*> ObjectMap;
@@ -418,7 +423,7 @@ namespace Ogre {
         void _autoTrack(void);
         /** Gets the parent of this SceneNode. */
         SceneNode* getParentSceneNode(void) const;
-        /** Makes all objects attached to this node become visible / invisible.
+        /** Makes all objects attached to this node become visible / invisble.
         @remarks    
             This is a shortcut to calling setVisible() on the objects attached
             to this node, and optionally to all objects attached to child
@@ -436,16 +441,6 @@ namespace Ogre {
         */
         virtual void flipVisibility(bool cascade = true);
 
-        /** Tells all objects attached to this node whether to display their
-			debug information or not.
-        @remarks    
-            This is a shortcut to calling setDebugDisplayEnabled() on the objects attached
-            to this node, and optionally to all objects attached to child
-            nodes. 
-        @param enabled Whether the objects are to display debug info or not
-        @param cascade If true, this setting cascades into child nodes too.
-        */
-        virtual void setDebugDisplayEnabled(bool enabled, bool cascade = true);
 
 
 

@@ -197,7 +197,7 @@ namespace Ogre{
                     mLastAlloc = (pointer)(mBins.at(mMap[i]).alloc());
                     mLastAllocSz = count;
 #else
-                    mLastAlloc = mBins[mMap[i]].alloc();
+                    mLastAlloc = (pointer)mBins[mMap[i]].alloc();
                     mLastAllocSz = count;
 #endif
                     return reinterpret_cast<pointer>(mLastAlloc);
