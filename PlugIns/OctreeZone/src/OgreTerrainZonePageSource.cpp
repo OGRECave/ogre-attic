@@ -101,7 +101,7 @@ namespace Ogre {
 		size_t pageIndex = mTerrainZone->_getPageCount();
 		page_str << pageIndex;
         name = mTerrainZone->getName() + "_page[";
-        name += page_str.str() + "]";
+        name += page_str.str() + "]_Node";
 		if (mTerrainZone->mPCZSM->hasSceneNode(name))
 		{
 			page->pageSceneNode = mTerrainZone->mPCZSM->getSceneNode(name);
@@ -125,7 +125,7 @@ namespace Ogre {
 				StringUtil::StrStreamType new_name_str;
 				
                 // Create scene node for the tile and the TerrainZoneRenderable
-                new_name_str << mTerrainZone->getName() << "_tile[" << pageIndex << "][" << (int)p << "," << (int)q << "]";
+                new_name_str << mTerrainZone->getName() << "_tile[" << pageIndex << "][" << (int)p << "," << (int)q << "]_Node";
 				name = new_name_str.str();
 
                 SceneNode *c;

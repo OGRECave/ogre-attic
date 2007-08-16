@@ -394,7 +394,7 @@ namespace Ogre
         //create a root terrain node.
         if (!mTerrainRoot)
 		{
-			mTerrainRoot = (PCZSceneNode*)(parentNode->createChildSceneNode(this->getName()+"_node"));
+			mTerrainRoot = (PCZSceneNode*)(parentNode->createChildSceneNode(this->getName()+"_Node"));
 			setEnclosureNode(mTerrainRoot);
 		}
         //setup the page array.
