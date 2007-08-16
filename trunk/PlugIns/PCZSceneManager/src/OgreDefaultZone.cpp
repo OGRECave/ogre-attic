@@ -98,7 +98,7 @@ namespace Ogre
 			PCZSceneNodeList::iterator it = std::find( mVisitorNodeList.begin(), mVisitorNodeList.end(), n );
 			if (it != mVisitorNodeList.end())
 			{
-				mVisitorNodeList.erase( std::find( mVisitorNodeList.begin(), mVisitorNodeList.end(), n ) );
+				mVisitorNodeList.erase( it );
 			}
 		}
     }

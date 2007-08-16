@@ -294,11 +294,11 @@ namespace Ogre
         bool getOptionKeys( StringVector &refKeys );
 
         /** Overridden from SceneManager */
-        AxisAlignedBoxSceneQuery* createAABBQuery(const AxisAlignedBox& box, unsigned long mask);
-        SphereSceneQuery* createSphereQuery(const Sphere& sphere, unsigned long mask);
-        PlaneBoundedVolumeListSceneQuery* createPlaneBoundedVolumeQuery(const PlaneBoundedVolumeList& volumes, unsigned long mask);
-        RaySceneQuery* createRayQuery(const Ray& ray, unsigned long mask);
-        IntersectionSceneQuery* createIntersectionQuery(unsigned long mask);
+        AxisAlignedBoxSceneQuery* createAABBQuery(const AxisAlignedBox& box, unsigned long mask = 0xFFFFFFFF);
+        SphereSceneQuery* createSphereQuery(const Sphere& sphere, unsigned long mask = 0xFFFFFFFF);
+        PlaneBoundedVolumeListSceneQuery* createPlaneBoundedVolumeQuery(const PlaneBoundedVolumeList& volumes, unsigned long mask = 0xFFFFFFFF);
+        RaySceneQuery* createRayQuery(const Ray& ray, unsigned long mask = 0xFFFFFFFF);
+        IntersectionSceneQuery* createIntersectionQuery(unsigned long mask = 0xFFFFFFFF);
 		
 		// ZoneMap iterator for read-only access to the zonemap 
 		typedef MapIterator<ZoneMap> ZoneIterator;
