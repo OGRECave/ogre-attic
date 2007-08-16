@@ -209,15 +209,20 @@ void CompositorChain::preViewportUpdate(const RenderTargetViewportEvent& evt)
 
 	// set original scene details from viewport
 	CompositionPass* pass = mOriginalScene->getTechnique()->getOutputTargetPass()->getPass(0);
+	CompositionTargetPass* passParent = pass->getParent();
 	if (pass->getClearBuffers() != mViewport->getClearBuffers() ||
 		pass->getClearColour() != mViewport->getBackgroundColour() ||
-		pass->getParent()->getVisibilityMask() != mViewport->getVisibilityMask())
+		passParent->getVisibilityMask() != mViewport->getVisibilityMask() ||
+		passParent->getMaterialScheme() != mViewport->getMaterialScheme() ||
+		passParent->getShadowsEnabled() != mViewport->getShadowsEnabled())
 	{
 		// recompile if viewport settings are different
-		_compile();
 		pass->setClearBuffers(mViewport->getClearBuffers());
 		pass->setClearColour(mViewport->getBackgroundColour());
-		pass->getParent()->setVisibilityMask(mViewport->getVisibilityMask());
+		passParent->setVisibilityMask(mViewport->getVisibilityMask());
+		passParent->setMaterialScheme(mViewport->getMaterialScheme());
+		passParent->setShadowsEnabled(mViewport->getShadowsEnabled());
+		_compile();
 	}
 
 	Camera *cam = mViewport->getCamera();
@@ -245,6 +250,9 @@ void CompositorChain::preTargetOperation(CompositorInstance::TargetOperation &op
 	/// Set material scheme 
 	mOldMaterialScheme = vp->getMaterialScheme();
 	vp->setMaterialScheme(op.materialScheme);
+	/// Set shadows enabled
+	mOldShadowsEnabled = vp->getShadowsEnabled();
+	vp->setShadowsEnabled(op.shadowsEnabled);
     /// XXX TODO
     //vp->setClearEveryFrame( true );
     //vp->setOverlaysEnabled( false );
@@ -263,6 +271,7 @@ void CompositorChain::postTargetOperation(CompositorInstance::TargetOperation &o
 	sm->setFindVisibleObjects(mOldFindVisibleObjects);
     cam->setLodBias(mOldLodBias);
 	vp->setMaterialScheme(mOldMaterialScheme);
+	vp->setShadowsEnabled(mOldShadowsEnabled);
 }
 //-----------------------------------------------------------------------
 void CompositorChain::postViewportUpdate(const RenderTargetViewportEvent& evt)

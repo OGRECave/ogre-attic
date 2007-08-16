@@ -98,7 +98,8 @@ namespace Ogre {
             TargetOperation(RenderTarget *target):
                 target(target), currentQueueGroupID(0), visibilityMask(0xFFFFFFFF),
                 lodBias(1.0f),
-                onlyInitial(false), hasBeenRendered(false), findVisibleObjects(false)
+                onlyInitial(false), hasBeenRendered(false), findVisibleObjects(false), 
+				shadowsEnabled(true)
             { 
             }
             /// Target
@@ -138,6 +139,8 @@ namespace Ogre {
             bool findVisibleObjects;
 			/** Which material scheme this op will use */
 			String materialScheme;
+			/** Whether shadows will be enabled */
+			bool shadowsEnabled;
         };
         typedef std::vector<TargetOperation> CompiledState;
         
