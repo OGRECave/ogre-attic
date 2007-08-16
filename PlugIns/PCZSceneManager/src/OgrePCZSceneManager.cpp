@@ -42,6 +42,7 @@ email                : ericc@xenopi.com
 #include "OgreSceneNode.h"
 #include "OgreMesh.h"
 #include "OgreSubMesh.h"
+#include "OgreLogManager.h"
 #include <OgreRenderSystem.h>
 
 
@@ -101,7 +102,7 @@ namespace Ogre
 
         // create a new default zone
 		mZoneFactoryManager = PCZoneFactoryManager::getSingletonPtr();
-		mDefaultZone = createZoneFromFile(mDefaultZoneTypeName, "DefaultZone", (PCZSceneNode*)mSceneRoot, mDefaultZoneFileName);
+		mDefaultZone = createZoneFromFile(mDefaultZoneTypeName, "Default_Zone", (PCZSceneNode*)mSceneRoot, mDefaultZoneFileName);
     }
 
 	/** Create a zone from a file (type of file
@@ -851,6 +852,7 @@ namespace Ogre
 			for (pi = zone->mPortals.begin(); pi != piend; pi++)
 			{
 				portal = *pi;
+				//portal->updateDerivedValues();
 				if (portal->getTargetZone() == 0)
 				{
 					// this is a portal without a connected zone - look for 
@@ -871,9 +873,11 @@ namespace Ogre
 							for (pi2 = zone2->mPortals.begin(); pi2 != piend2; pi2++)
 							{
 								portal2 = *pi2;
+								//portal2->updateDerivedValues();
 								if (portal2->getTargetZone() == 0 &&
 									portal2->closeTo(portal))
 								{
+									Ogre::LogManager::getSingletonPtr()->logMessage("Connecting portal "+portal->getName()+" to portal "+portal2->getName());
 									// found a match!
 									foundMatch = true;
 									portal->setTargetZone(zone2);
