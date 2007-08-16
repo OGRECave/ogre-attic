@@ -524,7 +524,7 @@
 		000C05BB0BB613F000E6B30C /* Instancing-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; name = "Instancing-Info.plist"; path = "plist/Instancing-Info.plist"; sourceTree = "<group>"; };
 		000C05E00BB6173B00E6B30C /* Crowd.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Crowd.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000C05E20BB6173C00E6B30C /* Crowd-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Crowd-Info.plist"; path = "plist/Crowd-Info.plist"; sourceTree = "<group>"; };
-		000E25230B392BAA004EA2DF /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Ogre.framework; path = /Library/Frameworks/Ogre.framework; sourceTree = "<absolute>"; };
+		000E25230B392BAA004EA2DF /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Ogre.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E252B0B392BE5004EA2DF /* BezierPatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BezierPatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E252E0B392BE6004EA2DF /* BezierPatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "BezierPatch-Info.plist"; path = "plist/BezierPatch-Info.plist"; sourceTree = "<group>"; };
 		000E25330B392C93004EA2DF /* Bezier.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Bezier.h; path = ../../Samples/BezierPatch/include/Bezier.h; sourceTree = SOURCE_ROOT; };
@@ -575,7 +575,7 @@
 		000E27B80B39AB18004EA2DF /* EnvMapping-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "EnvMapping-Info.plist"; path = "plist/EnvMapping-Info.plist"; sourceTree = "<group>"; };
 		000E27BE0B39ABE3004EA2DF /* EnvMapping.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = EnvMapping.h; path = ../../Samples/EnvMapping/include/EnvMapping.h; sourceTree = SOURCE_ROOT; };
 		000E27BF0B39ABED004EA2DF /* EnvMapping.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = EnvMapping.cpp; path = ../../Samples/EnvMapping/src/EnvMapping.cpp; sourceTree = SOURCE_ROOT; };
-		000E27CE0B39AD1D004EA2DF /* FacialAnimation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FacialAnimation.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000E27CE0B39AD1D004EA2DF /* FacialAnimation.app */ = {isa = PBXFileReference; includeInIndex = 0; path = FacialAnimation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E27D00B39AD1D004EA2DF /* FacialAnimation-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "FacialAnimation-Info.plist"; path = "plist/FacialAnimation-Info.plist"; sourceTree = "<group>"; };
 		000E27E60B39ADE3004EA2DF /* FacialAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = FacialAnimation.cpp; path = ../../Samples/FacialAnimation/src/FacialAnimation.cpp; sourceTree = SOURCE_ROOT; };
 		000E27F30B39AE59004EA2DF /* Fresnel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fresnel.app; sourceTree = BUILT_PRODUCTS_DIR; };

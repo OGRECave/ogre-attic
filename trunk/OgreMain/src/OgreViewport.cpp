@@ -110,7 +110,7 @@ namespace Ogre {
             mCamera->setAspectRatio((Real) mActWidth / (Real) mActHeight);
         }
 
-		LogManager::getSingleton().stream()
+		LogManager::getSingleton().stream(LML_TRIVIAL)
 			<< "Viewport for camera '" << (mCamera != 0 ? mCamera->getName() : "NULL") << "'"
 			<< ", actual dimensions "	<< std::fixed << std::setprecision(2) 
 			<< "L: " << mActLeft << " T: " << mActTop << " W: " << mActWidth << " H: " << mActHeight;

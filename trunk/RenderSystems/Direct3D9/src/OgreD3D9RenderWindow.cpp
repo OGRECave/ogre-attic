@@ -167,7 +167,7 @@ namespace Ogre
 
 		if (!externalHandle)
 		{
-			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN;
 			RECT rc;
 
 			mWidth = width;
@@ -275,7 +275,7 @@ namespace Ogre
 			if (fullScreen != mIsFullScreen)
 				mSwitchingFullscreen = true;
 
-			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN;
 
 			bool oldFullscreen = mIsFullScreen;
 			mIsFullScreen = fullScreen;
@@ -283,15 +283,11 @@ namespace Ogre
 			if (fullScreen)
 			{
 				dwStyle |= WS_POPUP;
-
 				mTop = mLeft = 0;
 				mWidth = width;
 				mHeight = height;
 				// need different ordering here
-				md3dpp.Windowed = !fullScreen;
-				md3dpp.FullScreen_RefreshRateInHz = mIsFullScreen ? mDisplayFrequency : 0;
-				md3dpp.BackBufferHeight = height;
-				md3dpp.BackBufferWidth = width;
+
 				if (oldFullscreen)
 				{
 					// was previously fullscreen, just changing the resolution
@@ -302,6 +298,7 @@ namespace Ogre
 					SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height, SWP_NOACTIVATE);
 					//MoveWindow(mHWnd, mLeft, mTop, mWidth, mHeight, FALSE);
 					SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
+					SetWindowPos(mHWnd, 0, 0,0, 0,0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
 				}
 			}
 			else
@@ -312,20 +309,20 @@ namespace Ogre
 				RECT rc;
 				SetRect(&rc, 0, 0, width, height);
 				AdjustWindowRect(&rc, dwStyle, false);
-				md3dpp.Windowed = !fullScreen;
-				md3dpp.FullScreen_RefreshRateInHz = mIsFullScreen ? mDisplayFrequency : 0;
 				unsigned int winWidth = rc.right - rc.left;
 				unsigned int winHeight = rc.bottom - rc.top;
-
-				md3dpp.BackBufferHeight = height;
-				md3dpp.BackBufferWidth = width;
 
 				SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
 				SetWindowPos(mHWnd, HWND_NOTOPMOST, 0, 0, winWidth, winHeight,
 					SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOACTIVATE);
-
 				// Note that we also set the position in the restoreLostDevice method
+				// via _finishSwitchingFullScreen
 			}
+
+			md3dpp.Windowed = !fullScreen;
+			md3dpp.FullScreen_RefreshRateInHz = mIsFullScreen ? mDisplayFrequency : 0;
+			md3dpp.BackBufferHeight = height;
+			md3dpp.BackBufferWidth = width;
 
 			if ((oldFullscreen && fullScreen) || mIsExternal)
 			{
@@ -339,6 +336,35 @@ namespace Ogre
 				while(it != mViewportList.end()) (*it++).second->_updateDimensions();
 			}
 		}
+	} 
+
+	void D3D9RenderWindow::_finishSwitchingFullscreen()
+	{
+		if(mIsFullScreen)
+		{
+			// Need to reset the region on the window sometimes, when the 
+			// windowed mode was constrained by desktop 
+			HRGN hRgn = CreateRectRgn(0,0,md3dpp.BackBufferWidth, md3dpp.BackBufferHeight);
+			SetWindowRgn(mHWnd, hRgn, FALSE);
+		}
+		else
+		{
+			// When switching back to windowed mode, need to reset window size 
+			// after device has been restored
+			RECT rc;
+			SetRect(&rc, 0, 0, md3dpp.BackBufferWidth, md3dpp.BackBufferHeight);
+			AdjustWindowRect(&rc, GetWindowLong(mHWnd, GWL_STYLE), false);
+			unsigned int winWidth = rc.right - rc.left;
+			unsigned int winHeight = rc.bottom - rc.top;
+			int screenw = GetSystemMetrics(SM_CXSCREEN);
+			int screenh = GetSystemMetrics(SM_CYSCREEN);
+			int left = (screenw - winWidth) / 2;
+			int top = (screenh - winHeight) / 2;
+			SetWindowPos(mHWnd, HWND_NOTOPMOST, left, top, winWidth, winHeight,
+				SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+		}
+		mSwitchingFullscreen = false;
 	}
 
 	void D3D9RenderWindow::createD3DResources(void)

@@ -87,6 +87,20 @@ Node * OctreeNode::removeChild( Node* child )
     on -> _removeNodeAndChildren(); 
     return on; 
 }
+void OctreeNode::removeAllChildren()
+{
+	ChildNodeMap::iterator i, iend;
+	iend = mChildren.end();
+	for (i = mChildren.begin(); i != iend; ++i)
+	{
+		OctreeNode* on = static_cast<OctreeNode*>(i->second);
+		on->setParent(0);
+		on->_removeNodeAndChildren();
+	}
+	mChildren.clear();
+	mChildrenToUpdate.clear();
+	
+}
     
 Node * OctreeNode::removeChild( const String & name )
 {

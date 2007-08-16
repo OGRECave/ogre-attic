@@ -39,7 +39,8 @@ CompositionTargetPass::CompositionTargetPass(CompositionTechnique *parent):
     mOnlyInitial(false),
     mVisibilityMask(0xFFFFFFFF),
     mLodBias(1.0f),
-	mMaterialScheme(MaterialManager::DEFAULT_SCHEME_NAME)
+	mMaterialScheme(MaterialManager::DEFAULT_SCHEME_NAME), 
+	mShadowsEnabled(true)
 {
 }
 //-----------------------------------------------------------------------
@@ -106,6 +107,16 @@ void CompositionTargetPass::setMaterialScheme(const String& schemeName)
 const String& CompositionTargetPass::getMaterialScheme(void) const
 {
 	return mMaterialScheme;
+}
+//-----------------------------------------------------------------------
+void CompositionTargetPass::setShadowsEnabled(bool enabled)
+{
+	mShadowsEnabled = enabled;
+}
+//-----------------------------------------------------------------------
+bool CompositionTargetPass::getShadowsEnabled(void) const
+{
+	return mShadowsEnabled;
 }
 //-----------------------------------------------------------------------
 CompositionPass *CompositionTargetPass::createPass()

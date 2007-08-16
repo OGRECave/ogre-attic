@@ -202,6 +202,9 @@ namespace Ogre {
         float mOldLodBias;     
 		///	Store old viewport material scheme
 		String mOldMaterialScheme;
+		/// Store old shadows enabled flag
+		bool mOldShadowsEnabled;
+
     };
 }
 

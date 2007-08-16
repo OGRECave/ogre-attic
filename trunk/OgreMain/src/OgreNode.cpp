@@ -441,7 +441,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::translate(const Vector3& d, TransformSpace relativeTo)
     {
-        Vector3 adjusted;
         switch(relativeTo)
         {
         case TS_LOCAL:

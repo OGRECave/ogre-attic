@@ -352,7 +352,7 @@ namespace Ogre {
 		RegisterClass(&dummyClass);
 
 		HWND hwnd = CreateWindow(dummyText, dummyText,
-			WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+			WS_POPUP | WS_CLIPCHILDREN,
 			0, 0, 32, 32, 0, 0, hinst, 0);
 
 		// if a simple CreateWindow fails, then boy are we in trouble...

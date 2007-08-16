@@ -161,7 +161,7 @@ namespace Ogre {
 
 		if (!mIsExternal)
 		{
-			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN;
 			DWORD dwStyleEx = 0;
 			int outerw, outerh;
 
@@ -324,7 +324,7 @@ namespace Ogre {
 		if (mIsFullScreen != fullScreen || width != mWidth || height != mHeight)
 		{
 			mIsFullScreen = fullScreen;
-			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN;
 
 			if (mIsFullScreen)
 			{
@@ -422,6 +422,11 @@ namespace Ogre {
 			if (mIsFullScreen)
 				ChangeDisplaySettings(NULL, 0);
 			DestroyWindow(mHWnd);
+		}
+		else
+		{
+			// just release the DC
+			ReleaseDC(mHWnd, mHDC);
 		}
 
 		mActive = false;

@@ -93,6 +93,18 @@ namespace Ogre {
 		*/
 		const String& getMaterialScheme(void) const;
         
+		/** Set whether shadows are enabled in this target pass.
+		@remarks
+			Only applicable to targets that render the scene as
+			one of their passes.
+		*/
+		void setShadowsEnabled(bool enabled);
+		/** Get whether shadows are enabled in this target pass.
+		@remarks
+			Only applicable to targets that render the scene as
+			one of their passes.
+		*/
+		bool getShadowsEnabled(void) const;
         /** Set the scene LOD bias used by this pass. The default is 1.0,
             everything below that means lower quality, higher means higher quality.
         */
@@ -146,6 +158,8 @@ namespace Ogre {
         float mLodBias;
 		/// Material scheme name
 		String mMaterialScheme;
+		/// Shadows option
+		bool mShadowsEnabled;
     };
 
 }

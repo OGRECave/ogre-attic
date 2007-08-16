@@ -220,6 +220,7 @@ void CompositorInstance::collectPasses(TargetOperation &finalState, CompositionT
 			finalState.currentQueueGroupID = pass->getLastRenderQueue()+1;
 			finalState.findVisibleObjects = true;
 			finalState.materialScheme = target->getMaterialScheme();
+			finalState.shadowsEnabled = target->getShadowsEnabled();
 
             break;
         case CompositionPass::PT_RENDERQUAD:
@@ -292,6 +293,7 @@ void CompositorInstance::_compileTargetOperations(CompiledState &compiledState)
         ts.onlyInitial = target->getOnlyInitial();
         ts.visibilityMask = target->getVisibilityMask();
         ts.lodBias = target->getLodBias();
+		ts.shadowsEnabled = target->getShadowsEnabled();
         /// Check for input mode previous
         if(target->getInputMode() == CompositionTargetPass::IM_PREVIOUS)
         {
