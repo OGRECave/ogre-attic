@@ -107,11 +107,19 @@ namespace Ogre
 
 		if (n->getHomeZone() == this)
 		{
-			mHomeNodeList.erase( std::find( mHomeNodeList.begin(), mHomeNodeList.end(), n ) );
+			PCZSceneNodeList::iterator it = std::find( mHomeNodeList.begin(), mHomeNodeList.end(), n );
+			if (it != mHomeNodeList.end())
+			{
+				mHomeNodeList.erase( it );
+			}
 		}
 		else
 		{
-			mVisitorNodeList.erase( std::find( mVisitorNodeList.begin(), mVisitorNodeList.end(), n ) );
+			PCZSceneNodeList::iterator it = std::find( mVisitorNodeList.begin(), mVisitorNodeList.end(), n );
+			if (it != mVisitorNodeList.end())
+			{
+				mVisitorNodeList.erase( it );
+			}
 		}
     }
 
@@ -877,7 +885,7 @@ namespace Ogre
 	{
 		String entityName, nodeName;
 		entityName = this->getName() + "_entity";
-		nodeName = this->getName() + "_node";
+		nodeName = this->getName() + "_Node";
 		Entity *ent = mPCZSM->createEntity(entityName , filename );
 		// create a node for the entity
 		PCZSceneNode * node;
