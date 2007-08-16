@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 #define __MATERIALSCRIPTCOMPILER2_H_
 
 #include "OgreScriptCompiler.h"
+#include "OgrePixelFormat.h"
 
 namespace Ogre{
 
@@ -100,6 +101,8 @@ namespace Ogre{
 				ID_VERTEX_COLOUR,
 			ID_SCENE_BLEND,
 				ID_COLOUR_BLEND,
+				ID_ONE,
+				ID_ZERO,
 				ID_DEST_COLOUR,
 				ID_SRC_COLOUR,
 				ID_ONE_MINUS_DEST_COLOUR,
@@ -125,12 +128,12 @@ namespace Ogre{
 			ID_ALPHA_REJECTION,
 			ID_LIGHT_SCISSOR,
 			ID_LIGHT_CLIP_PLANES,
-			ID_ILLUMINATION_PASS,
+			ID_ILLUMINATION_STAGE,
 				ID_DECAL,
-			ID_CULLHARDWARE,
+			ID_CULL_HARDWARE,
 				ID_CLOCKWISE,
 				ID_ANTICLOCKWISE,
-			ID_CULLSOFTWARE,
+			ID_CULL_SOFTWARE,
 				ID_BACK,
 				ID_FRONT,
 			ID_NORMALISE_NORMALS,
@@ -139,7 +142,7 @@ namespace Ogre{
 				ID_FLAT, 
 				ID_GOURAUD,
 				ID_PHONG,
-			ID_POLYGONMODE,
+			ID_POLYGON_MODE,
 				ID_SOLID,
 				ID_WIREFRAME,
 				ID_POINTS,
@@ -149,8 +152,8 @@ namespace Ogre{
 				ID_LINEAR,
 				ID_EXP,
 				ID_EXP2,
-			ID_COLOURWRITE,
-			ID_MAXLIGHTS,
+			ID_COLOUR_WRITE,
+			ID_MAX_LIGHTS,
 			ID_START_LIGHT,
 			ID_ITERATION,
 				ID_ONCE,
@@ -162,6 +165,7 @@ namespace Ogre{
 				ID_DIRECTIONAL,
 			ID_POINT_SIZE,
 			ID_POINT_SPRITES,
+			ID_POINT_SIZE_ATTENUATION,
 			ID_POINT_SIZE_MIN,
 			ID_POINT_SIZE_MAX,
 
@@ -171,6 +175,8 @@ namespace Ogre{
 				ID_2D,
 				ID_3D,
 				ID_CUBIC,
+				ID_UNLIMITED,
+				ID_ALPHA,
 			ID_ANIM_TEXTURE,
 			ID_CUBIC_TEXTURE,
 				ID_SEPARATE_UV,
@@ -255,6 +261,12 @@ namespace Ogre{
 		ScriptNodeListPtr loadImportPath(const String &name);
 	private: // Private handlers to compile pieces of the material script
 		void compileMaterial(const ScriptNodePtr &node);
+		void compileTechnique(const ScriptNodePtr &node);
+		void compilePass(const ScriptNodePtr &node, Technique *technique);
+		void compileTextureUnit(const ScriptNodePtr &node, Pass *pass);
+		bool getColourValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
+		bool getBlendFactor(const ScriptNodePtr &node, SceneBlendFactor &sbf);
+		bool getCompareFunction(const ScriptNodePtr &node, CompareFunction &func);
 	private:
 		// The listener
 		MaterialScriptCompilerListener *mListener;
