@@ -2,7 +2,8 @@
 
 # invoke xcode build
 xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Release
-xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Debug
+# Just release mode, debug is too big
+#xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Debug
 
 # frameworks
 echo Copying frameworks...
@@ -68,15 +69,20 @@ cp ../../ReferenceApplication/BspCollision/src/*.cpp sdk_samples/src
 mkdir sdk_samples/Dependencies
 mkdir sdk_samples/Dependencies/include
 mkdir sdk_samples/Dependencies/lib
-mkdir sdk_samples/Dependencies/lib/Debug
+#mkdir sdk_samples/Dependencies/lib/Debug
 mkdir sdk_samples/Dependencies/lib/Release
 cp -R ../../Dependencies/include/OIS sdk_samples/Dependencies/include
-cp ../../Dependencies/lib/Debug/libois.a sdk_samples/Dependencies/lib/Debug/
+#cp ../../Dependencies/lib/Debug/libois.a sdk_samples/Dependencies/lib/Debug/
 cp ../../Dependencies/lib/Release/libois.a sdk_samples/Dependencies/lib/Release/
 
 # Fix up project references (2 stage rather than in-place since in-place only works for single sed commands)
 sed -f editsamples.sed sdk_samples/Samples.xcodeproj/project.pbxproj > tmp.xcodeproj
 mv tmp.xcodeproj sdk_samples/Samples.xcodeproj/project.pbxproj
+# Change the reference type on Ogre.framework
+patch -p0 < patchsamples.diff
+# Change the include type of the Ogre.framework so we use the Ogre/ prefix since external
+find sdk_samples -iname *.h -exec sed -i -e 's/include "Ogre/include "Ogre\/Ogre/g' \{\} \;
+find sdk_samples -iname *.cpp -exec sed -i -e 's/include "Ogre/include "Ogre\/Ogre/g' \{\} \;
 
 echo Samples copied.
 echo Building samples package...
