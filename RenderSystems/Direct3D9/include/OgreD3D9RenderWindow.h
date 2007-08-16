@@ -91,7 +91,7 @@ namespace Ogre
 		/// Are we in the middle of switching between fullscreen and windowed
 		bool _getSwitchingFullscreen() const { return mSwitchingFullscreen; }
 		/// Indicate that fullscreen / windowed switching has finished
-		void _finishSwitchingFullscreen() { mSwitchingFullscreen = false; }
+		void _finishSwitchingFullscreen();
 	protected:
 		HINSTANCE mInstance;			// Process instance
 		D3D9Driver *mDriver;			// D3D9 driver
