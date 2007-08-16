@@ -65,9 +65,9 @@ namespace Ogre{
     template
     <
         typename T, 
-        unsigned int CHUNK_SIZE = 4096,
+        unsigned int CHUNK_SIZE  = 2048,
         unsigned int THREASHOLD  = 256,
-        unsigned int MIN_SIZE   = 8
+        unsigned int MIN_SIZE    = 8
     >
     class SmallAllocPolicy
     {
@@ -125,9 +125,19 @@ namespace Ogre{
 
             std::vector<FixedBin> mBins;
 
+            // used to speed up size info
+            pointer mLastAlloc;
+            uint32  mLastAllocSz;
+            pointer mLastDealloc;
+            uint32  mLastDeallocSz;
+
         protected:
             /// ctor
             inline explicit SmallAllocPolicy()
+            : mLastAlloc(NULL)
+            , mLastAllocSz(0)
+            , mLastDealloc(NULL)
+            , mLastDeallocSz(0)
             { 
                 // setup the map
                 for(uint32 i=0;i<THREASHOLD/MIN_SIZE;++i)
@@ -136,7 +146,12 @@ namespace Ogre{
 
             /// dtor
             inline ~SmallAllocPolicy()
-            { }
+            { 
+                // kill em all i reverse order, this is nicer for the general allocator 
+                typename std::vector<FixedBin>::reverse_iterator i = mBins.rbegin();
+                for(;i!=mBins.rend();++i)
+                    i->clean();
+            }
 
             /// copy ctor
             inline explicit SmallAllocPolicy(SmallAllocPolicy const&)
@@ -157,31 +172,35 @@ namespace Ogre{
                 // NOTE: check size  alignment
                 if(count > THREASHOLD) // allocation size over threashold
                 {
-                    std::cout << "OVER" << std::endl;
-                    return reinterpret_cast<pointer>(::new unsigned char [count]);
+                    mLastAlloc = (pointer)(::new unsigned char [count]);
+                    mLastAllocSz = 0;
+                    return reinterpret_cast<pointer>(mLastAlloc);
                 }
 
                 register int i = count/MIN_SIZE;
                 if(mMap[i] == -1) // new size, new bin
                 {
-                    std::cout << "NEW SIZE " << count << std::endl;
-
                     mBins.reserve(mBins.size()+1);
                     FixedBin bin;
                     bin.mSize = count;
                     mBins.push_back(bin);
                     mMap[i] = mBins.size()-1; // NOTE: check bounds
-                    return reinterpret_cast<pointer>(mBins.back().alloc());
+
+                    mLastAlloc = (pointer)(mBins.back().alloc());
+                    mLastAllocSz = count;
+
+                    return reinterpret_cast<pointer>(mLastAlloc);
                 }
                 else // use the bin
                 {
 #ifdef DEBUG
-                    std::cout << "FOUND " << count << std::endl;
-                    return reinterpret_cast<pointer>(mBins.at(mMap[i]).alloc());
+                    mLastAlloc = (pointer)(mBins.at(mMap[i]).alloc());
+                    mLastAllocSz = count;
 #else
-                    std::cout << "FOUND " << count << std::endl;
-                    return reinterpret_cast<pointer>(mBins[mMap[i]].alloc());
+                    mLastAlloc = mBins[mMap[i]].alloc();
+                    mLastAllocSz = count;
 #endif
+                    return reinterpret_cast<pointer>(mLastAlloc);
                 }
             }
 
@@ -191,9 +210,15 @@ namespace Ogre{
              */
             void deallocate(pointer ptr, size_type sz)
             {
+                mLastDealloc = ptr;
                 if(sz > THREASHOLD)
+                {
                     ::delete(ptr);
+                    mLastDeallocSz = 0;
+                    return;
+                }
 
+                mLastDeallocSz = sz;
                 register int i = sz/MIN_SIZE;
                 assert(mMap[i]!=-1);
 #ifdef DEBUG
@@ -213,9 +238,26 @@ namespace Ogre{
              * return the size of a memory block allocation
              * @param ptr start of the allocated block
              */
-            inline size_type block_size(typename std::allocator<void>::const_pointer ptr = 0)
+            size_type block_size(typename std::allocator<void>::const_pointer ptr = 0)
             {
-                //return MemoryManager::getSingleton().sizeOfStorage(ptr);
+                /*
+                if(ptr==mLastAlloc)
+                {
+                    if(mLastAllocSz)
+                        return mLastAllocSz;
+                    else
+                        return MemoryManager::getSingleton().sizeOfStorage(ptr);
+                }
+                if(ptr==mLastDealloc)
+                {
+                    if(mLastAllocSz)
+                        return mLastDeallocSz;
+                    else
+                        return MemoryManager::getSingleton().sizeOfStorage(ptr);
+                }
+                */
+
+                // TODO: exahustive search of all bins for the ptr
                 return 0;
             }
 
@@ -229,7 +271,7 @@ namespace Ogre{
             friend bool operator==( SmallAllocPolicy<oT> const&, OtherAllocator const&);
     };
 
-    /// determin eq280840uality, can memory from another allocator
+    /// determin equality, can memory from another allocator
     /// be released by this allocator, (ISO C++)
     template<typename T, typename T2>
     inline bool operator==(SmallAllocPolicy<T> const&, SmallAllocPolicy<T2> const&)
@@ -251,8 +293,10 @@ namespace Ogre{
     void SmallAllocPolicy<T,CHUNK,THRESHOLD,MIN>::Chunk::setup( size_type sz ) 
     {
         unsigned int blocks = CHUNK/sz;
+        std::cout << "BLOCKS " << blocks << std::endl;
+        assert(blocks<=255);
 
-        mData = new unsigned char[blocks];
+        mData = new unsigned char[CHUNK];
         mFirstFree = 0;
         mNumFree = blocks;
 
@@ -267,7 +311,6 @@ namespace Ogre{
     template<typename T, unsigned int CHUNK, unsigned int THRESHOLD, unsigned int MIN>
     void* SmallAllocPolicy<T,CHUNK,THRESHOLD,MIN>::Chunk::alloc( size_type sz )
     {
-        std::cout << "in Chunk::alloc" << std::endl;
         if (!mNumFree) 
             return 0;
 
@@ -277,7 +320,6 @@ namespace Ogre{
         --mNumFree;
 
         assert(ret);
-        std::cout << "OK" << std::endl;
         return ret;
     }
 
@@ -303,12 +345,16 @@ namespace Ogre{
     // fixed bin methods
     template<typename T, unsigned int CHUNK, unsigned int THRESHOLD, unsigned int MIN>
     void SmallAllocPolicy<T,CHUNK,THRESHOLD,MIN>::FixedBin::clean()
-    {}
+    {
+        // kill em in reverse order, this is nicer for the general allocator
+        typename std::vector<Chunk>::reverse_iterator i=mChunks.rbegin();
+        for(;i!=mChunks.rend();++i)
+            ::delete(i->mData);
+    }
 
     template<typename T, unsigned int CHUNK, unsigned int THRESHOLD, unsigned int MIN>
     void* SmallAllocPolicy<T,CHUNK,THRESHOLD,MIN>::FixedBin::alloc()
     {
-        std::cout << "in FixedBin::alloc" << std::endl;
         if (mLastAlloc == 0 || mLastAlloc->mNumFree == 0)
         {
             // No available memory in this chunk
@@ -337,7 +383,6 @@ namespace Ogre{
         }
         assert(mLastAlloc != 0);
         assert(mLastAlloc->mNumFree > 0);
-        std::cout << "OK" << std::endl;
         return mLastAlloc->alloc(mSize);
     }
 
