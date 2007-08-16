@@ -37,19 +37,19 @@ Torus Knot Software Ltd.
 
 /// overloaded operator new, points back to the 
 /// allocation wrapper function
-_OgreExport void *operator new(std::size_t size);
+void *operator new(std::size_t size);
 
 /// overloaded operator new[], points back to the 
 /// allocation wrapper function
-_OgreExport void *operator new[](std::size_t size);
+void *operator new[](std::size_t size);
 
 /// overloaded operator delete, points back to the 
 /// deallocation wrapper function
-_OgreExport void operator delete(void *ptr, std::size_t size);
+void operator delete(void *ptr, std::size_t size);
 
 /// overloaded operator delete[], points back to the 
 /// deallocation wrapper function
-_OgreExport void operator delete[](void *ptr, std::size_t size);
+void operator delete[](void *ptr, std::size_t size);
 
 
 // single param delete, I can work with this for now untill 
@@ -57,11 +57,11 @@ _OgreExport void operator delete[](void *ptr, std::size_t size);
 // /*
 /// overloaded operator delete, points back to the 
 /// deallocation wrapper function
-_OgreExport void operator delete(void *ptr);
+void operator delete(void *ptr);
 
 /// overloaded operator delete[], points back to the 
 /// deallocation wrapper function
-_OgreExport void operator delete[](void *ptr);
+void operator delete[](void *ptr);
 // */
 
 namespace Ogre

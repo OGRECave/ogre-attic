@@ -1848,6 +1848,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreSmallAllocPolicy.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreSphere.h"
 				>
 			</File>
