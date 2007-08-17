@@ -181,6 +181,36 @@ namespace Ogre{
 		mWordIDs["point_sprites"] = ID_POINT_SPRITES;
 		mWordIDs["point_size_min"] = ID_POINT_SIZE_MIN;
 		mWordIDs["point_size_max"] = ID_POINT_SIZE_MAX;
+
+		mWordIDs["texture_alias"] = ID_TEXTURE_ALIAS;
+		mWordIDs["texture"] = ID_TEXTURE;
+			mWordIDs["1d"] = ID_1D;
+			mWordIDs["2d"] = ID_2D;
+			mWordIDs["3d"] = ID_3D;
+			mWordIDs["cubic"] = ID_CUBIC;
+			mWordIDs["unlimited"] = ID_UNLIMITED;
+			mWordIDs["alpha"] = ID_ALPHA;
+		mWordIDs["anim_texture"] = ID_ANIM_TEXTURE;
+		mWordIDs["cubic_texture"] = ID_CUBIC_TEXTURE;
+			mWordIDs["separate_uv"] = ID_SEPARATE_UV;
+			mWordIDs["combined_uvw"] = ID_COMBINED_UVW;
+		mWordIDs["tex_coord_set"] = ID_TEX_COORD_SET;
+		mWordIDs["tex_address_mode"] = ID_TEX_ADDRESS_MODE;
+			mWordIDs["wrap"] = ID_WRAP;
+			mWordIDs["clamp"] = ID_CLAMP;
+			mWordIDs["mirror"] = ID_MIRROR;
+			mWordIDs["border"] = ID_BORDER;
+		mWordIDs["filtering"] = ID_FILTERING;
+			mWordIDs["bilinear"] = ID_BILINEAR;
+			mWordIDs["trilinear"] = ID_TRILINEAR;
+			mWordIDs["anisotropic"] = ID_ANISOTROPIC;
+		mWordIDs["max_anisotropy"] = ID_MAX_ANISOTROPY;
+		mWordIDs["mipmap_bias"] = ID_MIPMAP_BIAS;
+		mWordIDs["colour_op"] = ID_COLOUR_OP;
+			mWordIDs["replace"] = ID_REPLACE;
+			mWordIDs["add"] = ID_ADD;
+			mWordIDs["modulate"] = ID_MODULATE;
+			mWordIDs["alpha_blend"] = ID_ALPHA_BLEND;
 	}
 
 	void MaterialScriptCompiler2::setListener(MaterialScriptCompilerListener *listener)
@@ -505,7 +535,7 @@ namespace Ogre{
 					else
 						addError(CE_INVALIDPROPERTYVALUE, (*j)->file, (*j)->line, -1);
 				}
-				else if((*j)->wordID = ID_SEPARATE_SCENE_BLEND)
+				else if((*j)->wordID == ID_SEPARATE_SCENE_BLEND)
 				{
 					// We can use 2 or 4 argument varieties
 					if((*j)->children.size() == 2)
@@ -1147,6 +1177,10 @@ namespace Ogre{
 							addError(CE_NUMBEREXPECTED, node->file, node->line, node->column);
 					}
 				}
+				else if((*j)->wordID == ID_TEXTURE_UNIT)
+				{
+					compileTextureUnit(*j, pass);
+				}
 				++j;
 			}
 		}
@@ -1177,7 +1211,7 @@ namespace Ogre{
 		ScriptNodeList::iterator j = (*i)->children.begin();
 		while(j != (*i)->children.end())
 		{
-			if(processNode(j, (*i)->children.end()))
+			if(!processNode(j, (*i)->children.end()))
 			{
 				if((*j)->wordID == ID_TEXTURE_ALIAS)
 				{
@@ -1271,7 +1305,7 @@ namespace Ogre{
 						if(node2->type == SNT_NUMBER) // Short form
 						{
 							ScriptNodePtr node1 = getNodeAt((*j)->children.begin(), (*j)->children.end(), 0),
-								node3 = getNodeAt((*j)->children.begin(), (*j)->children.end(), 3);
+								node3 = getNodeAt((*j)->children.begin(), (*j)->children.end(), 2);
 							if(node3->type == SNT_NUMBER)
 								unit->setAnimatedTextureName(node1->token, node2->data, node3->data);
 							else
