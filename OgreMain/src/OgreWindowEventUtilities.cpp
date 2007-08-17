@@ -186,6 +186,11 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 		for( ; start != end; ++start )
 			(start->second)->windowMoved(win);
 		break;
+	case WM_DISPLAYCHANGE:
+		win->windowMovedOrResized();
+		for( ; start != end; ++start )
+			(start->second)->windowResized(win);
+		break;
 	case WM_SIZE:
 		//log->logMessage("WM_SIZE");
 		win->windowMovedOrResized();
