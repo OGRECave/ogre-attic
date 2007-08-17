@@ -554,6 +554,25 @@ void RenderSystemCapabilitiesTests::testWriteAndReadComplexCapabilities()
     caps.setNonPOW2TexturesLimited(true);
     caps.setVertexTextureUnitsShared(true);
 
+	DriverVersion versionD3D9;
+	versionD3D9.major = 2;
+	versionD3D9.minor = 3;
+	versionD3D9.release = 5;
+	versionD3D9.build = 7;
+
+	DriverVersion versionGL;
+	versionGL.major = 11;
+	versionGL.minor = 13;
+	versionGL.release = 17;
+	versionGL.build = 0;
+
+	caps.setD3D9Version(versionD3D9);
+	caps.setGLVersion(versionGL);
+
+	caps.setCapabilitiesValidForD3D9(true);
+	caps.setCapabilitiesValidForGL(false);
+
+
      // write them to file
     serializer.writeScript(&caps, name, filename);
 
@@ -634,10 +653,24 @@ void RenderSystemCapabilitiesTests::testWriteAndReadComplexCapabilities()
     CPPUNIT_ASSERT_EQUAL(caps.getMaxPointSize(), caps2.getMaxPointSize());
     CPPUNIT_ASSERT_EQUAL(caps.getNonPOW2TexturesLimited(), caps2.getNonPOW2TexturesLimited());
     CPPUNIT_ASSERT_EQUAL(caps.getVertexTextureUnitsShared(), caps2.getVertexTextureUnitsShared());
+	
+	// test versions
+	CPPUNIT_ASSERT_EQUAL(caps.getGLVersion().major, caps2.getGLVersion().major);
+	CPPUNIT_ASSERT_EQUAL(caps.getGLVersion().minor, caps2.getGLVersion().minor);
+	CPPUNIT_ASSERT_EQUAL(caps.getGLVersion().release, caps2.getGLVersion().release);
+	CPPUNIT_ASSERT_EQUAL(0, caps2.getGLVersion().build);
 
+	// test versions
+	CPPUNIT_ASSERT_EQUAL(caps.getD3D9Version().major, caps2.getD3D9Version().major);
+	CPPUNIT_ASSERT_EQUAL(caps.getD3D9Version().minor, caps2.getD3D9Version().minor);
+	CPPUNIT_ASSERT_EQUAL(caps.getD3D9Version().release, caps2.getD3D9Version().release);
+	CPPUNIT_ASSERT_EQUAL(caps.getD3D9Version().build, caps2.getD3D9Version().build);
+
+	// test D3D9 support and GL support
+	CPPUNIT_ASSERT_EQUAL(caps.getCapabilitiesValidForGL(), caps2.getCapabilitiesValidForGL());
+	CPPUNIT_ASSERT_EQUAL(caps.getCapabilitiesValidForD3D9(), caps2.getCapabilitiesValidForD3D9());
 
     dataStreamPtr.setNull();
-
 }
 
 

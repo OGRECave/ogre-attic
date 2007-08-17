@@ -44,6 +44,18 @@ CPPUNIT_TEST_SUITE_REGISTRATION( UseCustomCapabilitiesTests );
 void UseCustomCapabilitiesTests::setUp()
 {
     using namespace Ogre;
+
+	// set up silent logging to not polute output
+	if(LogManager::getSingletonPtr())
+		delete Ogre::LogManager::getSingletonPtr();
+	
+	// write cleanup to log
+	if(LogManager::getSingletonPtr() == 0)
+	{
+		LogManager* logManager = new LogManager();
+		logManager->createLog("testCustomCapabilitiesSetUp.log", true, false);
+	}
+
 	
 	if(Ogre::HighLevelGpuProgramManager::getSingletonPtr())
 		delete Ogre::HighLevelGpuProgramManager::getSingletonPtr();
@@ -55,6 +67,10 @@ void UseCustomCapabilitiesTests::setUp()
 		delete Ogre::MaterialManager::getSingletonPtr();
 	if(Ogre::ResourceGroupManager::getSingletonPtr())
 		delete Ogre::ResourceGroupManager::getSingletonPtr();
+
+	// set up silent logging to not polute output
+	if(LogManager::getSingletonPtr())
+		delete Ogre::LogManager::getSingletonPtr();
 }
 
 void UseCustomCapabilitiesTests::tearDown()

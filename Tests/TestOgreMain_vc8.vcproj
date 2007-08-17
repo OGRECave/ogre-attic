@@ -102,7 +102,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\Samples\Common\bin\$(ConfigurationName)&#x0D;&#x0A;xcopy  $(ProjectDir)\Media\*  ..\Samples\Media\ /Y /S"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\Samples\Common\bin\$(ConfigurationName)&#x0D;&#x0A;xcopy  $(ProjectDir)\Media\*  ..\Samples\Media\ /Y /S&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -198,7 +198,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\Samples\Common\bin\$(ConfigurationName)&#x0D;&#x0A;xcopy /S $(ProjectDir)\Media\*  ..\Samples\Media\"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\Samples\Common\bin\$(ConfigurationName)&#x0D;&#x0A;xcopy /S $(ProjectDir)\Media\*  ..\Samples\Media\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -250,7 +250,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Suite.cpp"
+				RelativePath=".\OgreMain\src\Suite.cpp"
 				>
 			</File>
 			<File
@@ -307,7 +307,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\Suite.h"
+				RelativePath=".\OgreMain\include\Suite.h"
 				>
 			</File>
 			<File
