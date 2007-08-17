@@ -58,6 +58,15 @@ namespace Ogre
 
         file << "render_system_capabilities \"" << name << "\"" << endl;
         file << "{" << endl;
+        
+		file << "d3d9_driver_version " << StringConverter::toString(caps->getD3D9Version().major) << "."
+			<< StringConverter::toString(caps->getD3D9Version().minor) << "."
+			<< StringConverter::toString(caps->getD3D9Version().release) << "."
+			<< StringConverter::toString(caps->getD3D9Version().build) << endl;
+
+		file << "gl_driver_version " << StringConverter::toString(caps->getGLVersion().major) << "."
+			<< StringConverter::toString(caps->getGLVersion().minor) << "."
+			<< StringConverter::toString(caps->getGLVersion().release) << endl;
 
         file << "automipmap " << StringConverter::toString(caps->hasCapability(RSC_AUTOMIPMAP)) << endl;
         file << "blending " << StringConverter::toString(caps->hasCapability(RSC_BLENDING)) << endl;
@@ -105,6 +114,9 @@ namespace Ogre
 
         file << "non_pow2_textures_limited " << StringConverter::toString(caps->getNonPOW2TexturesLimited()) << endl;
         file << "vertex_texture_units_shared " << StringConverter::toString(caps->getVertexTextureUnitsShared())<< endl;
+        
+        file << "capabilities_valid_for_d3d9 " << StringConverter::toString(caps->getCapabilitiesValidForD3D9()) << endl;
+        file << "capabilities_valid_for_gl " << StringConverter::toString(caps->getCapabilitiesValidForGL()) << endl;
 
         file << "num_world_matrices " << StringConverter::toString(caps->getNumWorldMatrices()) << endl;
         file << "num_texture_units " << StringConverter::toString(caps->getNumTextureUnits()) << endl;
@@ -271,10 +283,17 @@ namespace Ogre
         // set up the  type for max_vertex_program_version capability
         addKeywordType("max_vertex_program_version", SET_STRING_METHOD);
         addKeywordType("max_fragment_program_version", SET_STRING_METHOD);
-        // set up the setter for max_vertex_program_version capability
+		// set up the setter for max_vertex_program_version capability
         addSetStringMethod("max_vertex_program_version", &RenderSystemCapabilities::setMaxVertexProgramVersion);
         addSetStringMethod("max_fragment_program_version", &RenderSystemCapabilities::setMaxFragmentProgramVersion);
 
+		// set up driver version parsing
+		addKeywordType("d3d9_driver_version", SET_STRING_METHOD);
+		addKeywordType("gl_driver_version", SET_STRING_METHOD);
+        // set up the setter for max_vertex_program_version capability
+        addSetStringMethod("d3d9_driver_version", &RenderSystemCapabilities::parseD3D9VersionFromString);
+        addSetStringMethod("gl_driver_version", &RenderSystemCapabilities::parseGLVersionFromString);
+        
         // initialize int types
         addKeywordType("num_world_matrices", SET_INT_METHOD);
         addKeywordType("num_texture_units", SET_INT_METHOD);
@@ -306,10 +325,14 @@ namespace Ogre
         // initialize bool types
         addKeywordType("non_pow2_textures_limited", SET_BOOL_METHOD);
         addKeywordType("vertex_texture_units_shared", SET_BOOL_METHOD);
+        addKeywordType("capabilities_valid_for_d3d9", SET_BOOL_METHOD);
+        addKeywordType("capabilities_valid_for_gl", SET_BOOL_METHOD);
 
         // initialize bool setters
         addSetBoolMethod("non_pow2_textures_limited", &RenderSystemCapabilities::setNonPOW2TexturesLimited);
         addSetBoolMethod("vertex_texture_units_shared", &RenderSystemCapabilities::setVertexTextureUnitsShared);
+        addSetBoolMethod("capabilities_valid_for_d3d9", &RenderSystemCapabilities::setCapabilitiesValidForD3D9);
+        addSetBoolMethod("capabilities_valid_for_gl", &RenderSystemCapabilities::setCapabilitiesValidForGL);
 
         // initialize Real types
         addKeywordType("max_point_size", SET_REAL_METHOD);

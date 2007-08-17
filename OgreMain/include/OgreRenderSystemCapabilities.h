@@ -32,8 +32,10 @@ Torus Knot Software Ltd.
 // Precompiler options
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
+#include "OgreStringConverter.h"
 #include "OgreStringVector.h"
 #include "OgreResource.h"
+#include "OgreLogManager.h"
 
 // Because there are more than 32 possible Capabilities, more than 1 int is needed to store them all.
 // In fact, an array of integers is used to store capabilities. However all the capabilities are defined in the single
@@ -129,6 +131,16 @@ namespace Ogre {
 
     };
 
+	/// DriverVersion is used by RenderSystemCapabilities and both GL and D3D9
+	/// to store the version of the current GPU driver
+	struct _OgreExport DriverVersion {
+		int major;
+		int minor;
+		int release;
+		int build;
+	};
+
+
     /** singleton class for storing the capabilities of the graphics card.
         @remarks
             This class stores the capabilities of the graphics card.  This
@@ -144,11 +156,9 @@ namespace Ogre {
 			/// This is used to build a database of RSC's
 			/// if a RSC with same name, but newer version is introduced, the older one 
 			/// will be removed
-            int mVersionMajor;
-			int mVersionMinor;
-			int mVersionRelease;
-            
-
+			DriverVersion mGLVersion;
+			DriverVersion mD3D9Version;
+			            
             /// The number of world matricies available
             ushort mNumWorldMatrices;
             /// The number of texture units available
@@ -199,33 +209,84 @@ namespace Ogre {
 
             virtual size_t calculateSize() const {return 0;}
 
-            void setVersion(int major, int minor, int release)
+			void setGLVersion(const DriverVersion& version)
             {
-				mVersionMajor = major;
-				mVersionMinor = minor;
-				mVersionRelease = release;
+				mGLVersion = version;
             }
 
-			int getVersionMajor()
+			void setD3D9Version(const DriverVersion& version)
             {
-				return mVersionMajor;
+				mD3D9Version = version;
             }
-			int getVersionMinor()
+            
+            void parseD3D9VersionFromString(const String& versionString)
             {
-				return mVersionMinor;
+                DriverVersion version;
+                StringVector tokens = StringUtil::split(versionString, ".");
+                if(tokens.size() != 4)
+                {
+                    LogManager::getSingleton().logMessage("Can not parse an invalid D3D9 driver version string: " + versionString);
+                }
+                else
+                {
+                    version.major = StringConverter::parseInt(tokens[0]);
+                    version.minor = StringConverter::parseInt(tokens[1]);
+                    version.release = StringConverter::parseInt(tokens[2]);
+                    version.build = StringConverter::parseInt(tokens[3]);
+                    
+                    setD3D9Version(version);
+                }
             }
-			int getVersionRelease()
+            
+            void parseGLVersionFromString(const String& versionString)
             {
-				return mVersionRelease;
+                DriverVersion version;
+                StringVector tokens = StringUtil::split(versionString, ".");
+                if(tokens.size() != 3)
+                {
+                    LogManager::getSingleton().logMessage("Can not parse an invalid GL driver version string: " + versionString);
+                }
+                else
+                {
+                    version.major = StringConverter::parseInt(tokens[0]);
+                    version.minor = StringConverter::parseInt(tokens[1]);
+                    version.release = StringConverter::parseInt(tokens[2]);
+                    version.build = 0;
+                    
+                    setGLVersion(version);
+                }
             }
 			
-			bool isOlderThanVersion(int major, int minor, int release)
+			DriverVersion getGLVersion() const
+            {
+				return mGLVersion;
+            }
+
+			DriverVersion getD3D9Version() const
+            {
+				return mD3D9Version;
+            }
+			
+			bool isGLOlderThanVersion(DriverVersion v) const
 			{
-				if (major > mVersionMajor)
+				if (mGLVersion.major > v.major)
 					return true;
-				else if (major == mVersionMajor && minor > mVersionMinor)
+				else if (mGLVersion.major == v.major && mGLVersion.minor > v.minor)
 					return true;
-				else if (major == mVersionMajor && minor == mVersionMinor && minor > mVersionMinor)
+				else if (mGLVersion.major == v.major && mGLVersion.minor == v.minor && mGLVersion.release > v.release)
+					return true;
+				return false;
+			}
+
+			bool isD3D9OlderThanVersion(DriverVersion v) const
+			{
+				if (mD3D9Version.major > v.major)
+					return true;
+				else if (mD3D9Version.major == v.major && mD3D9Version.minor > v.minor)
+					return true;
+				else if (mD3D9Version.major == v.major && mD3D9Version.minor == v.minor && mD3D9Version.release > v.release)
+					return true;
+				else if (mD3D9Version.major == v.major && mD3D9Version.minor == v.minor && mD3D9Version.release == v.release && mD3D9Version.build > v.build)
 					return true;
 				return false;
 			}
@@ -495,7 +556,7 @@ namespace Ogre {
 			/// Get whether these capabilities are valid for OpenGL
 			bool getCapabilitiesValidForGL(void) const
 			{
-				return mCapabilitiesValidForD3D9;
+				return mCapabilitiesValidForGL;
 			}
 			/// Set whether these capabilities are valid for OpenGL
 			void setCapabilitiesValidForGL(bool valid)

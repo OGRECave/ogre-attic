@@ -46,6 +46,9 @@ namespace Ogre {
 			 {
 					mCapabilities[i] = 0;
 			 }
+
+			 mD3D9Version.major = mD3D9Version.minor = mD3D9Version.release = mD3D9Version.build = 0;
+			 mGLVersion.major = mGLVersion.minor = mGLVersion.release = mGLVersion.build = 0;
     }
     //-----------------------------------------------------------------------
     RenderSystemCapabilities::~RenderSystemCapabilities()

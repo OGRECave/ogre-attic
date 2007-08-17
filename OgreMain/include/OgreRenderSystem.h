@@ -88,12 +88,6 @@ namespace Ogre
         SOP_INVERT
     };
 
-	/// DriverVersion is used by RenderSystemCapabilities
-	struct DriverVersion {
-		int major;
-		int minor;
-		int release;
-	};
 
     /** Defines the functionality of a 3D API
         @remarks
