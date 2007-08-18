@@ -86,9 +86,13 @@ sed -i -e "s/\.\.\/\.\.\/\.\.\/\.\.\/Samples/..\/..\/Samples/g" sdk_contents/sam
 echo Media copied.
 
 #remove CVS files to avoid accidental commit of these copies!
-find sdk_contents -d -iname CVS  -exec rm -rf \{\} \;
+find sdk_contents -iname CVS  -exec rm -rf \{\} \;
 
 echo Building DMG...
+
+# Note that our template DMG has already been set up with images, folders and links
+# and has already had 'bless -folder blah -openfolder blah' run on it
+# to make it auto-open on mounting.
 
 bunzip2 -k -f template.dmg.bz2
 mkdir tmp_dmg
