@@ -602,6 +602,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_Instancing", "Samples\
 		{7D0A20FE-40A6-4E64-AD26-5E34AE391DF4} = {7D0A20FE-40A6-4E64-AD26-5E34AE391DF4}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rcapsdump", "Tools\rcapsdump\scripts\rcapsdump_vc8.vcproj", "{547C6A12-FB46-470C-9A6E-F45AB17E146B}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -900,6 +906,14 @@ Global
 		{35134523-6D5B-4AFA-BFB4-4D57C42C2169}.Release|Win32.Build.0 = Release|Win32
 		{35134523-6D5B-4AFA-BFB4-4D57C42C2169}.ReleaseStaticLib|Win32.ActiveCfg = Release|Win32
 		{35134523-6D5B-4AFA-BFB4-4D57C42C2169}.ReleaseStaticLib|Win32.Build.0 = Release|Win32
+		{547C6A12-FB46-470C-9A6E-F45AB17E146B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{547C6A12-FB46-470C-9A6E-F45AB17E146B}.Debug|Win32.Build.0 = Debug|Win32
+		{547C6A12-FB46-470C-9A6E-F45AB17E146B}.DebugStaticLib|Win32.ActiveCfg = Debug|Win32
+		{547C6A12-FB46-470C-9A6E-F45AB17E146B}.DebugStaticLib|Win32.Build.0 = Debug|Win32
+		{547C6A12-FB46-470C-9A6E-F45AB17E146B}.Release|Win32.ActiveCfg = Release|Win32
+		{547C6A12-FB46-470C-9A6E-F45AB17E146B}.Release|Win32.Build.0 = Release|Win32
+		{547C6A12-FB46-470C-9A6E-F45AB17E146B}.ReleaseStaticLib|Win32.ActiveCfg = Release|Win32
+		{547C6A12-FB46-470C-9A6E-F45AB17E146B}.ReleaseStaticLib|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
