@@ -173,7 +173,10 @@ namespace Ogre {
             String mMaxVertexProgramVersion;
             /// The best fragment program that this card / rendersystem supports
             String mMaxFragmentProgramVersion;
-            /// The number of floating-point constants vertex programs support
+            /// The name of the device as reported by the render system
+            String mDeviceNameD3D9;
+            String mDeviceNameGL;
+            
             ushort mVertexProgramConstantFloatCount;
             /// The number of integer constants vertex programs support
             ushort mVertexProgramConstantIntCount;
@@ -451,18 +454,42 @@ namespace Ogre {
                 return mFragmentProgramConstantBoolCount;
             }
 
-
-
             /// sets the best low-level vertex program version supported
             void setMaxVertexProgramVersion(const String& ver)
             {
                 mMaxVertexProgramVersion = ver;
             }
+                   
             /// sets the best fragment program that this card / rendersystem supports
             void setMaxFragmentProgramVersion(const String& ver)
             {
                 mMaxFragmentProgramVersion = ver;
             }
+            
+                /// sets the device name for D3D9 render system
+            void setDeviceNameD3D9(const String& name)
+            {
+                mDeviceNameD3D9 = name;
+            }
+            
+            /// gets the device name for D3D9 render system
+            String getDeviceNameD3D9() const
+            {
+                return mDeviceNameD3D9;
+            }
+            
+            /// sets the device name for OpenGL render system
+            void setDeviceNameGL(const String& name)
+            {
+                mDeviceNameGL = name;
+            }
+            
+            /// gets the device name for OpenGL render system
+            String getDeviceNameGL() const
+            {
+                return mDeviceNameGL;
+            }
+            
             /// The number of floating-point constants vertex programs support
             void setVertexProgramConstantFloatCount(ushort c)
             {
