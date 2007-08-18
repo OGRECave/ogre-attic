@@ -517,145 +517,145 @@
 
 /* Begin PBXFileReference section */
 		000C04200BB6128200E6B30C /* Instancing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Instancing.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		000C04260BB6133300E6B30C /* crowd.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = crowd.h; path = ../../Samples/Instancing/include/crowd.h; sourceTree = SOURCE_ROOT; };
-		000C04270BB6133300E6B30C /* Instancing.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Instancing.h; path = ../../Samples/Instancing/include/Instancing.h; sourceTree = SOURCE_ROOT; };
-		000C04280BB6139600E6B30C /* crowd.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = crowd.cpp; path = ../../Samples/Instancing/src/crowd.cpp; sourceTree = SOURCE_ROOT; };
-		000C04290BB6139600E6B30C /* Instancing.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Instancing.cpp; path = ../../Samples/Instancing/src/Instancing.cpp; sourceTree = SOURCE_ROOT; };
+		000C04260BB6133300E6B30C /* crowd.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = crowd.h; path = include/crowd.h; sourceTree = SOURCE_ROOT; };
+		000C04270BB6133300E6B30C /* Instancing.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Instancing.h; path = include/Instancing.h; sourceTree = SOURCE_ROOT; };
+		000C04280BB6139600E6B30C /* crowd.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = crowd.cpp; path = src/crowd.cpp; sourceTree = SOURCE_ROOT; };
+		000C04290BB6139600E6B30C /* Instancing.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Instancing.cpp; path = src/Instancing.cpp; sourceTree = SOURCE_ROOT; };
 		000C05BB0BB613F000E6B30C /* Instancing-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; name = "Instancing-Info.plist"; path = "plist/Instancing-Info.plist"; sourceTree = "<group>"; };
 		000C05E00BB6173B00E6B30C /* Crowd.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Crowd.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000C05E20BB6173C00E6B30C /* Crowd-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Crowd-Info.plist"; path = "plist/Crowd-Info.plist"; sourceTree = "<group>"; };
-		000E25230B392BAA004EA2DF /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Ogre.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		000E25230B392BAA004EA2DF /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ../Frameworks/Ogre.framework; sourceTree = SOURCE_ROOT; };
 		000E252B0B392BE5004EA2DF /* BezierPatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BezierPatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E252E0B392BE6004EA2DF /* BezierPatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "BezierPatch-Info.plist"; path = "plist/BezierPatch-Info.plist"; sourceTree = "<group>"; };
-		000E25330B392C93004EA2DF /* Bezier.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Bezier.h; path = ../../Samples/BezierPatch/include/Bezier.h; sourceTree = SOURCE_ROOT; };
-		000E25340B392C9E004EA2DF /* Bezier.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Bezier.cpp; path = ../../Samples/BezierPatch/src/Bezier.cpp; sourceTree = SOURCE_ROOT; };
-		000E25380B392D12004EA2DF /* ExampleApplication.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExampleApplication.h; path = ../../Samples/Common/include/ExampleApplication.h; sourceTree = SOURCE_ROOT; };
-		000E25390B392D12004EA2DF /* ExampleFrameListener.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExampleFrameListener.h; path = ../../Samples/Common/include/ExampleFrameListener.h; sourceTree = SOURCE_ROOT; };
-		000E253A0B392D12004EA2DF /* ExampleLoadingBar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExampleLoadingBar.h; path = ../../Samples/Common/include/ExampleLoadingBar.h; sourceTree = SOURCE_ROOT; };
+		000E25330B392C93004EA2DF /* Bezier.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Bezier.h; path = include/Bezier.h; sourceTree = SOURCE_ROOT; };
+		000E25340B392C9E004EA2DF /* Bezier.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Bezier.cpp; path = src/Bezier.cpp; sourceTree = SOURCE_ROOT; };
+		000E25380B392D12004EA2DF /* ExampleApplication.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExampleApplication.h; path = include/ExampleApplication.h; sourceTree = SOURCE_ROOT; };
+		000E25390B392D12004EA2DF /* ExampleFrameListener.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExampleFrameListener.h; path = include/ExampleFrameListener.h; sourceTree = SOURCE_ROOT; };
+		000E253A0B392D12004EA2DF /* ExampleLoadingBar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExampleLoadingBar.h; path = include/ExampleLoadingBar.h; sourceTree = SOURCE_ROOT; };
 		000E263E0B393B0A004EA2DF /* media.cfg */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = media.cfg; path = config/media.cfg; sourceTree = "<group>"; };
 		000E263F0B393B0A004EA2DF /* plugins.cfg */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = plugins.cfg; path = config/plugins.cfg; sourceTree = "<group>"; };
 		000E26400B393B0A004EA2DF /* resources.cfg */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = resources.cfg; path = config/resources.cfg; sourceTree = "<group>"; };
 		000E26F50B399BF5004EA2DF /* CameraTrack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraTrack.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E26F70B399BF6004EA2DF /* CameraTrack-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "CameraTrack-Info.plist"; path = "plist/CameraTrack-Info.plist"; sourceTree = "<group>"; };
-		000E27040B399C90004EA2DF /* CameraTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = CameraTrack.cpp; path = ../../Samples/CameraTrack/src/CameraTrack.cpp; sourceTree = SOURCE_ROOT; };
+		000E27040B399C90004EA2DF /* CameraTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = CameraTrack.cpp; path = src/CameraTrack.cpp; sourceTree = SOURCE_ROOT; };
 		000E27150B399DB5004EA2DF /* CelShading.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CelShading.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E27170B399DB5004EA2DF /* CelShading-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "CelShading-Info.plist"; path = "plist/CelShading-Info.plist"; sourceTree = "<group>"; };
-		000E271D0B399E8C004EA2DF /* CelShading.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = CelShading.cpp; path = ../../Samples/CelShading/src/CelShading.cpp; sourceTree = SOURCE_ROOT; };
+		000E271D0B399E8C004EA2DF /* CelShading.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = CelShading.cpp; path = src/CelShading.cpp; sourceTree = SOURCE_ROOT; };
 		000E27300B39A055004EA2DF /* Compositor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Compositor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E27320B39A055004EA2DF /* Compositor-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Compositor-Info.plist"; path = "plist/Compositor-Info.plist"; sourceTree = "<group>"; };
-		000E273F0B39A0B6004EA2DF /* CompositorDemo_FrameListener.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CompositorDemo_FrameListener.h; path = ../../Samples/Compositor/include/CompositorDemo_FrameListener.h; sourceTree = SOURCE_ROOT; };
-		000E27400B39A0B6004EA2DF /* Compositor.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Compositor.h; path = ../../Samples/Compositor/include/Compositor.h; sourceTree = SOURCE_ROOT; };
-		000E27410B39A0B6004EA2DF /* ItemSelectorViewManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ItemSelectorViewManager.h; path = ../../Samples/Compositor/include/ItemSelectorViewManager.h; sourceTree = SOURCE_ROOT; };
-		000E27420B39A0C2004EA2DF /* CompositorDemo_FrameListener.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = CompositorDemo_FrameListener.cpp; path = ../../Samples/Compositor/src/CompositorDemo_FrameListener.cpp; sourceTree = SOURCE_ROOT; };
-		000E27430B39A0C2004EA2DF /* Compositor.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Compositor.cpp; path = ../../Samples/Compositor/src/Compositor.cpp; sourceTree = SOURCE_ROOT; };
-		000E27440B39A0C2004EA2DF /* ItemSelectorViewManager.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = ItemSelectorViewManager.cpp; path = ../../Samples/Compositor/src/ItemSelectorViewManager.cpp; sourceTree = SOURCE_ROOT; };
+		000E273F0B39A0B6004EA2DF /* CompositorDemo_FrameListener.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CompositorDemo_FrameListener.h; path = include/CompositorDemo_FrameListener.h; sourceTree = SOURCE_ROOT; };
+		000E27400B39A0B6004EA2DF /* Compositor.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Compositor.h; path = include/Compositor.h; sourceTree = SOURCE_ROOT; };
+		000E27410B39A0B6004EA2DF /* ItemSelectorViewManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ItemSelectorViewManager.h; path = include/ItemSelectorViewManager.h; sourceTree = SOURCE_ROOT; };
+		000E27420B39A0C2004EA2DF /* CompositorDemo_FrameListener.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = CompositorDemo_FrameListener.cpp; path = src/CompositorDemo_FrameListener.cpp; sourceTree = SOURCE_ROOT; };
+		000E27430B39A0C2004EA2DF /* Compositor.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Compositor.cpp; path = src/Compositor.cpp; sourceTree = SOURCE_ROOT; };
+		000E27440B39A0C2004EA2DF /* ItemSelectorViewManager.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = ItemSelectorViewManager.cpp; path = src/ItemSelectorViewManager.cpp; sourceTree = SOURCE_ROOT; };
 		000E274C0B39A0F9004EA2DF /* CubeMapping.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CubeMapping.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E274E0B39A0FA004EA2DF /* CubeMapping-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "CubeMapping-Info.plist"; path = "plist/CubeMapping-Info.plist"; sourceTree = "<group>"; };
-		000E275A0B39A14B004EA2DF /* CubeMapping.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CubeMapping.h; path = ../../Samples/CubeMapping/include/CubeMapping.h; sourceTree = SOURCE_ROOT; };
-		000E275B0B39A153004EA2DF /* CubeMapping.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = CubeMapping.cpp; path = ../../Samples/CubeMapping/src/CubeMapping.cpp; sourceTree = SOURCE_ROOT; };
+		000E275A0B39A14B004EA2DF /* CubeMapping.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CubeMapping.h; path = include/CubeMapping.h; sourceTree = SOURCE_ROOT; };
+		000E275B0B39A153004EA2DF /* CubeMapping.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = CubeMapping.cpp; path = src/CubeMapping.cpp; sourceTree = SOURCE_ROOT; };
 		000E27690B39A2C1004EA2DF /* DeferredShading.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DeferredShading.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E276B0B39A2C1004EA2DF /* DeferredShading-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "DeferredShading-Info.plist"; path = "plist/DeferredShading-Info.plist"; sourceTree = "<group>"; };
-		000E27770B39A40B004EA2DF /* CreateSphere.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CreateSphere.h; path = ../../Samples/DeferredShading/include/CreateSphere.h; sourceTree = SOURCE_ROOT; };
-		000E27780B39A40B004EA2DF /* LightMaterialGenerator.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = LightMaterialGenerator.h; path = ../../Samples/DeferredShading/include/LightMaterialGenerator.h; sourceTree = SOURCE_ROOT; };
-		000E27790B39A40B004EA2DF /* MLight.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MLight.h; path = ../../Samples/DeferredShading/include/MLight.h; sourceTree = SOURCE_ROOT; };
-		000E277A0B39A40B004EA2DF /* DeferredShading.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = DeferredShading.h; path = ../../Samples/DeferredShading/include/DeferredShading.h; sourceTree = SOURCE_ROOT; };
-		000E277B0B39A40B004EA2DF /* MaterialGenerator.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MaterialGenerator.h; path = ../../Samples/DeferredShading/include/MaterialGenerator.h; sourceTree = SOURCE_ROOT; };
-		000E277C0B39A429004EA2DF /* DeferredShading.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = DeferredShading.cpp; path = ../../Samples/DeferredShading/src/DeferredShading.cpp; sourceTree = SOURCE_ROOT; };
-		000E277D0B39A429004EA2DF /* DeferredShadingDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = DeferredShadingDemo.cpp; path = ../../Samples/DeferredShading/src/DeferredShadingDemo.cpp; sourceTree = SOURCE_ROOT; };
-		000E277E0B39A429004EA2DF /* MaterialGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = MaterialGenerator.cpp; path = ../../Samples/DeferredShading/src/MaterialGenerator.cpp; sourceTree = SOURCE_ROOT; };
-		000E277F0B39A429004EA2DF /* MLight.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = MLight.cpp; path = ../../Samples/DeferredShading/src/MLight.cpp; sourceTree = SOURCE_ROOT; };
-		000E27800B39A429004EA2DF /* LightMaterialGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = LightMaterialGenerator.cpp; path = ../../Samples/DeferredShading/src/LightMaterialGenerator.cpp; sourceTree = SOURCE_ROOT; };
+		000E27770B39A40B004EA2DF /* CreateSphere.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CreateSphere.h; path = include/CreateSphere.h; sourceTree = SOURCE_ROOT; };
+		000E27780B39A40B004EA2DF /* LightMaterialGenerator.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = LightMaterialGenerator.h; path = include/LightMaterialGenerator.h; sourceTree = SOURCE_ROOT; };
+		000E27790B39A40B004EA2DF /* MLight.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MLight.h; path = include/MLight.h; sourceTree = SOURCE_ROOT; };
+		000E277A0B39A40B004EA2DF /* DeferredShading.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = DeferredShading.h; path = include/DeferredShading.h; sourceTree = SOURCE_ROOT; };
+		000E277B0B39A40B004EA2DF /* MaterialGenerator.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MaterialGenerator.h; path = include/MaterialGenerator.h; sourceTree = SOURCE_ROOT; };
+		000E277C0B39A429004EA2DF /* DeferredShading.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = DeferredShading.cpp; path = src/DeferredShading.cpp; sourceTree = SOURCE_ROOT; };
+		000E277D0B39A429004EA2DF /* DeferredShadingDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = DeferredShadingDemo.cpp; path = src/DeferredShadingDemo.cpp; sourceTree = SOURCE_ROOT; };
+		000E277E0B39A429004EA2DF /* MaterialGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = MaterialGenerator.cpp; path = src/MaterialGenerator.cpp; sourceTree = SOURCE_ROOT; };
+		000E277F0B39A429004EA2DF /* MLight.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = MLight.cpp; path = src/MLight.cpp; sourceTree = SOURCE_ROOT; };
+		000E27800B39A429004EA2DF /* LightMaterialGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = LightMaterialGenerator.cpp; path = src/LightMaterialGenerator.cpp; sourceTree = SOURCE_ROOT; };
 		000E278F0B39A801004EA2DF /* Dot3Bump.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dot3Bump.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E27910B39A801004EA2DF /* Dot3Bump-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Dot3Bump-Info.plist"; path = "plist/Dot3Bump-Info.plist"; sourceTree = "<group>"; };
-		000E279A0B39A8A2004EA2DF /* Dot3Bump.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Dot3Bump.cpp; path = ../../Samples/Dot3Bump/src/Dot3Bump.cpp; sourceTree = SOURCE_ROOT; };
+		000E279A0B39A8A2004EA2DF /* Dot3Bump.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Dot3Bump.cpp; path = src/Dot3Bump.cpp; sourceTree = SOURCE_ROOT; };
 		000E27A20B39A930004EA2DF /* DynTex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DynTex.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E27A40B39A931004EA2DF /* DynTex-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "DynTex-Info.plist"; path = "plist/DynTex-Info.plist"; sourceTree = "<group>"; };
-		000E27AF0B39A9F9004EA2DF /* DynTex.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = DynTex.cpp; path = ../../Samples/DynTex/src/DynTex.cpp; sourceTree = SOURCE_ROOT; };
+		000E27AF0B39A9F9004EA2DF /* DynTex.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = DynTex.cpp; path = src/DynTex.cpp; sourceTree = SOURCE_ROOT; };
 		000E27B60B39AB18004EA2DF /* EnvMapping.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EnvMapping.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E27B80B39AB18004EA2DF /* EnvMapping-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "EnvMapping-Info.plist"; path = "plist/EnvMapping-Info.plist"; sourceTree = "<group>"; };
-		000E27BE0B39ABE3004EA2DF /* EnvMapping.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = EnvMapping.h; path = ../../Samples/EnvMapping/include/EnvMapping.h; sourceTree = SOURCE_ROOT; };
-		000E27BF0B39ABED004EA2DF /* EnvMapping.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = EnvMapping.cpp; path = ../../Samples/EnvMapping/src/EnvMapping.cpp; sourceTree = SOURCE_ROOT; };
+		000E27BE0B39ABE3004EA2DF /* EnvMapping.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = EnvMapping.h; path = include/EnvMapping.h; sourceTree = SOURCE_ROOT; };
+		000E27BF0B39ABED004EA2DF /* EnvMapping.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = EnvMapping.cpp; path = src/EnvMapping.cpp; sourceTree = SOURCE_ROOT; };
 		000E27CE0B39AD1D004EA2DF /* FacialAnimation.app */ = {isa = PBXFileReference; includeInIndex = 0; path = FacialAnimation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E27D00B39AD1D004EA2DF /* FacialAnimation-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "FacialAnimation-Info.plist"; path = "plist/FacialAnimation-Info.plist"; sourceTree = "<group>"; };
-		000E27E60B39ADE3004EA2DF /* FacialAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = FacialAnimation.cpp; path = ../../Samples/FacialAnimation/src/FacialAnimation.cpp; sourceTree = SOURCE_ROOT; };
+		000E27E60B39ADE3004EA2DF /* FacialAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = FacialAnimation.cpp; path = src/FacialAnimation.cpp; sourceTree = SOURCE_ROOT; };
 		000E27F30B39AE59004EA2DF /* Fresnel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fresnel.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E27F50B39AE59004EA2DF /* Fresnel-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Fresnel-Info.plist"; path = "plist/Fresnel-Info.plist"; sourceTree = "<group>"; };
-		000E28010B39AEC9004EA2DF /* Fresnel.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Fresnel.cpp; path = ../../Samples/Fresnel/src/Fresnel.cpp; sourceTree = SOURCE_ROOT; };
+		000E28010B39AEC9004EA2DF /* Fresnel.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Fresnel.cpp; path = src/Fresnel.cpp; sourceTree = SOURCE_ROOT; };
 		000E280B0B39B08F004EA2DF /* Grass.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Grass.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E280D0B39B090004EA2DF /* Grass-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Grass-Info.plist"; path = "plist/Grass-Info.plist"; sourceTree = "<group>"; };
-		000E28220B39B0F0004EA2DF /* Grass.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Grass.cpp; path = ../../Samples/Grass/src/Grass.cpp; sourceTree = SOURCE_ROOT; };
+		000E28220B39B0F0004EA2DF /* Grass.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Grass.cpp; path = src/Grass.cpp; sourceTree = SOURCE_ROOT; };
 		000E282A0B39B248004EA2DF /* Gui.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gui.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E282C0B39B249004EA2DF /* Gui-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Gui-Info.plist"; path = "plist/Gui-Info.plist"; sourceTree = "<group>"; };
-		000E28380B39B294004EA2DF /* Gui.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Gui.cpp; path = ../../Samples/Gui/src/Gui.cpp; sourceTree = SOURCE_ROOT; };
+		000E28380B39B294004EA2DF /* Gui.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Gui.cpp; path = src/Gui.cpp; sourceTree = SOURCE_ROOT; };
 		000E28550B39B377004EA2DF /* Lighting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lighting.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E28570B39B377004EA2DF /* Lighting-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Lighting-Info.plist"; path = "plist/Lighting-Info.plist"; sourceTree = "<group>"; };
-		000E28630B39B3C6004EA2DF /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Lighting.h; path = ../../Samples/Lighting/include/Lighting.h; sourceTree = SOURCE_ROOT; };
-		000E28640B39B3CE004EA2DF /* Lighting.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Lighting.cpp; path = ../../Samples/Lighting/src/Lighting.cpp; sourceTree = SOURCE_ROOT; };
+		000E28630B39B3C6004EA2DF /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Lighting.h; path = include/Lighting.h; sourceTree = SOURCE_ROOT; };
+		000E28640B39B3CE004EA2DF /* Lighting.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Lighting.cpp; path = src/Lighting.cpp; sourceTree = SOURCE_ROOT; };
 		000E286B0B39B441004EA2DF /* OceanDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OceanDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E286D0B39B441004EA2DF /* OceanDemo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "OceanDemo-Info.plist"; path = "plist/OceanDemo-Info.plist"; sourceTree = "<group>"; };
-		000E28790B39B4A5004EA2DF /* MaterialControls.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MaterialControls.h; path = ../../Samples/OceanDemo/include/MaterialControls.h; sourceTree = SOURCE_ROOT; };
-		000E287A0B39B4A5004EA2DF /* OceanDemo.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OceanDemo.h; path = ../../Samples/OceanDemo/include/OceanDemo.h; sourceTree = SOURCE_ROOT; };
-		000E287B0B39B4B0004EA2DF /* MaterialControls.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = MaterialControls.cpp; path = ../../Samples/OceanDemo/src/MaterialControls.cpp; sourceTree = SOURCE_ROOT; };
-		000E287C0B39B4B0004EA2DF /* OceanDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OceanDemo.cpp; path = ../../Samples/OceanDemo/src/OceanDemo.cpp; sourceTree = SOURCE_ROOT; };
+		000E28790B39B4A5004EA2DF /* MaterialControls.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MaterialControls.h; path = include/MaterialControls.h; sourceTree = SOURCE_ROOT; };
+		000E287A0B39B4A5004EA2DF /* OceanDemo.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OceanDemo.h; path = include/OceanDemo.h; sourceTree = SOURCE_ROOT; };
+		000E287B0B39B4B0004EA2DF /* MaterialControls.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = MaterialControls.cpp; path = src/MaterialControls.cpp; sourceTree = SOURCE_ROOT; };
+		000E287C0B39B4B0004EA2DF /* OceanDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OceanDemo.cpp; path = src/OceanDemo.cpp; sourceTree = SOURCE_ROOT; };
 		000E28860B39B510004EA2DF /* Shadows-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Shadows-Info.plist"; path = "plist/Shadows-Info.plist"; sourceTree = "<group>"; };
-		000E288A0B39B579004EA2DF /* Shadows.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Shadows.cpp; path = ../../Samples/Shadows/src/Shadows.cpp; sourceTree = SOURCE_ROOT; };
+		000E288A0B39B579004EA2DF /* Shadows.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Shadows.cpp; path = src/Shadows.cpp; sourceTree = SOURCE_ROOT; };
 		000E28950B39B5DF004EA2DF /* ParticleFX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ParticleFX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E28970B39B5DF004EA2DF /* ParticleFX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "ParticleFX-Info.plist"; path = "plist/ParticleFX-Info.plist"; sourceTree = "<group>"; };
-		000E28B70B39B66B004EA2DF /* ParticleFX.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ParticleFX.h; path = ../../Samples/ParticleFX/include/ParticleFX.h; sourceTree = SOURCE_ROOT; };
-		000E28B80B39B674004EA2DF /* ParticleFX.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleFX.cpp; path = ../../Samples/ParticleFX/src/ParticleFX.cpp; sourceTree = SOURCE_ROOT; };
+		000E28B70B39B66B004EA2DF /* ParticleFX.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ParticleFX.h; path = include/ParticleFX.h; sourceTree = SOURCE_ROOT; };
+		000E28B80B39B674004EA2DF /* ParticleFX.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleFX.cpp; path = src/ParticleFX.cpp; sourceTree = SOURCE_ROOT; };
 		000E28C00B39DA97004EA2DF /* RenderToTexture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RenderToTexture.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E28C20B39DA98004EA2DF /* RenderToTexture-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "RenderToTexture-Info.plist"; path = "plist/RenderToTexture-Info.plist"; sourceTree = "<group>"; };
-		000E28D40B39DB0E004EA2DF /* RenderToTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = RenderToTexture.cpp; path = ../../Samples/RenderToTexture/src/RenderToTexture.cpp; sourceTree = SOURCE_ROOT; };
+		000E28D40B39DB0E004EA2DF /* RenderToTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = RenderToTexture.cpp; path = src/RenderToTexture.cpp; sourceTree = SOURCE_ROOT; };
 		000E28DC0B39DBC0004EA2DF /* Shadows.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shadows.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E28EE0B39DC45004EA2DF /* SkeletalAnimation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkeletalAnimation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E28F00B39DC45004EA2DF /* SkeletalAnimation-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "SkeletalAnimation-Info.plist"; path = "plist/SkeletalAnimation-Info.plist"; sourceTree = "<group>"; };
-		000E28FC0B39DC9F004EA2DF /* SkeletalAnimation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SkeletalAnimation.h; path = ../../Samples/SkeletalAnimation/include/SkeletalAnimation.h; sourceTree = SOURCE_ROOT; };
-		000E28FD0B39DCAA004EA2DF /* SkeletalAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = SkeletalAnimation.cpp; path = ../../Samples/SkeletalAnimation/src/SkeletalAnimation.cpp; sourceTree = SOURCE_ROOT; };
+		000E28FC0B39DC9F004EA2DF /* SkeletalAnimation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SkeletalAnimation.h; path = include/SkeletalAnimation.h; sourceTree = SOURCE_ROOT; };
+		000E28FD0B39DCAA004EA2DF /* SkeletalAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = SkeletalAnimation.cpp; path = src/SkeletalAnimation.cpp; sourceTree = SOURCE_ROOT; };
 		000E29050B39DD32004EA2DF /* SkyBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkyBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E29070B39DD32004EA2DF /* SkyBox-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "SkyBox-Info.plist"; path = "plist/SkyBox-Info.plist"; sourceTree = "<group>"; };
-		000E29160B39DD81004EA2DF /* SkyBox.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SkyBox.h; path = ../../Samples/SkyBox/include/SkyBox.h; sourceTree = SOURCE_ROOT; };
-		000E29170B39DD89004EA2DF /* SkyBox.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = SkyBox.cpp; path = ../../Samples/SkyBox/src/SkyBox.cpp; sourceTree = SOURCE_ROOT; };
+		000E29160B39DD81004EA2DF /* SkyBox.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SkyBox.h; path = include/SkyBox.h; sourceTree = SOURCE_ROOT; };
+		000E29170B39DD89004EA2DF /* SkyBox.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = SkyBox.cpp; path = src/SkyBox.cpp; sourceTree = SOURCE_ROOT; };
 		000E29200B39DE45004EA2DF /* SkyDome.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkyDome.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E29220B39DE46004EA2DF /* SkyDome-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "SkyDome-Info.plist"; path = "plist/SkyDome-Info.plist"; sourceTree = "<group>"; };
-		000E292E0B39DE9E004EA2DF /* SkyDome.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SkyDome.h; path = ../../Samples/SkyDome/include/SkyDome.h; sourceTree = SOURCE_ROOT; };
-		000E292F0B39DEA7004EA2DF /* SkyDome.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = SkyDome.cpp; path = ../../Samples/SkyDome/src/SkyDome.cpp; sourceTree = SOURCE_ROOT; };
+		000E292E0B39DE9E004EA2DF /* SkyDome.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SkyDome.h; path = include/SkyDome.h; sourceTree = SOURCE_ROOT; };
+		000E292F0B39DEA7004EA2DF /* SkyDome.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = SkyDome.cpp; path = src/SkyDome.cpp; sourceTree = SOURCE_ROOT; };
 		000E29370B39DF22004EA2DF /* SkyPlane.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkyPlane.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E29390B39DF23004EA2DF /* SkyPlane-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "SkyPlane-Info.plist"; path = "plist/SkyPlane-Info.plist"; sourceTree = "<group>"; };
-		000E29490B39DF84004EA2DF /* SkyPlane.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SkyPlane.h; path = ../../Samples/SkyPlane/include/SkyPlane.h; sourceTree = SOURCE_ROOT; };
-		000E294A0B39DF8E004EA2DF /* SkyPlane.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = SkyPlane.cpp; path = ../../Samples/SkyPlane/src/SkyPlane.cpp; sourceTree = SOURCE_ROOT; };
+		000E29490B39DF84004EA2DF /* SkyPlane.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SkyPlane.h; path = include/SkyPlane.h; sourceTree = SOURCE_ROOT; };
+		000E294A0B39DF8E004EA2DF /* SkyPlane.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = SkyPlane.cpp; path = src/SkyPlane.cpp; sourceTree = SOURCE_ROOT; };
 		000E29520B39E019004EA2DF /* Smoke.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Smoke.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E29540B39E01A004EA2DF /* Smoke-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Smoke-Info.plist"; path = "plist/Smoke-Info.plist"; sourceTree = "<group>"; };
-		000E29600B39E08B004EA2DF /* Smoke.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Smoke.h; path = ../../Samples/Smoke/include/Smoke.h; sourceTree = SOURCE_ROOT; };
-		000E29610B39E0A5004EA2DF /* Smoke.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Smoke.cpp; path = ../../Samples/Smoke/src/Smoke.cpp; sourceTree = SOURCE_ROOT; };
+		000E29600B39E08B004EA2DF /* Smoke.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Smoke.h; path = include/Smoke.h; sourceTree = SOURCE_ROOT; };
+		000E29610B39E0A5004EA2DF /* Smoke.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Smoke.cpp; path = src/Smoke.cpp; sourceTree = SOURCE_ROOT; };
 		000E29690B39E162004EA2DF /* Terrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Terrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E296B0B39E162004EA2DF /* Terrain-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Terrain-Info.plist"; path = "plist/Terrain-Info.plist"; sourceTree = "<group>"; };
-		000E297A0B39E1B8004EA2DF /* Terrain.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Terrain.h; path = ../../Samples/Terrain/include/Terrain.h; sourceTree = SOURCE_ROOT; };
-		000E297B0B39E1C5004EA2DF /* Terrain.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Terrain.cpp; path = ../../Samples/Terrain/src/Terrain.cpp; sourceTree = SOURCE_ROOT; };
+		000E297A0B39E1B8004EA2DF /* Terrain.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Terrain.h; path = include/Terrain.h; sourceTree = SOURCE_ROOT; };
+		000E297B0B39E1C5004EA2DF /* Terrain.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Terrain.cpp; path = src/Terrain.cpp; sourceTree = SOURCE_ROOT; };
 		000E29870B39E350004EA2DF /* terrain.cfg */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = terrain.cfg; path = ../../Samples/Media/terrain.cfg; sourceTree = SOURCE_ROOT; };
 		000E29900B39E3C5004EA2DF /* TextureFX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TextureFX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E29920B39E3C6004EA2DF /* TextureFX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "TextureFX-Info.plist"; path = "plist/TextureFX-Info.plist"; sourceTree = "<group>"; };
-		000E29A00B39E42D004EA2DF /* TextureFX.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = TextureFX.h; path = ../../Samples/TextureFX/include/TextureFX.h; sourceTree = SOURCE_ROOT; };
-		000E29A10B39E433004EA2DF /* TextureFX.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = TextureFX.cpp; path = ../../Samples/TextureFX/src/TextureFX.cpp; sourceTree = SOURCE_ROOT; };
+		000E29A00B39E42D004EA2DF /* TextureFX.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = TextureFX.h; path = include/TextureFX.h; sourceTree = SOURCE_ROOT; };
+		000E29A10B39E433004EA2DF /* TextureFX.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = TextureFX.cpp; path = src/TextureFX.cpp; sourceTree = SOURCE_ROOT; };
 		000E29A80B39E4C3004EA2DF /* Transparency.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Transparency.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E29AA0B39E4C4004EA2DF /* Transparency-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Transparency-Info.plist"; path = "plist/Transparency-Info.plist"; sourceTree = "<group>"; };
-		000E29B50B39E51E004EA2DF /* Transparency.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Transparency.h; path = ../../Samples/Transpacency/include/Transparency.h; sourceTree = SOURCE_ROOT; };
-		000E29B60B39E527004EA2DF /* Transparency.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Transparency.cpp; path = ../../Samples/Transpacency/src/Transparency.cpp; sourceTree = SOURCE_ROOT; };
+		000E29B50B39E51E004EA2DF /* Transparency.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Transparency.h; path = include/Transparency.h; sourceTree = SOURCE_ROOT; };
+		000E29B60B39E527004EA2DF /* Transparency.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Transparency.cpp; path = src/Transparency.cpp; sourceTree = SOURCE_ROOT; };
 		000E29BD0B39E5BE004EA2DF /* VolumeTex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VolumeTex.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E29BF0B39E5BF004EA2DF /* VolumeTex-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "VolumeTex-Info.plist"; path = "plist/VolumeTex-Info.plist"; sourceTree = "<group>"; };
-		000E29CD0B39E623004EA2DF /* VolumeRenderable.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = VolumeRenderable.h; path = ../../Samples/VolumeTex/include/VolumeRenderable.h; sourceTree = SOURCE_ROOT; };
-		000E29CE0B39E623004EA2DF /* Julia.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Julia.h; path = ../../Samples/VolumeTex/include/Julia.h; sourceTree = SOURCE_ROOT; };
-		000E29CF0B39E623004EA2DF /* ThingRenderable.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ThingRenderable.h; path = ../../Samples/VolumeTex/include/ThingRenderable.h; sourceTree = SOURCE_ROOT; };
-		000E29D00B39E62F004EA2DF /* VolumeTex.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = VolumeTex.cpp; path = ../../Samples/VolumeTex/src/VolumeTex.cpp; sourceTree = SOURCE_ROOT; };
-		000E29D10B39E62F004EA2DF /* ThingRenderable.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = ThingRenderable.cpp; path = ../../Samples/VolumeTex/src/ThingRenderable.cpp; sourceTree = SOURCE_ROOT; };
-		000E29D20B39E62F004EA2DF /* VolumeRenderable.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = VolumeRenderable.cpp; path = ../../Samples/VolumeTex/src/VolumeRenderable.cpp; sourceTree = SOURCE_ROOT; };
+		000E29CD0B39E623004EA2DF /* VolumeRenderable.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = VolumeRenderable.h; path = include/VolumeRenderable.h; sourceTree = SOURCE_ROOT; };
+		000E29CE0B39E623004EA2DF /* Julia.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Julia.h; path = include/Julia.h; sourceTree = SOURCE_ROOT; };
+		000E29CF0B39E623004EA2DF /* ThingRenderable.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ThingRenderable.h; path = include/ThingRenderable.h; sourceTree = SOURCE_ROOT; };
+		000E29D00B39E62F004EA2DF /* VolumeTex.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = VolumeTex.cpp; path = src/VolumeTex.cpp; sourceTree = SOURCE_ROOT; };
+		000E29D10B39E62F004EA2DF /* ThingRenderable.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = ThingRenderable.cpp; path = src/ThingRenderable.cpp; sourceTree = SOURCE_ROOT; };
+		000E29D20B39E62F004EA2DF /* VolumeRenderable.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = VolumeRenderable.cpp; path = src/VolumeRenderable.cpp; sourceTree = SOURCE_ROOT; };
 		000E29DB0B39E6BE004EA2DF /* Water.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Water.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E29DD0B39E6BF004EA2DF /* Water-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Water-Info.plist"; path = "plist/Water-Info.plist"; sourceTree = "<group>"; };
-		000E29EC0B39E713004EA2DF /* WaterMesh.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = WaterMesh.h; path = ../../Samples/Water/include/WaterMesh.h; sourceTree = SOURCE_ROOT; };
-		000E29ED0B39E71B004EA2DF /* Water.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Water.cpp; path = ../../Samples/Water/src/Water.cpp; sourceTree = SOURCE_ROOT; };
-		000E29EE0B39E71B004EA2DF /* WaterMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = WaterMesh.cpp; path = ../../Samples/Water/src/WaterMesh.cpp; sourceTree = SOURCE_ROOT; };
-		0053F52E0BB5908100328359 /* libois.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libois.a; path = ../../Dependencies/lib/Release/libois.a; sourceTree = SOURCE_ROOT; };
-		0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OgreCEGUIRenderer.framework; path = /Library/Frameworks/OgreCEGUIRenderer.framework; sourceTree = "<absolute>"; };
-		0062EE270B4ACACE0076F733 /* CEGUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CEGUI.framework; path = /Library/Frameworks/CEGUI.framework; sourceTree = "<absolute>"; };
+		000E29EC0B39E713004EA2DF /* WaterMesh.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = WaterMesh.h; path = include/WaterMesh.h; sourceTree = SOURCE_ROOT; };
+		000E29ED0B39E71B004EA2DF /* Water.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Water.cpp; path = src/Water.cpp; sourceTree = SOURCE_ROOT; };
+		000E29EE0B39E71B004EA2DF /* WaterMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = WaterMesh.cpp; path = src/WaterMesh.cpp; sourceTree = SOURCE_ROOT; };
+		0053F52E0BB5908100328359 /* libois.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libois.a; path = Dependencies/lib/Release/libois.a; sourceTree = SOURCE_ROOT; };
+		0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OgreCEGUIRenderer.framework; path = ../Frameworks/OgreCEGUIRenderer.framework; sourceTree = SOURCE_ROOT; };
+		0062EE270B4ACACE0076F733 /* CEGUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CEGUI.framework; path = ../Frameworks/CEGUI.framework; sourceTree = SOURCE_ROOT; };
 		00ABEB520B4D8A980059129A /* OgreCustomNib.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OgreCustomNib.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00ABEB540B4D8A990059129A /* OgreCustomNib-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "OgreCustomNib-Info.plist"; path = "plist/OgreCustomNib-Info.plist"; sourceTree = "<group>"; };
 		00ABEB6B0B4D913B0059129A /* OgreController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreController.h; path = cocoa/OgreController.h; sourceTree = "<group>"; };
@@ -2792,9 +2792,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/Instancing-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2802,7 +2802,7 @@
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -2824,9 +2824,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/Instancing-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2834,7 +2834,7 @@
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -2858,9 +2858,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/Crowd-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2868,7 +2868,7 @@
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -2890,9 +2890,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/Crowd-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2900,7 +2900,7 @@
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -2921,12 +2921,12 @@
 				);
 				COPY_PHASE_STRIP = NO;
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
 				);
-				LIBRARY_SEARCH_PATHS = ../../Dependencies/lib/Debug;
+				LIBRARY_SEARCH_PATHS = Dependencies/lib/Debug;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = ../../Samples/Common/CEGUIRenderer/include;
+				USER_HEADER_SEARCH_PATHS = include;
 			};
 			name = Debug;
 		};
@@ -2939,12 +2939,12 @@
 				);
 				COPY_PHASE_STRIP = YES;
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
 				);
-				LIBRARY_SEARCH_PATHS = ../../Dependencies/lib/Release;
+				LIBRARY_SEARCH_PATHS = Dependencies/lib/Release;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = ../../Samples/Common/CEGUIRenderer/include;
+				USER_HEADER_SEARCH_PATHS = include;
 			};
 			name = Release;
 		};
@@ -2967,7 +2967,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -2995,7 +2995,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3027,7 +3027,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3055,7 +3055,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3087,7 +3087,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3115,7 +3115,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3140,9 +3140,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/Compositor-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3152,7 +3152,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3174,9 +3174,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/Compositor-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3185,7 +3185,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3217,7 +3217,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3245,7 +3245,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3277,7 +3277,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3305,7 +3305,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3337,7 +3337,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3365,7 +3365,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3397,7 +3397,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3425,7 +3425,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3457,7 +3457,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3485,7 +3485,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3510,9 +3510,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/FacialAnimation-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3522,7 +3522,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3544,9 +3544,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/FacialAnimation-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3555,7 +3555,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3587,7 +3587,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3615,7 +3615,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3647,7 +3647,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3675,7 +3675,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3700,9 +3700,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/Gui-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3712,7 +3712,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3734,9 +3734,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/Gui-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3745,7 +3745,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3777,7 +3777,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3805,7 +3805,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3830,9 +3830,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/OceanDemo-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3842,7 +3842,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3864,9 +3864,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/OceanDemo-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3875,7 +3875,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3907,7 +3907,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3935,7 +3935,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3967,7 +3967,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3995,7 +3995,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4020,9 +4020,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/Shadows-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -4032,7 +4032,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4054,9 +4054,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
-					"../../Dependencies/include/CEGUI/**",
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
+					"../Frameworks/CEGUI.framework/Headers/**",
 				);
 				INFOPLIST_FILE = "./plist/Shadows-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -4065,7 +4065,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4097,7 +4097,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4125,7 +4125,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4157,7 +4157,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4185,7 +4185,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4217,7 +4217,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4245,7 +4245,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4277,7 +4277,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4305,7 +4305,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4337,7 +4337,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4365,7 +4365,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4397,7 +4397,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4425,7 +4425,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4457,7 +4457,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4485,7 +4485,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4517,7 +4517,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4545,7 +4545,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4577,7 +4577,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4605,7 +4605,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4637,7 +4637,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
-				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4665,7 +4665,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4712,8 +4712,8 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
 				);
 				INFOPLIST_FILE = "./plist/OgreCustomNib-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -4740,8 +4740,8 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				HEADER_SEARCH_PATHS = (
-					"../../OgreMain/include/**",
-					../../Dependencies/include,
+					"../Frameworks/Ogre.framework/Headers/**",
+					Dependencies/include,
 				);
 				INFOPLIST_FILE = "./plist/OgreCustomNib-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";

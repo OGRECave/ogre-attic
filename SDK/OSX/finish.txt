@@ -1,3 +1,0 @@
-Congratulations, you have installed the OGRE SDK. Frameworks have been installed in /Library/Frameworks and samples and documentation into /Users/Shared (unless you altered the installation location).
-
-We hope you enjoy using OGRE!
