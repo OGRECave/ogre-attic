@@ -448,9 +448,9 @@ namespace Ogre
             // the remaining tokens are the parameters
             String keyword = tokens[0];
             String everythingElse = "";
-            for(int i = 1; i < tokens.size() - 1; i ++)
+            for(unsigned int i = 1; i < tokens.size() - 1; i ++)
             {
-                everythingElse = everythingElse + tokesn[i] + " ";
+                everythingElse = everythingElse + tokens[i] + " ";
             }
             everythingElse = everythingElse + tokens[tokens.size() - 1];
 
