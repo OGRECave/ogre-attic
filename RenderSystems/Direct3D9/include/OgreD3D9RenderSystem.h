@@ -40,6 +40,7 @@ Torus Knot Software Ltd.
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <dxerr9.h>
+#include <dxdiag.h>
 #include "OgreMemoryMacros.h"
 
 namespace Ogre 
@@ -153,6 +154,8 @@ namespace Ogre
         void convertVertexShaderCaps(RenderSystemCapabilities* rsc) const;
         void convertPixelShaderCaps(RenderSystemCapabilities* rsc) const;
 		bool checkVertexTextureFormats(void) const;
+
+		DriverVersion getDxDiagDriverVersion(int deviceIndex);
 
         unsigned short mCurrentLights;
         /// Saved last view matrix

@@ -494,9 +494,15 @@ namespace Ogre
 				break;
 			}
 		}
-
+		
 		if( !mActiveD3DDriver )
 			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "Problems finding requested Direct3D driver!", "D3D9RenderSystem::initialise" );
+
+		// get driver version
+		mDriverVersion.major = HIWORD(mActiveD3DDriver->getAdapterIdentifier().DriverVersion.HighPart);
+		mDriverVersion.minor = LOWORD(mActiveD3DDriver->getAdapterIdentifier().DriverVersion.HighPart);
+		mDriverVersion.release = HIWORD(mActiveD3DDriver->getAdapterIdentifier().DriverVersion.LowPart);
+		mDriverVersion.build = LOWORD(mActiveD3DDriver->getAdapterIdentifier().DriverVersion.LowPart);
 
 		if( autoCreateWindow )
 		{
@@ -714,6 +720,10 @@ namespace Ogre
 				pSurf->Release();
 
 				RenderSystemCapabilities* rsc = new RenderSystemCapabilities();
+
+				rsc->setCapabilitiesValidForD3D9(true);
+				rsc->setD3D9Version(mDriverVersion);
+				rsc->setDeviceNameD3D9(mActiveD3DDriver->DriverDescription());
 
 				if (surfDesc.Format == D3DFMT_D24S8 || surfDesc.Format == D3DFMT_D24X8)
 				{
@@ -1167,10 +1177,15 @@ namespace Ogre
 		return anySupported;
 
 	}
-
 		//-----------------------------------------------------------------------
 		void D3D9RenderSystem::initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary)
 		{
+		        if(caps->getCapabilitiesValidForD3D9() == false)
+		        {
+		            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				        "Trying to initialize GLRenderSystem from RenderSystemCapabilities that do not support Direct3D9",
+				        "D3D9RenderSystem::initialiseFromRenderSystemCapabilities");
+		        }
 				if(caps->isShaderProfileSupported("hlsl"))
 		        HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
 		}

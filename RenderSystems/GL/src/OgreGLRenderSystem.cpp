@@ -146,25 +146,6 @@ namespace Ogre {
 
         mClipPlanes.reserve(6);
 
-		// Set version string
-        const GLubyte* pcVer = glGetString(GL_VERSION);
-
-        assert(pcVer && "Problems getting GL version string using glGetString");
-       
-        String versionStr = (const char*)pcVer;
-
-		// the string is either "x.y.z" or "x.y.z (a.b.c)" or "x.y.x something_else"
-		// wee need x.y.z which is always separated by a space
-		String realVersion = StringUtil::split(versionStr, " ")[0];
-		if(realVersion == "")
-			assert(false && "bad version string");
-
-		StringVector tokens = StringUtil::split(realVersion, ".");
-
-		mDriverVersion.major = StringConverter::parseInt(tokens[0]);
-		mDriverVersion.minor = StringConverter::parseInt(tokens[1]);
-		mDriverVersion.release = StringConverter::parseInt(tokens[2]);
-       
     }
 
     GLRenderSystem::~GLRenderSystem()
@@ -211,10 +192,9 @@ namespace Ogre {
 
     RenderWindow* GLRenderSystem::initialise(bool autoCreateWindow, const String& windowTitle)
     {
-        mGLSupport->start();
+        mGLSupport->start();   
         
 		RenderWindow* autoWindow = mGLSupport->createWindow(autoCreateWindow, this, windowTitle);
-
 
         _setCullingMode( mCullingMode );
         
@@ -223,7 +203,12 @@ namespace Ogre {
 
     RenderSystemCapabilities* GLRenderSystem::createRenderSystemCapabilities() const
     {
-				RenderSystemCapabilities* rsc = new RenderSystemCapabilities();
+		RenderSystemCapabilities* rsc = new RenderSystemCapabilities();
+		
+		rsc->setCapabilitiesValidForGL(true);
+		rsc->setGLVersion(mDriverVersion);
+		
+		rsc->setDeviceNameGL((const char*)glGetString(GL_RENDERER));
 
         // Check for hardware mipmapping support.
         if(GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap)
@@ -549,6 +534,12 @@ namespace Ogre {
 
 		void GLRenderSystem::initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary)
 		{
+		        if(caps->getCapabilitiesValidForGL() == false)
+		        {
+		            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				        "Trying to initialize GLRenderSystem from RenderSystemCapabilities that do not support OpenGL",
+				        "GLRenderSystem::initialiseFromRenderSystemCapabilities");
+		        }
 
  				// set texture the number of texture units
 				mFixedFunctionTextureUnits = caps->getNumTextureUnits();
@@ -855,6 +846,13 @@ namespace Ogre {
 
 						// set up glew and GLSupport
 						initialiseContext(win);
+
+						StringVector tokens = StringUtil::split(mGLSupport->getGLVersion(), ".");
+
+						mDriverVersion.major = StringConverter::parseInt(tokens[0]);
+						mDriverVersion.minor = StringConverter::parseInt(tokens[1]);
+						mDriverVersion.release = StringConverter::parseInt(tokens[2]); 
+						mDriverVersion.build = 0;
             // Initialise GL after the first window has been created
 						// TODO: fire this from emulation options, and don't duplicate Real and Current capabilities
 						mRealCapabilities = createRenderSystemCapabilities();
