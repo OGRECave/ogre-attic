@@ -72,6 +72,8 @@ cp ../../Dependencies/lib/Release/libois.a sdk_contents/samples/Dependencies/lib
 sed -f editsamples.sed sdk_contents/samples/Samples.xcodeproj/project.pbxproj > tmp.xcodeproj
 mv tmp.xcodeproj sdk_contents/samples/Samples.xcodeproj/project.pbxproj
 
+#remove CVS files to avoid accidental commit of these copies!
+find sdk_contents -d -iname CVS  -exec rm -rf \{\} \;
 
 echo Samples copied.
 
