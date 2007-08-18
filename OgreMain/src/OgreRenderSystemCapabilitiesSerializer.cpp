@@ -67,6 +67,9 @@ namespace Ogre
 		file << "gl_driver_version " << StringConverter::toString(caps->getGLVersion().major) << "."
 			<< StringConverter::toString(caps->getGLVersion().minor) << "."
 			<< StringConverter::toString(caps->getGLVersion().release) << endl;
+			
+		file << "device_name_d3d9 " << caps->getDeviceNameD3D9() << endl;
+		file << "device_name_gl " << caps->getDeviceNameGL() << endl;
 
         file << "automipmap " << StringConverter::toString(caps->hasCapability(RSC_AUTOMIPMAP)) << endl;
         file << "blending " << StringConverter::toString(caps->hasCapability(RSC_BLENDING)) << endl;
@@ -290,9 +293,16 @@ namespace Ogre
 		// set up driver version parsing
 		addKeywordType("d3d9_driver_version", SET_STRING_METHOD);
 		addKeywordType("gl_driver_version", SET_STRING_METHOD);
-        // set up the setter for max_vertex_program_version capability
+        // set up the setters for driver versions
         addSetStringMethod("d3d9_driver_version", &RenderSystemCapabilities::parseD3D9VersionFromString);
         addSetStringMethod("gl_driver_version", &RenderSystemCapabilities::parseGLVersionFromString);
+        
+        // set up device name parsing
+		addKeywordType("device_name_d3d9", SET_STRING_METHOD);
+		addKeywordType("device_name_gl", SET_STRING_METHOD);
+        // set up the setters for device names
+        addSetStringMethod("device_name_d3d9", &RenderSystemCapabilities::setDeviceNameD3D9);
+        addSetStringMethod("device_name_gl", &RenderSystemCapabilities::setDeviceNameGL);
         
         // initialize int types
         addKeywordType("num_world_matrices", SET_INT_METHOD);
@@ -437,6 +447,12 @@ namespace Ogre
             // the first token must the the keyword identifying the capability
             // the remaining tokens are the parameters
             String keyword = tokens[0];
+            String everythingElse = "";
+            for(int i = 1; i < tokens.size() - 1; i ++)
+            {
+                everythingElse = everythingElse + tokesn[i] + " ";
+            }
+            everythingElse = everythingElse + tokens[tokens.size() - 1];
 
             CapabilityKeywordType keywordType = getKeywordType(keyword);
 
@@ -446,7 +462,7 @@ namespace Ogre
                     logParseError("Unknown capability keyword: " + keyword);
                     break;
                 case SET_STRING_METHOD:
-                    callSetStringMethod(keyword, tokens[1]);
+                    callSetStringMethod(keyword, everythingElse);
                     break;
                 case SET_INT_METHOD:
                 {
