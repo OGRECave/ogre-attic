@@ -96,7 +96,7 @@ namespace Ogre{
              * sizes that are never requested, so we have to find a bin
              * or build one when a reguest comes in.
              */
-            int mMap[THREASHOLD/MIN_SIZE];
+            size_type mMap[THREASHOLD/MIN_SIZE];
 
             /// a chunk of memory, sub-divides into fixed sized blocks
             struct Chunk
@@ -126,10 +126,10 @@ namespace Ogre{
             std::vector<FixedBin> mBins;
 
             // used to speed up size info
-            pointer mLastAlloc;
-            uint32  mLastAllocSz;
-            pointer mLastDealloc;
-            uint32  mLastDeallocSz;
+            pointer   mLastAlloc;
+            size_type mLastAllocSz;
+            pointer   mLastDealloc;
+            size_type mLastDeallocSz;
 
         protected:
             /// ctor
@@ -177,7 +177,7 @@ namespace Ogre{
                     return reinterpret_cast<pointer>(mLastAlloc);
                 }
 
-                register int i = count/MIN_SIZE;
+                register size_type i = count/MIN_SIZE;
                 if(mMap[i] == -1) // new size, new bin
                 {
                     mBins.reserve(mBins.size()+1);
@@ -219,7 +219,7 @@ namespace Ogre{
                 }
 
                 mLastDeallocSz = sz;
-                register int i = sz/MIN_SIZE;
+                register size_type i = sz/MIN_SIZE;
                 assert(mMap[i]!=-1);
 #ifdef DEBUG
                 mBins.at(mMap[i]).purge(ptr);

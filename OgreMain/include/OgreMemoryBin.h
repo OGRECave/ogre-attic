@@ -45,9 +45,9 @@ namespace Ogre
     /// We need to add it to the tail of a block to allow for
     /// auto-coelessing of adjacent empty blocks. Having a
     /// block at the end allows us to detect corruption as well.
-    struct MemCtrl
+    struct _OgreExport MemCtrl
     {
-        uint32 size;   // 31 bits used for size info, 1 bit empty flag
+        size_t size;   // 31 bits used for size info, 1 bit empty flag
         uint16 magic;  // magic value, for detecting corruption
         uint16 reg_id; // index of the region we came from
     };
@@ -55,23 +55,23 @@ namespace Ogre
     /// This struct is used to form a linked list of empty
     /// memory blocks. Only when a block is empty is this
     /// struct used, when a block is full we use MemCtrl
-    struct MemFree
+    struct _OgreExport MemFree
     {
-        uint32   size; // 31 bits used for size info, 1 bit empty flag
+        size_t   size; // 31 bits used for size info, 1 bit empty flag
         MemFree* next; // next empty block in list, maybe not be adjacent
         MemFree* prev; // prev empty block in list, maybe not be adjacent
     };
 
     /// used to pass about chuncks of memory internally within the manager
-    struct MemBlock
+    struct _OgreExport  MemBlock
     {
-        uint32 size;   // size of memory chunk
+        size_t size;   // size of memory chunk
         char*  memory; // start of memory chunk
     };
 
     /// a memory bin or bucket, this is used by the memory manager to 
     /// maintain free blocks of memory for (re)use.
-    class MemoryBin
+    class _OgreExport MemoryBin
     {
         private:
             MemFree* mHeadPtr;

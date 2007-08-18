@@ -73,7 +73,7 @@ namespace Ogre
      * memory from here. This is where we manage the process 
      * virtual address space.
      */
-class MemoryManager
+    class _OgreExport MemoryManager
     {
         private:
             /// min alloc size
@@ -110,7 +110,7 @@ class MemoryManager
              * @param pointer to stroage
              * @return size of storage or -1 on invlaid pointer
              */
-            int sizeOfStorage ( const void* ptr ) throw ( std::bad_alloc );
+            size_t sizeOfStorage ( const void* ptr ) throw ( std::bad_alloc );
 
             /// dump memory manager internal info
             void dumpInternals();

@@ -118,10 +118,13 @@ void *mmap (void *ptr, long size, long prot, long type, long handle, long arg)
 
     // Release spin lock
     InterlockedExchange (&gSpinLock, 0);
+
+	Ogre::MemProfileManager::getSingleton() << "alloed is " << ptr << "\n";
+	assert(ptr!=NULL);
     return ptr;
 }
 
-long munmap (void *ptr, long size) 
+long munmap (void *ptr, size_t size) 
 {
     static long gPageSize;
     static long gRegionSize;
@@ -208,7 +211,7 @@ void * Ogre::MemoryManager::allocMem(size_t size) throw( std :: bad_alloc )
 void Ogre::MemoryManager::purgeMem(void * ptr) throw( std :: bad_alloc )
 {
     MemCtrl* tmp = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
-    if(!tmp->magic==MemoryBin::MAGIC)
+    if(tmp->magic!=MemoryBin::MAGIC)
         throw(std::bad_alloc());
 
     if(tmp->size & MemoryBin::MASK)
@@ -224,7 +227,7 @@ void Ogre::MemoryManager::purgeMem(void * ptr) throw( std :: bad_alloc )
     }
 }
 
-int Ogre::MemoryManager::sizeOfStorage(const void * ptr) throw( std :: bad_alloc )
+size_t Ogre::MemoryManager::sizeOfStorage(const void * ptr) throw( std :: bad_alloc )
 {
     MemCtrl* tmp = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
     if(tmp->magic!=MemoryBin::MAGIC)

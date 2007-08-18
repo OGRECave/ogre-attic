@@ -38,10 +38,8 @@ namespace Ogre
 {
 
   /**
-   @author
   */
-
-  class MemoryRegion
+  class _OgreExport MemoryRegion
   {
     public:
         static const unsigned long POOL_SIZE = 32768; // (32k = 2^15)

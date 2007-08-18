@@ -113,11 +113,11 @@ namespace Ogre{
             {
                 mReportLog << "Removing Memory Profile " << tmpStats.profileID << "\n";
                 // do some sanity checking
-                uint32 aloc = ( *iter ).mStats.numAllocations + tmpStats.numAllocations;
-                uint32 dloc = ( *iter ).mStats.numDeallocations + tmpStats.numDeallocations;
+                size_t aloc = ( *iter ).mStats.numAllocations + tmpStats.numAllocations;
+                size_t dloc = ( *iter ).mStats.numDeallocations + tmpStats.numDeallocations;
                 if(aloc-dloc > 0)
                 {
-                    uint32 tmp = 
+                    size_t tmp = 
                         (( *iter ).mStats.numBytesAllocated + tmpStats.numBytesAllocated) -
                         (( *iter ).mStats.numBytesDeallocated + tmpStats.numBytesDeallocated) ;
 
