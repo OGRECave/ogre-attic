@@ -77,7 +77,6 @@
 		000C05ED0BB6186F00E6B30C /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
 		000C05EE0BB6186F00E6B30C /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
 		000C05EF0BB6187F00E6B30C /* crowd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000C04280BB6139600E6B30C /* crowd.cpp */; };
-		000C05F60BB61BEE00E6B30C /* terrain.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E29870B39E350004EA2DF /* terrain.cfg */; };
 		000E25350B392C9E004EA2DF /* Bezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E25340B392C9E004EA2DF /* Bezier.cpp */; };
 		000E261C0B393748004EA2DF /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
 		000E26410B393B0A004EA2DF /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263E0B393B0A004EA2DF /* media.cfg */; };
@@ -205,7 +204,6 @@
 		000E29750B39E1A9004EA2DF /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263F0B393B0A004EA2DF /* plugins.cfg */; };
 		000E29760B39E1A9004EA2DF /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E26400B393B0A004EA2DF /* resources.cfg */; };
 		000E297C0B39E1C5004EA2DF /* Terrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E297B0B39E1C5004EA2DF /* Terrain.cpp */; };
-		000E29880B39E350004EA2DF /* terrain.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E29870B39E350004EA2DF /* terrain.cfg */; };
 		000E29990B39E403004EA2DF /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
 		000E299B0B39E40D004EA2DF /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263E0B393B0A004EA2DF /* media.cfg */; };
 		000E299C0B39E40D004EA2DF /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263F0B393B0A004EA2DF /* plugins.cfg */; };
@@ -575,7 +573,7 @@
 		000E27B80B39AB18004EA2DF /* EnvMapping-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "EnvMapping-Info.plist"; path = "plist/EnvMapping-Info.plist"; sourceTree = "<group>"; };
 		000E27BE0B39ABE3004EA2DF /* EnvMapping.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = EnvMapping.h; path = ../../Samples/EnvMapping/include/EnvMapping.h; sourceTree = SOURCE_ROOT; };
 		000E27BF0B39ABED004EA2DF /* EnvMapping.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = EnvMapping.cpp; path = ../../Samples/EnvMapping/src/EnvMapping.cpp; sourceTree = SOURCE_ROOT; };
-		000E27CE0B39AD1D004EA2DF /* FacialAnimation.app */ = {isa = PBXFileReference; includeInIndex = 0; path = FacialAnimation.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000E27CE0B39AD1D004EA2DF /* FacialAnimation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FacialAnimation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E27D00B39AD1D004EA2DF /* FacialAnimation-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "FacialAnimation-Info.plist"; path = "plist/FacialAnimation-Info.plist"; sourceTree = "<group>"; };
 		000E27E60B39ADE3004EA2DF /* FacialAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = FacialAnimation.cpp; path = ../../Samples/FacialAnimation/src/FacialAnimation.cpp; sourceTree = SOURCE_ROOT; };
 		000E27F30B39AE59004EA2DF /* Fresnel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fresnel.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2054,7 +2052,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				000C05F60BB61BEE00E6B30C /* terrain.cfg in Resources */,
 				000C05E60BB617DA00E6B30C /* media.cfg in Resources */,
 				000C05E70BB617DA00E6B30C /* plugins.cfg in Resources */,
 				000C05E80BB617DA00E6B30C /* resources.cfg in Resources */,
@@ -2298,7 +2295,6 @@
 				000E29740B39E1A9004EA2DF /* media.cfg in Resources */,
 				000E29750B39E1A9004EA2DF /* plugins.cfg in Resources */,
 				000E29760B39E1A9004EA2DF /* resources.cfg in Resources */,
-				000E29880B39E350004EA2DF /* terrain.cfg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

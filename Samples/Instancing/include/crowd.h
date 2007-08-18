@@ -205,9 +205,6 @@ protected:
 	void createScene(void)
 	{
 		std::string terrain_cfg("terrain.cfg");
-		#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-			terrain_cfg = mResourcePath + terrain_cfg;
-		#endif
         mSceneMgr -> setWorldGeometry( terrain_cfg );
 		// Set ambient light
 		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
