@@ -3,7 +3,6 @@
 This source file is part of OGRE
 (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
-
 Copyright (c) 2000-2006 Torus Knot Software Ltd
 Also see acknowledgements in Readme.html
 
@@ -21,6 +20,7 @@ this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 
+
 You may alternatively use this source under the terms of a specific version of
 the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
@@ -35,37 +35,7 @@ Torus Knot Software Ltd.
 #include "OgreMemoryRegion.h"
 #include <memory>
 
-/// overloaded operator new, points back to the 
-/// allocation wrapper function
-void *operator new(std::size_t size);
-
-/// overloaded operator new[], points back to the 
-/// allocation wrapper function
-void *operator new[](std::size_t size);
-
-/// overloaded operator delete, points back to the 
-/// deallocation wrapper function
-void operator delete(void *ptr, std::size_t size);
-
-/// overloaded operator delete[], points back to the 
-/// deallocation wrapper function
-void operator delete[](void *ptr, std::size_t size);
-
-
-// single param delete, I can work with this for now untill 
-// I can sort out the (void*, size_t) version
-// /*
-/// overloaded operator delete, points back to the 
-/// deallocation wrapper function
-void operator delete(void *ptr);
-
-/// overloaded operator delete[], points back to the 
-/// deallocation wrapper function
-void operator delete[](void *ptr);
-// */
-
-namespace Ogre
-{
+namespace Ogre{
 
     /**
      * This internal class forms the heart of the memory manager,
@@ -129,24 +99,25 @@ namespace Ogre
 
             // an array of memory regions
             MemoryRegion** mRegion;
-
     };
 }
 
-/*
-inline void* malloc(std::size_t sz)
-{
-    printf("FOO MALLOC CLAEED\n");
-    void* tmp =  Ogre::MemoryManager::getSingleton().allocMem(sz);
-    assert(tmp);
-}
+_OgreExport void doDelete(void*);
+_OgreExport void* doNew(size_t);
 
-inline void free(void* ptr)
-{
-    if(ptr==NULL)
-        return;
-    Ogre::MemoryManager::getSingleton().purgeMem(ptr);
-}
+/*
+void *operator new(std::size_t size);
+void *operator new[](std::size_t size);
+void operator delete(void *ptr);
+void operator delete[](void *ptr);
+*/
+
+/*
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+# define new(a) doNew(a)
+# define delete(a) doDelete(a)
+#endif
 */
 
 #endif
+

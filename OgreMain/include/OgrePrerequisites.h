@@ -82,9 +82,27 @@ http://www.gnu.org/copyleft/lesser.txt
    settings have been made.
 */
 //#include "OgreStdHeaders.h"
-
-
 #include "OgreMemoryManager.h"
+
+inline void* operator new(size_t sz)
+{
+	return doNew(sz);
+}
+
+inline void operator delete(void* ptr)
+{
+	doDelete(ptr);
+}
+
+inline void* operator new[](size_t sz)
+{
+	return doNew(sz);
+}
+
+inline void operator delete[](void* ptr)
+{
+	doDelete(ptr);
+}
 
 namespace Ogre {
     // Define ogre version

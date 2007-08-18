@@ -111,7 +111,7 @@ void Ogre::MemoryRegion::purgeMem(MemCtrl* ptr) throw( std :: bad_alloc )
     //-----------------------------------------------------------------
     // /*
     MemFree* memFree;
-    register uint32 size;
+    register size_t size;
 
     while (memBlock.memory + memBlock.size != mPool+POOL_SIZE)
     {
@@ -161,7 +161,7 @@ void Ogre::MemoryRegion::dumpInternals()
     MemBlock memBlock;
     memBlock.memory=mPool;
     memBlock.size=0;
-    uint32 size=0;
+    size_t size=0;
 
     while(memBlock.memory + memBlock.size != mPool+POOL_SIZE)
     {
@@ -226,7 +226,7 @@ void Ogre::MemoryRegion::distributeCore(MemBlock block)
     // we should never have to deal with a block this small
     assert (block.size > 8 && "Block size too small");
 
-    uint32 shiftVal = (1 << NUM_BINS + 2);
+    size_t shiftVal = (1 << NUM_BINS + 2);
     int idx = NUM_BINS - 1;
 
     // while we have memory to work for, distribute it

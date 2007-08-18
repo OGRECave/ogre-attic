@@ -30,21 +30,13 @@ Torus Knot Software Ltd.
 //-----------------------------------------------------------------------------
 // If you want to use the real C(++) *alloc/free/new/delete functions, you must
 // include this header before the section that uses them.
-#ifdef OGRE_MEMORY_MACROS
-#undef OGRE_MEMORY_MACROS
 
-//#define OGRE_USE_OLD_MEMMAN
-
-#ifdef OGRE_USE_OLD_MEMMAN
-
-#undef new
-#undef delete
-#undef malloc
-#undef calloc
-#undef realloc
-#undef free
-
-#endif // OGRE_USE_OLD_MEMMAN
-
+#ifdef new
+# undef new
 #endif
+
+#ifdef delete
+# undef delete
+#endif
+
 //-----------------------------------------------------------------------------

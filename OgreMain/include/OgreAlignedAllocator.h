@@ -146,8 +146,12 @@ namespace Ogre {
         { return &s; }
         static size_type max_size()
         { return (std::numeric_limits<size_type>::max)(); }
+
+#include "OgreNoMemoryMacros.h"
         static void construct(const pointer ptr, const value_type & t)
         { new (ptr) T(t); }
+#include "OgreMemoryMacros.h"
+
         static void destroy(const pointer ptr)
         {
             ptr->~T();

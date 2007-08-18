@@ -29,6 +29,7 @@ Torus Knot Software Ltd.
 #ifndef _Ogre_H__
 #define _Ogre_H__
 // This file includes all the other files which you will need to build a client application
+
 #include "OgrePrerequisites.h"
 
 #include "OgreAllocator.h"

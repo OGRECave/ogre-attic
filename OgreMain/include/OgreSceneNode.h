@@ -53,8 +53,8 @@ namespace Ogre {
             Child nodes are contained within the bounds of the parent, and so on down the
             tree, allowing for fast culling.
     */
-    class _OgreExport SceneNode : public Node,
-            public AllocWrapper<Allocator<SceneNode,Ogre::SmallAllocPolicy<SceneNode> > >
+    class _OgreExport SceneNode : public Node
+            ,public AllocWrapper<Allocator<SceneNode,Ogre::SmallAllocPolicy<SceneNode> > >
     {
     public:
         typedef HashMap<String, MovableObject*> ObjectMap;

@@ -22,17 +22,18 @@ along with this library; if not, write to the Free Software Foundation,
 Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
 -------------------------------------------------------------------------*/
+
 #include "OgreStableHeaders.h"
 #include "OgreAllocator.h"
 #include "OgreLogManager.h"
 #include "OgreAllocator.h"
 #include "OgreException.h"
-
 #include "OgreMemoryManager.h"
 
 #include <iostream>
 #include <cassert>
 #include <cstdio>
+
 
 // just a handy debugging macro
 #define DBG_PROBE(a) std::cout << #a << " : " << a << std::endl;
@@ -44,7 +45,6 @@ http://www.gnu.org/copyleft/lesser.txt
 # include <unistd.h>    // sysconf(3)
 # include <sys/mman.h>  // mmap(2)
 # include <errno.h>
-# define OGRE_USE_MMAP 1
 #endif
 
 #include "OgreMemProfileManager.h"
@@ -52,11 +52,11 @@ http://www.gnu.org/copyleft/lesser.txt
 // allocator 
 static Ogre::Allocator<unsigned char>  sAllocator;
 
-
 // realise static instance member for the init class
 Ogre::MemoryManager      Ogre::MemoryManager::smInstance;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+
 // win32 POSIX(ish) memory emulation
 //--------------------------------------------------------------------
 #define PROT_READ       0x1             /* Page can be read.  */
@@ -67,7 +67,7 @@ Ogre::MemoryManager      Ogre::MemoryManager::smInstance;
 /* Sharing types (must choose one and only one of these).  */
 #define MAP_SHARED      0x01            /* Share changes.  */
 #define MAP_PRIVATE     0x02            /* Changes are private.  */
-# define MAP_ANONYMOUS  0x20            /* Don't use a file.  */
+#define MAP_ANONYMOUS   0x20            /* Don't use a file.  */
 
 // spin lock
 static volatile LONG gSpinLock;
@@ -75,6 +75,7 @@ static volatile LONG gSpinLock;
 long getpagesize (void) 
 {
     static long gPageSize = 0;
+
     if (! gPageSize)
     {
         SYSTEM_INFO system_info;
@@ -87,6 +88,7 @@ long getpagesize (void)
 long getregionsize (void) 
 {
     static long gRegionSize = 0;
+
     if (! gRegionSize) 
     {
         SYSTEM_INFO system_info;
@@ -98,57 +100,63 @@ long getregionsize (void)
 
 void *mmap (void *ptr, long size, long prot, long type, long handle, long arg) 
 {
-    static long gPageSize;
-    static long gRegionSize;
+    //static long gPageSize;
+    //static long gRegionSize;
 
     // Wait for spin lock
-    while (InterlockedCompareExchange (&gSpinLock, 1, 0) != 0) 
-        Sleep (0);
+    //while (InterlockedCompareExchange (&gSpinLock, 1, 0) != 0) 
+    //    Sleep (0);
 
     // First time initialisation
-    if (! gPageSize) 
-        gPageSize = getpagesize ();
-    if (! gRegionSize) 
-        gRegionSize = getregionsize ();
+    //if (! gPageSize) 
+    //    gPageSize = getpagesize ();
+
+    //if (! gRegionSize) 
+    //    gRegionSize = getregionsize ();
 
     // Allocate this
-    ptr = VirtualAlloc (ptr, size, MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN, PAGE_READWRITE);
-    if (! ptr) 
-        ptr = (void*)-1; // == MAP_FAILED
-
+    //ptr = VirtualAlloc (ptr, size, MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN, PAGE_READWRITE);
+	ptr = VirtualAlloc (NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);  
+    assert(ptr); 
     // Release spin lock
-    InterlockedExchange (&gSpinLock, 0);
-
-	Ogre::MemProfileManager::getSingleton() << "alloed is " << ptr << "\n";
-	assert(ptr!=NULL);
+    //InterlockedExchange (&gSpinLock, 0);
     return ptr;
 }
 
+
+
 long munmap (void *ptr, size_t size) 
 {
-    static long gPageSize;
-    static long gRegionSize;
-    int rc = -1; // == MAP_FAILED;
+    //static long gPageSize;
+    //static long gRegionSize;
+    //int rc = -1; // == MAP_FAILED;
+
     // Wait for spin lock
-    while (InterlockedCompareExchange (&gSpinLock, 1, 0) != 0) 
-        Sleep (0);
+    //while (InterlockedCompareExchange (&gSpinLock, 1, 0) != 0) 
+        //Sleep (0);
+
+
 
     // First time initialisation
-    if (! gPageSize) 
-        gPageSize = getpagesize ();
-    if (! gRegionSize) 
-        gRegionSize = getregionsize ();
+    //if (! gPageSize) 
+        //gPageSize = getpagesize ();
+    //if (! gRegionSize) 
+        //gRegionSize = getregionsize ();
 
     // Free this
-    if ( VirtualFree (ptr, 0, MEM_RELEASE))
-        rc = 0;
+    //if ( VirtualFree (ptr, 0, MEM_RELEASE))
+        //rc = 0;
 
     // Release spin lock
-    InterlockedExchange (&gSpinLock, 0);
-    return rc;
+    //InterlockedExchange (&gSpinLock, 0);
+    //return rc;
+
+	return VirtualFree (ptr, 0, MEM_RELEASE);
 }
 //--------------------------------------------------------------------
 #endif
+
+
 
 void Ogre::MemoryManager::setup() throw( std :: exception )
 {
@@ -170,14 +178,14 @@ void Ogre::MemoryManager::setup() throw( std :: exception )
 void * Ogre::MemoryManager::allocMem(size_t size) throw( std :: bad_alloc )
 {
     //TODO: free list regions
-    //TODO: use mmap direct for allocs bigger than a region
-    
     if(!mSetup)
         setup();
 
     // pad and round up 
     size += OVERHEAD;
     size += MIN_ALOC_SIZE - (size % MIN_ALOC_SIZE);
+
+
 
     // directly mmap() blocks that are bigger than a region
     if(size >= MemoryRegion::POOL_SIZE)
@@ -210,6 +218,9 @@ void * Ogre::MemoryManager::allocMem(size_t size) throw( std :: bad_alloc )
 
 void Ogre::MemoryManager::purgeMem(void * ptr) throw( std :: bad_alloc )
 {
+	if(!ptr)
+		return;
+
     MemCtrl* tmp = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
     if(tmp->magic!=MemoryBin::MAGIC)
         throw(std::bad_alloc());
@@ -229,11 +240,15 @@ void Ogre::MemoryManager::purgeMem(void * ptr) throw( std :: bad_alloc )
 
 size_t Ogre::MemoryManager::sizeOfStorage(const void * ptr) throw( std :: bad_alloc )
 {
+	if(!ptr)
+		return 0;
+
     MemCtrl* tmp = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
     if(tmp->magic!=MemoryBin::MAGIC)
     {
         throw(std::bad_alloc());
     }
+
     if(tmp->size & MemoryBin::MASK)
         return tmp->size ^ MemoryBin::MASK;
     return tmp->size;
@@ -254,6 +269,26 @@ void Ogre::MemoryManager::dumpInternals()
     }
 }
 
+_OgreExport void* doNew(size_t sz)
+{
+	return static_cast<void*>(sAllocator.allocateBytes(sz));
+}
+
+
+_OgreExport void doDelete(void* ptr)
+{
+	sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),0);
+}
+
+ /*
+#ifdef new
+# undef new
+#endif
+
+#ifdef delete
+# undef delete
+#endif
+
 void *operator new(std::size_t size)
 {
     //assert(size && "0 alloc");
@@ -267,20 +302,9 @@ void *operator new[](std::size_t size)
     //return Ogre::MemoryManager::getSingleton().allocMem(size);
     return static_cast<void*>(sAllocator.allocateBytes(size));
 }
+// */
 
-/*
-void operator delete(void *ptr, std::size_t size)
-{
-    //sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),size);
-}
-
-void operator delete[](void *ptr, std::size_t size)
-{
-    //sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),size);
-}
-*/
-
-// /*
+ /*
 void operator delete(void *ptr)
 {
     if(ptr==NULL)
@@ -295,6 +319,18 @@ void operator delete[](void *ptr)
         return;
     sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),0);
     //Ogre::MemoryManager::getSingleton().purgeMem(ptr);
+}
+// */
+
+/*
+void operator delete(void *ptr, std::size_t size)
+{
+    //sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),size);
+}
+
+void operator delete[](void *ptr, std::size_t size)
+{
+    //sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),size);
 }
 // */
 

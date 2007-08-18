@@ -37,6 +37,14 @@ Torus Knot Software Ltd.
 #include "OgreStdAllocPolicy.h"
 #include "OgreMemProfiler.h"
 
+#ifdef new
+# undef new
+#endif
+
+#ifdef delete
+# undef delete
+#endif
+
 namespace Ogre{
 
     /**
@@ -106,6 +114,9 @@ namespace Ogre{
 
 }// namesoace Ogre
 
-
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+# define new(a) doNew(a);
+# define delete(a) doDelete(a);
+#endif
 
 #endif // ALLOCWRAPPER_H
