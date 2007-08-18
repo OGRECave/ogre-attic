@@ -1,12 +1,12 @@
 AC_PREREQ(2.50)
 
-AC_INIT([OGRE], [1.5.0])
+AC_INIT([OGRE], [1.4.0])
 
 AC_CANONICAL_TARGET
 
 # New syntax, but this is still buggy; PACKAGE gets defined as 'ogre' not 'OGRE'
 #AM_INIT_AUTOMAKE([1.7.0 foreign no-installinfo no-installman subdir-objects])
-AM_INIT_AUTOMAKE([OGRE], 1.5.0)
+AM_INIT_AUTOMAKE([OGRE], 1.4.0)
 AC_CONFIG_HEADERS([OgreMain/include/config.h])
 
 dnl Check for programs
@@ -232,6 +232,8 @@ AC_CONFIG_FILES([Makefile \
     Tools/XMLConverter/Makefile \
     Tools/XMLConverter/src/Makefile \
     Tools/XMLConverter/include/Makefile \
+    Tools/rcapsdump/Makefile \
+    Tools/rcapsdump/src/Makefile \
     Tools/LightwaveConverter/Makefile \
     Tools/LightwaveConverter/src/Makefile \
     Tools/LightwaveConverter/include/Makefile \
