@@ -1,5 +1,7 @@
 #!/bin/bash
 
+OGRE_VERSION="v1.4.4"
+
 # invoke xcode build
 xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Release
 # Just release mode, debug is too big
@@ -46,36 +48,55 @@ echo API generation done.
 
 # do samples
 echo Copying samples...
-mkdir sdk_contents/samples
+mkdir sdk_contents/Samples
 
 # Copy project location
-cp -R ../../Mac/Samples/* sdk_contents/samples/
+cp -R ../../Mac/Samples/* sdk_contents/Samples/
 # copy source
-mkdir sdk_contents/samples/src
-mkdir sdk_contents/samples/include
+mkdir sdk_contents/Samples/src
+mkdir sdk_contents/Samples/include
 
-find ../../samples -iname *.cpp -exec cp \{\} sdk_contents/samples/src \;
-find ../../samples -iname *.h -exec cp \{\} sdk_contents/samples/include \;
-cp ../../ReferenceApplication/BspCollision/src/*.cpp sdk_contents/samples/src
+find ../../samples -iname *.cpp -exec cp \{\} sdk_contents/Samples/src \;
+find ../../samples -iname *.h -exec cp \{\} sdk_contents/Samples/include \;
+cp ../../ReferenceApplication/BspCollision/src/*.cpp sdk_contents/Samples/src
 
 # Copy dependencies
-mkdir sdk_contents/samples/Dependencies
-mkdir sdk_contents/samples/Dependencies/include
-mkdir sdk_contents/samples/Dependencies/lib
-#mkdir sdk_contents/samples/Dependencies/lib/Debug
-mkdir sdk_contents/samples/Dependencies/lib/Release
-cp -R ../../Dependencies/include/OIS sdk_contents/samples/Dependencies/include
-#cp ../../Dependencies/lib/Debug/libois.a sdk_contents/samples/Dependencies/lib/Debug/
-cp ../../Dependencies/lib/Release/libois.a sdk_contents/samples/Dependencies/lib/Release/
+mkdir sdk_contents/Samples/Dependencies
+mkdir sdk_contents/Samples/Dependencies/include
+mkdir sdk_contents/Samples/Dependencies/lib
+#mkdir sdk_contents/Samples/Dependencies/lib/Debug
+mkdir sdk_contents/Samples/Dependencies/lib/Release
+cp -R ../../Dependencies/include/OIS sdk_contents/Samples/Dependencies/include
+#cp ../../Dependencies/lib/Debug/libois.a sdk_contents/Samples/Dependencies/lib/Debug/
+cp ../../Dependencies/lib/Release/libois.a sdk_contents/Samples/Dependencies/lib/Release/
 
 # Fix up project references (2 stage rather than in-place since in-place only works for single sed commands)
-sed -f editsamples.sed sdk_contents/samples/Samples.xcodeproj/project.pbxproj > tmp.xcodeproj
-mv tmp.xcodeproj sdk_contents/samples/Samples.xcodeproj/project.pbxproj
+sed -f editsamples.sed sdk_contents/Samples/Samples.xcodeproj/project.pbxproj > tmp.xcodeproj
+mv tmp.xcodeproj sdk_contents/Samples/Samples.xcodeproj/project.pbxproj
+
+echo Samples copied.
+
+echo Copying Media...
+
+cp -R ../../Samples/Media sdk_contents/Samples/
+
+# Fix up config files
+sed -i -e "s/\.\.\/\.\.\/\.\.\/\.\.\/Samples/..\/..\/Samples/g" sdk_contents/samples/config/resources.cfg
+
+echo Media copied.
 
 #remove CVS files to avoid accidental commit of these copies!
 find sdk_contents -d -iname CVS  -exec rm -rf \{\} \;
 
-echo Samples copied.
+echo Building DMG...
 
+bunzip2 -k -f template.dmg.bz2
+mkdir tmp_dmg
+hdiutil attach template.dmg -noautoopen -quiet -mountpoint tmp_dmg
+ditto sdk_contents tmp_dmg/OgreSDK
+hdiutil detach tmp_dmg
+hdiutil convert -format UDBZ  -o OgreSDK_$OGRE_VERSION.dmg
+rm -rf tmp_dmg
+rm template.dmg
 
 echo Done!
