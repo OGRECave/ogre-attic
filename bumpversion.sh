@@ -72,6 +72,11 @@ sed -i -e "s/Version='[0-9]*\.[0-9]*\.[0-9]*'/Version='$MAJOR.$MINOR.$PATCH'/i" 
 #	!define PRODUCT_VERSION "1.2.5"
 sed -i -e "s/PRODUCT_VERSION \".*$/PRODUCT_VERSION \"$MAJOR.$MINOR.$PATCH$EXTRA\"/i" SDK/Win32/ogresdk.nsh
 
+# SDK/OSX/make_osx.sh
+#	OGRE_VERSION="v1.4.4"
+sed -i -e "s/OGRE_VERSION=.*$/OGRE_VERSION=\"v$MAJOR.$MINOR.$PATCH$EXTRA\"/i" SDK/OSX/make_osx.sh
+
+
 # Tools/Common/setup/commandlinetools.wxs
 #	Version='1.2.5'
 sed -i -e "s/Version='[0-9]*\.[0-9]*\.[0-9]*'/Version='$MAJOR.$MINOR.$PATCH'/i" Tools/Common/setup/commandlinetools.wxs

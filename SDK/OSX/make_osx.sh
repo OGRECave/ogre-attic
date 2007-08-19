@@ -43,7 +43,8 @@ rm -f sdk_contents/docs/api/html/*.map
 rm -f sdk_contents/docs/api/html/*.md5
 cp -R ../../Docs/manual sdk_contents/docs/
 cp -R ../../Docs/licenses sdk_contents/docs/
-cp -R ../Win32/docs/ReadMe.html sdk_contents/docs/
+cp ReadMe.html sdk_contents/docs/
+cp ../../Docs/style.css sdk_contents/docs/
 cp -R ../../Docs/ChangeLog.html sdk_contents/docs/
 
 echo API generation done.
