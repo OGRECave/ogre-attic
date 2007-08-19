@@ -39,7 +39,7 @@ namespace Ogre {
     RenderSystemCapabilities::RenderSystemCapabilities ()
       : mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
         mNumVertexBlendMatrices(0), mNumMultiRenderTargets(1),
-		mNonPOW2TexturesLimited(false)
+		mNonPOW2TexturesLimited(false), mCapabilitiesValidForD3D9(false), mCapabilitiesValidForGL(false)
     {
 
 			 for(int i = 0; i < sizeof(mCapabilities)/sizeof(int); i++)
