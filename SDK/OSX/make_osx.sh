@@ -1,6 +1,8 @@
 #!/bin/bash
 
 OGRE_VERSION="v1.4.4"
+# Only build for i386, halves the size
+ARCH="i386"
 
 # invoke xcode build
 xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Release
@@ -15,13 +17,13 @@ echo Copying frameworks...
 mkdir sdk_contents/Frameworks
 
 # Stuff we've built
-cp -R ../../Mac/build/Release/*.framework sdk_contents/Frameworks/
+ditto -arch $ARCH ../../Mac/build/Release/Ogre.framework sdk_contents/Frameworks/Ogre.framework
 
 # dependencies
-cp -R /Library/Frameworks/Cg.framework sdk_contents/Frameworks/
-cp -R /Library/Frameworks/CEGUI.framework sdk_contents/Frameworks/
+ditto -arch $ARCH /Library/Frameworks/Cg.framework sdk_contents/Frameworks/Cg.framework
+ditto -arch $ARCH /Library/Frameworks/CEGUI.framework sdk_contents/Frameworks/CEGUI.framework
 # OgreCEGUIrenderer is currently in the precompiled deps, maybe move
-cp -R /Library/Frameworks/OgreCEGUIRenderer.framework sdk_contents/Frameworks/
+ditto -arch $ARCH /Library/Frameworks/OgreCEGUIRenderer.framework sdk_contents/Frameworks/OgreCEGUIRenderer.framework
 
 echo Frameworks copied.
 
@@ -51,7 +53,7 @@ echo Copying samples...
 mkdir sdk_contents/Samples
 
 # Copy project location
-cp -R ../../Mac/Samples/* sdk_contents/Samples/
+ditto ../../Mac/Samples sdk_contents/Samples/
 # copy source
 mkdir sdk_contents/Samples/src
 mkdir sdk_contents/Samples/include
@@ -81,7 +83,7 @@ echo Copying Media...
 cp -R ../../Samples/Media sdk_contents/Samples/
 
 # Fix up config files
-sed -i -e "s/\.\.\/\.\.\/\.\.\/\.\.\/Samples/..\/..\/Samples/g" sdk_contents/samples/config/resources.cfg
+sed -i -e "s/\.\.\/\.\.\/\.\.\/\.\.\/Samples/..\/..\/..\/Samples/g" sdk_contents/samples/config/resources.cfg
 
 echo Media copied.
 
@@ -99,7 +101,8 @@ mkdir tmp_dmg
 hdiutil attach template.dmg -noautoopen -quiet -mountpoint tmp_dmg
 ditto sdk_contents tmp_dmg/OgreSDK
 hdiutil detach tmp_dmg
-hdiutil convert -format UDBZ  -o OgreSDK_$OGRE_VERSION.dmg
+rm OgreSDK_$OGRE_VERSION.dmg
+hdiutil convert -format UDBZ  -o OgreSDK_$OGRE_VERSION.dmg template.dmg
 rm -rf tmp_dmg
 rm template.dmg
 
