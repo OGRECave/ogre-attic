@@ -58,84 +58,96 @@ namespace Ogre
 
         file << "render_system_capabilities \"" << name << "\"" << endl;
         file << "{" << endl;
+
+        file << "\t" << "capabilities_valid_for_d3d9 " << StringConverter::toString(caps->getCapabilitiesValidForD3D9()) << endl;
+        file << "\t" << "capabilities_valid_for_gl " << StringConverter::toString(caps->getCapabilitiesValidForGL()) << endl;
+        file << endl;
         
-		file << "d3d9_driver_version " << StringConverter::toString(caps->getD3D9Version().major) << "."
+
+		file << "\t" << "device_name_d3d9 " << caps->getDeviceNameD3D9() << endl;
+		file << "\t" << "d3d9_driver_version " << StringConverter::toString(caps->getD3D9Version().major) << "."
 			<< StringConverter::toString(caps->getD3D9Version().minor) << "."
 			<< StringConverter::toString(caps->getD3D9Version().release) << "."
 			<< StringConverter::toString(caps->getD3D9Version().build) << endl;
 
-		file << "gl_driver_version " << StringConverter::toString(caps->getGLVersion().major) << "."
+		file << endl;
+
+		file << "\t" << "device_name_gl " << caps->getDeviceNameGL() << endl;
+		file << "\t" << "gl_driver_version " << StringConverter::toString(caps->getGLVersion().major) << "."
 			<< StringConverter::toString(caps->getGLVersion().minor) << "."
 			<< StringConverter::toString(caps->getGLVersion().release) << endl;
 			
-		file << "device_name_d3d9 " << caps->getDeviceNameD3D9() << endl;
-		file << "device_name_gl " << caps->getDeviceNameGL() << endl;
 
-        file << "automipmap " << StringConverter::toString(caps->hasCapability(RSC_AUTOMIPMAP)) << endl;
-        file << "blending " << StringConverter::toString(caps->hasCapability(RSC_BLENDING)) << endl;
-        file << "anisotropy " << StringConverter::toString(caps->hasCapability(RSC_ANISOTROPY)) << endl;
-        file << "dot3 " << StringConverter::toString(caps->hasCapability(RSC_DOT3)) << endl;
-        file << "cubemapping " << StringConverter::toString(caps->hasCapability(RSC_CUBEMAPPING)) << endl;
-        file << "hwstencil " << StringConverter::toString(caps->hasCapability(RSC_HWSTENCIL)) << endl;
-        file << "vbo " << StringConverter::toString(caps->hasCapability(RSC_VBO)) << endl;
-        file << "vertex_program " << StringConverter::toString(caps->hasCapability(RSC_VERTEX_PROGRAM)) << endl;
-        file << "fragment_program " << StringConverter::toString(caps->hasCapability(RSC_FRAGMENT_PROGRAM)) << endl;
-        file << "scissor_test " << StringConverter::toString(caps->hasCapability(RSC_SCISSOR_TEST)) << endl;
-        file << "two_sided_stencil " << StringConverter::toString(caps->hasCapability(RSC_TWO_SIDED_STENCIL)) << endl;
-        file << "stencil_wrap " << StringConverter::toString(caps->hasCapability(RSC_STENCIL_WRAP)) << endl;
-        file << "hwocclusion " << StringConverter::toString(caps->hasCapability(RSC_HWOCCLUSION)) << endl;
-        file << "user_clip_planes " << StringConverter::toString(caps->hasCapability(RSC_USER_CLIP_PLANES)) << endl;
-        file << "vertex_format_ubyte4 " << StringConverter::toString(caps->hasCapability(RSC_VERTEX_FORMAT_UBYTE4)) << endl;
-        file << "infinite_far_plane " << StringConverter::toString(caps->hasCapability(RSC_INFINITE_FAR_PLANE)) << endl;
-        file << "hwrender_to_texture " << StringConverter::toString(caps->hasCapability(RSC_HWRENDER_TO_TEXTURE)) << endl;
-        file << "texture_float " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_FLOAT)) << endl;
-        file << "non_power_of_2_textures " << StringConverter::toString(caps->hasCapability(RSC_NON_POWER_OF_2_TEXTURES)) << endl;
-        file << "texture_3d " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_3D)) << endl;
-        file << "point_sprites " << StringConverter::toString(caps->hasCapability(RSC_POINT_SPRITES)) << endl;
-        file << "point_extended_parameters " << StringConverter::toString(caps->hasCapability(RSC_POINT_EXTENDED_PARAMETERS)) << endl;
-        file << "vertex_texture_fetch " << StringConverter::toString(caps->hasCapability(RSC_VERTEX_TEXTURE_FETCH)) << endl;
-        file << "mipmap_lod_bias " << StringConverter::toString(caps->hasCapability(RSC_MIPMAP_LOD_BIAS)) << endl;
-        file << "texture_compression " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_COMPRESSION)) << endl;
-        file << "texture_compression_dxt " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_COMPRESSION_DXT)) << endl;
-        file << "texture_compression_vtc " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_COMPRESSION_VTC)) << endl;
-        file << "glew1_5_novbo " << StringConverter::toString(caps->hasCapability(RSC_GLEW1_5_NOVBO)) << endl;
-        file << "fbo " << StringConverter::toString(caps->hasCapability(RSC_FBO)) << endl;
-        file << "fbo_arb " << StringConverter::toString(caps->hasCapability(RSC_FBO_ARB)) << endl;
-        file << "fbo_ati " << StringConverter::toString(caps->hasCapability(RSC_FBO_ATI)) << endl;
-        file << "pbuffer " << StringConverter::toString(caps->hasCapability(RSC_PBUFFER)) << endl;
-        file << "glew1_5_nohwocclusion " << StringConverter::toString(caps->hasCapability(RSC_GLEW1_5_NOHWOCCLUSION)) << endl;
-        file << "perstageconstant " << StringConverter::toString(caps->hasCapability(RSC_PERSTAGECONSTANT)) << endl;
+
+
+        file << endl;
+        file << "\t" << "automipmap " << StringConverter::toString(caps->hasCapability(RSC_AUTOMIPMAP)) << endl;
+        file << "\t" << "blending " << StringConverter::toString(caps->hasCapability(RSC_BLENDING)) << endl;
+        file << "\t" << "anisotropy " << StringConverter::toString(caps->hasCapability(RSC_ANISOTROPY)) << endl;
+        file << "\t" << "dot3 " << StringConverter::toString(caps->hasCapability(RSC_DOT3)) << endl;
+        file << "\t" << "cubemapping " << StringConverter::toString(caps->hasCapability(RSC_CUBEMAPPING)) << endl;
+        file << "\t" << "hwstencil " << StringConverter::toString(caps->hasCapability(RSC_HWSTENCIL)) << endl;
+        file << "\t" << "vbo " << StringConverter::toString(caps->hasCapability(RSC_VBO)) << endl;
+        file << "\t" << "vertex_program " << StringConverter::toString(caps->hasCapability(RSC_VERTEX_PROGRAM)) << endl;
+        file << "\t" << "fragment_program " << StringConverter::toString(caps->hasCapability(RSC_FRAGMENT_PROGRAM)) << endl;
+        file << "\t" << "scissor_test " << StringConverter::toString(caps->hasCapability(RSC_SCISSOR_TEST)) << endl;
+        file << "\t" << "two_sided_stencil " << StringConverter::toString(caps->hasCapability(RSC_TWO_SIDED_STENCIL)) << endl;
+        file << "\t" << "stencil_wrap " << StringConverter::toString(caps->hasCapability(RSC_STENCIL_WRAP)) << endl;
+        file << "\t" << "hwocclusion " << StringConverter::toString(caps->hasCapability(RSC_HWOCCLUSION)) << endl;
+        file << "\t" << "user_clip_planes " << StringConverter::toString(caps->hasCapability(RSC_USER_CLIP_PLANES)) << endl;
+        file << "\t" << "vertex_format_ubyte4 " << StringConverter::toString(caps->hasCapability(RSC_VERTEX_FORMAT_UBYTE4)) << endl;
+        file << "\t" << "infinite_far_plane " << StringConverter::toString(caps->hasCapability(RSC_INFINITE_FAR_PLANE)) << endl;
+        file << "\t" << "hwrender_to_texture " << StringConverter::toString(caps->hasCapability(RSC_HWRENDER_TO_TEXTURE)) << endl;
+        file << "\t" << "texture_float " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_FLOAT)) << endl;
+        file << "\t" << "non_power_of_2_textures " << StringConverter::toString(caps->hasCapability(RSC_NON_POWER_OF_2_TEXTURES)) << endl;
+        file << "\t" << "texture_3d " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_3D)) << endl;
+        file << "\t" << "point_sprites " << StringConverter::toString(caps->hasCapability(RSC_POINT_SPRITES)) << endl;
+        file << "\t" << "point_extended_parameters " << StringConverter::toString(caps->hasCapability(RSC_POINT_EXTENDED_PARAMETERS)) << endl;
+        file << "\t" << "vertex_texture_fetch " << StringConverter::toString(caps->hasCapability(RSC_VERTEX_TEXTURE_FETCH)) << endl;
+        file << "\t" << "mipmap_lod_bias " << StringConverter::toString(caps->hasCapability(RSC_MIPMAP_LOD_BIAS)) << endl;
+        file << "\t" << "texture_compression " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_COMPRESSION)) << endl;
+        file << "\t" << "texture_compression_dxt " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_COMPRESSION_DXT)) << endl;
+        file << "\t" << "texture_compression_vtc " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_COMPRESSION_VTC)) << endl;
+        file << "\t" << "glew1_5_novbo " << StringConverter::toString(caps->hasCapability(RSC_GLEW1_5_NOVBO)) << endl;
+        file << "\t" << "fbo " << StringConverter::toString(caps->hasCapability(RSC_FBO)) << endl;
+        file << "\t" << "fbo_arb " << StringConverter::toString(caps->hasCapability(RSC_FBO_ARB)) << endl;
+        file << "\t" << "fbo_ati " << StringConverter::toString(caps->hasCapability(RSC_FBO_ATI)) << endl;
+        file << "\t" << "pbuffer " << StringConverter::toString(caps->hasCapability(RSC_PBUFFER)) << endl;
+        file << "\t" << "glew1_5_nohwocclusion " << StringConverter::toString(caps->hasCapability(RSC_GLEW1_5_NOHWOCCLUSION)) << endl;
+        file << "\t" << "perstageconstant " << StringConverter::toString(caps->hasCapability(RSC_PERSTAGECONSTANT)) << endl;
+        file << endl;
 
         RenderSystemCapabilities::ShaderProfiles profiles = caps->getSupportedShaderProfiles();
         // write every profile
         for(RenderSystemCapabilities::ShaderProfiles::iterator it = profiles.begin(), end = profiles.end(); it != end; ++it)
         {
-            file << "shader_profile " << *it << endl;
+            file << "\t" << "shader_profile " << *it << endl;
         }
 
-        file << "max_point_size " << StringConverter::toString(caps->getMaxPointSize()) << endl;
+        file << endl;
+        file << "\t" << "max_point_size " << StringConverter::toString(caps->getMaxPointSize()) << endl;
 
-        file << "non_pow2_textures_limited " << StringConverter::toString(caps->getNonPOW2TexturesLimited()) << endl;
-        file << "vertex_texture_units_shared " << StringConverter::toString(caps->getVertexTextureUnitsShared())<< endl;
+        file << endl;
+        file << "\t" << "non_pow2_textures_limited " << StringConverter::toString(caps->getNonPOW2TexturesLimited()) << endl;
+        file << "\t" << "vertex_texture_units_shared " << StringConverter::toString(caps->getVertexTextureUnitsShared())<< endl;
         
-        file << "capabilities_valid_for_d3d9 " << StringConverter::toString(caps->getCapabilitiesValidForD3D9()) << endl;
-        file << "capabilities_valid_for_gl " << StringConverter::toString(caps->getCapabilitiesValidForGL()) << endl;
+        file << endl;
+        file << "\t" << "num_world_matrices " << StringConverter::toString(caps->getNumWorldMatrices()) << endl;
+        file << "\t" << "num_texture_units " << StringConverter::toString(caps->getNumTextureUnits()) << endl;
+        file << "\t" << "stencil_buffer_bit_depth " << StringConverter::toString(caps->getStencilBufferBitDepth()) << endl;
+        file << "\t" << "num_vertex_blend_matrices " << StringConverter::toString(caps->getNumVertexBlendMatrices()) << endl;
+        file << "\t" << "num_multi_render_targets " << StringConverter::toString(caps->getNumMultiRenderTargets()) << endl;
+        file << "\t" << "vertex_program_constant_float_count " << StringConverter::toString(caps->getVertexProgramConstantFloatCount()) << endl;
+        file << "\t" << "vertex_program_constant_int_count " << StringConverter::toString(caps->getVertexProgramConstantIntCount()) << endl;
+        file << "\t" << "vertex_program_constant_bool_count " << StringConverter::toString(caps->getVertexProgramConstantBoolCount()) << endl;
+        file << "\t" << "fragment_program_constant_float_count " << StringConverter::toString(caps->getFragmentProgramConstantFloatCount()) << endl;
+        file << "\t" << "fragment_program_constant_int_count " << StringConverter::toString(caps->getFragmentProgramConstantIntCount()) << endl;
+        file << "\t" << "fragment_program_constant_bool_count " << StringConverter::toString(caps->getFragmentProgramConstantBoolCount()) << endl;
+        file << "\t" << "num_vertex_texture_units " << StringConverter::toString(caps->getNumVertexTextureUnits()) << endl;
 
-        file << "num_world_matrices " << StringConverter::toString(caps->getNumWorldMatrices()) << endl;
-        file << "num_texture_units " << StringConverter::toString(caps->getNumTextureUnits()) << endl;
-        file << "stencil_buffer_bit_depth " << StringConverter::toString(caps->getStencilBufferBitDepth()) << endl;
-        file << "num_vertex_blend_matrices " << StringConverter::toString(caps->getNumVertexBlendMatrices()) << endl;
-        file << "num_multi_render_targets " << StringConverter::toString(caps->getNumMultiRenderTargets()) << endl;
-        file << "vertex_program_constant_float_count " << StringConverter::toString(caps->getVertexProgramConstantFloatCount()) << endl;
-        file << "vertex_program_constant_int_count " << StringConverter::toString(caps->getVertexProgramConstantIntCount()) << endl;
-        file << "vertex_program_constant_bool_count " << StringConverter::toString(caps->getVertexProgramConstantBoolCount()) << endl;
-        file << "fragment_program_constant_float_count " << StringConverter::toString(caps->getFragmentProgramConstantFloatCount()) << endl;
-        file << "fragment_program_constant_int_count " << StringConverter::toString(caps->getFragmentProgramConstantIntCount()) << endl;
-        file << "fragment_program_constant_bool_count " << StringConverter::toString(caps->getFragmentProgramConstantBoolCount()) << endl;
-        file << "num_vertex_texture_units " << StringConverter::toString(caps->getNumVertexTextureUnits()) << endl;
-
-        file << "max_vertex_program_version " << caps->getMaxVertexProgramVersion() << endl;
-        file << "max_fragment_program_version " << caps->getMaxFragmentProgramVersion() << endl;
+        file << endl;
+        file << "\t" << "max_vertex_program_version " << caps->getMaxVertexProgramVersion() << endl;
+        file << "\t" << "max_fragment_program_version " << caps->getMaxFragmentProgramVersion() << endl;
 
         file << "}" << endl;
 
