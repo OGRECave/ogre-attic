@@ -135,8 +135,6 @@ long munmap (void *ptr, size_t size)
     //while (InterlockedCompareExchange (&gSpinLock, 1, 0) != 0) 
         //Sleep (0);
 
-
-
     // First time initialisation
     //if (! gPageSize) 
         //gPageSize = getpagesize ();
@@ -170,8 +168,9 @@ void Ogre::MemoryManager::setup() throw( std :: exception )
 
         memset(mRegion,0,mPageSize);
         mNumRegions=0;
-
         mSetup=true;
+		mLastAlloc  = NULL;
+		mLastDealloc = NULL;
     }
 }
 
@@ -200,11 +199,26 @@ void * Ogre::MemoryManager::allocMem(size_t size) throw( std :: bad_alloc )
     }
 
     // look for one
-    for(uint32 i=0;i<mNumRegions;++i)
-    {
-        if(mRegion[i]->canSatisfy((uint32)size))
-            return mRegion[i]->allocMem(size);
-    }
+	if(mLastAlloc && mLastAlloc->canSatisfy(size))
+	{
+		return mLastAlloc->allocMem(size);
+	}
+	else if(mLastDealloc && mLastDealloc->canSatisfy(size))
+	{
+		mLastAlloc = mLastDealloc;
+		return mLastDealloc->allocMem(size);
+	}
+	else
+	{
+		for(uint32 i=0;i<mNumRegions;++i)
+		{
+			if(mRegion[i]->canSatisfy((uint32)size))
+			{
+				mLastAlloc = mRegion[i];
+				return mRegion[i]->allocMem(size);
+			}
+		}
+	}
 
     // we need a new region
     mRegion[mNumRegions]=(MemoryRegion*) mmap(0, sizeof(MemoryRegion),
@@ -213,6 +227,7 @@ void * Ogre::MemoryManager::allocMem(size_t size) throw( std :: bad_alloc )
                                               0, 0);
     mRegion[mNumRegions]->setup(mNumRegions);
     ++mNumRegions;
+	mLastAlloc = mRegion[mNumRegions-1];
     return mRegion[mNumRegions-1]->allocMem(size);
 }
 
@@ -229,6 +244,7 @@ void Ogre::MemoryManager::purgeMem(void * ptr) throw( std :: bad_alloc )
     {
         uint32 idx = tmp->reg_id;
         mRegion[idx]->purgeMem(tmp);
+		mLastDealloc = mRegion[idx];
         //if(mRegion[idx]->empty())
         //    munmap(mReg)
     }
@@ -269,25 +285,20 @@ void Ogre::MemoryManager::dumpInternals()
     }
 }
 
-_OgreExport void* doNew(size_t sz)
+_OgreExport void* doOpNew(size_t sz)
 {
 	return static_cast<void*>(sAllocator.allocateBytes(sz));
 }
 
 
-_OgreExport void doDelete(void* ptr)
+_OgreExport void doOpDelete(void* ptr)
 {
+	if(!ptr)
+		return;
 	sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),0);
 }
 
  /*
-#ifdef new
-# undef new
-#endif
-
-#ifdef delete
-# undef delete
-#endif
 
 void *operator new(std::size_t size)
 {

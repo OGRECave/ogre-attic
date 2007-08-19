@@ -86,22 +86,22 @@ http://www.gnu.org/copyleft/lesser.txt
 
 inline void* operator new(size_t sz)
 {
-	return doNew(sz);
+	return doOpNew(sz);
 }
 
 inline void operator delete(void* ptr)
 {
-	doDelete(ptr);
+	doOpDelete(ptr);
 }
 
 inline void* operator new[](size_t sz)
 {
-	return doNew(sz);
+	return doOpNew(sz);
 }
 
 inline void operator delete[](void* ptr)
 {
-	doDelete(ptr);
+	doOpDelete(ptr);
 }
 
 namespace Ogre {

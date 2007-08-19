@@ -1,4 +1,5 @@
 /*
+
 -----------------------------------------------------------------------------
 This source file is part of OGRE
 (Object-oriented Graphics Rendering Engine)
@@ -26,6 +27,7 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
+
 #ifndef OGREOGREMEMORYREGION_H
 #define OGREOGREMEMORYREGION_H
 
@@ -84,9 +86,10 @@ namespace Ogre
       bool canSatisfy(uint32 size);
 
       void dumpInternals();
-
   };
-
 }
 
+
+
 #endif
+

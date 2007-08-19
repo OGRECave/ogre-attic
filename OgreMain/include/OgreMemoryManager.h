@@ -97,26 +97,22 @@ namespace Ogre{
             uint32 mPageSize;
             uint32 mNumRegions;
 
+			MemoryRegion* mLastAlloc;
+			MemoryRegion* mLastDealloc;
+
             // an array of memory regions
             MemoryRegion** mRegion;
     };
 }
 
-_OgreExport void doDelete(void*);
-_OgreExport void* doNew(size_t);
+_OgreExport void doOpDelete(void*);
+_OgreExport void* doOpNew(size_t);
 
 /*
 void *operator new(std::size_t size);
 void *operator new[](std::size_t size);
 void operator delete(void *ptr);
 void operator delete[](void *ptr);
-*/
-
-/*
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-# define new(a) doNew(a)
-# define delete(a) doDelete(a)
-#endif
 */
 
 #endif

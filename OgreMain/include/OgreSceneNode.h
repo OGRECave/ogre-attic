@@ -54,7 +54,7 @@ namespace Ogre {
             tree, allowing for fast culling.
     */
     class _OgreExport SceneNode : public Node
-            ,public AllocWrapper<Allocator<SceneNode,Ogre::SmallAllocPolicy<SceneNode> > >
+            //,public AllocWrapper<Allocator<SceneNode,Ogre::SmallAllocPolicy<SceneNode> > >
     {
     public:
         typedef HashMap<String, MovableObject*> ObjectMap;
