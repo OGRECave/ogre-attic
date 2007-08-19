@@ -114,7 +114,7 @@ namespace Ogre {
             mKeywordTypeMap.insert(KeywordTypeMap::value_type(keyword, type));
         }
 
-        inline CapabilityKeywordType getKeywordType(const String& keyword)
+        inline CapabilityKeywordType getKeywordType(const String& keyword) const
         {
             return mKeywordTypeMap[keyword];
         }

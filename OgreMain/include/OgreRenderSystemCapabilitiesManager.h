@@ -35,8 +35,6 @@ Torus Knot Software Ltd.
 
 #include "OgreRenderSystemCapabilities.h"
 
-//#include "OgreRenderSystemCapabilitiesSerializer.h"
-
 
 
 #if OGRE_THREAD_SUPPORT
@@ -51,9 +49,8 @@ namespace Ogre {
 
 
     /** Class for managing RenderSystemCapabilities database for Ogre.
-        @remarks
-           RenderSystemCapabilities can not loaded like other resource be because they do not contain any \
-           data besides the contents of .rendercaps files, which are "loaded" by parseScript
+        @remarks This class behaves similarly to other ResourceManager, although .rendercaps are not resources.
+						It contains and abstract a .rendercaps Serializer
     */
     class _OgreExport RenderSystemCapabilitiesManager :  public Singleton<RenderSystemCapabilitiesManager>
     {
@@ -73,7 +70,7 @@ namespace Ogre {
         */
         void parseCapabilitiesFromArchive(const String& filename, const String& archiveType, bool recursive = true);
 		
-		/** Retriurnseve a capabality loaded with RenderSystemCapabilitiesManager::parseCapabilitiesFromArchive method
+		/** Returns a capabilitiy loaded with RenderSystemCapabilitiesManager::parseCapabilitiesFromArchive method
 		* @return NULL if the name is invalid, a parsed RenderSystemCapabilities otherwise.
 		*/
         RenderSystemCapabilities* loadParsedCapabilities(const String& name);
