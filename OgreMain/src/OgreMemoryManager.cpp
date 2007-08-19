@@ -48,12 +48,15 @@ http://www.gnu.org/copyleft/lesser.txt
 #endif
 
 #include "OgreMemProfileManager.h"
+#include <iostream>
 
-// allocator 
-static Ogre::Allocator<unsigned char>  sAllocator;
+
+
+// profile
+static Ogre::MemProfiler<unsigned char>*   sProfile = NULL;
 
 // realise static instance member for the init class
-Ogre::MemoryManager      Ogre::MemoryManager::smInstance;
+Ogre::MemoryManager*      Ogre::MemoryManager::smInstance = NULL;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 
@@ -69,129 +72,72 @@ Ogre::MemoryManager      Ogre::MemoryManager::smInstance;
 #define MAP_PRIVATE     0x02            /* Changes are private.  */
 #define MAP_ANONYMOUS   0x20            /* Don't use a file.  */
 
-// spin lock
-static volatile LONG gSpinLock;
-
 long getpagesize (void) 
-{
-    static long gPageSize = 0;
-
-    if (! gPageSize)
-    {
-        SYSTEM_INFO system_info;
-        GetSystemInfo (&system_info);
-        gPageSize = system_info.dwPageSize;
-    }
-    return gPageSize;
-}
-
-long getregionsize (void) 
-{
-    static long gRegionSize = 0;
-
-    if (! gRegionSize) 
-    {
-        SYSTEM_INFO system_info;
-        GetSystemInfo (&system_info);
-        gRegionSize = system_info.dwAllocationGranularity;
-    }
-    return gRegionSize;
+{  
+	SYSTEM_INFO system_info;
+    GetSystemInfo (&system_info);
+    return system_info.dwPageSize;
 }
 
 void *mmap (void *ptr, long size, long prot, long type, long handle, long arg) 
 {
-    //static long gPageSize;
-    //static long gRegionSize;
-
-    // Wait for spin lock
-    //while (InterlockedCompareExchange (&gSpinLock, 1, 0) != 0) 
-    //    Sleep (0);
-
-    // First time initialisation
-    //if (! gPageSize) 
-    //    gPageSize = getpagesize ();
-
-    //if (! gRegionSize) 
-    //    gRegionSize = getregionsize ();
-
     // Allocate this
     //ptr = VirtualAlloc (ptr, size, MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN, PAGE_READWRITE);
 	ptr = VirtualAlloc (NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);  
     assert(ptr); 
-    // Release spin lock
-    //InterlockedExchange (&gSpinLock, 0);
+    
     return ptr;
 }
 
-
-
 long munmap (void *ptr, size_t size) 
 {
-    //static long gPageSize;
-    //static long gRegionSize;
-    //int rc = -1; // == MAP_FAILED;
-
-    // Wait for spin lock
-    //while (InterlockedCompareExchange (&gSpinLock, 1, 0) != 0) 
-        //Sleep (0);
-
-    // First time initialisation
-    //if (! gPageSize) 
-        //gPageSize = getpagesize ();
-    //if (! gRegionSize) 
-        //gRegionSize = getregionsize ();
-
-    // Free this
-    //if ( VirtualFree (ptr, 0, MEM_RELEASE))
-        //rc = 0;
-
-    // Release spin lock
-    //InterlockedExchange (&gSpinLock, 0);
-    //return rc;
-
 	return VirtualFree (ptr, 0, MEM_RELEASE);
 }
 //--------------------------------------------------------------------
 #endif
 
-
-
-void Ogre::MemoryManager::setup() throw( std :: exception )
+void Ogre::MemoryManager::setup() throw(std::exception)
 {
-    if(!mSetup)
-    {
+	// register a profile for the default memory manager
+	MemProfileManager::getSingleton().registerProfile(sProfile);
+}
+
+Ogre::MemoryManager::MemoryManager()
+{
         mPageSize = getpagesize();
+		/*
         mRegion = (MemoryRegion**)mmap(  // grab one page for our region array
                    0, mPageSize, PROT_READ|PROT_WRITE,
                    MAP_PRIVATE|MAP_ANONYMOUS,
                    0, 0);
-
+		*/
         memset(mRegion,0,mPageSize);
         mNumRegions=0;
-        mSetup=true;
 		mLastAlloc  = NULL;
 		mLastDealloc = NULL;
-    }
+
+		void* tmp = malloc(sizeof(MemProfiler<unsigned char> ));
+		sProfile = ::new(tmp) MemProfiler<unsigned char>(false);	
+}
+
+Ogre::MemoryManager::~MemoryManager()
+{
+	free(sProfile);
 }
 
 void * Ogre::MemoryManager::allocMem(size_t size) throw( std :: bad_alloc )
 {
     //TODO: free list regions
-    if(!mSetup)
-        setup();
 
     // pad and round up 
     size += OVERHEAD;
     size += MIN_ALOC_SIZE - (size % MIN_ALOC_SIZE);
 
-
-
     // directly mmap() blocks that are bigger than a region
     if(size >= MemoryRegion::POOL_SIZE)
     {
         MemCtrl* tmp = (MemCtrl*) mmap(0, (long)size, PROT_READ|PROT_WRITE,
-                                       MAP_PRIVATE|MAP_ANONYMOUS,
-                                       0, 0);
+                                       MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
 
         tmp->size=(uint32)size; // mark as mmap'd
         tmp->magic=MemoryBin::MAGIC;
@@ -287,61 +233,20 @@ void Ogre::MemoryManager::dumpInternals()
 
 _OgreExport void* doOpNew(size_t sz)
 {
-	return static_cast<void*>(sAllocator.allocateBytes(sz));
+	void* p = Ogre::MemoryManager::getSingleton().allocMem(sz);
+    sProfile->note_allocation( 
+		Ogre::MemoryManager::getSingleton().sizeOfStorage( p ), NULL );
+    return p;
 }
-
 
 _OgreExport void doOpDelete(void* ptr)
 {
 	if(!ptr)
 		return;
-	sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),0);
+
+	sProfile->note_deallocation( (unsigned char*)ptr, 
+		Ogre::MemoryManager::getSingleton().sizeOfStorage( ptr ) );
+	Ogre::MemoryManager::getSingleton().purgeMem(ptr);
 }
 
- /*
-
-void *operator new(std::size_t size)
-{
-    //assert(size && "0 alloc");
-    //return Ogre::MemoryManager::getSingleton().allocMem(size);
-    return static_cast<void*>(sAllocator.allocateBytes(size));
-}
-
-void *operator new[](std::size_t size)
-{
-    //assert(size && "0 alloc");
-    //return Ogre::MemoryManager::getSingleton().allocMem(size);
-    return static_cast<void*>(sAllocator.allocateBytes(size));
-}
-// */
-
- /*
-void operator delete(void *ptr)
-{
-    if(ptr==NULL)
-        return;
-    sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),0);
-    //Ogre::MemoryManager::getSingleton().purgeMem(ptr);
-}
-
-void operator delete[](void *ptr)
-{
-    if(ptr==NULL)
-        return;
-    sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),0);
-    //Ogre::MemoryManager::getSingleton().purgeMem(ptr);
-}
-// */
-
-/*
-void operator delete(void *ptr, std::size_t size)
-{
-    //sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),size);
-}
-
-void operator delete[](void *ptr, std::size_t size)
-{
-    //sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),size);
-}
-// */
 

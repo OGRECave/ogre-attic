@@ -70,6 +70,12 @@ namespace Ogre{
             mStats.profileID = MemProfileManager::getSingleton().registerProfile(this);
         }
 
+		explicit inline MemProfiler(bool reg)
+		{
+			if(reg)
+				mStats.profileID = MemProfileManager::getSingleton().registerProfile(this);
+		}
+
         inline ~MemProfiler()
         { 
             MemProfileManager::getSingleton().removeProfile(this);

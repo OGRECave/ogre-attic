@@ -38,7 +38,6 @@ Torus Knot Software Ltd.
 #include "OgreMemProfiler.h"
 
 namespace Ogre{
-
     /**
      * This class is provided to form the base for a family of objects.
      * It provides an overloaded operator new and delete as well as
@@ -49,6 +48,7 @@ namespace Ogre{
      * Alloc      : the allocator type to wrap
      */
     template < typename Alloc >
+	//_OgreExport not allowed
     class AllocWrapper
     {
     public:
@@ -97,6 +97,7 @@ namespace Ogre{
 
     private:
         static AllocatorType smAllocator;
+
     };
 
     // statics
@@ -105,5 +106,5 @@ namespace Ogre{
         AllocWrapper<Alloc>::smAllocator;
 
 }// namesoace Ogre
-
 #endif // ALLOCWRAPPER_H
+

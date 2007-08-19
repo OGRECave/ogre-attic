@@ -45,6 +45,8 @@ namespace Ogre{
      */
     class _OgreExport MemoryManager
     {
+		public:
+
         private:
             /// min alloc size
             static const uint32 MIN_ALOC_SIZE = 8;
@@ -54,8 +56,8 @@ namespace Ogre{
             void setup() throw (std::exception);
 
         public:
-            inline explicit MemoryManager(){}
-            inline ~MemoryManager(){}
+            explicit MemoryManager();
+            ~MemoryManager();
 
             /**
              * allocate memory from the free store. This will expand the 
@@ -88,20 +90,24 @@ namespace Ogre{
             /// @return static instance of MemoryManager
             static inline MemoryManager& getSingleton()
             {
-                return smInstance;
+				if(!smInstance)
+				{
+					smInstance  = ::new(malloc(sizeof(MemoryManager))) MemoryManager();
+					smInstance->setup();
+				}
+				return *smInstance;
             }
 
-        private:
-            static MemoryManager smInstance;
-            bool   mSetup;
+	private:			
+            static MemoryManager* smInstance;
             uint32 mPageSize;
             uint32 mNumRegions;
 
 			MemoryRegion* mLastAlloc;
 			MemoryRegion* mLastDealloc;
 
-            // an array of memory regions
-            MemoryRegion** mRegion;
+            // an array of memory regions - one page
+            MemoryRegion* mRegion[1024];
     };
 }
 

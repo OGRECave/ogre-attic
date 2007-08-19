@@ -23,8 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 You may alternatively use this source under the terms of a specific version of
 the OGRE Unrestricted License provided you have obtained such a license from
-Torus Knot Software Ltd.
------------------------------------------------------------------------------
+Torus Knot Software Ltd
+---------------------------------------------------------------------------
 */
 
 #ifndef ALLOCATOR_H
@@ -85,6 +85,7 @@ namespace Ogre{
         typedef typename AllocPolicy::reference         reference;
         typedef typename AllocPolicy::const_reference   const_reference;
         typedef typename AllocPolicy::value_type        value_type;
+
 
         /// the rebind mechanism
         template<typename U>
@@ -168,4 +169,6 @@ namespace Ogre{
     };
 
 }// namesoace Ogre
+
 #endif // ALLOCATOR_H
+
