@@ -306,6 +306,50 @@ Rendering Engine)</p>
 
 
 
+<p class="mainheader" align="left">v1.4.4 [Eihort] (20 August 2007) - Maintenance Release</p>
+<ul>
+	<li>GL:
+	<ul><li>Fix small buffer overrun in mTextureCoordIndex - should be as largeas the max number of texture units, not max number of texture coord sets</li>
+		<li>Optimise setting of texture coords in fixed-function mode slightly</li>
+		<li>Call ReleaseDC in Win32Window::destroy when window is external, since CS_OWNDC won't handle it</li>
+		<li>Fix buffer overrun when writing contents of a window to a file whose width is not 4-byte aligned</li>
+	</ul>
+	</li>
+	<li>DirectX:
+	<ul><li>Support NVPerfHUD 5</li>
+		<li>Fix some potential problems when switching between fullscreen and windowed mode</li>	
+	</ul>
+	</li>
+	<li>OS X:
+	<ul><li>Build changes: make Ogre and Samples projects build into the same folder structure. This allows us to reference the Ogre framework relative to the build folder and not in /Library/Frameworks, this means we can have more than one major version of Ogre &amp; samples building independently.</li>
+		<li>SDK build scripts created, now generate a DMG</li>
+		<li>Ocean and Compositor demos now work on OS X</li>
+	</ul>
+	<li>StaticGeometry now deals with non-uniform scaling of normals</li>
+	<li>StaticGeometry should transform VES_TANGENT and VES_BINORMAL elements in the same way as VES_NORMAL.</li>
+	<li>Override OctreeNode::removeAllChildren so that it updates the octree.</li>
+	<li>Fix a potential crash &amp; inaccurate visibility masks if a viewport was removed directly after rendering to it.</li>
+	<li>Compositors now carry more viewport options across to the automatic 'original scene' compositor: 'shadows enabled' and 'material scheme'</li>
+	<li>For bitmap font definitions, support definition of the glyph as a unicode decimal as well as a single character</li>
+	<li>Fix a params bug with assembler shader usage, when using the same assembler shader twice</li>
+	<li>RibbonTrail now behaves better when jumping large distances (high speed or low framerate)</li>
+	<li>AxisAlignedBox::transform should setNull() before merging transformed points back in.</li>
+	<li>Fixed stack overflow when calling Node::_getDeribed* in MovableObject::_notifyMoved() callback</li>
+	<li>Remove assert when trying to derive parameters from Cg program that fails compilation, just derive no parameter names instead</li>
+	<li>Add optional listener parameter to ResourceBackgroundQueue 'unload' methods - both for consistency and also to prevent garbage listener pointer problems</li>
+	<li>A couple of safety checks in animation tracks to check for null pointers</li>
+	<li>Don't create 2 logs in MeshUpgrader, and error handling improved in XMLConverter and MeshUpgrader</li>
+	<li>SkeletonSerializer internal methods now protected, not private, to allow extending</li>
+	<li>Deal with display colour depth changes in windowed mode under Windows</li>
+	<li>Linux pkg-config fix: package defined as OGRE not ogre</li>
+	<li>Linux SSE check - only enable SSE on recognised platforms instead of turning off for just powerpc</li>
+	<li>Fix some lesser-used 64-bit based architectures: ppc64, alpha, ia64, s390</li>
+	<li>Add support for compilation on mips architectures.</li>
+	<li>Add support for intel compiler</li>
+	<li>Compatibility with Doxygen 1.5.x</li>
+	<li>Compatibility with VS9 beta compilation</li>
+	
+</ul>
 
 
 <p class="mainheader" align="left">v1.4.3 [Eihort] (8 July 2007) - Maintenance Release</p>
