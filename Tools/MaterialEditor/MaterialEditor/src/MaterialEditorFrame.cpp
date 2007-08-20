@@ -46,11 +46,13 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreStringConverter.h"
 #include "OgreVector3.h"
 
-#include "CodeEditor.h"
+#include "CgEditor.h"
+#include "DocPanel.h"
 #include "EditorManager.h"
 #include "LogPanel.h"
 #include "MaterialController.h"
 #include "MaterialPropertyGridPage.h"
+#include "MaterialScriptEditor.h"
 #include "MaterialWizard.h"
 #include "PropertiesPanel.h"
 #include "TechniqueController.h"
@@ -79,6 +81,12 @@ const long ID_FILE_MENU_SAVE_AS = wxNewId();
 const long ID_FILE_MENU_CLOSE = wxNewId();
 const long ID_FILE_MENU_EXIT = wxNewId();
 
+const long ID_EDIT_MENU_UNDO = wxNewId();
+const long ID_EDIT_MENU_REDO = wxNewId();
+const long ID_EDIT_MENU_CUT = wxNewId();
+const long ID_EDIT_MENU_COPY = wxNewId();
+const long ID_EDIT_MENU_PASTE = wxNewId();
+
 const long ID_TOOLS_MENU_RESOURCES = wxNewId();
 const long ID_TOOLS_MENU_RESOURCES_MENU_ADD_GROUP = wxNewId();
 const long ID_TOOLS_MENU_RESOURCES_MENU_REMOVE_GROUP = wxNewId();
@@ -90,16 +98,25 @@ const long ID_VIEW_MENU_DIRECTX = wxNewId();
 
 BEGIN_EVENT_TABLE(MaterialEditorFrame, wxFrame)
 	EVT_ACTIVATE(MaterialEditorFrame::OnActivate)
+	// File Menu
 	EVT_MENU (ID_FILE_NEW_MENU_PROJECT,  MaterialEditorFrame::OnNewProject)
 	EVT_MENU (ID_FILE_NEW_MENU_MATERIAL, MaterialEditorFrame::OnNewMaterial)
 	EVT_MENU (ID_FILE_MENU_OPEN,		 MaterialEditorFrame::OnFileOpen)
 	EVT_MENU (ID_FILE_MENU_EXIT,		 MaterialEditorFrame::OnFileExit)
-	EVT_MENU (ID_VIEW_MENU_OPENGL ,		 MaterialEditorFrame::OnViewOpenGL)
-	EVT_MENU (ID_VIEW_MENU_DIRECTX,		 MaterialEditorFrame::OnViewDirectX)
+	// Edit Menu
+	EVT_MENU (ID_EDIT_MENU_UNDO,  MaterialEditorFrame::OnEditUndo)
+	EVT_MENU (ID_EDIT_MENU_REDO,  MaterialEditorFrame::OnEditRedo)
+	EVT_MENU (ID_EDIT_MENU_CUT,	  MaterialEditorFrame::OnEditCut)
+	EVT_MENU (ID_EDIT_MENU_COPY,  MaterialEditorFrame::OnEditCopy)
+	EVT_MENU (ID_EDIT_MENU_PASTE, MaterialEditorFrame::OnEditPaste)
+	// View Menu
+	EVT_MENU (ID_VIEW_MENU_OPENGL , MaterialEditorFrame::OnViewOpenGL)
+	EVT_MENU (ID_VIEW_MENU_DIRECTX, MaterialEditorFrame::OnViewDirectX)
 END_EVENT_TABLE()
 
 MaterialEditorFrame::MaterialEditorFrame(wxWindow* parent)
-: wxFrame(parent, - 1, _("Ogre Material Editor"), wxDefaultPosition, wxSize(512, 512), wxDEFAULT_FRAME_STYLE)
+: mFileMenu(NULL), mEditMenu(NULL), mToolsMenu(NULL),
+  wxFrame(parent, - 1, _("Ogre Material Editor"), wxDefaultPosition, wxSize(512, 512), wxDEFAULT_FRAME_STYLE)
 {
 	mRoot = Ogre::Root::getSingletonPtr();
 	mSceneManager = 0;
@@ -241,6 +258,9 @@ void MaterialEditorFrame::createInformationPane()
 	mLogPanel = new LogPanel(mInformationNotebook);
 	mInformationNotebook->AddPage(mLogPanel, "Log");
 
+	mDocPanel = new DocPanel(mInformationNotebook);
+	mInformationNotebook->AddPage(mDocPanel, "Documentation");
+
 	wxAuiPaneInfo info;
 	info.Caption(_("Information"));
 	info.MaximizeButton(true);
@@ -362,7 +382,14 @@ void MaterialEditorFrame::createFileMenu()
 void MaterialEditorFrame::createEditMenu()
 {
 	mEditMenu = new wxMenu("");
-	mMenuBar->Append(mEditMenu, _("&Edit"));
+	mEditMenu->Append(ID_EDIT_MENU_UNDO, wxT("Undo"));
+	mEditMenu->Append(ID_EDIT_MENU_REDO, wxT("Redo"));
+	mEditMenu->AppendSeparator();
+	mEditMenu->Append(ID_EDIT_MENU_CUT, wxT("Cut"));
+	mEditMenu->Append(ID_EDIT_MENU_COPY, wxT("Copy"));
+	mEditMenu->Append(ID_EDIT_MENU_PASTE, wxT("Paste"));
+	
+	mMenuBar->Append(mEditMenu, wxT("&Edit"));
 }
 
 void MaterialEditorFrame::createViewMenu()
@@ -402,6 +429,14 @@ void MaterialEditorFrame::OnActivate(wxActivateEvent& event)
 	//if(mOgreControl) mOgreControl->initOgre();
 }
 
+void MaterialEditorFrame::OnActiveEditorChanged(EventArgs& args)
+{
+	EditorEventArgs eea = dynamic_cast<EditorEventArgs&>(args);
+	Editor* editor = eea.getEditor();
+
+	// TODO: Update menu item enablement
+}
+
 void MaterialEditorFrame::OnNewProject(wxCommandEvent& event)
 {
 	//wxBitmap projectImage;
@@ -428,78 +463,67 @@ void MaterialEditorFrame::OnNewMaterial(wxCommandEvent& event)
 
 void MaterialEditorFrame::OnFileOpen(wxCommandEvent& event)
 {
-	wxFileDialog * openDialog = new wxFileDialog(this, _("Choose a Material file to open"), wxEmptyString, wxEmptyString, _("Material Files (*.material)|*.material|All Files (*.*)|*.*"));
+	wxFileDialog * openDialog = new wxFileDialog(this, _("Choose a file to open"), wxEmptyString, wxEmptyString, _("Material Files (*.material)|*.material|Program Files (*.program)|*.program|Cg Files (*.cg)|*.cg|GLSL Files(*.vert; *.frag)|*.vert;*.frag|All Files (*.*)|*.*"));
 
 	if(openDialog->ShowModal() == wxID_OK)
 	{
 		wxString path = openDialog->GetPath();
-
-		// TESTING
-		// Create Editor
-		CodeEditor* ce = new CodeEditor(mAuiNotebook, wxID_ANY);
-		ce->StyleClearAll();
-		ce->SetIndentationGuides(false);
-		ce->SetWrapMode(wxSCI_WRAP_NONE);
-
-		ce->SetLexer(wxSCI_LEX_OMS);
-
-		// Load keywords from OMS keyword file
-		std::ifstream fp;
-		// Always open in binary mode
-		fp.open("resources/lexers/oms/keywords", std::ios::in | std::ios::binary);
-		if(fp)
+		if(path.EndsWith(wxT(".material")) || path.EndsWith(wxT(".program")))
 		{
-			DataStreamPtr stream(new FileStreamDataStream("resources/lexers/oms/keywords", &fp, false));
+			MaterialScriptEditor* editor = new MaterialScriptEditor(EditorManager::getSingletonPtr()->getEditorNotebook());
+			editor->loadFile(path);
+			int index = (int)path.find_last_of('\\');
+			if(index == -1) index = (int)path.find_last_of('/');
+			editor->setName((index != -1) ? path.substr(index + 1, path.Length()) : path);
 
-			int index = -1;
-			String line;
-			wxString keywords;
-			while(!stream->eof())
-			{
-				line = stream->getLine();
-				if(line.length() > 0 && line.at(0) != '#')
-				{
-					if(line.at(0) == '[')
-					{
-						if(index != -1)
-						{
-							ce->SetKeyWords(index, keywords);
-							keywords.Clear();
-						}
-
-						++index;
-					}
-					else
-					{
-						keywords.Append(line);
-						keywords.Append(" ");
-					}
-				}
-			}
-			ce->SetKeyWords(index, keywords);
+			EditorManager::getSingletonPtr()->openEditor(editor);
 		}
+		else if(path.EndsWith(wxT(".cg")))
+		{
+			CgEditor* editor = new CgEditor(EditorManager::getSingletonPtr()->getEditorNotebook());
+			editor->loadFile(path);
+			int index = (int)path.find_last_of('\\');
+			if(index == -1) index = (int)path.find_last_of('/');
+			editor->setName((index != -1) ? path.substr(index + 1, path.Length()) : path);
 
-		ce->StyleSetForeground(wxSCI_OMS_DEFAULT, wxColour(0, 0, 0));
-		ce->StyleSetFontAttr(wxSCI_OMS_DEFAULT, 10, "Courier New", false, false, false);
-		ce->StyleSetForeground(wxSCI_OMS_COMMENT, wxColour(0, 128, 0));
-		ce->StyleSetFontAttr(wxSCI_OMS_COMMENT, 10, "Courier New", false, false, false);
-		ce->StyleSetForeground(wxSCI_OMS_PRIMARY, wxColour(0, 0, 255));
-		ce->StyleSetFontAttr(wxSCI_OMS_PRIMARY, 10, "Courier New", true, false, false);
-		ce->StyleSetForeground(wxSCI_OMS_ATTRIBUTE, wxColour(136, 0, 0));
-		ce->StyleSetFontAttr(wxSCI_OMS_ATTRIBUTE, 10, "Courier New", true, false, false);
-		ce->StyleSetForeground(wxSCI_OMS_VALUE, wxColour(160, 0, 160));
-		ce->StyleSetFontAttr(wxSCI_OMS_VALUE, 10, "Courier New", false, false, false);
-		ce->StyleSetForeground(wxSCI_OMS_NUMBER, wxColour(0, 0, 128));
-		ce->StyleSetFontAttr(wxSCI_OMS_NUMBER, 10, "Courier New", false, false, false);
-		ce->LoadFile(path);
-
-		mAuiNotebook->AddPage(ce, path.SubString(path.find_last_of('\\') + 1, path.length() - 1), true);
+			EditorManager::getSingletonPtr()->openEditor(editor);
+		}
 	}
 }
 
 void MaterialEditorFrame::OnFileExit(wxCommandEvent& event)
 {
 	Close();
+}
+
+void MaterialEditorFrame::OnEditUndo(wxCommandEvent& event)
+{
+	Editor* editor = EditorManager::getSingletonPtr()->getActiveEditor();
+	if(editor != NULL) editor->undo();
+}
+
+void MaterialEditorFrame::OnEditRedo(wxCommandEvent& event)
+{
+	Editor* editor = EditorManager::getSingletonPtr()->getActiveEditor();
+	if(editor != NULL) editor->redo();
+}
+
+void MaterialEditorFrame::OnEditCut(wxCommandEvent& event)
+{
+	Editor* editor = EditorManager::getSingletonPtr()->getActiveEditor();
+	if(editor != NULL) editor->cut();
+}
+
+void MaterialEditorFrame::OnEditCopy(wxCommandEvent& event)
+{
+	Editor* editor = EditorManager::getSingletonPtr()->getActiveEditor();
+	if(editor != NULL) editor->copy();
+}
+
+void MaterialEditorFrame::OnEditPaste(wxCommandEvent& event)
+{
+	Editor* editor = EditorManager::getSingletonPtr()->getActiveEditor();
+	if(editor != NULL) editor->paste();
 }
 
 void MaterialEditorFrame::OnViewOpenGL(wxCommandEvent& event)
