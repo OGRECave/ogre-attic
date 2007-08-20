@@ -187,11 +187,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\src\CallTipManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\CgEditor.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\CodeEditor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\DocManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\DocPanel.cpp"
 				>
 			</File>
 			<File
@@ -339,6 +351,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\TextureUnitController.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TextureUnitPropertyGridPage.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\Workspace.cpp"
 				>
 			</File>
@@ -361,11 +381,23 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\include\CallTipManager.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\CgEditor.h"
 				>
 			</File>
 			<File
 				RelativePath="..\include\CodeEditor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\DocManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\DocPanel.h"
 				>
 			</File>
 			<File
@@ -534,6 +566,14 @@
 			</File>
 			<File
 				RelativePath="..\include\TechniqueWizard.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\TextureUnitController.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\TextureUnitPropertyGridPage.h"
 				>
 			</File>
 			<File

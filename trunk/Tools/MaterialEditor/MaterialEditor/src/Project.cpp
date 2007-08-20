@@ -203,4 +203,3 @@ void Project::OnRootInitialized(EventArgs& args)
 void Project::OnRootShutdown(EventArgs& args)
 {
 }
-
