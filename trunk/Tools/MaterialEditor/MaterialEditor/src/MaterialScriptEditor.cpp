@@ -28,6 +28,11 @@ Torus Knot Software Ltd.
 */
 #include "MaterialScriptEditor.h"
 
+BEGIN_EVENT_TABLE(MaterialScriptEditor, ScintillaEditor)
+	// Scintilla
+	EVT_SCI_CHARADDED(-1,   MaterialScriptEditor::OnCharAdded)
+END_EVENT_TABLE()
+
 MaterialScriptEditor::MaterialScriptEditor(wxWindow* parent, wxWindowID id /*= -1*/,
 		const wxPoint& pos /*= wxDefaultPosition*/,
 		const wxSize& size /*= wxDefaultSize*/,
@@ -49,6 +54,16 @@ void MaterialScriptEditor::initialize()
 	// Load keywords
 	wxString path = wxT("resources/lexers/oms/keywords");
 	loadKeywords(path);
+
+	// Load call tips
+	path = wxT("resources/lexers/oms/calltips");
+	getCallTipManager().load(path);
+	wxChar trigger(' ');
+	getCallTipManager().addTrigger(trigger);
+
+	// Load docs
+	path = wxT("resources/lexers/oms/docs");
+	getDocManager().load(path);
 	
 	// Set styles
 	StyleSetForeground(wxSCI_OMS_DEFAULT, wxColour(0, 0, 0));
@@ -63,6 +78,35 @@ void MaterialScriptEditor::initialize()
 	StyleSetFontAttr(wxSCI_OMS_VALUE, 10, "Courier New", false, false, false);
 	StyleSetForeground(wxSCI_OMS_NUMBER, wxColour(0, 0, 128));
 	StyleSetFontAttr(wxSCI_OMS_NUMBER, 10, "Courier New", false, false, false);
+}
+
+void MaterialScriptEditor::OnCharAdded(wxScintillaEvent &event)
+{
+	char ch = event.GetKey();
+	if(getCallTipManager().isTrigger(ch))
+	{
+		int lineNum = GetCurrentLine();
+		if(lineNum != -1)
+		{
+			wxString line = GetLine(lineNum);
+			int pos = GetCurrentPos() - 1;
+
+			wxString word("");
+			wxChar ch;
+			while(pos)
+			{
+				ch = GetCharAt(--pos);
+				if(ch != ' ' && ch != '\n' && ch != '\r' && ch != '\t' && ch != '{' && ch != '}') word.Prepend(ch);
+				else break;
+			}
+
+			wxString* tips = getCallTipManager().find(word);
+			if(tips != NULL)
+			{
+				CallTipShow(pos, *tips);
+			}
+		}
+	}
 }
 
 

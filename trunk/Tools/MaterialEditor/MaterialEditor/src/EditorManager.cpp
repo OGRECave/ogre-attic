@@ -115,6 +115,8 @@ void EditorManager::closeEditor(Editor* editor)
 
 		int index = mEditorIndexMap[editor];
 		mEditorNotebook->RemovePage(index);
+
+		fireEvent(EditorClosed, EditorEventArgs(editor));
 	}
 }
 
@@ -153,6 +155,13 @@ void EditorManager::setActiveEditor(Editor* editor)
 			mEditorNotebook->SetSelection(mEditorIndexMap[mActiveEditor]);
 		}
 	}
+
+	fireEvent(ActiveEditorChanged, EditorEventArgs(mActiveEditor));
+}
+
+const EditorList& EditorManager::getEditors() const
+{
+	return mEditors;
 }
 
 void EditorManager::registerEvents()
@@ -233,6 +242,8 @@ void EditorManager::OnPageClosed(wxAuiNotebookEvent& event)
 			}
 		}	
 	}
+
+	fireEvent(EditorClosed, EditorEventArgs(editor));
 
 	// Is this handled by OnPageChanged?
 	int selIndex = event.GetSelection();

@@ -43,6 +43,8 @@ END_EVENT_TABLE()
 ScintillaEditor::ScintillaEditor(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size, long style)
 : wxScintilla (parent, id, pos, size, style), mDirty(false)
 {
+	registerEvent(FocusedWordChanged);
+
 	setControl(this);
 	
 	mLineNumID = 0;
@@ -100,8 +102,15 @@ ScintillaEditor::ScintillaEditor(wxWindow *parent, wxWindowID id, const wxPoint 
 	StyleSetBackground(wxSCI_STYLE_LINENUMBER, wxColour(wxT("WHITE")));
 	StyleSetForeground(wxSCI_STYLE_INDENTGUIDE, wxColour(wxT("DARK GREY")));
 
-	StyleSetBackground(wxSCI_STYLE_BRACELIGHT, wxColour(wxT("YELLOW")));
+	// Brace Hilighting
+	StyleSetBackground(wxSCI_STYLE_BRACELIGHT, wxColour(wxT("GREEN")));
 	StyleSetBold(wxSCI_STYLE_BRACELIGHT, true);
+	StyleSetBold(wxSCI_STYLE_BRACEBAD, true);
+
+	// Call Tips
+	CallTipSetBackground(wxColor(255, 255, 225));
+	CallTipSetForeground(wxColor(128, 128, 128));
+	CallTipSetForegroundHighlight(wxColor(0, 0, 0));
 
 	SetTabWidth(4);
 	SetUseTabs(false);
@@ -129,33 +138,6 @@ ScintillaEditor::ScintillaEditor(wxWindow *parent, wxWindowID id, const wxPoint 
 	//MarkerDefine(wxSCI_MARKNUM_FOLDEROPENMID, wxSCI_MARK_ARROWDOWN);
 	//MarkerDefine(wxSCI_MARKNUM_FOLDERMIDTAIL, wxSCI_MARK_EMPTY);
 	//MarkerDefine(wxSCI_MARKNUM_FOLDERTAIL, wxSCI_MARK_EMPTY);
-
-	// Clear wrong default keys
-#if !defined(__WXGTK__)
-	//CmdKeyClear(wxSCI_KEY_TAB, 0);
-	CmdKeyClear(wxSCI_KEY_TAB, wxSCI_SCMOD_SHIFT);
-#endif
-	CmdKeyClear('A', wxSCI_SCMOD_CTRL);
-#if !defined(__WXGTK__)
-	CmdKeyClear('C', wxSCI_SCMOD_CTRL);
-#endif
-	CmdKeyClear('D', wxSCI_SCMOD_CTRL);
-	CmdKeyClear('D', wxSCI_SCMOD_SHIFT | wxSCI_SCMOD_CTRL);
-	CmdKeyClear('F', wxSCI_SCMOD_ALT | wxSCI_SCMOD_CTRL);
-	CmdKeyClear('L', wxSCI_SCMOD_CTRL);
-	CmdKeyClear('L', wxSCI_SCMOD_SHIFT | wxSCI_SCMOD_CTRL);
-	CmdKeyClear('T', wxSCI_SCMOD_CTRL);
-	CmdKeyClear('T', wxSCI_SCMOD_SHIFT | wxSCI_SCMOD_CTRL);
-	CmdKeyClear('U', wxSCI_SCMOD_CTRL);
-	CmdKeyClear('U', wxSCI_SCMOD_SHIFT | wxSCI_SCMOD_CTRL);
-#if !defined(__WXGTK__)
-	CmdKeyClear('V', wxSCI_SCMOD_CTRL);
-	CmdKeyClear('X', wxSCI_SCMOD_CTRL);
-#endif
-	CmdKeyClear('Y', wxSCI_SCMOD_CTRL);
-#if !defined(__WXGTK__)
-	CmdKeyClear('Z', wxSCI_SCMOD_CTRL);
-#endif
 
 	UsePopUp(0);
 	SetLayoutCache(wxSCI_CACHE_PAGE);
@@ -255,6 +237,30 @@ void ScintillaEditor::paste()
 	Paste();
 }
 
+bool ScintillaEditor::loadFile() 
+{
+	// Get filname
+	if (!mFileName)
+	{
+		wxFileDialog dlg (this, _T("Open file"), _T(""), _T(""),
+			_T("Any file (*)|*"), wxOPEN | wxFILE_MUST_EXIST | wxCHANGE_DIR);
+		if (dlg.ShowModal() != wxID_OK) return false;
+		mFileName = dlg.GetPath();
+	}
+
+	// Load file
+	return LoadFile(mFileName);
+}
+
+bool ScintillaEditor::loadFile(const wxString &filename)
+{
+	// Load file in edit and clear undo
+	if (!filename.IsEmpty()) mFileName = filename;
+	if (!wxScintilla::LoadFile(mFileName)) return false;
+
+	return true;
+}
+
 void ScintillaEditor::loadKeywords(wxString& path)
 {
 	std::ifstream fp;
@@ -295,7 +301,47 @@ void ScintillaEditor::loadKeywords(wxString& path)
 	}
 }
 
-wxChar ScintillaEditor::GetLastNonWhitespaceChar(int position /* = -1 */)
+CallTipManager& ScintillaEditor::getCallTipManager()
+{
+	return mCallTipManager;
+}
+
+DocManager& ScintillaEditor::getDocManager()
+{
+	return mDocManager;
+}
+
+wxString ScintillaEditor::getSurroundingWord(int pos /* = -1 */)
+{
+	if(pos == -1) pos = GetCurrentPos();
+
+	int lineNum = GetCurrentLine();
+	wxString word("");
+	if(lineNum != -1)
+	{
+		wxString line = GetLine(lineNum);
+
+		wxChar ch;
+		while(pos)
+		{
+			ch = GetCharAt(--pos);
+			if(ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '.' || ch == '(' || ch == ',' || ch == ';') break;
+		}
+
+		if(!pos) return word;
+
+		while(pos)
+		{
+			ch = GetCharAt(++pos);
+			if(ch != ' ' && ch != ')' && ch!= '\n' && ch!= '\r' && ch !='\t' && ch != '.' && ch != '(' && ch != ')' && ch != ';' && ch != ',') word += ch;
+			else break;
+		}
+	}
+
+	return word;
+}
+
+wxChar ScintillaEditor::getLastNonWhitespaceChar(int position /* = -1 */)
 {
 	if (position == -1)
 		position = GetCurrentPos();
@@ -329,7 +375,7 @@ wxChar ScintillaEditor::GetLastNonWhitespaceChar(int position /* = -1 */)
 	return 0;
 }
 
-wxString ScintillaEditor::GetLineIndentString(int line)
+wxString ScintillaEditor::getLineIndentString(int line)
 {
 	int currLine = (line == -1) ? LineFromPosition(GetCurrentPos()) : line;
 
@@ -347,7 +393,7 @@ wxString ScintillaEditor::GetLineIndentString(int line)
 	return indent;
 }
 
-int ScintillaEditor::FindBlockStart(int position, wxChar blockStart, wxChar blockEnd, bool skipNested /* = true */)
+int ScintillaEditor::findBlockStart(int position, wxChar blockStart, wxChar blockEnd, bool skipNested /* = true */)
 {
 	int level = 0;
 	wxChar ch = GetCharAt(position);
@@ -370,8 +416,42 @@ int ScintillaEditor::FindBlockStart(int position, wxChar blockStart, wxChar bloc
 	return -1;
 }
 
-void ScintillaEditor::HighlightBraces()
+void ScintillaEditor::highlightBraces()
 {
+	int p = GetCurrentPos();
+	int c1 = GetCharAt(p);
+	int c2 = (p > 1 ? GetCharAt(p - 1) : 0);
+	if(c2 == '(' || c2 == ')' || c1 == '(' || c1 == ')')
+	{
+		int start = (c2 == '(' || c2 == ')') ? p - 1 : p;
+		int end = BraceMatch(start);
+		if(end == wxSCI_INVALID_POSITION)
+		{
+			BraceBadLight(start);
+		}
+		else
+		{
+			BraceHighlight(start, end);
+		}
+	}
+	else if(c2 == '{' || c2 == '}' || c1 == '{' || c1 == '}')
+	{
+		int start = (c2 == '{' || c2 == '}') ? p - 1 : p;
+		int end = BraceMatch(start);
+		if(end == wxSCI_INVALID_POSITION)
+		{
+			BraceBadLight(start);
+		}
+		else
+		{
+			BraceHighlight(start, end);
+		}
+	}
+	else
+	{
+		BraceBadLight(wxSCI_INVALID_POSITION);
+	}
+	/*
 	int currPos = GetCurrentPos();
 	int newPos = BraceMatch(currPos);
 	if (newPos == wxSCI_INVALID_POSITION)
@@ -396,6 +476,7 @@ void ScintillaEditor::HighlightBraces()
 	else BraceHighlight(-1, -1);
 
 	Refresh(false);
+	*/
 }
 
 //----------------------------------------------------------------------------
@@ -433,9 +514,9 @@ void ScintillaEditor::OnCharAdded(wxScintillaEvent &event)
 	{
 		BeginUndoAction();
 
-		wxString indent = GetLineIndentString(currentLine - 1);
+		wxString indent = getLineIndentString(currentLine - 1);
 
-		wxChar b = GetLastNonWhitespaceChar();
+		wxChar b = getLastNonWhitespaceChar();
 		if(b == wxT('{'))
 		{
 			if(GetUseTabs())
@@ -460,11 +541,11 @@ void ScintillaEditor::OnCharAdded(wxScintillaEvent &event)
 		if(line.Matches(wxT("}")))
 		{
 			pos = GetCurrentPos() - 2;
-			pos = FindBlockStart(pos, wxT('{'), wxT('}'));
+			pos = findBlockStart(pos, wxT('{'), wxT('}'));
 
 			if(pos != -1)
 			{
-				wxString indent = GetLineIndentString(LineFromPosition(pos));
+				wxString indent = getLineIndentString(LineFromPosition(pos));
 				indent << wxT('}');
 				DelLineLeft();
 				DelLineRight();
@@ -483,7 +564,19 @@ void ScintillaEditor::OnCharAdded(wxScintillaEvent &event)
 
 void ScintillaEditor::OnUpdateUI(wxScintillaEvent &event)
 {
-	HighlightBraces();
+	highlightBraces();
+
+	int pos = GetCurrentPos();
+	if(pos != mLastPos)
+	{
+		mLastPos = pos;
+		wxString word = getSurroundingWord(pos);
+		if(word != mLastWord)
+		{
+			mLastWord = word;
+			fireEvent(FocusedWordChanged, ScintillaEditorEventArgs(this, word));
+		}
+	}
 }
 
 void ScintillaEditor::setDirty(const bool dirty)
