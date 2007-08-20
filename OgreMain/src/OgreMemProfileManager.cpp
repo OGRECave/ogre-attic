@@ -46,6 +46,9 @@ namespace Ogre{
 	}
 
     MemProfileManager::MemProfileManager()
+		: mNumUpdates(0)        // total number of updates
+        , mNumSectionUpdates(0) // number of updates since last flush
+		, mProfileIdTracker(0)
     {
 		// MAKE SURE WE HAVE A MEMORY MANAGER
 		MemoryManager::getSingleton();
@@ -82,7 +85,7 @@ namespace Ogre{
         }
 
         // no slots found so build a new one
-        ++mProfileIdTracker;
+        
         Profile profStruct;
         profStruct.mProfile = profile;
         profStruct.mStats.numAllocations = 0;
@@ -90,8 +93,8 @@ namespace Ogre{
         profStruct.mStats.numBytesAllocated = 0;
         profStruct.mStats.numBytesDeallocated = 0;
         profStruct.mStats.profileID = mProfileIdTracker;
+		++mProfileIdTracker;
         mProfArray.push_back( profStruct ); // add the profile
-
         return mProfileIdTracker;
     }
 

@@ -182,6 +182,10 @@ namespace Ogre{
                 {
                     mBins.reserve(mBins.size()+1);
                     FixedBin bin;
+					
+					bin.mLastAlloc = NULL;
+					bin.mLastDealloc = NULL;
+
                     bin.mSize = count;
                     mBins.push_back(bin);
                     mMap[i] = mBins.size()-1; // NOTE: check bounds

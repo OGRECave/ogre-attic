@@ -64,32 +64,32 @@ namespace Ogre{
         { }
 
         /// operator new
-        static inline void* operator new( size_t sz )
+        inline void* operator new( size_t sz )
         {
             return smAllocator.allocateBytes( sz );
         }
 
         /// placment operator new
-        static inline void* operator new( size_t sz, void* ptr )
+        inline void* operator new( size_t sz, void* ptr )
         {
             return smAllocator.allocateBytes( sz, ptr );
         }
 
         /// array operator new
-        static inline void* operator new[] ( size_t sz, void* ptr )
+        inline void* operator new[] ( size_t sz, void* ptr )
         {
             return smAllocator.allocateBytes( sz, ptr );
         }
 
         /// operator delete
-        static inline void operator delete( void* ptr, size_t sz )
+        inline void operator delete( void* ptr, size_t sz )
         {
             smAllocator.deallocateBytes(
                 static_cast<PointerType>( ptr ), sz );
         }
 
         /// array operator delete
-        static inline void operator delete[] ( void* ptr, size_t sz )
+        inline void operator delete[] ( void* ptr, size_t sz )
         {
             smAllocator.deallocateBytes(
                 static_cast<PointerType>( ptr ), sz );
