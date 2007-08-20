@@ -223,9 +223,6 @@ namespace Ogre {
 	{
 		updateFromParentImpl();
 
-		mCachedTransformOutOfDate = true;
-		mNeedParentUpdate = false;
-
 		// Call listener (note, this method only called if there's something to do)
 		if (mListener)
 		{
@@ -277,6 +274,9 @@ namespace Ogre {
             mDerivedPosition = mPosition;
             mDerivedScale = mScale;
         }
+
+		mCachedTransformOutOfDate = true;
+		mNeedParentUpdate = false;
 
     }
     //-----------------------------------------------------------------------
