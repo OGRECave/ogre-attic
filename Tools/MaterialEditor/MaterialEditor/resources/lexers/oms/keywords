@@ -58,7 +58,7 @@ max_anisotropy
 mipmap_bias
 colour_op
 colour_op_ex
-colour_op_miltipass_fallback
+colour_op_multipass_fallback
 alpha_op_ex
 env_map
 scroll
@@ -194,6 +194,7 @@ blend_current_alpha
 blend_manual
 dotproduct
 blend_diffuse_colour
+src_texture
 src_current
 src_diffuse
 src_specular
@@ -206,6 +207,7 @@ scroll_x
 scroll_y
 scale_x
 scale_y
+scale
 sine
 triangle
 square
@@ -340,4 +342,6 @@ binormal
 blendIndices
 blendWeights
 float
+float2
+float3
 int
