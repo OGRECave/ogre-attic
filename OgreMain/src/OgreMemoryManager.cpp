@@ -62,19 +62,9 @@ Ogre::MemoryManager*      Ogre::MemoryManager::smInstance = NULL;
 
 // win32 POSIX(ish) memory emulation
 //--------------------------------------------------------------------
-#define PROT_READ       0x1             /* Page can be read.  */
-#define PROT_WRITE      0x2             /* Page can be written.  */
-#define PROT_EXEC       0x4             /* Page can be executed.  */
-#define PROT_NONE       0x0             /* Page can not be accessed.  */
-
-/* Sharing types (must choose one and only one of these).  */
-#define MAP_SHARED      0x01            /* Share changes.  */
-#define MAP_PRIVATE     0x02            /* Changes are private.  */
-#define MAP_ANONYMOUS   0x20            /* Don't use a file.  */
-
 long getpagesize (void) 
 {  
-	SYSTEM_INFO system_info;
+    SYSTEM_INFO system_info;
     GetSystemInfo (&system_info);
     return system_info.dwPageSize;
 }
@@ -83,7 +73,7 @@ void *mmap (void *ptr, long size, long prot, long type, long handle, long arg)
 {
     // Allocate this
     //ptr = VirtualAlloc (ptr, size, MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN, PAGE_READWRITE);
-	ptr = VirtualAlloc (NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);  
+    ptr = VirtualAlloc (NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
     assert(ptr); 
     
     return ptr;
@@ -91,42 +81,47 @@ void *mmap (void *ptr, long size, long prot, long type, long handle, long arg)
 
 long munmap (void *ptr, size_t size) 
 {
-	return VirtualFree (ptr, 0, MEM_RELEASE);
+    return VirtualFree (ptr, 0, MEM_RELEASE);
 }
 //--------------------------------------------------------------------
 #endif
 
 void Ogre::MemoryManager::setup() throw(std::exception)
 {
-	// register a profile for the default memory manager
-	MemProfileManager::getSingleton().registerProfile(sProfile);
+    // register a profile for the default memory manager
+    MemProfileManager::getSingleton().registerProfile(sProfile);
 }
 
 Ogre::MemoryManager::MemoryManager()
 {
-        mPageSize = getpagesize();
-		/*
-        mRegion = (MemoryRegion**)mmap(  // grab one page for our region array
-                   0, mPageSize, PROT_READ|PROT_WRITE,
-                   MAP_PRIVATE|MAP_ANONYMOUS,
-                   0, 0);
-		*/
-        memset(mRegion,0,mPageSize);
-        mNumRegions=0;
-		mLastAlloc  = NULL;
-		mLastDealloc = NULL;
+    mPageSize = getpagesize();
+    /*
+    mRegion = (MemoryRegion**)mmap(  // grab one page for our region array
+                0, mPageSize, PROT_READ|PROT_WRITE,
+                MAP_PRIVATE|MAP_ANONYMOUS,
+                0, 0);
+    */
+    memset(mRegion,0,mPageSize);
+    mNumRegions=0;
+    mLastAlloc  = NULL;
+    mLastDealloc = NULL;
 
-		void* tmp = malloc(sizeof(MemProfiler<unsigned char> ));
-		sProfile = ::new(tmp) MemProfiler<unsigned char>(false);	
+    void* tmp = malloc(sizeof(MemProfiler<unsigned char> ));
+    sProfile = ::new(tmp) MemProfiler<unsigned char>(false);
 }
 
 Ogre::MemoryManager::~MemoryManager()
 {
-	free(sProfile);
+    free(sProfile);
 }
 
 void * Ogre::MemoryManager::allocMem(size_t size) throw( std :: bad_alloc )
 {
+    // get a loc on the mutex
+#if OGRE_THREAD_SUPPORT
+    boost::recursive_mutex::scoped_lock lock(mMutex);
+#endif
+    
     //TODO: free list regions
 
     // pad and round up 
@@ -145,26 +140,26 @@ void * Ogre::MemoryManager::allocMem(size_t size) throw( std :: bad_alloc )
     }
 
     // look for one
-	if(mLastAlloc && mLastAlloc->canSatisfy(size))
-	{
-		return mLastAlloc->allocMem(size);
-	}
-	else if(mLastDealloc && mLastDealloc->canSatisfy(size))
-	{
-		mLastAlloc = mLastDealloc;
-		return mLastDealloc->allocMem(size);
-	}
-	else
-	{
-		for(uint32 i=0;i<mNumRegions;++i)
-		{
-			if(mRegion[i]->canSatisfy((uint32)size))
-			{
-				mLastAlloc = mRegion[i];
-				return mRegion[i]->allocMem(size);
-			}
-		}
-	}
+    if(mLastAlloc && mLastAlloc->canSatisfy(size))
+    {
+        return mLastAlloc->allocMem(size);
+    }
+    else if(mLastDealloc && mLastDealloc->canSatisfy(size))
+    {
+        mLastAlloc = mLastDealloc;
+        return mLastDealloc->allocMem(size);
+    }
+    else
+    {
+        for(uint32 i=0;i<mNumRegions;++i)
+        {
+            if(mRegion[i]->canSatisfy((uint32)size))
+            {
+                mLastAlloc = mRegion[i];
+                return mRegion[i]->allocMem(size);
+            }
+        }
+    }
 
     // we need a new region
     mRegion[mNumRegions]=(MemoryRegion*) mmap(0, sizeof(MemoryRegion),
@@ -173,14 +168,19 @@ void * Ogre::MemoryManager::allocMem(size_t size) throw( std :: bad_alloc )
                                               0, 0);
     mRegion[mNumRegions]->setup(mNumRegions);
     ++mNumRegions;
-	mLastAlloc = mRegion[mNumRegions-1];
+    mLastAlloc = mRegion[mNumRegions-1];
     return mRegion[mNumRegions-1]->allocMem(size);
 }
 
 void Ogre::MemoryManager::purgeMem(void * ptr) throw( std :: bad_alloc )
 {
-	if(!ptr)
-		return;
+    if(!ptr)
+        return;
+
+    // get a loc on the mutex
+#if OGRE_THREAD_SUPPORT
+    boost::recursive_mutex::scoped_lock lock(mMutex);
+#endif
 
     MemCtrl* tmp = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
     if(tmp->magic!=MemoryBin::MAGIC)
@@ -190,7 +190,7 @@ void Ogre::MemoryManager::purgeMem(void * ptr) throw( std :: bad_alloc )
     {
         uint32 idx = tmp->reg_id;
         mRegion[idx]->purgeMem(tmp);
-		mLastDealloc = mRegion[idx];
+        mLastDealloc = mRegion[idx];
         //if(mRegion[idx]->empty())
         //    munmap(mReg)
     }
@@ -202,8 +202,8 @@ void Ogre::MemoryManager::purgeMem(void * ptr) throw( std :: bad_alloc )
 
 size_t Ogre::MemoryManager::sizeOfStorage(const void * ptr) throw( std :: bad_alloc )
 {
-	if(!ptr)
-		return 0;
+    if(!ptr)
+        return 0;
 
     MemCtrl* tmp = (MemCtrl*)(((char*)ptr)-sizeof(MemCtrl));
     if(tmp->magic!=MemoryBin::MAGIC)
@@ -233,20 +233,23 @@ void Ogre::MemoryManager::dumpInternals()
 
 _OgreExport void* doOpNew(size_t sz)
 {
-	void* p = Ogre::MemoryManager::getSingleton().allocMem(sz);
+    void* p = Ogre::MemoryManager::getSingleton().allocMem(sz);
+#ifdef OGRE_DEBUG
     sProfile->note_allocation( 
-		Ogre::MemoryManager::getSingleton().sizeOfStorage( p ), NULL );
+        Ogre::MemoryManager::getSingleton().sizeOfStorage( p ), NULL );
+#endif
     return p;
 }
 
 _OgreExport void doOpDelete(void* ptr)
 {
-	if(!ptr)
-		return;
-
-	sProfile->note_deallocation( (unsigned char*)ptr, 
-		Ogre::MemoryManager::getSingleton().sizeOfStorage( ptr ) );
-	Ogre::MemoryManager::getSingleton().purgeMem(ptr);
+    if(!ptr)
+        return;
+#ifdef OGRE_DEBUG
+    sProfile->note_deallocation( (unsigned char*)ptr,
+        Ogre::MemoryManager::getSingleton().sizeOfStorage( ptr ) );
+#endif
+    Ogre::MemoryManager::getSingleton().purgeMem(ptr);
 }
 
 

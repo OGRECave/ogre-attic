@@ -108,6 +108,11 @@ namespace Ogre{
 
             // an array of memory regions - one page
             MemoryRegion* mRegion[1024];
+
+            // basic thread safty vi a mutex
+#if OGRE_THREAD_SUPPORT
+            mutable boost::recursive_mutex mMutex;
+#endif
     };
 }
 
