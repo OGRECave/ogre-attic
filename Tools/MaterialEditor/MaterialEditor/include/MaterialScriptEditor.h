@@ -41,9 +41,13 @@ public:
 		);
 
 	virtual ~MaterialScriptEditor();
-	
+
+	void OnCharAdded(wxScintillaEvent &event);
+
 protected:
 	void initialize();
+
+	DECLARE_EVENT_TABLE()
 };
 
 #endif // _MATERIALSCRIPTEDITOR_H_

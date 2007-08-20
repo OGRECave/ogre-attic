@@ -41,9 +41,13 @@ public:
 		);
 
 	virtual ~CgEditor();
+
+	void OnCharAdded(wxScintillaEvent &event);
 	
 protected:
 	void initialize();
+
+	DECLARE_EVENT_TABLE()
 };
 
 #endif // _CGEDITOR_H_

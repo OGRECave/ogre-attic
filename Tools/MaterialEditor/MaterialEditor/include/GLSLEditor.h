@@ -41,9 +41,14 @@ public:
 		);
 
 	virtual ~GLSLEditor();
+
+	void OnCharAdded(wxScintillaEvent &event);
 	
 protected:
 	void initialize();
+
+	DECLARE_EVENT_TABLE()
+
 };
 
 #endif // _GLSLEDITOR_H_
