@@ -229,7 +229,9 @@ namespace Ogre {
 				node->line = first.get_position().line;
 				node->column = first.get_position().column;
 				node->type = isNumber ? SNT_NUMBER : SNT_WORD;
-				if(!isNumber)
+				if(isNumber)
+					node->token.assign(first, last);
+				else
 				{
 					String token(first, last);
 					WordIDMap::const_iterator i = (*ast)->ids->find(token);
@@ -574,7 +576,9 @@ namespace Ogre {
 				node->line = first.get_position().line;
 				node->column = first.get_position().column;
 				node->type = isNumber ? SNT_NUMBER : SNT_WORD;
-				if(!isNumber)
+				if(isNumber)
+					node->token.assign(first, last);
+				else
 				{
 					String token(first, last);
 					WordIDMap::const_iterator i = (*ast)->ids->find(token);

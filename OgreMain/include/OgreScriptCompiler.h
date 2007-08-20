@@ -100,6 +100,16 @@ namespace Ogre{
 		};
 		typedef Ogre::SharedPtr<LexicalScope> LexicalScopePtr;
 		typedef std::list<LexicalScopePtr> ScopeStack;
+	protected: // Common word id values
+		enum
+		{
+			ID_ON,
+			ID_OFF,
+			ID_TRUE,
+			ID_FALSE,
+			ID_YES,
+			ID_NO
+		};
 	public:
 		ScriptCompiler();
 
@@ -179,8 +189,8 @@ namespace Ogre{
 		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, uint32 type) const;
 		// Verifies that the next node is the given type and that it exists
 		bool verifyNextNodeType(ScriptNodeList::const_iterator &i, ScriptNodeList::const_iterator &end, uint32 type) const;
-		// Returns true if the string value represents a value of "true", false if not
-		bool isTruthValue(const String &value) const;
+		/// Retrieves the truth value from the node and returns it in val. Returns true if successful, false if not.
+		bool getTruthValue(const ScriptNodePtr &node, bool &val) const;
 		/// This registers a new error
 		void addError(uint32 error, const String &file, int line, int col);
 		/// This pushes a new scope onto the stack, copying variables from the higher stack into it

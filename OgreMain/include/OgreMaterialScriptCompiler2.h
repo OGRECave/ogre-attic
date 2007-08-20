@@ -32,6 +32,7 @@ Torus Knot Software Ltd.
 
 #include "OgreScriptCompiler.h"
 #include "OgrePixelFormat.h"
+#include "OgreTextureUnitState.h"
 
 namespace Ogre{
 
@@ -54,7 +55,7 @@ namespace Ogre{
 		/// This is called just before texture aliases found in a script are applied to a material
 		virtual void preApplyTextureAliases(Ogre::AliasTextureNamePairList &aliases);
 		/// This accepts the name of a texture to be referenced, and is expected to ensure it loads and return the real name for it
-		virtual String getTexture(const String &name);
+		virtual void getTexture(String *names, int count);
 	};
 	
 	/** This is the new compiler for material scripts. It uses the parser to parse the material
@@ -242,9 +243,11 @@ namespace Ogre{
 				ID_INVERSE_SAWTOOTH,
 			ID_TRANSFORM,
 			ID_BINDING_TYPE,
+				ID_VERTEX,
+				ID_FRAGMENT,
 			ID_CONTENT_TYPE,
 				ID_NAMED,
-				ID_SHADOWED
+				ID_SHADOW,
 		};
 	public:
 		/// Constructs a new compiler
@@ -264,9 +267,19 @@ namespace Ogre{
 		void compileTechnique(const ScriptNodePtr &node);
 		void compilePass(const ScriptNodePtr &node, Technique *technique);
 		void compileTextureUnit(const ScriptNodePtr &node, Pass *pass);
+		void compileGpuProgram(const ScriptNodePtr &node);
+		void compileAsmGpuProgram(const String &name, const ScriptNodePtr &node);
+		void compileHighLevelGpuProgram(const String &name, const String &language, const ScriptNodePtr &node);
+		void compileDefaultParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params);
 		bool getColourValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
 		bool getBlendFactor(const ScriptNodePtr &node, SceneBlendFactor &sbf);
 		bool getCompareFunction(const ScriptNodePtr &node, CompareFunction &func);
+		bool getTextureAddressingMode(const ScriptNodePtr &node, TextureUnitState::TextureAddressingMode &mode);
+		bool getColourOperation(const ScriptNodePtr &node, Ogre::LayerBlendOperationEx &op);
+		bool getColourOperationSource(const ScriptNodePtr &node, Ogre::LayerBlendSource &source);
+		bool getMatrix4(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Matrix4 &m);
+		bool getInts(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, int *vals, int count);
+		bool getFloats(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, float *vals, int count);
 	private:
 		// The listener
 		MaterialScriptCompilerListener *mListener;
@@ -274,10 +287,6 @@ namespace Ogre{
 		Material *mMaterial;
 		// Stores the texture aliases applied to a compiling material
 		Ogre::AliasTextureNamePairList mTextureAliases;
-		// This is the GpuProgram that is being set up
-		GpuProgram *mProgram;
-		// These are the default parameters of the compiling program
-		GpuProgramParametersSharedPtr mParams;
 	};
 
 }
