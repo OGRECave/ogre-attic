@@ -44,6 +44,8 @@ namespace
 	class Root;
 }
 
+class DocPanel;
+class EventArgs;
 class LogPanel;
 class PropertiesPanel;
 class ResourcePanel;
@@ -75,10 +77,17 @@ protected:
 
 	void OnActivate(wxActivateEvent& event);
 
+	void OnActiveEditorChanged(EventArgs& args);
+
 	void OnNewProject(wxCommandEvent& event);
 	void OnNewMaterial(wxCommandEvent& event);
 	void OnFileOpen(wxCommandEvent& event);
 	void OnFileExit(wxCommandEvent& event);
+	void OnEditUndo(wxCommandEvent& event);
+	void OnEditRedo(wxCommandEvent& event);
+	void OnEditCut(wxCommandEvent& event);
+	void OnEditCopy(wxCommandEvent& event);
+	void OnEditPaste(wxCommandEvent& event);
 	void OnViewOpenGL(wxCommandEvent& event);
 	void OnViewDirectX(wxCommandEvent& event);
 
@@ -105,6 +114,7 @@ private:
 	Ogre::Root* mRoot;
 
 	LogPanel* mLogPanel;
+	DocPanel* mDocPanel;
 	wxOgre* mOgreControl;
 
 	Ogre::SceneManager* mSceneManager;
