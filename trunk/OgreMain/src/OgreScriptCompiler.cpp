@@ -48,6 +48,12 @@ namespace Ogre{
 	ScriptCompiler::ScriptCompiler()
 		:mAllowNontypedObjects(false)
 	{
+		mWordIDs["on"] = ID_ON;
+		mWordIDs["off"] = ID_OFF;
+		mWordIDs["true"] = ID_TRUE;
+		mWordIDs["false"] = ID_FALSE;
+		mWordIDs["yes"] = ID_YES;
+		mWordIDs["no"] = ID_NO;
 	}
 
 	bool ScriptCompiler::compile(const String &text, const String &group, const String &source)
@@ -519,9 +525,33 @@ namespace Ogre{
 		return (*j)->type == type;
 	}
 
-	bool ScriptCompiler::isTruthValue(const String &value) const
+	bool ScriptCompiler::getTruthValue(const ScriptNodePtr &node, bool &val) const
 	{
-		return value == "1" || value == "true" || value == "yes" || value == "on";
+		bool retval = true;
+		switch(node->wordID)
+		{
+		case ID_ON:
+			val = true;
+			break;
+		case ID_OFF:
+			val = false;
+			break;
+		case ID_TRUE:
+			val = true;
+			break;
+		case ID_FALSE:
+			val = false;
+			break;
+		case ID_YES:
+			val = true;
+			break;
+		case ID_NO:
+			val = false;
+			break;
+		default:
+			retval = false;
+		}
+		return retval;
 	}
 
 	void ScriptCompiler::addError(uint32 error, const String &file, int line, int col)
