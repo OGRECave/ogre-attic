@@ -36,6 +36,7 @@ Torus Knot Software Ltd.
 
 #include "OgreSingleton.h"
 
+#include "EventArgs.h"
 #include "EventContainer.h"
 
 class wxAuiNotebook;
@@ -51,6 +52,18 @@ typedef std::list<Editor*> EditorList;
 typedef std::map<Editor*, int> EditorIndexMap;
 
 using Ogre::String;
+
+class EditorEventArgs : public EventArgs
+{
+public:
+	EditorEventArgs(Editor* editor) : mEditor(editor) {}
+	virtual ~EditorEventArgs() {}
+
+	Editor* getEditor() { return mEditor; }
+
+protected:
+	Editor* mEditor;
+};
 
 class EditorManager : public wxEvtHandler, public Ogre::Singleton<EditorManager>, public EventContainer
 {
@@ -76,6 +89,8 @@ public:
 
 	Editor* getActiveEditor() const;
 	void setActiveEditor(Editor* editor);
+
+	const EditorList& getEditors() const;
 
 	void OnPageChanged(wxAuiNotebookEvent& event);
 	void OnPageClosed(wxAuiNotebookEvent& event);
