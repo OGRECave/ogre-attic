@@ -190,8 +190,8 @@ namespace Ogre{
 			mWordIDs["alpha"] = ID_ALPHA;
 		mWordIDs["anim_texture"] = ID_ANIM_TEXTURE;
 		mWordIDs["cubic_texture"] = ID_CUBIC_TEXTURE;
-			mWordIDs["separate_uv"] = ID_SEPARATE_UV;
-			mWordIDs["combined_uvw"] = ID_COMBINED_UVW;
+			mWordIDs["separateUV"] = ID_SEPARATE_UV;
+			mWordIDs["combinedUVW"] = ID_COMBINED_UVW;
 		mWordIDs["tex_coord_set"] = ID_TEX_COORD_SET;
 		mWordIDs["tex_address_mode"] = ID_TEX_ADDRESS_MODE;
 			mWordIDs["wrap"] = ID_WRAP;
@@ -544,10 +544,21 @@ namespace Ogre{
 					if(!(*j)->children.empty())
 					{
 						ColourValue c;
-						if((*j)->children.front()->wordID == ID_VERTEX_COLOUR)
+						ScriptNodeList::iterator k = (*j)->children.begin();
+						if((*k)->wordID == ID_VERTEX_COLOUR)
 							pass->setVertexColourTracking(Ogre::TVC_SPECULAR);
-						else if(getColourValue((*j)->children.begin(), (*j)->children.end(), c))
+						else if(getColourValue(k, (*j)->children.end(), c))
+						{
 							pass->setSpecular(c);
+
+							if(k != (*j)->children.end())
+							{
+								if((*k)->type == SNT_NUMBER)
+									pass->setShininess((*k)->data);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, (*k)->file, (*k)->line, (*k)->column);
+							}
+						}
 					}
 				}
 				else if((*j)->wordID == ID_EMISSIVE)
@@ -1368,6 +1379,10 @@ namespace Ogre{
 				else if((*j)->wordID == ID_TEXTURE_UNIT)
 				{
 					compileTextureUnit(*j, pass);
+				}
+				else if((*j)->wordID == ID_VERTEX_PROGRAM_REF)
+				{
+
 				}
 				++j;
 			}
@@ -2389,15 +2404,17 @@ namespace Ogre{
 			return;
 		}
 
+		prog->_notifyOrigin(node->file);
+
 		// Set custom parameters
 		for(std::list<std::pair<String,String> >::iterator k = customParameters.begin(); k != customParameters.end(); ++k)
 			prog->setParameter(k->first, k->second);
 
 		// Set up default parameters
-		if(paramIter != (*i)->children.end())
+		if(prog->isSupported() && paramIter != (*i)->children.end())
 		{
 			GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
-			compileDefaultParameters(*paramIter, params);
+			compileProgramParameters(*paramIter, params);
 		}
 	}
 
@@ -2412,6 +2429,7 @@ namespace Ogre{
 			return;
 		}
 
+		String source;
 		std::list<std::pair<String,String> > customParameters;
 		ScriptNodeList::iterator j = (*i)->children.begin(), paramIter = (*i)->children.end();
 		while(j != (*i)->children.end())
@@ -2422,17 +2440,21 @@ namespace Ogre{
 				{
 					paramIter = j;
 				}
+				else if((*j)->wordID == ID_SOURCE)
+				{
+					if(!(*j)->children.empty())
+						source = (*j)->children.front()->token;
+					else
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+				}
 				else
 				{
 					// Expect name followed by any number of values. Put the values into 1 string
 					if(!(*j)->children.empty())
 					{
 						ScriptNodeList::iterator k = (*j)->children.begin();
-						String name = (*k)->token, value;
+						String name = (*j)->token, value = (*k)->token;
 
-						++k;
-						if(k != (*j)->children.end())
-							value = (*k)->token;
 						while(++k != (*j)->children.end())
 							value = value + " " + (*k)->token;
 						
@@ -2459,19 +2481,22 @@ namespace Ogre{
 			return;
 		}
 
+		prog->setSourceFile(source);
+		prog->_notifyOrigin(node->file);
+
 		// Set custom parameters
 		for(std::list<std::pair<String,String> >::iterator k = customParameters.begin(); k != customParameters.end(); ++k)
 			prog->setParameter(k->first, k->second);
 
 		// Set up default parameters
-		if(paramIter != (*i)->children.end())
+		if(prog->isSupported() && paramIter != (*i)->children.end())
 		{
 			GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
-			compileDefaultParameters(*paramIter, params);
+			compileProgramParameters(*paramIter, params);
 		}
 	}
 
-	void MaterialScriptCompiler2::compileDefaultParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params)
+	void MaterialScriptCompiler2::compileProgramParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params)
 	{
 		// Find the '{'
 		ScriptNodeList::iterator i = findNode(node->children.begin(), node->children.end(), SNT_LBRACE);
@@ -2481,6 +2506,7 @@ namespace Ogre{
 			return;
 		}
 
+		int animParametricsCount = 0;
 		ScriptNodeList::iterator j = (*i)->children.begin();
 		while(j != (*i)->children.end())
 		{
@@ -2526,6 +2552,7 @@ namespace Ogre{
 						}
 						else
 						{
+							// Find the number of parameters
 							bool isValid = true;
 							GpuProgramParameters::ElementType type;
 							int count = 0;
@@ -2536,8 +2563,7 @@ namespace Ogre{
 									count = StringConverter::parseInt((*k)->token.substr(5));
 								else
 								{
-									addError(CE_INVALIDPROPERTYVALUE, (*k)->file, (*k)->line, (*k)->column);
-									isValid = false;
+									count = 1;
 								}
 							}
 							else if((*k)->token.find("int") != String::npos)
@@ -2547,8 +2573,7 @@ namespace Ogre{
 									count = StringConverter::parseInt((*k)->token.substr(3));
 								else
 								{
-									addError(CE_INVALIDPROPERTYVALUE, (*k)->file, (*k)->line, (*k)->column);
-									isValid = false;
+									count = 1;
 								}
 							}
 							else
@@ -2559,16 +2584,23 @@ namespace Ogre{
 
 							if(isValid)
 							{
+								// First, clear out any offending auto constants
+								if(named)
+									params->clearNamedAutoConstant(name);
+								else
+									params->clearAutoConstant(index);
+
 								++k;
+								int roundedCount = count%4 != 0 ? count + 4 - (count%4) : count;
 								if(type == GpuProgramParameters::ET_INT)
 								{
-									int *vals = new int[count];
-									if(getInts(k, (*j)->children.end(), vals, count))
+									int *vals = new int[roundedCount];
+									if(getInts(k, (*j)->children.end(), vals, roundedCount))
 									{
 										if(named)
-											params->setNamedConstant(name, vals, count);
+											params->setNamedConstant(name, vals, count, 1);
 										else
-											params->setConstant(index, vals, count);
+											params->setConstant(index, vals, roundedCount/4);
 									}
 									else
 									{
@@ -2581,13 +2613,13 @@ namespace Ogre{
 								}
 								else
 								{
-									float *vals = new float[count];
-									if(getFloats(k, (*j)->children.end(), vals, count))
+									float *vals = new float[roundedCount];
+									if(getFloats(k, (*j)->children.end(), vals, roundedCount))
 									{
 										if(named)
-											params->setNamedConstant(name, vals, count);
+											params->setNamedConstant(name, vals, count, 1);
 										else
-											params->setConstant(index, vals, count);
+											params->setConstant(index, vals, roundedCount/4);
 									}
 									else
 									{
@@ -2611,7 +2643,7 @@ namespace Ogre{
 				}
 				else if((*j)->wordID == ID_PARAM_INDEXED_AUTO || (*j)->wordID == ID_PARAM_NAMED_AUTO)
 				{
-					bool named = (*j)->wordID == ID_PARAM_NAMED;
+					bool named = (*j)->wordID == ID_PARAM_NAMED_AUTO;
 					String name;
 					size_t index = 0;
 
@@ -2625,18 +2657,94 @@ namespace Ogre{
 						index = node1->data;
 
 					// Look up the auto constant
+					StringUtil::toLowerCase(node2->token);
 					const GpuProgramParameters::AutoConstantDefinition *def =
 						GpuProgramParameters::getAutoConstantDefinition(node2->token);
 					if(def)
 					{
-						// Grab the extra params field
-						int extra = node3.isNull() ? 0 : node3->data;
-
-						// Set the auto constant
-						if(named)
-							params->setNamedAutoConstant(name, def->acType, extra);
-						else
-							params->setAutoConstant(index, def->acType, extra);
+						switch(def->dataType)
+						{
+						case GpuProgramParameters::ACDT_NONE:
+							// Set the auto constant
+							if(named)
+								params->setNamedAutoConstant(name, def->acType);
+							else
+								params->setAutoConstant(index, def->acType);
+							break;
+						case GpuProgramParameters::ACDT_INT:
+							if(def->acType == GpuProgramParameters::ACT_ANIMATION_PARAMETRIC)
+							{
+								if(named)
+									params->setNamedAutoConstant(name, def->acType, animParametricsCount++);
+								else
+									params->setAutoConstant(index, def->acType, animParametricsCount++);
+							}
+							else
+							{
+								// Only certain texture projection auto params will assume 0
+								// Otherwise we will expect that 3rd parameter
+								if(node3.isNull())
+								{
+									if(def->acType == GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX ||
+										def->acType == GpuProgramParameters::ACT_TEXTURE_WORLDVIEWPROJ_MATRIX ||
+										def->acType == GpuProgramParameters::ACT_SPOTLIGHT_VIEWPROJ_MATRIX ||
+										def->acType == GpuProgramParameters::ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX)
+									{
+										if(named)
+											params->setNamedAutoConstant(name, def->acType, 0);
+										else
+											params->setAutoConstant(index, def->acType, 0);
+									}
+									else
+									{
+										addError(CE_NUMBEREXPECTED, (*j)->file, (*j)->line, -1);
+									}
+								}
+								else
+								{
+									if(named)
+										params->setNamedAutoConstant(name, def->acType, (size_t)node3->data);
+									else
+										params->setAutoConstant(index, def->acType, (size_t)node3->data);
+								}
+							}
+							break;
+						case GpuProgramParameters::ACDT_REAL:
+							if(def->acType == GpuProgramParameters::ACT_TIME ||
+								def->acType == GpuProgramParameters::ACT_FRAME_TIME)
+							{
+								Real f = 1.0f;
+								if(!node3.isNull() && node3->type == SNT_NUMBER)
+									f = node3->data;
+								
+								if(named)
+									params->setNamedAutoConstantReal(name, def->acType, f);
+								else
+									params->setAutoConstantReal(index, def->acType, f);
+							}
+							else
+							{
+								if(!node3.isNull())
+								{
+									if(node3->type == SNT_NUMBER)
+									{
+										if(named)
+											params->setNamedAutoConstantReal(name, def->acType, node3->data);
+										else
+											params->setAutoConstantReal(index, def->acType, node3->data);
+									}
+									else
+									{
+										addError(CE_INVALIDPROPERTYVALUE, node3->file, node3->line, node3->column);
+									}
+								}
+								else
+								{
+									addError(CE_NUMBEREXPECTED, (*j)->file, (*j)->line, -1);
+								}
+							}
+							break;
+						}
 					}
 					else
 					{
@@ -2908,14 +3016,19 @@ namespace Ogre{
 	{
 		bool success = true;
 		int n = 0;
-		while(i != end && n < count)
+		while(n < count)
 		{
-			if((*i)->type == SNT_NUMBER)
-				vals[n] = (*i)->data;
+			if(i != end)
+			{
+				if((*i)->type == SNT_NUMBER)
+					vals[n] = (*i)->data;
+				else
+					break;
+				++i;
+			}
 			else
-				break;
+				vals[n] = 0;
 			++n;
-			++i;
 		}
 
 		if(n < count)
@@ -2928,18 +3041,24 @@ namespace Ogre{
 	{
 		bool success = true;
 		int n = 0;
-		while(i != end && n < count)
+		while(n < count)
 		{
-			if((*i)->type == SNT_NUMBER)
-				vals[n] = (*i)->data;
+			if(i != end)
+			{
+				if((*i)->type == SNT_NUMBER)
+					vals[n] = (*i)->data;
+				else
+					break;
+				++i;
+			}
 			else
-				break;
+				vals[n] = 0.0f;
 			++n;
-			++i;
 		}
 
 		if(n < count)
 			success = false;
+
 		return success;
 	}
 }
