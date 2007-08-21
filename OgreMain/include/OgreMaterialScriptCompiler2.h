@@ -270,7 +270,7 @@ namespace Ogre{
 		void compileGpuProgram(const ScriptNodePtr &node);
 		void compileAsmGpuProgram(const String &name, const ScriptNodePtr &node);
 		void compileHighLevelGpuProgram(const String &name, const String &language, const ScriptNodePtr &node);
-		void compileDefaultParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params);
+		void compileProgramParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params);
 		bool getColourValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
 		bool getBlendFactor(const ScriptNodePtr &node, SceneBlendFactor &sbf);
 		bool getCompareFunction(const ScriptNodePtr &node, CompareFunction &func);

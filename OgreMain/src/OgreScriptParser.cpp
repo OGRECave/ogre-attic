@@ -229,21 +229,12 @@ namespace Ogre {
 				node->line = first.get_position().line;
 				node->column = first.get_position().column;
 				node->type = isNumber ? SNT_NUMBER : SNT_WORD;
-				if(isNumber)
-					node->token.assign(first, last);
-				else
+				node->token.assign(first, last);
+				if(!isNumber)
 				{
-					String token(first, last);
-					WordIDMap::const_iterator i = (*ast)->ids->find(token);
-					if(i == (*ast)->ids->end())
-					{
-						node->wordID = 0;
-						node->token = token;
-					}
-					else
-					{
+					WordIDMap::const_iterator i = (*ast)->ids->find(node->token);
+					if(i != (*ast)->ids->end())
 						node->wordID = i->second;
-					}
 				}
 				node->isObject = false;
 				node->isProperty = isProperty;
@@ -576,21 +567,12 @@ namespace Ogre {
 				node->line = first.get_position().line;
 				node->column = first.get_position().column;
 				node->type = isNumber ? SNT_NUMBER : SNT_WORD;
-				if(isNumber)
-					node->token.assign(first, last);
-				else
+				node->token.assign(first, last);
+				if(!isNumber)
 				{
-					String token(first, last);
-					WordIDMap::const_iterator i = (*ast)->ids->find(token);
-					if(i == (*ast)->ids->end())
-					{
-						node->wordID = 0;
-						node->token = token;
-					}
-					else
-					{
+					WordIDMap::const_iterator i = (*ast)->ids->find(node->token);
+					if(i != (*ast)->ids->end())
 						node->wordID = i->second;
-					}
 				}
 				node->isObject = isObject;
 				node->isProperty = false;
