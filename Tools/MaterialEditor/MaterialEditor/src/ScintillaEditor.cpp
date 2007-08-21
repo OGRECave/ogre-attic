@@ -165,11 +165,33 @@ bool ScintillaEditor::isDirty()
 
 void ScintillaEditor::save()
 {
-	//setDirty(false);
+	if (!mDirty) return;
+	if(!mFileName || mFileName.length() == 0)
+	{
+		saveAs();
+		return;
+	}
+
+	if(SaveFile(mFileName)) 
+	{
+		setDirty(false);
+		int index = (int)mFileName.find_last_of('\\');
+		if(index == -1) index = (int)mFileName.find_last_of('/');
+		setName((index != -1) ? mFileName.substr(index + 1, mFileName.Length()) : mFileName);
+	}
 }
 
 void ScintillaEditor::saveAs()
 {
+	if (!mDirty) return;
+
+	// Get file name
+	wxFileDialog dlg (this, _T("Save file"), _T(""), _T(""), _T("Any file (*)|*"),
+		wxSAVE | wxOVERWRITE_PROMPT);
+	if (dlg.ShowModal() != wxID_OK) return;
+	mFileName = dlg.GetPath();
+
+	save();
 }
 
 bool ScintillaEditor::isSaveAsAllowed()

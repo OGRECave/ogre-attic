@@ -29,6 +29,8 @@ class ScintillaEditor : public wxScintilla, public Editor
 public:
 	enum ScintillaEditorEvent
 	{
+		NameChanged, // Editor Event
+		DirtyStateChanged, // Editor Event
 		FocusedWordChanged
 	};
 

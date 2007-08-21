@@ -48,6 +48,7 @@ http://www.gnu.org/copyleft/lesser.txt
 
 #include "CgEditor.h"
 #include "DocPanel.h"
+#include "EditorEventArgs.h"
 #include "EditorManager.h"
 #include "LogPanel.h"
 #include "MaterialController.h"
@@ -102,6 +103,8 @@ BEGIN_EVENT_TABLE(MaterialEditorFrame, wxFrame)
 	EVT_MENU (ID_FILE_NEW_MENU_PROJECT,  MaterialEditorFrame::OnNewProject)
 	EVT_MENU (ID_FILE_NEW_MENU_MATERIAL, MaterialEditorFrame::OnNewMaterial)
 	EVT_MENU (ID_FILE_MENU_OPEN,		 MaterialEditorFrame::OnFileOpen)
+	EVT_MENU (ID_FILE_MENU_SAVE,		 MaterialEditorFrame::OnFileSave)
+	EVT_MENU (ID_FILE_MENU_SAVE_AS,		 MaterialEditorFrame::OnFileSaveAs)
 	EVT_MENU (ID_FILE_MENU_EXIT,		 MaterialEditorFrame::OnFileExit)
 	// Edit Menu
 	EVT_MENU (ID_EDIT_MENU_UNDO,  MaterialEditorFrame::OnEditUndo)
@@ -490,6 +493,23 @@ void MaterialEditorFrame::OnFileOpen(wxCommandEvent& event)
 		}
 	}
 }
+
+void MaterialEditorFrame::OnFileSave(wxCommandEvent& event)
+{
+	Editor* editor = EditorManager::getSingletonPtr()->getActiveEditor();
+	if(editor != NULL) editor->save();
+
+	// TODO: Support project & workspace save
+}
+
+void MaterialEditorFrame::OnFileSaveAs(wxCommandEvent& event)
+{
+	Editor* editor = EditorManager::getSingletonPtr()->getActiveEditor();
+	if(editor != NULL) editor->saveAs();
+
+	// TODO: Support project & workspace saveAs
+}
+
 
 void MaterialEditorFrame::OnFileExit(wxCommandEvent& event)
 {

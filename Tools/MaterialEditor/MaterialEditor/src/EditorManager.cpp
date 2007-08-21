@@ -28,9 +28,12 @@ Torus Knot Software Ltd.
 */
 #include "EditorManager.h"
 
+#include <boost/bind.hpp>
+
 #include <wx/aui/auibook.h>
 
 #include "Editor.h"
+#include "EditorEventArgs.h"
 
 template<> EditorManager* Ogre::Singleton<EditorManager>::ms_Singleton = 0;
 
@@ -97,6 +100,8 @@ void EditorManager::openEditor(Editor* editor)
 	mEditorNotebook->AddPage(editor->getControl(), editor->getName(), true);
 
 	mEditorIndexMap[editor] = mEditorNotebook->GetPageIndex(editor->getControl());
+
+	editor->subscribe(Editor::NameChanged, boost::bind(&EditorManager::nameChanged, this, _1));
 
 	setActiveEditor(editor);
 }
@@ -169,6 +174,17 @@ void EditorManager::registerEvents()
 	registerEvent(EditorOpened);
 	registerEvent(EditorClosed);
 	registerEvent(ActiveEditorChanged);
+}
+
+void EditorManager::nameChanged(EventArgs& args)
+{
+	EditorEventArgs eea = dynamic_cast<EditorEventArgs&>(args);
+	Editor* editor = eea.getEditor();
+	if(mEditorIndexMap.find(editor) != mEditorIndexMap.end())
+	{
+		int index = mEditorIndexMap[editor];
+		mEditorNotebook->SetPageText(index, editor->getName());
+	}
 }
 
 void EditorManager::OnPageChanged(wxAuiNotebookEvent& event)
