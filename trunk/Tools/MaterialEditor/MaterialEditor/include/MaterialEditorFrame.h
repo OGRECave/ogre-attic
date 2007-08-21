@@ -82,6 +82,8 @@ protected:
 	void OnNewProject(wxCommandEvent& event);
 	void OnNewMaterial(wxCommandEvent& event);
 	void OnFileOpen(wxCommandEvent& event);
+	void OnFileSave(wxCommandEvent& event);
+	void OnFileSaveAs(wxCommandEvent& event);
 	void OnFileExit(wxCommandEvent& event);
 	void OnEditUndo(wxCommandEvent& event);
 	void OnEditRedo(wxCommandEvent& event);

@@ -82,6 +82,8 @@ void MaterialScriptEditor::initialize()
 
 void MaterialScriptEditor::OnCharAdded(wxScintillaEvent &event)
 {
+	ScintillaEditor::OnCharAdded(event);
+
 	char ch = event.GetKey();
 	if(getCallTipManager().isTrigger(ch))
 	{

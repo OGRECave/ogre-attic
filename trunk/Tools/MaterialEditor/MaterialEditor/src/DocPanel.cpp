@@ -12,6 +12,7 @@
 
 #include "CgEditor.h"
 #include "Editor.h"
+#include "EditorEventArgs.h"
 #include "EditorManager.h"
 #include "EventArgs.h"
 #include "GLSLEditor.h"

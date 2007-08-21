@@ -30,6 +30,7 @@ Torus Knot Software Ltd.
 
 #include <wx/control.h>
 
+#include "EditorEventArgs.h"
 #include "EditorInput.h"
 
 Editor::Editor()
@@ -60,6 +61,7 @@ void Editor::setControl(wxControl* control)
 
 void Editor::registerEvents()
 {
+	registerEvent(NameChanged);
 	registerEvent(DirtyStateChanged);
 }
 
@@ -88,7 +90,7 @@ void Editor::setName(const wxString& name)
 {
 	mName = name;
 
-	// TODO: Fire event
+	fireEvent(NameChanged, EditorEventArgs(this));
 }
 
 void Editor::activate()

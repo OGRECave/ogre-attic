@@ -26,73 +26,16 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef _EDITOR_H_
-#define _EDITOR_H_
-
-#include <wx/string.h>
-
-#include "OgreString.h"
-
 #include "EventArgs.h"
-#include "EventContainer.h"
 
-class wxControl;
-
-class EditorContributor;
-class EditorInput;
-
-using Ogre::String;
-
-class Editor : public EventContainer
+class EditorEventArgs : public EventArgs
 {
 public:
-	enum EditorEvent
-	{
-		NameChanged,
-		DirtyStateChanged
-	};
+	EditorEventArgs(Editor* editor) : mEditor(editor) {}
+	virtual ~EditorEventArgs() {}
 
-	Editor();
-	Editor(EditorInput* input);
-	virtual ~Editor();
+	Editor* getEditor() { return mEditor; }
 
-	wxControl* getControl() const;
-	void setControl(wxControl* control);
-
-	EditorInput* getEditorInput() const;
-	void setEditorInput(EditorInput* input);
-	
-	EditorContributor* getEditorContributor() const;
-
-	const wxString& getName() const;
-	void setName(const wxString& name);
-
-	virtual void activate();
-	virtual void deactivate();
-
-	virtual bool isDirty();
-	virtual void save();
-	virtual void saveAs();
-	virtual bool isSaveAsAllowed();
-
-	virtual bool isRedoable();
-	virtual void redo();
-	virtual bool isUndoable();
-	virtual void undo();
-
-	virtual bool isCuttable();
-	virtual void cut();
-	virtual bool isCopyable();
-	virtual void copy();
-	virtual bool isPastable();
-	virtual void paste();
-
-private:
-	void registerEvents();
-
-	EditorInput* mEditorInput;
-	wxControl* mControl;
-	wxString mName;
+protected:
+	Editor* mEditor;
 };
-
-#endif // _EDITOR_H_
