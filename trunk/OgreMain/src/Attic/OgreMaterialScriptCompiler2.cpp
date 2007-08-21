@@ -1382,7 +1382,39 @@ namespace Ogre{
 				}
 				else if((*j)->wordID == ID_VERTEX_PROGRAM_REF)
 				{
+					// Expect the name to be the first child
+					if((*j)->children.empty())
+					{
+						ScriptNodeList::iterator k = (*j)->children.begin();
+						String name = (*k)->token;
 
+						// Next is the '{', somewhere...
+						k = findNode(k, (*j)->children.end(), SNT_LBRACE);
+						if(k != (*j)->children.end())
+						{
+							GpuProgram *prog = 0;
+							if(pass->hasVertexProgram() && pass->getVertexProgramName() == name)
+							{
+								prog = pass->getVertexProgram();
+							}
+							else
+							{
+								if(GpuProgramManager::getSingleton().resourceExists(name))
+								{
+									prog = GpuProgramManager::getSingleton().getByName(name).get();
+									pass->setVertexProgram(name);
+								}
+							}
+						}
+						else
+						{
+							addError(CE_OPENBRACEEXPECTED, (*j)->file, (*j)->line, -1);
+						}
+					}
+					else
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					}
 				}
 				++j;
 			}
