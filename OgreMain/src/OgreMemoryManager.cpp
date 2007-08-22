@@ -278,7 +278,12 @@ namespace Ogre
         const char *sourceFunc )
     {
         static char str[90];
-        snprintf( str, 89, "%s(%05d)::%s", 
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !defined( __MINGW32__ )
+		_snprintf( 
+#else
+        snprintf( 
+#endif
+			str, 89, "%s(%05d)::%s", 
             sourceFileStripper(sourceFile), 
             sourceLine, 
             sourceFunc);
