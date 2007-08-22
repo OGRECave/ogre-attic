@@ -50,7 +50,7 @@ namespace Ogre {
 	    static const String compositorScript_BNF =
 		// Top level rule
 		"<Script> ::= {<Compositor>} \n"
-		"<Compositor> ::= 'compositor' <Flex_Label> '{' <Technique> '}' \n"
+		"<Compositor> ::= 'compositor' <Flex_Label> '{' {<Technique>} '}' \n"
 		// Technique
 		"<Technique> ::= 'technique' '{' {<Texture>} {<Target>} <TargetOutput> '}' \n"
 		"<Texture> ::= 'texture' <Label> <WidthOption> <HeightOption> <PixelFormat> \n"
