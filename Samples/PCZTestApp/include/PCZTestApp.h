@@ -188,7 +188,7 @@ protected:
         // Accept default settings: point light, white diffuse, just set position
         // attach light to a scene node so the PCZSM can handle it properly (zone-wise)
         // IMPORTANT: Lights (just like cameras) MUST be connected to a scene node!
-	    SceneNode * lightNode = mCameraNode->createChildSceneNode("lightNode");
+	    SceneNode * lightNode = mCameraNode->createChildSceneNode("light_Node");
 		lightNode->attachObject(l);      
 
         // Fog
@@ -203,7 +203,7 @@ protected:
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
         terrain_cfg = mResourcePath + terrain_cfg;
 #endif
-		((PCZSceneManager*)mSceneMgr)->setZoneGeometry( "DefaultZone", (PCZSceneNode*)mSceneMgr->getRootSceneNode(), terrain_cfg );
+		((PCZSceneManager*)mSceneMgr)->setZoneGeometry( "Default_Zone", (PCZSceneNode*)mSceneMgr->getRootSceneNode(), terrain_cfg );
 
         // Infinite far plane?
         if (mRoot->getRenderSystem()->getCapabilities()->hasCapability(RSC_INFINITE_FAR_PLANE))
