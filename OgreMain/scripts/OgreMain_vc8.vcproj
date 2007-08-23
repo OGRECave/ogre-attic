@@ -663,15 +663,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreMemoryBin.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreMemoryManager.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\OgreMemoryRegion.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreMemoryBin.cpp"
 				>
 			</File>
 			<File
@@ -1476,11 +1476,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreMemoryBin.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreMemoryMacros.h"
 				>
 			</File>
 			<File
 				RelativePath="..\include\OgreMemoryManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreMemoryRegion.h"
 				>
 			</File>
 			<File
