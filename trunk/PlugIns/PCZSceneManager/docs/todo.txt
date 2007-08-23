@@ -4,6 +4,7 @@ Some items are specific, some are not, it's just a list to keep notes for myself
 
 TODO:
 -------------
+* Change Visitor Node tracking to use delta changes instead of "clear & repopulate" algorithm.
 * Encapsulate Portal creation in PCZSceneManager function.
 * Test function to prevent scenenodes from crossing portals which they won't fit through
 * More testing 
