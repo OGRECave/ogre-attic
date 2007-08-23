@@ -38,6 +38,7 @@ Code Style Update	 :
 #include "OgrePCZoneFactory.h"
 #include "OgrePCZSceneManager.h"
 #include "OgreDefaultZone.h"
+#include "OgreLogManager.h"
 
 namespace Ogre 
 {
@@ -90,15 +91,20 @@ namespace Ogre
 
 	void PCZoneFactoryManager::registerPCZoneFactory(PCZoneFactory* factory)
 	{
-		//add factory to the list
-		mFactories.push_back(factory);
+		OGRE_LOCK_AUTO_MUTEX
+		String name = factory->getFactoryTypeName();
+        mPCZoneFactories[name] = factory;
+        LogManager::getSingleton().logMessage("PCZone Factory Type '" + name + "' registered");
 	}
 	void PCZoneFactoryManager::unregisterPCZoneFactory(PCZoneFactory* factory)
 	{
 		if (factory)
 		{
-			//find and remove factory from mFactories
-			mFactories.erase( std::find( mFactories.begin(), mFactories.end(), factory ) );
+			//find and remove factory from mPCZoneFactories
+			// Note that this does not free the factory from memory, just removes from the factory manager
+			String name = factory->getFactoryTypeName();
+			mPCZoneFactories.erase( mPCZoneFactories.find( name ) );
+			LogManager::getSingleton().logMessage("PCZone Factory Type '" + name + "' unregistered");
 		}
 	}
 	PCZone* PCZoneFactoryManager::createPCZone(PCZSceneManager * pczsm,
@@ -107,12 +113,12 @@ namespace Ogre
 	{
 		//find a factory that supports this zone type and then call createPCZone() on it
 		PCZone * inst = 0;
-		for(Factories::iterator i = mFactories.begin(); i != mFactories.end(); ++i)
+		for(PCZoneFactoryMap::iterator i = mPCZoneFactories.begin(); i != mPCZoneFactories.end(); ++i)
 		{
-			if ((*i)->supportsPCZoneType(zoneType))
+			if (i->second->supportsPCZoneType(zoneType))
 			{
 				// use this factory
-				inst = (*i)->createPCZone(pczsm, zoneName);
+				inst = i->second->createPCZone(pczsm, zoneName);
 			}
 		}
 		if (!inst)
@@ -124,4 +130,11 @@ namespace Ogre
 		}
 		return inst;
 	}
+	//-----------------------------------------------------------------------
+	PCZoneFactoryManager::PCZoneFactoryIterator 
+	PCZoneFactoryManager::getPCZoneFactoryIterator(void)
+	{
+		return PCZoneFactoryIterator(mPCZoneFactories.begin(), mPCZoneFactories.end());
+	}
 }
+
