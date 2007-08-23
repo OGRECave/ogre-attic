@@ -667,6 +667,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreMemoryRegion.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreMemoryBin.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreMemProfileManager.cpp"
 				>
 			</File>
