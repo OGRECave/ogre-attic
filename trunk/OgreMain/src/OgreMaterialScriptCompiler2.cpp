@@ -221,7 +221,7 @@ namespace Ogre{
 			mWordIDs["blend_texture_alpha"] = ID_BLEND_TEXTURE_ALPHA;
 			mWordIDs["blend_current_alpha"] = ID_BLEND_CURRENT_ALPHA;
 			mWordIDs["blend_manual"] = ID_BLEND_MANUAL;
-			mWordIDs["dot_product"] = ID_DOT_PRODUCT;
+			mWordIDs["dotproduct"] = ID_DOT_PRODUCT;
 			mWordIDs["blend_diffuse_colour"] = ID_BLEND_DIFFUSE_COLOUR;
 			mWordIDs["src_current"] = ID_SRC_CURRENT;
 			mWordIDs["src_texture"] = ID_SRC_TEXTURE;
@@ -283,6 +283,7 @@ namespace Ogre{
 				++i;
 			}
 		}
+
 		return mErrors.empty();
 	}
 
@@ -1383,7 +1384,7 @@ namespace Ogre{
 				else if((*j)->wordID == ID_VERTEX_PROGRAM_REF)
 				{
 					// Expect the name to be the first child
-					if((*j)->children.empty())
+					if(!(*j)->children.empty())
 					{
 						ScriptNodeList::iterator k = (*j)->children.begin();
 						String name = (*k)->token;
@@ -1393,17 +1394,216 @@ namespace Ogre{
 						if(k != (*j)->children.end())
 						{
 							GpuProgram *prog = 0;
-							if(pass->hasVertexProgram() && pass->getVertexProgramName() == name)
+							if(pass->hasVertexProgram() && (pass->getVertexProgramName() == name || name.empty()))
 							{
-								prog = pass->getVertexProgram();
+								prog = pass->getVertexProgram().get();
 							}
 							else
 							{
-								if(GpuProgramManager::getSingleton().resourceExists(name))
-								{
-									prog = GpuProgramManager::getSingleton().getByName(name).get();
+								prog = (GpuProgram*)GpuProgramManager::getSingleton().getByName(name).get();
+								if(prog)
 									pass->setVertexProgram(name);
+							}
+
+							if(prog)
+							{
+								if(prog->isSupported())
+								{
+									Ogre::GpuProgramParametersSharedPtr params = pass->getVertexProgramParameters();
+									compileProgramParameters(*j, params);
 								}
+							}
+							else
+							{
+								addError(CE_OBJECTALLOCATIONERROR, (*k)->file, (*k)->line, (*k)->column);
+							}
+						}
+						else
+						{
+							addError(CE_OPENBRACEEXPECTED, (*j)->file, (*j)->line, -1);
+						}
+					}
+					else
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					}
+				}
+				else if((*j)->wordID == ID_FRAGMENT_PROGRAM_REF)
+				{
+					// Expect the name to be the first child
+					if(!(*j)->children.empty())
+					{
+						ScriptNodeList::iterator k = (*j)->children.begin();
+						String name = (*k)->token;
+
+						// Next is the '{', somewhere...
+						k = findNode(k, (*j)->children.end(), SNT_LBRACE);
+						if(k != (*j)->children.end())
+						{
+							GpuProgram *prog = 0;
+							if(pass->hasFragmentProgram() && (pass->getFragmentProgramName() == name || name.empty()))
+							{
+								prog = pass->getFragmentProgram().get();
+							}
+							else
+							{
+								prog = (GpuProgram*)GpuProgramManager::getSingleton().getByName(name).get();
+								if(prog)
+									pass->setFragmentProgram(name);
+							}
+
+							if(prog)
+							{
+								if(prog->isSupported())
+								{
+									Ogre::GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
+									compileProgramParameters(*j, params);
+								}
+							}
+							else
+							{
+								addError(CE_OBJECTALLOCATIONERROR, (*k)->file, (*k)->line, (*k)->column);
+							}
+						}
+						else
+						{
+							addError(CE_OPENBRACEEXPECTED, (*j)->file, (*j)->line, -1);
+						}
+					}
+					else
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					}
+				}
+				else if((*j)->wordID == ID_SHADOW_CASTER_VERTEX_PROGRAM_REF)
+				{
+					// Expect the name to be the first child
+					if(!(*j)->children.empty())
+					{
+						ScriptNodeList::iterator k = (*j)->children.begin();
+						String name = (*k)->token;
+
+						// Next is the '{', somewhere...
+						k = findNode(k, (*j)->children.end(), SNT_LBRACE);
+						if(k != (*j)->children.end())
+						{
+							GpuProgram *prog = 0;
+							if(pass->hasShadowCasterVertexProgram() && (pass->getShadowCasterVertexProgramName() == name || name.empty()))
+							{
+								prog = pass->getShadowCasterVertexProgram().get();
+							}
+							else
+							{
+								prog = (GpuProgram*)GpuProgramManager::getSingleton().getByName(name).get();
+								if(prog)
+									pass->setShadowCasterVertexProgram(name);
+							}
+
+							if(prog)
+							{
+								if(prog->isSupported())
+								{
+									Ogre::GpuProgramParametersSharedPtr params = pass->getShadowCasterVertexProgramParameters();
+									compileProgramParameters(*j, params);
+								}
+							}
+							else
+							{
+								addError(CE_OBJECTALLOCATIONERROR, (*k)->file, (*k)->line, (*k)->column);
+							}
+						}
+						else
+						{
+							addError(CE_OPENBRACEEXPECTED, (*j)->file, (*j)->line, -1);
+						}
+					}
+					else
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					}
+				}
+				else if((*j)->wordID == ID_SHADOW_RECEIVER_VERTEX_PROGRAM_REF)
+				{
+					// Expect the name to be the first child
+					if(!(*j)->children.empty())
+					{
+						ScriptNodeList::iterator k = (*j)->children.begin();
+						String name = (*k)->token;
+
+						// Next is the '{', somewhere...
+						k = findNode(k, (*j)->children.end(), SNT_LBRACE);
+						if(k != (*j)->children.end())
+						{
+							GpuProgram *prog = 0;
+							if(pass->hasShadowReceiverVertexProgram() && (pass->getShadowReceiverVertexProgramName() == name || name.empty()))
+							{
+								prog = pass->getShadowReceiverVertexProgram().get();
+							}
+							else
+							{
+								prog = (GpuProgram*)GpuProgramManager::getSingleton().getByName(name).get();
+								if(prog)
+									pass->setShadowReceiverVertexProgram(name);
+							}
+
+							if(prog)
+							{
+								if(prog->isSupported())
+								{
+									Ogre::GpuProgramParametersSharedPtr params = pass->getShadowReceiverVertexProgramParameters();
+									compileProgramParameters(*j, params);
+								}
+							}
+							else
+							{
+								addError(CE_OBJECTALLOCATIONERROR, (*k)->file, (*k)->line, (*k)->column);
+							}
+						}
+						else
+						{
+							addError(CE_OPENBRACEEXPECTED, (*j)->file, (*j)->line, -1);
+						}
+					}
+					else
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+					}
+				}
+				else if((*j)->wordID == ID_SHADOW_RECEIVER_FRAGMENT_PROGRAM_REF)
+				{
+					// Expect the name to be the first child
+					if(!(*j)->children.empty())
+					{
+						ScriptNodeList::iterator k = (*j)->children.begin();
+						String name = (*k)->token;
+
+						// Next is the '{', somewhere...
+						k = findNode(k, (*j)->children.end(), SNT_LBRACE);
+						if(k != (*j)->children.end())
+						{
+							GpuProgram *prog = 0;
+							if(pass->hasShadowReceiverFragmentProgram() && (pass->getShadowReceiverFragmentProgramName() == name || name.empty()))
+							{
+								prog = pass->getShadowReceiverFragmentProgram().get();
+							}
+							else
+							{
+								prog = (GpuProgram*)GpuProgramManager::getSingleton().getByName(name).get();
+								if(prog)
+									pass->setShadowReceiverFragmentProgram(name);
+							}
+
+							if(prog)
+							{
+								if(prog->isSupported())
+								{
+									Ogre::GpuProgramParametersSharedPtr params = pass->getShadowReceiverFragmentProgramParameters();
+									compileProgramParameters(*j, params);
+								}
+							}
+							else
+							{
+								addError(CE_OBJECTALLOCATIONERROR, (*k)->file, (*k)->line, (*k)->column);
 							}
 						}
 						else
