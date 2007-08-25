@@ -110,6 +110,17 @@ namespace Ogre{
 		return nodes;
 	}
 
+	void ParticleScriptCompiler::preParse()
+	{
+		if(mListener)
+			mListener->preParse(mWordIDs);
+	}
+
+	bool ParticleScriptCompiler::errorRaised(const ScriptCompilerErrorPtr &error)
+	{
+		return mListener ? mListener->errorRaised(error) : true;
+	}
+
 	void ParticleScriptCompiler::compileParticleSystem(const ScriptNodePtr &node)
 	{
 		// Use the listener to get the particle system object

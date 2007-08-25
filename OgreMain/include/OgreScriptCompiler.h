@@ -35,17 +35,6 @@ Torus Knot Software Ltd.
 
 namespace Ogre{
 
-	/** This class is the base for all compiler listeners.
-		The base class provides a mechanism for overriding the script importing
-		behavior.
-	*/
-	class _OgreExport ScriptCompilerListener
-	{
-	public:
-		virtual ScriptNodeListPtr importFile(const String &name);
-		virtual void preParse(WordIDMap &ids);
-	};
-
 	enum
 	{
 		CE_UNKNOWNTOKEN,
@@ -77,6 +66,18 @@ namespace Ogre{
 	};
 	typedef SharedPtr<ScriptCompilerError> ScriptCompilerErrorPtr;
 	typedef std::list<ScriptCompilerErrorPtr> ScriptCompilerErrorList;
+
+	/** This class is the base for all compiler listeners.
+		The base class provides a mechanism for overriding the script importing
+		behavior.
+	*/
+	class _OgreExport ScriptCompilerListener
+	{
+	public:
+		virtual ScriptNodeListPtr importFile(const String &name);
+		virtual void preParse(WordIDMap &ids);
+		virtual bool errorRaised(const ScriptCompilerErrorPtr &error);
+	};
 
 	/** This class acts as a base class for all compilers of Ogre scripts.
 		Each script target type (e.g. Materials, Particle Systems, etc.) has
@@ -181,6 +182,15 @@ namespace Ogre{
 			it returns false.
 		*/
 		bool containsObject(const ScriptNodeList &nodes, const String &name);
+		/** This function needs to be overridden in the derived compiler to funnel
+		    preParse calls to its specific listener implementation.
+		*/
+		virtual void preParse() = 0;
+		/** This function must be overridden in derived compilers to funnel
+			notifications of errors to specific listener implementations.
+			If this function returns false, so error is added to the compilers error list.
+		*/
+		virtual bool errorRaised(const ScriptCompilerErrorPtr &error) = 0;
 		// Retrieves the node at the index away from the current iterator, or a null node
 		ScriptNodePtr getNodeAt(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, int index) const;
 		// Retrieves an iterator to the next node of the given type
