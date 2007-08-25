@@ -20,7 +20,6 @@
 				000E24700B390B5F004EA2DF /* PBXTargetDependency */,
 				000E246E0B390B5F004EA2DF /* PBXTargetDependency */,
 				000E26540B39863E004EA2DF /* PBXTargetDependency */,
-				00ABEBE50B4DA5AB0059129A /* PBXTargetDependency */,
 			);
 			name = "Ogre Framework";
 			productName = "Ogre Framework";
@@ -35,17 +34,6 @@
 			);
 			name = "Bundle Resources";
 			productName = "Bundle Plugins";
-		};
-		000E24960B390C03004EA2DF /* Copy to Library/Frameworks */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 000E249A0B390C1B004EA2DF /* Build configuration list for PBXAggregateTarget "Copy to Library/Frameworks" */;
-			buildPhases = (
-				000E24950B390C03004EA2DF /* CopyFiles */,
-			);
-			dependencies = (
-			);
-			name = "Copy to Library/Frameworks";
-			productName = "Copy to Library/Frameworks";
 		};
 /* End PBXAggregateTarget section */
 
@@ -544,13 +532,11 @@
 		000E24450B3904B0004EA2DF /* OgreCgProgramFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E24420B3904B0004EA2DF /* OgreCgProgramFactory.cpp */; };
 		000E24460B3904B0004EA2DF /* OgreCgProgramManagerDll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E24430B3904B0004EA2DF /* OgreCgProgramManagerDll.cpp */; };
 		000E24490B3904D5004EA2DF /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E1D350B38D380004EA2DF /* Ogre.framework */; };
-		000E244D0B39050D004EA2DF /* Cg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E244C0B39050D004EA2DF /* Cg.framework */; };
 		000E24900B390BCB004EA2DF /* RenderSystem_GL.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 000E20560B38D600004EA2DF /* RenderSystem_GL.bundle */; };
 		000E24910B390BCB004EA2DF /* Plugin_ParticleFX.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 000E235C0B38F852004EA2DF /* Plugin_ParticleFX.bundle */; };
 		000E24920B390BCB004EA2DF /* Plugin_BSPSceneManager.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 000E23C80B38FD6F004EA2DF /* Plugin_BSPSceneManager.bundle */; };
 		000E24930B390BCB004EA2DF /* Plugin_OctreeSceneManager.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 000E23F60B39009B004EA2DF /* Plugin_OctreeSceneManager.bundle */; };
 		000E24940B390BCB004EA2DF /* Plugin_CgProgramManager.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 000E24350B3902ED004EA2DF /* Plugin_CgProgramManager.bundle */; };
-		000E24970B390C0D004EA2DF /* Ogre.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 000E1D350B38D380004EA2DF /* Ogre.framework */; };
 		000E26CD0B39958C004EA2DF /* config.nib in Resources */ = {isa = PBXBuildFile; fileRef = 000E1D450B38D4E5004EA2DF /* config.nib */; };
 		000E26CE0B39958C004EA2DF /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 000E1D460B38D4E5004EA2DF /* main.nib */; };
 		003C21120B51AE990090A344 /* OgreOSXWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003C21110B51AE990090A344 /* OgreOSXWindow.cpp */; };
@@ -582,6 +568,7 @@
 		00DDBBD80B4CEEE100E8E1C9 /* OgreOSXContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB9C0B4CE1C700E8E1C9 /* OgreOSXContext.cpp */; };
 		00DDBBD90B4CEEEF00E8E1C9 /* OgreOSXCarbonContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB790B4CDB7000E8E1C9 /* OgreOSXCarbonContext.cpp */; };
 		00DDBBDA0B4CEEFA00E8E1C9 /* OgreOSXCGLContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB980B4CE0E500E8E1C9 /* OgreOSXCGLContext.cpp */; };
+		AAD4EA270C80CC4B00AE4E5D /* Cg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E244C0B39050D004EA2DF /* Cg.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -634,13 +621,6 @@
 			remoteGlobalIDString = 000E24760B390B99004EA2DF;
 			remoteInfo = "Bundle Resources";
 		};
-		00ABEBE40B4DA5AB0059129A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 000E1D240B38D32C004EA2DF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 000E24960B390C03004EA2DF;
-			remoteInfo = "Copy to Library/Frameworks";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -655,16 +635,6 @@
 				000E24920B390BCB004EA2DF /* Plugin_BSPSceneManager.bundle in CopyFiles */,
 				000E24930B390BCB004EA2DF /* Plugin_OctreeSceneManager.bundle in CopyFiles */,
 				000E24940B390BCB004EA2DF /* Plugin_CgProgramManager.bundle in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		000E24950B390C03004EA2DF /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /Library/Frameworks;
-			dstSubfolderSpec = 0;
-			files = (
-				000E24970B390C0D004EA2DF /* Ogre.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1313,7 +1283,7 @@
 		000E24410B3904B0004EA2DF /* OgreCgProgram.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCgProgram.cpp; path = ../../PlugIns/CgProgramManager/src/OgreCgProgram.cpp; sourceTree = SOURCE_ROOT; };
 		000E24420B3904B0004EA2DF /* OgreCgProgramFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCgProgramFactory.cpp; path = ../../PlugIns/CgProgramManager/src/OgreCgProgramFactory.cpp; sourceTree = SOURCE_ROOT; };
 		000E24430B3904B0004EA2DF /* OgreCgProgramManagerDll.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCgProgramManagerDll.cpp; path = ../../PlugIns/CgProgramManager/src/OgreCgProgramManagerDll.cpp; sourceTree = SOURCE_ROOT; };
-		000E244C0B39050D004EA2DF /* Cg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cg.framework; path = /Library/Frameworks/Cg.framework; sourceTree = "<absolute>"; };
+		000E244C0B39050D004EA2DF /* Cg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cg.framework; path = ../../Dependencies/Cg.framework; sourceTree = SOURCE_ROOT; };
 		000E24550B390583004EA2DF /* EXRCodec Plugin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "EXRCodec Plugin-Info.plist"; path = "plist/EXRCodec Plugin-Info.plist"; sourceTree = "<group>"; };
 		003C21070B51AB990090A344 /* OgreOSXWindow.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreOSXWindow.h; path = ../../RenderSystems/GL/include/OSX/OgreOSXWindow.h; sourceTree = SOURCE_ROOT; };
 		003C21110B51AE990090A344 /* OgreOSXWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreOSXWindow.cpp; path = ../../RenderSystems/GL/src/OSX/OgreOSXWindow.cpp; sourceTree = SOURCE_ROOT; };
@@ -1404,7 +1374,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E24490B3904D5004EA2DF /* Ogre.framework in Frameworks */,
-				000E244D0B39050D004EA2DF /* Cg.framework in Frameworks */,
+				AAD4EA270C80CC4B00AE4E5D /* Cg.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2653,7 +2623,6 @@
 				000E23F50B39009B004EA2DF /* OctreeSceneManager Plugin */,
 				000E24340B3902ED004EA2DF /* CgProgramManager Plugin */,
 				000E24760B390B99004EA2DF /* Bundle Resources */,
-				000E24960B390C03004EA2DF /* Copy to Library/Frameworks */,
 			);
 		};
 /* End PBXProject section */
@@ -3067,11 +3036,6 @@
 			target = 000E24760B390B99004EA2DF /* Bundle Resources */;
 			targetProxy = 000E26530B39863E004EA2DF /* PBXContainerItemProxy */;
 		};
-		00ABEBE50B4DA5AB0059129A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 000E24960B390C03004EA2DF /* Copy to Library/Frameworks */;
-			targetProxy = 00ABEBE40B4DA5AB0059129A /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -3165,7 +3129,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Ogre;
-				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_INSTALLED_PRODUCT = YES;
 				USER_HEADER_SEARCH_PATHS = "./include ../../Dependencies/include";
 				ZERO_LINK = NO;
 			};
@@ -3216,6 +3180,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = RenderSystem_GL;
+				STRIP_INSTALLED_PRODUCT = YES;
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = NO;
 			};
@@ -3278,6 +3243,7 @@
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = Plugin_ParticleFX;
+				STRIP_INSTALLED_PRODUCT = YES;
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = NO;
 			};
@@ -3318,6 +3284,7 @@
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = Plugin_BSPSceneManager;
+				STRIP_INSTALLED_PRODUCT = YES;
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = NO;
 			};
@@ -3358,6 +3325,7 @@
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = Plugin_OctreeSceneManager;
+				STRIP_INSTALLED_PRODUCT = YES;
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = NO;
 			};
@@ -3367,6 +3335,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -3388,6 +3361,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies\"";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
@@ -3398,6 +3376,7 @@
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = Plugin_CgProgramManager;
+				STRIP_INSTALLED_PRODUCT = YES;
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = NO;
 			};
@@ -3421,28 +3400,6 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				PRODUCT_NAME = "Bundle Plugins";
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-		000E249B0B390C1B004EA2DF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = "Copy to Library/Frameworks";
-			};
-			name = Debug;
-		};
-		000E249C0B390C1B004EA2DF /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				PRODUCT_NAME = "Copy to Library/Frameworks";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -3527,15 +3484,6 @@
 			buildConfigurations = (
 				000E248E0B390BC9004EA2DF /* Debug */,
 				000E248F0B390BC9004EA2DF /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		000E249A0B390C1B004EA2DF /* Build configuration list for PBXAggregateTarget "Copy to Library/Frameworks" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				000E249B0B390C1B004EA2DF /* Debug */,
-				000E249C0B390C1B004EA2DF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
