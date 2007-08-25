@@ -64,6 +64,10 @@ namespace Ogre{
 		bool processNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
 		/// This is the override for loading imports
 		ScriptNodeListPtr loadImportPath(const String &name);
+		/// Allows a listener to override the word id map before parsing
+		void preParse();
+		/// Allows a listener to override error handling in the compiler
+		bool errorRaised(const ScriptCompilerErrorPtr &error);
 	private: // Handlers for compiling script elements
 		void compileParticleSystem(const ScriptNodePtr &node);
 		void compileEmitter(const ScriptNodePtr &node);

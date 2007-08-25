@@ -51,7 +51,7 @@ namespace Ogre{
 		/// Overriding this method allows for custom asm GPU program allocation
 		virtual GpuProgram *getGpuProgram(const String &name, const String &group, GpuProgramType type, const String &syntax, const String &source);
 		/// Overriding this method allows for custom high-level GPU program allocation
-		virtual HighLevelGpuProgram *getHighLevelGpuProgram(const String &name, const String &group, GpuProgramType type, const String &language);
+		virtual HighLevelGpuProgram *getHighLevelGpuProgram(const String &name, const String &group, GpuProgramType type, const String &language, const String &source);
 		/// This is called just before texture aliases found in a script are applied to a material
 		virtual void preApplyTextureAliases(Ogre::AliasTextureNamePairList &aliases);
 		/// This accepts the name of a texture to be referenced, and is expected to ensure it loads and return the real name for it
@@ -262,6 +262,10 @@ namespace Ogre{
 		bool processNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
 		/// This is the override for loading imports
 		ScriptNodeListPtr loadImportPath(const String &name);
+		/// Allows a listener to override the word id map before parsing
+		void preParse();
+		/// Allows a listener to override error handling in the compiler
+		bool errorRaised(const ScriptCompilerErrorPtr &error);
 	private: // Private handlers to compile pieces of the material script
 		void compileMaterial(const ScriptNodePtr &node);
 		void compileTechnique(const ScriptNodePtr &node);
@@ -270,6 +274,7 @@ namespace Ogre{
 		void compileGpuProgram(const ScriptNodePtr &node);
 		void compileAsmGpuProgram(const String &name, const ScriptNodePtr &node);
 		void compileHighLevelGpuProgram(const String &name, const String &language, const ScriptNodePtr &node);
+		void compileUnifiedHighLevelGpuProgram(const String &name, const ScriptNodePtr &node);
 		void compileProgramParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params);
 		bool getColourValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
 		bool getBlendFactor(const ScriptNodePtr &node, SceneBlendFactor &sbf);

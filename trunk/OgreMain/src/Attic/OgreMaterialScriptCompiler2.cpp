@@ -60,9 +60,13 @@ namespace Ogre{
 		return GpuProgramManager::getSingleton().createProgram(name, group, source, type, syntax).get();
 	}
 
-	HighLevelGpuProgram *MaterialScriptCompilerListener::getHighLevelGpuProgram(const String &name, const String &group, GpuProgramType type, const String &language)
+	HighLevelGpuProgram *MaterialScriptCompilerListener::getHighLevelGpuProgram(const String &name, const String &group, GpuProgramType type, const String &language, const String &source)
 	{
-		return HighLevelGpuProgramManager::getSingleton().createProgram(name, group, language, type).get();
+		HighLevelGpuProgram *prog =
+			HighLevelGpuProgramManager::getSingleton().createProgram(name, group, language, type).get();
+		if(!source.empty())
+			prog->setSourceFile(source);
+		return prog;
 	}
 
 	void MaterialScriptCompilerListener::preApplyTextureAliases(Ogre::AliasTextureNamePairList &aliases)
@@ -314,6 +318,17 @@ namespace Ogre{
 		}
 
 		return nodes;
+	}
+
+	void MaterialScriptCompiler2::preParse()
+	{
+		if(mListener)
+			mListener->preParse(mWordIDs);
+	}
+
+	bool MaterialScriptCompiler2::errorRaised(const ScriptCompilerErrorPtr &error)
+	{
+		return mListener ? mListener->errorRaised(error) : true;
 	}
 
 	void MaterialScriptCompiler2::compileMaterial(const ScriptNodePtr &node)
@@ -2557,6 +2572,10 @@ namespace Ogre{
 		{
 			compileAsmGpuProgram(node1->token, node);
 		}
+		else if(node2->token == "unified")
+		{
+			compileUnifiedHighLevelGpuProgram(node1->token, node);
+		}
 		else
 		{
 			compileHighLevelGpuProgram(node1->token, node2->token, node);
@@ -2704,16 +2723,18 @@ namespace Ogre{
 		// Allocate the program
 		HighLevelGpuProgram *prog = 0;
 		if(mListener)
-			prog = mListener->getHighLevelGpuProgram(name, mGroup, type, language);
+			prog = mListener->getHighLevelGpuProgram(name, mGroup, type, language, source);
 		else
+		{
 			prog = HighLevelGpuProgramManager::getSingleton().createProgram(name, mGroup, language, type).get();
+			prog->setSourceFile(source);
+		}
 		if(prog == 0)
 		{
 			addError(CE_OBJECTALLOCATIONERROR, node->file, node->line, -1);
 			return;
 		}
 
-		prog->setSourceFile(source);
 		prog->_notifyOrigin(node->file);
 
 		// Set custom parameters
@@ -2726,6 +2747,61 @@ namespace Ogre{
 			GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
 			compileProgramParameters(*paramIter, params);
 		}
+	}
+
+	void MaterialScriptCompiler2::compileUnifiedHighLevelGpuProgram(const String &name, const ScriptNodePtr &node)
+	{
+		GpuProgramType type = node->wordID == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM;
+		
+		ScriptNodeList::iterator i = findNode(node->children.begin(), node->children.end(), SNT_LBRACE);
+		if(i == node->children.end())
+		{
+			addError(CE_OPENBRACEEXPECTED, node->file, node->line, -1);
+			return;
+		}
+
+		std::list<std::pair<String,String> > customParameters;
+		ScriptNodeList::iterator j = (*i)->children.begin(), paramIter = (*i)->children.end();
+		while(j != (*i)->children.end())
+		{
+			if(!processNode(j, (*i)->children.end()))
+			{
+				// Expect name followed by any number of values. Put the values into 1 string
+				if(!(*j)->children.empty())
+				{
+					ScriptNodeList::iterator k = (*j)->children.begin();
+					String name = (*j)->token, value = (*k)->token;
+
+					while(++k != (*j)->children.end())
+						value = value + " " + (*k)->token;
+					
+					customParameters.push_back(std::make_pair(name, value));
+				}
+				else
+				{
+					addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+				}
+				++j;
+			}
+		}
+
+		// Allocate the program
+		HighLevelGpuProgram *prog = 0;
+		if(mListener)
+			prog = mListener->getHighLevelGpuProgram(name, mGroup, type, "unified", "");
+		else
+			prog = HighLevelGpuProgramManager::getSingleton().createProgram(name, mGroup, "unified", type).get();
+		if(prog == 0)
+		{
+			addError(CE_OBJECTALLOCATIONERROR, node->file, node->line, -1);
+			return;
+		}
+
+		prog->_notifyOrigin(node->file);
+
+		// Set custom parameters
+		for(std::list<std::pair<String,String> >::iterator k = customParameters.begin(); k != customParameters.end(); ++k)
+			prog->setParameter(k->first, k->second);
 	}
 
 	void MaterialScriptCompiler2::compileProgramParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params)

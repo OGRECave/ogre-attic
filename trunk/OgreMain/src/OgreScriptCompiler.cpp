@@ -44,6 +44,11 @@ namespace Ogre{
 
 	}
 
+	bool ScriptCompilerListener::errorRaised(const ScriptCompilerErrorPtr &error)
+	{
+		return true;
+	}
+
 	// ScriptCompiler
 	ScriptCompiler::ScriptCompiler()
 		:mAllowNontypedObjects(false)
@@ -58,6 +63,9 @@ namespace Ogre{
 
 	bool ScriptCompiler::compile(const String &text, const String &group, const String &source)
 	{
+		// Before parsing, allow a listener to modify the word id map
+		preParse();
+
 		// Delegate to the other overload of this function
 		return compile(parse(text, source, mWordIDs), group);
 	}
@@ -562,7 +570,9 @@ namespace Ogre{
 		err->line = line;
 		err->column = col;
 
-		mErrors.push_back(err);
+		// Allow a derived class to override the addition of this error
+		if(errorRaised(err))
+			mErrors.push_back(err);
 	}
 
 	void ScriptCompiler::pushScope()
