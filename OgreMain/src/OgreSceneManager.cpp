@@ -299,29 +299,7 @@ bool SceneManager::hasCamera(const String& name) const
 //-----------------------------------------------------------------------
 void SceneManager::destroyCamera(Camera *cam)
 {
-	// Remove visible boundary AAB entry
-	CamVisibleObjectsMap::iterator camVisObjIt = mCamVisibleObjectsMap.find( cam );
-	if ( camVisObjIt != mCamVisibleObjectsMap.end() )
-		mCamVisibleObjectsMap.erase( camVisObjIt );
-
-	// Remove light-shadow cam mapping entry
-	ShadowCamLightMapping::iterator camLightIt = mShadowCamLightMapping.find( cam );
-	if ( camLightIt != mShadowCamLightMapping.end() )
-		mShadowCamLightMapping.erase( camLightIt );
-
-    // Find in list
-    CameraList::iterator i = mCameras.begin();
-    for (; i != mCameras.end(); ++i)
-    {
-        if (i->second == cam)
-        {
-            mCameras.erase(i);
-            // notify render targets
-            mDestRenderSystem->_notifyCameraRemoved(cam);
-            delete cam;
-            break;
-        }
-    }
+	destroyCamera(cam->getName());
 
 }
 
@@ -332,7 +310,17 @@ void SceneManager::destroyCamera(const String& name)
     CameraList::iterator i = mCameras.find(name);
     if (i != mCameras.end())
     {
-        // Notify render system
+		// Remove visible boundary AAB entry
+		CamVisibleObjectsMap::iterator camVisObjIt = mCamVisibleObjectsMap.find( i->second );
+		if ( camVisObjIt != mCamVisibleObjectsMap.end() )
+			mCamVisibleObjectsMap.erase( camVisObjIt );
+
+		// Remove light-shadow cam mapping entry
+		ShadowCamLightMapping::iterator camLightIt = mShadowCamLightMapping.find( i->second );
+		if ( camLightIt != mShadowCamLightMapping.end() )
+			mShadowCamLightMapping.erase( camLightIt );
+
+		// Notify render system
         mDestRenderSystem->_notifyCameraRemoved(i->second);
         delete i->second;
         mCameras.erase(i);
@@ -352,6 +340,8 @@ void SceneManager::destroyAllCameras(void)
         delete i->second;
     }
     mCameras.clear();
+	mCamVisibleObjectsMap.clear();
+	mShadowCamLightMapping.clear();
 }
 //-----------------------------------------------------------------------
 Light* SceneManager::createLight(const String& name)
