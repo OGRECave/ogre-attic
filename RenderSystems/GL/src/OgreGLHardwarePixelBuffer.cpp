@@ -270,10 +270,7 @@ GLTextureBuffer::GLTextureBuffer(const String &baseName, GLenum target, GLuint i
         for(size_t zoffset=0; zoffset<mDepth; ++zoffset)
         {
             String name;
-            name = baseName+
-                "/"+Ogre::StringConverter::toString(face)+
-                "/"+Ogre::StringConverter::toString(level)+
-                "/"+Ogre::StringConverter::toString(zoffset);
+			name = "rtt/" + baseName + "/" + StringConverter::toString((size_t)this);
             GLSurfaceDesc target;
             target.buffer = this;
             target.zoffset = zoffset;
