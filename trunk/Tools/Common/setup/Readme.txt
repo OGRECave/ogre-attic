@@ -105,4 +105,26 @@ Again you can drag files onto this tool, so long as you don't mind it
 overwriting the file in place. If you'd prefer to keep a backup, make a copy or
 use the command line to upgrade to a different file.
 
-Copyright 2004 The OGRE Team
+MeshMagick
+----------
+Copyright 2007 by Daniel Wickert
+
+Command-line tool for performing operations on meshes and skeletons.
+
+Usage: 
+
+MeshMagick [global_options] toolname [tool_options] infile(s) -- [outfile(s)]
+
+Available Tools:
+
+info - print information about the mesh.
+meshmerge - Merge multiple submeshes into a single mesh.
+optimise - Optimise meshes and skeletons.
+rename - Rename different elements of meshes and skeletons.
+transform - Scale, rotate or otherwise transform a mesh.
+
+See MeshMagick -help=toolname for more detailed information.
+
+
+
+Copyright 2004-7 The OGRE Team

@@ -29,6 +29,7 @@ Torus Knot Software Ltd.
 
 #include "OgreGLGpuProgram.h"
 #include "OgreException.h"
+#include "OgreStringConverter.h"
 
 using namespace Ogre;
 
@@ -182,8 +183,7 @@ void GLArbGpuProgram::loadFromSource(void)
     {
         GLint errPos;
         glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errPos);
-        char errPosStr[16];
-        snprintf(errPosStr, 16, "%d", errPos);
+		String errPosStr = StringConverter::toString(errPos);
         char* errStr = (char*)glGetString(GL_PROGRAM_ERROR_STRING_ARB);
         // XXX New exception code?
         OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 

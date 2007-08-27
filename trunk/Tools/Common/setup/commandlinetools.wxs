@@ -31,6 +31,8 @@
 						src='..\bin\release\OgreMeshUpgrade.exe' Vital='yes' />
 					<File Id='MaterialUpgrader' Name="MatUpgr.exe" LongName='OgreMaterialUpgrade.exe' DiskId='1'
 						src='..\bin\release\OgreMaterialUpgrade.exe' Vital='yes' />
+					<File Id='MeshMagick' Name="MeshMagk.exe" LongName='MeshMagick.exe' DiskId='1'
+						src='..\..\..\..\ogreaddons\MeshMagick\bin\release\MeshMagick.exe' Vital='yes' />
 				</Component>
 				<Component Id='DocsComp' Guid='5E6F2C1B-1BBD-4465-A929-0B21A58DD306'>
 					<File Id='Readme' Name='Readme.txt' DiskId='1'
