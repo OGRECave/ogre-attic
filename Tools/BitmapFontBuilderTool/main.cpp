@@ -15,13 +15,13 @@ int main(int argc, char** argv)
 {
     int size;
     std::string datName, newName, fontName, imageName, genGlyph;
-    int addLeftPixels, addRightPixels;
+    int addLeftPixels, addRightPixels, addTopPixels, addBottomPixels;
 
-		cout << "Enter unique font name: ";
-		cin >> fontName;
-		cout << "Enter font image name: ";
-		cin >> imageName;
-		cout << "Enter size of texture(Example: 256): ";
+    cout << "Enter unique font name: ";
+    cin >> fontName;
+    cout << "Enter font image name: ";
+    cin >> imageName;
+    cout << "Enter size of texture(Example: 256): ";
     cin >> size;
     cout << "Enter name of file containing binary widths: ";
     cin >> datName;
@@ -35,10 +35,14 @@ int main(int argc, char** argv)
     cin >> addLeftPixels;
     cout << "Enter number of pixels to add to the right of all glyphs: ";
     cin >> addRightPixels;
+    cout << "Enter number of pixels to add to the top of all glyphs: ";
+    cin >> addTopPixels;
+    cout << "Enter number of pixels to add to the bottom of all glyphs: ";
+    cin >> addBottomPixels;
     cout << endl;
 
-		cout << "Generate all glyph statements(Not Recommended)(Y/N): ";
-		cin >> genGlyph;
+    cout << "Generate all glyph statements (Select yes for extended ASCII characters)(Y/N): ";
+    cin >> genGlyph;
     cout << "Enter name of new text file to create: ";
     cin >> newName;
 
@@ -48,10 +52,10 @@ int main(int argc, char** argv)
 
     ofstream o(newName.c_str());
 
-		o << fontName << endl;
-		o << "{" << "\n\n";
-		o << "\ttype\timage" << endl;
-		o << "\tsource\t" << imageName << "\n\n\n";
+    o << fontName << endl;
+    o << "{" << "\n\n";
+    o << "\ttype\timage" << endl;
+    o << "\tsource\t" << imageName << "\n\n\n";
 
     int posx = 0;
     int posy = 0; 
@@ -70,33 +74,31 @@ int main(int argc, char** argv)
         int w2 = fgetc(fp) & 0xFF;
         int width = w1 + (w2 << 8);     // Little endian only, but this tool isn't available for OSX anyway
 
-        float thisx_start = posx + halfWidth - (width / 2) - addLeftPixels;
-        float thisx_end = posx + halfWidth + (width / 2) + addRightPixels;
+        float thisx_start = float(posx + halfWidth - (width / 2) - addLeftPixels);
+        float thisx_end = float(posx + halfWidth + (width / 2) + addRightPixels);
 
         float u1, u2, v1, v2;
         u1 = thisx_start / (float)(size) ;
         u2 = thisx_end / (float)(size);
-        v1 = (float)posy / (float)(size);
-        v2 = (float)(posy + charSize) / (float)(size);
+        v1 = (float)(posy - addTopPixels) / (float)(size);
+        v2 = (float)(posy + charSize + addBottomPixels) / (float)(size);
 
-				if((genGlyph.at(0) == 'N' || genGlyph.at(0) == 'n') && c >= '!' && c <= '~')
-				{
-					std::string s = " ";
-					s.at(0) = c;
-					o << "\tglyph " << s << " " << u1 << " " << v1 << " " << u2 << " " << v2 << std::endl;
-				}
-				
-				if((genGlyph.at(0) != 'N' && genGlyph.at(0) != 'n'))
-				{
-					std::string s = " ";
-					s.at(0) = c;
-					o << "\tglyph " << s << " " << u1 << " " << v1 << " " << u2 << " " << v2 << std::endl;
-				}
-				posx += charSize;
+        if((genGlyph.at(0) == 'N' || genGlyph.at(0) == 'n') && c >= '!' && c <= '~')
+        {
+            std::string s = " ";
+            s.at(0) = c;
+            o << "\tglyph " << s << " " << u1 << " " << v1 << " " << u2 << " " << v2 << std::endl;
+        }
+        
+        if((genGlyph.at(0) != 'N' && genGlyph.at(0) != 'n'))
+        {
+            o << "\tglyph u" << c << " " << u1 << " " << v1 << " " << u2 << " " << v2 << std::endl;
+        }
+        posx += charSize;
 
     }
-		o << endl;
-		o << "}" << endl;
+    o << endl;
+    o << "}" << endl;
     fclose(fp);
 
     return 0;
