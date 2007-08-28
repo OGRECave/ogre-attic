@@ -831,7 +831,7 @@ namespace Ogre
 		
 		for (int i = 0; i < 6; ++i)
 		{
-			if (SUCCEEDED(mpD3D->CheckDeviceFormat(D3DADAPTER_DEFAULT, 
+			if (SUCCEEDED(mpD3D->CheckDeviceFormat(mActiveD3DDriver->getAdapterNumber(), 
 				D3DDEVTYPE_HAL, bbSurfDesc.Format, 
 				0, D3DRTYPE_TEXTURE, floatFormats[i])))
 			{
@@ -1142,7 +1142,7 @@ namespace Ogre
 				D3D9Mappings::_getPF(D3D9Mappings::_getClosestSupportedPF(pf));
 
 			if (SUCCEEDED(mpD3D->CheckDeviceFormat(
-				D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, bbSurfDesc.Format, 
+				mActiveD3DDriver->getAdapterNumber(), D3DDEVTYPE_HAL, bbSurfDesc.Format, 
 				D3DUSAGE_QUERY_VERTEXTEXTURE, D3DRTYPE_TEXTURE, fmt)))
 			{
 				// cool, at least one supported
