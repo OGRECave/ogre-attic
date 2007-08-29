@@ -131,6 +131,20 @@ namespace Ogre
 		return newZone;
 	}
 
+	/* Get a zone by name */
+	PCZone * PCZSceneManager::getZoneByName(String & zoneName)
+	{
+		ZoneMap::iterator i;
+		PCZone * zone;
+		i = mZones.find(zoneName);
+		if (i != mZones.end())
+		{
+			zone = i->second;
+			return zone;
+		}
+		return 0; // couldn't find the zone
+	}
+
 	void PCZSceneManager::setZoneGeometry(const String & zoneName,
 										  PCZSceneNode * parentNode,
 										  const String & filename)
