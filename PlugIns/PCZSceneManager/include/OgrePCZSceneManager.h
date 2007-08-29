@@ -270,7 +270,10 @@ namespace Ogre
 		{
 			return mDefaultZone;
 		}
-
+		
+		/* Get a zone by name */
+		PCZone * getZoneByName(String & zoneName);
+		
         /** Sets the portal visibility flag */
         void setShowPortals( bool b )
         {
