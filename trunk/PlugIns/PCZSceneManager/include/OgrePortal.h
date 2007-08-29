@@ -70,12 +70,6 @@ namespace Ogre
         Portal(const String &, const PORTAL_TYPE type = PORTAL_TYPE_QUAD);
         ~Portal();
 
-		/* get the type of portal 
-		*/
-		const PORTAL_TYPE getType(void) const {return mType;}
-		/* Returns the name of the portal
-		*/
-		const String & getName(void) const { return mName; }
         /** Set the SceneNode the Portal is associated with
         */
         void setNode( SceneNode * );
@@ -122,10 +116,18 @@ namespace Ogre
 				break;
 			}
 		}
-
 		/* Calculate the local direction and radius of the portal
 		*/
 		void calcDirectionAndRadius( void );
+		/* get the type of portal 
+		*/
+		const PORTAL_TYPE getType(void) const {return mType;}
+		/* Returns the name of the portal
+		*/
+		const String & getName(void) const { return mName; }
+		/* Get the scene node (if any) this portal is associated with 
+		*/
+		SceneNode * getNode() {return mNode;}
         /** Retrieve the radius of the portal (calculates if necessary for quad portals)
         */
 		Real getRadius( void );
@@ -141,6 +143,9 @@ namespace Ogre
         /** Get the coordinates of one of the portal corners in local space
         */
         Vector3 & getCorner( int );
+		/** Get the direction vector of the portal in local space 
+		*/
+		Vector3 & getDirection() {return mDirection;}
         /** Get the derived (world) coordinates of one of the portal corners 
         */
         Vector3 & getDerivedCorner( int ) ;
