@@ -46,6 +46,7 @@ namespace Ogre
     {
         mLastVisibleFrame = 0;
 		mName = name;
+		mZoneTypeName = "ZoneType_Undefined";
 		mEnclosureNode = 0;
 		mPCZSM = creator;
 		mHasSky = false;

@@ -89,6 +89,9 @@ namespace Ogre
         PCZone( PCZSceneManager *, const String& );
         virtual ~PCZone();
 
+		// get the zone type name (ex: "ZoneType_Terrain")
+		const String& getZoneTypeName() const { return mZoneTypeName; }
+
 		// Returns the name of the zone
 		const String& getName(void) const { return mName; }
 
@@ -232,6 +235,8 @@ namespace Ogre
 	protected:
 		// name of the zone (must be unique)
 		String mName;
+		/// Zone type name
+		String mZoneTypeName;
         // frame counter for visibility
         unsigned long mLastVisibleFrame;
 		// flag determining whether or not this zone has sky in it.
