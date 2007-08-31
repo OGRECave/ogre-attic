@@ -146,8 +146,6 @@ namespace Ogre
         file << "\t" << "num_vertex_texture_units " << StringConverter::toString(caps->getNumVertexTextureUnits()) << endl;
 
         file << endl;
-        file << "\t" << "max_vertex_program_version " << caps->getMaxVertexProgramVersion() << endl;
-        file << "\t" << "max_fragment_program_version " << caps->getMaxFragmentProgramVersion() << endl;
 
         file << "}" << endl;
 
@@ -295,13 +293,6 @@ namespace Ogre
 
     void RenderSystemCapabilitiesSerializer::initialiaseDispatchTables()
     {
-        // set up the  type for max_vertex_program_version capability
-        addKeywordType("max_vertex_program_version", SET_STRING_METHOD);
-        addKeywordType("max_fragment_program_version", SET_STRING_METHOD);
-		// set up the setter for max_vertex_program_version capability
-        addSetStringMethod("max_vertex_program_version", &RenderSystemCapabilities::setMaxVertexProgramVersion);
-        addSetStringMethod("max_fragment_program_version", &RenderSystemCapabilities::setMaxFragmentProgramVersion);
-
 		// set up driver version parsing
 		addKeywordType("d3d9_driver_version", SET_STRING_METHOD);
 		addKeywordType("gl_driver_version", SET_STRING_METHOD);
@@ -509,7 +500,7 @@ namespace Ogre
         }
     }
 
-    void RenderSystemCapabilitiesSerializer::logParseError(const String& error)
+    void RenderSystemCapabilitiesSerializer::logParseError(const String& error) const
     {
         // log the line with error in it if the current line is available
         if (mCurrentLine != 0 && !mCurrentStream.isNull())

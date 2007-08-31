@@ -45,10 +45,15 @@ Torus Knot Software Ltd.
 
 // Identifies how many bits are reserved for categories
 // NOTE: Although 4 bits (currently) are enough
-#define CAPS_CATEGORY_SIZE 4
+static const int CAPS_CATEGORY_SIZE = 4;
 #define CAPS_BITSHIFT (32 - CAPS_CATEGORY_SIZE)
 #define CAPS_CATEGORY_MASK ((2^CAPS_CATEGORY_SIZE - 1) << CAPS_BITSHIFT)
 #define CAPS_VALUE(cat, val) ((cat << CAPS_BITSHIFT) | (1 << val))
+
+static const int CAPS_CATEGORY_D3D9 = 0;
+static const int CAPS_CATEGORY_GL = 1;
+static const int CAPS_CATEGORY_COMMON = 2;
+static const int CAPS_CATEGORY_COMMON_2 = 3;
 
 namespace Ogre {
 
@@ -58,77 +63,78 @@ namespace Ogre {
 	// b is the value (from 0 to 27)
     enum Capabilities
     {
+		/// Is DirectX feature "per stage constants" supported
+        RSC_PERSTAGECONSTANT = CAPS_VALUE(CAPS_CATEGORY_D3D9, 0),
+
+		/// Supports openGL GLEW version 1.5
+        RSC_GLEW1_5_NOVBO    = CAPS_VALUE(CAPS_CATEGORY_GL, 1),
+        /// Support for Frame Buffer Objects (FBOs)
+        RSC_FBO              = CAPS_VALUE(CAPS_CATEGORY_GL, 2),
+        /// Support for Frame Buffer Objects ARB implementation (regular FBO is higher precedence)
+        RSC_FBO_ARB          = CAPS_VALUE(CAPS_CATEGORY_GL, 3),
+        /// Support for Frame Buffer Objects ATI implementation (ARB FBO is higher precedence)
+        RSC_FBO_ATI          = CAPS_VALUE(CAPS_CATEGORY_GL, 4),
+        /// Support for PBuffer
+        RSC_PBUFFER          = CAPS_VALUE(CAPS_CATEGORY_GL, 5),
+        /// Support for GLEW 1.5 without HW occlusion workaround
+        RSC_GLEW1_5_NOHWOCCLUSION = CAPS_VALUE(CAPS_CATEGORY_GL, 6),
+
+
         /// Supporta generating mipmaps in hardware
-        RSC_AUTOMIPMAP              = CAPS_VALUE(0, 0),
-        RSC_BLENDING                = CAPS_VALUE(0, 1),
+        RSC_AUTOMIPMAP              = CAPS_VALUE(CAPS_CATEGORY_COMMON, 0),
+        RSC_BLENDING                = CAPS_VALUE(CAPS_CATEGORY_COMMON, 1),
         /// Supports anisotropic texture filtering
-        RSC_ANISOTROPY              = CAPS_VALUE(0, 2),
+        RSC_ANISOTROPY              = CAPS_VALUE(CAPS_CATEGORY_COMMON, 2),
         /// Supports fixed-function DOT3 texture blend
-        RSC_DOT3                    = CAPS_VALUE(0, 3),
+        RSC_DOT3                    = CAPS_VALUE(CAPS_CATEGORY_COMMON, 3),
         /// Supports cube mapping
-        RSC_CUBEMAPPING             = CAPS_VALUE(0, 4),
+        RSC_CUBEMAPPING             = CAPS_VALUE(CAPS_CATEGORY_COMMON, 4),
         /// Supports hardware stencil buffer
-        RSC_HWSTENCIL               = CAPS_VALUE(0, 5),
-        /// Supports hardware vertex and index buffe6s
-        RSC_VBO                     = CAPS_VALUE(0, 7),
-        /// Supports vertex programs (vertex shaders8
-        RSC_VERTEX_PROGRAM          = CAPS_VALUE(0, 9),
+        RSC_HWSTENCIL               = CAPS_VALUE(CAPS_CATEGORY_COMMON, 5),
+        /// Supports hardware vertex and index buffers
+        RSC_VBO                     = CAPS_VALUE(CAPS_CATEGORY_COMMON, 7),
+        /// Supports vertex programs (vertex shaders
+        RSC_VERTEX_PROGRAM          = CAPS_VALUE(CAPS_CATEGORY_COMMON, 9),
         /// Supports fragment programs (pixel shaders)
-        RSC_FRAGMENT_PROGRAM        = CAPS_VALUE(0, 10),
+        RSC_FRAGMENT_PROGRAM        = CAPS_VALUE(CAPS_CATEGORY_COMMON, 10),
         /// Supports performing a scissor test to exclude areas of the screen
-        RSC_SCISSOR_TEST            = CAPS_VALUE(0, 11),
+        RSC_SCISSOR_TEST            = CAPS_VALUE(CAPS_CATEGORY_COMMON, 11),
         /// Supports separate stencil updates for both front and back faces
-        RSC_TWO_SIDED_STENCIL       = CAPS_VALUE(0, 12),
+        RSC_TWO_SIDED_STENCIL       = CAPS_VALUE(CAPS_CATEGORY_COMMON, 12),
         /// Supports wrapping the stencil value at the range extremeties
-        RSC_STENCIL_WRAP            = CAPS_VALUE(0, 13),
+        RSC_STENCIL_WRAP            = CAPS_VALUE(CAPS_CATEGORY_COMMON, 13),
         /// Supports hardware occlusion queries
-        RSC_HWOCCLUSION             = CAPS_VALUE(0, 14),
+        RSC_HWOCCLUSION             = CAPS_VALUE(CAPS_CATEGORY_COMMON, 14),
         /// Supports user clipping planes
-        RSC_USER_CLIP_PLANES        = CAPS_VALUE(0, 15),
+        RSC_USER_CLIP_PLANES        = CAPS_VALUE(CAPS_CATEGORY_COMMON, 15),
         /// Supports the VET_UBYTE4 vertex element type
-        RSC_VERTEX_FORMAT_UBYTE4    = CAPS_VALUE(0, 16),
+        RSC_VERTEX_FORMAT_UBYTE4    = CAPS_VALUE(CAPS_CATEGORY_COMMON, 16),
         /// Supports infinite far plane projection
-        RSC_INFINITE_FAR_PLANE      = CAPS_VALUE(0, 17),
+        RSC_INFINITE_FAR_PLANE      = CAPS_VALUE(CAPS_CATEGORY_COMMON, 17),
         /// Supports hardware render-to-texture (bigger than framebuffer)
-        RSC_HWRENDER_TO_TEXTURE     = CAPS_VALUE(0, 18),
+        RSC_HWRENDER_TO_TEXTURE     = CAPS_VALUE(CAPS_CATEGORY_COMMON, 18),
         /// Supports float textures and render targets
-        RSC_TEXTURE_FLOAT           = CAPS_VALUE(0, 19),
+        RSC_TEXTURE_FLOAT           = CAPS_VALUE(CAPS_CATEGORY_COMMON, 19),
         /// Supports non-power of two textures
-        RSC_NON_POWER_OF_2_TEXTURES = CAPS_VALUE(0, 20),
+        RSC_NON_POWER_OF_2_TEXTURES = CAPS_VALUE(CAPS_CATEGORY_COMMON, 20),
         /// Supports 3d (volume) textures
-        RSC_TEXTURE_3D              = CAPS_VALUE(0, 21),
+        RSC_TEXTURE_3D              = CAPS_VALUE(CAPS_CATEGORY_COMMON, 21),
         /// Supports basic point sprite rendering
-        RSC_POINT_SPRITES           = CAPS_VALUE(0, 22),
+        RSC_POINT_SPRITES           = CAPS_VALUE(CAPS_CATEGORY_COMMON, 22),
         /// Supports extra point parameters (minsize, maxsize, attenuation)
-        RSC_POINT_EXTENDED_PARAMETERS = CAPS_VALUE(0, 23),
+        RSC_POINT_EXTENDED_PARAMETERS = CAPS_VALUE(CAPS_CATEGORY_COMMON, 23),
         /// Supports vertex texture fetch
-        RSC_VERTEX_TEXTURE_FETCH = CAPS_VALUE(0, 24),
+        RSC_VERTEX_TEXTURE_FETCH = CAPS_VALUE(CAPS_CATEGORY_COMMON, 24),
         /// Supports mipmap LOD biasing
-        RSC_MIPMAP_LOD_BIAS = CAPS_VALUE(0, 25),
+        RSC_MIPMAP_LOD_BIAS = CAPS_VALUE(CAPS_CATEGORY_COMMON, 25),
 
         /// Supports compressed textures
-        RSC_TEXTURE_COMPRESSION = CAPS_VALUE(1, 0),
+        RSC_TEXTURE_COMPRESSION = CAPS_VALUE(CAPS_CATEGORY_COMMON_2, 0),
         /// Supports compressed textures in the DXT/ST3C formats
-        RSC_TEXTURE_COMPRESSION_DXT = CAPS_VALUE(1, 1),
+        RSC_TEXTURE_COMPRESSION_DXT = CAPS_VALUE(CAPS_CATEGORY_COMMON_2, 1),
         /// Supports compressed textures in the VTC format
-        RSC_TEXTURE_COMPRESSION_VTC = CAPS_VALUE(1, 2),
-        /// Supports openGL GLEW version 1.5
-        RSC_GLEW1_5_NOVBO    = CAPS_VALUE(1, 3),
-        /// Support for Frame Buffer Objects (FBOs)
-        RSC_FBO              = CAPS_VALUE(1, 4),
-        /// Support for Frame Buffer Objects ARB implementation (regular FBO is higher precedence)
-        RSC_FBO_ARB          = CAPS_VALUE(1, 5),
-        /// Support for Frame Buffer Objects ATI implementation (ARB FBO is higher precedence)
-        RSC_FBO_ATI          = CAPS_VALUE(1, 6),
-        /// Support for PBuffer
-        RSC_PBUFFER          = CAPS_VALUE(1, 7),
-        /// Support for GLEW 1.5 without HW occlusion workaround
-        RSC_GLEW1_5_NOHWOCCLUSION = CAPS_VALUE(1, 8),
-
-
-        /// Is DirectX feature "per stage constants" supported
-        RSC_PERSTAGECONSTANT = CAPS_VALUE(1, 9)
-
+        RSC_TEXTURE_COMPRESSION_VTC = CAPS_VALUE(CAPS_CATEGORY_COMMON_2, 2),
+        
     };
 
 	/// DriverVersion is used by RenderSystemCapabilities and both GL and D3D9
@@ -169,10 +175,6 @@ namespace Ogre {
             ushort mNumVertexBlendMatrices;
             /// Stores the capabilities flags.
             int mCapabilities[4];
-            /// The best vertex program that this card / rendersystem supports
-            String mMaxVertexProgramVersion;
-            /// The best fragment program that this card / rendersystem supports
-            String mMaxFragmentProgramVersion;
             /// The name of the device as reported by the render system
             String mDeviceNameD3D9;
             String mDeviceNameGL;
@@ -364,6 +366,16 @@ namespace Ogre {
 				return mNumMultiRenderTargets;
 			}
 
+			/** Returns true if capability is render system specific
+			*/
+			bool isCapabilityRenderSystemSpecific(const Capabilities c)
+			{
+				int cat = c >> CAPS_BITSHIFT;
+				if(cat == CAPS_CATEGORY_GL || cat == CAPS_CATEGORY_D3D9)
+					return true;
+				return false;
+			}
+
             /** Adds a capability flag to mCapabilities
             */
             void setCapability(const Capabilities c)
@@ -413,16 +425,6 @@ namespace Ogre {
 						}
 
 
-            /// Gets the best low-level vertex program version supported
-            const String& getMaxVertexProgramVersion(void) const
-            {
-                return mMaxVertexProgramVersion;
-            }
-            /// Gets the best fragment program that this card / rendersystem supports
-            const String& getMaxFragmentProgramVersion(void) const
-            {
-                return mMaxFragmentProgramVersion;
-            }
             /// The number of floating-point constants vertex programs support
             ushort getVertexProgramConstantFloatCount(void) const
             {
@@ -454,18 +456,6 @@ namespace Ogre {
                 return mFragmentProgramConstantBoolCount;
             }
 
-            /// sets the best low-level vertex program version supported
-            void setMaxVertexProgramVersion(const String& ver)
-            {
-                mMaxVertexProgramVersion = ver;
-            }
-                   
-            /// sets the best fragment program that this card / rendersystem supports
-            void setMaxFragmentProgramVersion(const String& ver)
-            {
-                mMaxFragmentProgramVersion = ver;
-            }
-            
                 /// sets the device name for D3D9 render system
             void setDeviceNameD3D9(const String& name)
             {

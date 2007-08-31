@@ -95,21 +95,16 @@ namespace Ogre {
         pLog->logMessage(
             " * Vertex programs: "
             + StringConverter::toString(hasCapability(RSC_VERTEX_PROGRAM), true));
-        if (hasCapability(RSC_VERTEX_PROGRAM))
-        {
-            pLog->logMessage(
-                "   - Max vertex program version: "
-                + getMaxVertexProgramVersion());
-        }
         pLog->logMessage(
             " * Fragment programs: "
             + StringConverter::toString(hasCapability(RSC_FRAGMENT_PROGRAM), true));
-        if (hasCapability(RSC_FRAGMENT_PROGRAM))
-        {
-            pLog->logMessage(
-                "   - Max fragment program version: "
-                + getMaxFragmentProgramVersion());
-        }
+		String profileList = "";
+		for(ShaderProfiles::iterator iter = mSupportedShaderProfiles.begin(), end = mSupportedShaderProfiles.end();
+				iter != end; ++iter)
+		{
+			profileList += " " + *iter;
+		}
+		pLog->logMessage(" * Supported Shader Profiles:" + profileList);
 
         pLog->logMessage(
             " * Texture Compression: "
