@@ -47,6 +47,7 @@ namespace Ogre
     OctreeZone::OctreeZone( PCZSceneManager * creator, const String& name ) 
 		: PCZone(creator, name)
     {
+		mZoneTypeName = "ZoneType_Octree";
 		// init octree
 		AxisAlignedBox b( -10000, -10000, -10000, 10000, 10000, 10000 );
 		int depth = 8; 
