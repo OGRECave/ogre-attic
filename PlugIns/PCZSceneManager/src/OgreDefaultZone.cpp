@@ -50,6 +50,7 @@ namespace Ogre
     DefaultZone::DefaultZone( PCZSceneManager * creator, const String& name )
 		: PCZone(creator, name)
     {
+		mZoneTypeName = "ZoneType_Default";
 	}
 
     DefaultZone::~DefaultZone()
