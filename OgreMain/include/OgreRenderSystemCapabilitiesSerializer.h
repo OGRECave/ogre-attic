@@ -116,7 +116,14 @@ namespace Ogre {
 
         inline CapabilityKeywordType getKeywordType(const String& keyword) const
         {
-            return mKeywordTypeMap[keyword];
+						KeywordTypeMap::const_iterator it = mKeywordTypeMap.find(keyword);
+            if(it != mKeywordTypeMap.end())
+							 return (*it).second;
+						else
+						{
+							 logParseError("Can't find the type for keyword: " + keyword);
+							 return UNDEFINED_CAPABILITY_TYPE;
+						}
         }
 
         inline void addSetStringMethod(String keyword, SetStringMethod method)
@@ -126,10 +133,11 @@ namespace Ogre {
 
         inline void callSetStringMethod(String& keyword, String& val)
         {
-            SetStringMethod method = mSetStringMethodDispatchTable[keyword];
-            if (method)
+            SetStringMethodDispatchTable::iterator methodIter = mSetStringMethodDispatchTable.find(keyword);
+            if (methodIter != mSetStringMethodDispatchTable.end())
             {
-                (mCurrentCapabilities->*method)(val);
+						    SetStringMethod m = (*methodIter).second;
+                (mCurrentCapabilities->*m)(val);
             }
             else
             {
@@ -145,15 +153,16 @@ namespace Ogre {
 
         inline void callSetIntMethod(String& keyword, int val)
         {
-            SetIntMethod method = mSetIntMethodDispatchTable[keyword];
-            if (method)
+            SetIntMethodDispatchTable::iterator methodIter = mSetIntMethodDispatchTable.find(keyword);
+            if (methodIter != mSetIntMethodDispatchTable.end())
             {
-                (mCurrentCapabilities->*method)(val);
+						    SetIntMethod m = (*methodIter).second;
+                (mCurrentCapabilities->*m)(val);
             }
             else
             {
                 logParseError("undefined keyword: " + keyword);
-            }
+            }  
         }
 
 
@@ -164,15 +173,16 @@ namespace Ogre {
 
         inline void callSetBoolMethod(String& keyword, bool val)
         {
-            SetBoolMethod method = mSetBoolMethodDispatchTable[keyword];
-            if (method)
+            SetBoolMethodDispatchTable::iterator methodIter = mSetBoolMethodDispatchTable.find(keyword);
+            if (methodIter != mSetBoolMethodDispatchTable.end())
             {
-                (mCurrentCapabilities->*method)(val);
+						    SetBoolMethod m = (*methodIter).second;
+                (mCurrentCapabilities->*m)(val);
             }
             else
             {
                 logParseError("undefined keyword: " + keyword);
-            }
+						}
         }
 
 
@@ -183,15 +193,16 @@ namespace Ogre {
 
         inline void callSetRealMethod(String& keyword, Real val)
         {
-            SetRealMethod method = mSetRealMethodDispatchTable[keyword];
-            if (method)
+            SetRealMethodDispatchTable::iterator methodIter = mSetRealMethodDispatchTable.find(keyword);
+            if (methodIter != mSetRealMethodDispatchTable.end())
             {
-                (mCurrentCapabilities->*method)(val);
+						    SetRealMethod m = (*methodIter).second;
+                (mCurrentCapabilities->*m)(val);
             }
             else
             {
                 logParseError("undefined keyword: " + keyword);
-            }
+						}
         }
 
         inline void addShaderProfile(String& val)
@@ -219,7 +230,7 @@ namespace Ogre {
 
         void parseCapabilitiesLines(CapabilitiesLinesList& linesList);
 
-        void logParseError(const String& error);
+        void logParseError(const String& error) const;
 
     };
 
