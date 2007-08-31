@@ -65,6 +65,7 @@ namespace Ogre
     TerrainZone::TerrainZone(PCZSceneManager * pczsm,const String& name) 
 		: OctreeZone(pczsm, name)
     {
+		mZoneTypeName = "ZoneType_Terrain";
         mUseCustomMaterial = false;
         mUseNamedParameterLodMorph = false;
         mLodMorphParamIndex = 3;
