@@ -63,6 +63,11 @@ CompositorManager::CompositorManager():
 	// Create default thread serializer instance (also non-threaded)
 	OGRE_THREAD_POINTER_SET(mSerializer, new CompositorSerializer());
 
+#if OGRE_USE_NEW_COMPILERS
+	OGRE_THREAD_POINTER_SET(mScriptCompiler2, new CompositorScriptCompiler2());
+	mCompilerListener = 0;
+#endif
+
 	// Register with resource group manager
 	ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
 
@@ -74,6 +79,9 @@ CompositorManager::~CompositorManager()
 	delete mRectangle;
 
 	OGRE_THREAD_POINTER_DELETE(mSerializer);
+#if OGRE_USE_NEW_COMPILERS
+	OGRE_THREAD_POINTER_DELETE(mScriptCompiler2);
+#endif
 
 	// Resources cleared by superclass
 	// Unregister with resource group manager
@@ -132,6 +140,21 @@ void CompositorManager::initialise(void)
 //-----------------------------------------------------------------------
 void CompositorManager::parseScript(DataStreamPtr& stream, const String& groupName)
 {
+#if OGRE_USE_NEW_COMPILERS
+#if OGRE_THREAD_SUPPORT
+	// check we have an instance for this thread 
+	if (!mScriptCompiler2.get())
+	{
+		// create a new instance for this thread - will get deleted when
+		// the thread dies
+		mScriptCompiler2.reset(new CompositorScriptCompiler2());
+	}
+#endif
+
+	mScriptCompiler2->setListener(mCompilerListener);
+
+	mScriptCompiler2->compile(stream, groupName);
+#else
 #if OGRE_THREAD_SUPPORT
 	// check we have an instance for this thread 
 	if (!mSerializer.get())
@@ -142,6 +165,7 @@ void CompositorManager::parseScript(DataStreamPtr& stream, const String& groupNa
 	}
 #endif
     mSerializer->parseScript(stream, groupName);
+#endif
 }
 //-----------------------------------------------------------------------
 CompositorChain *CompositorManager::getCompositorChain(Viewport *vp)
@@ -179,6 +203,13 @@ void CompositorManager::removeAll(void)
 	freeChains();
 	ResourceManager::removeAll();
 }
+//-----------------------------------------------------------------------
+#if OGRE_USE_NEW_COMPILERS
+void CompositorManager::setCompilerListener(CompositorScriptCompilerListener *listener)
+{
+	mCompilerListener = listener;
+}
+#endif
 //-----------------------------------------------------------------------
 void CompositorManager::freeChains()
 {

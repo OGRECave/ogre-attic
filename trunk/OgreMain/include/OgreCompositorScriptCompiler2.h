@@ -31,6 +31,9 @@ Torus Knot Software Ltd.
 #define __CompositorScriptScompiler2_H__
 
 #include "OgreScriptCompiler.h"
+#include "OgreCompositionTechnique.h"
+#include "OgreCompositionTargetPass.h"
+#include "OgreCompositionPass.h"
 
 namespace Ogre
 {
@@ -44,6 +47,8 @@ namespace Ogre
 	public:
 		CompositorScriptCompilerListener();
 
+		/// Override this to customly allocate compositors
+		Compositor *getCompositor(const String &name, const String &group);
 		/// Override this to do custom processing
 		virtual bool processNode(ScriptNodeList::iterator &iter, ScriptNodeList::iterator &end, CompositorScriptCompiler2*);
 	};
@@ -67,6 +72,8 @@ namespace Ogre
 			ID_INPUT,
 				ID_NONE,
 				ID_PREVIOUS,
+				ID_TARGET_WIDTH,
+				ID_TARGET_HEIGHT,
 			ID_ONLY_INITIAL,
 			ID_VISIBILITY_MASK,
 			ID_LOD_BIAS,
@@ -129,6 +136,16 @@ namespace Ogre
 		void preParse();
 		/// Allows a listener to override error handling in the compiler
 		bool errorRaised(const ScriptCompilerErrorPtr &error);
+	private: // Custom node handling
+		void compileCompositor(const ScriptNodePtr &node);
+		void compileTechnique(const ScriptNodePtr &node);
+		void compileTarget(const ScriptNodePtr &node, CompositionTechnique *technique);
+		void compileTargetOutput(const ScriptNodePtr &node, CompositionTechnique *technique);
+		void compilePass(const ScriptNodePtr &node, CompositionTargetPass *target);
+		void compileTargetOptions(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, CompositionTargetPass *target);
+		bool getCompareFunction(const ScriptNodePtr &node, CompareFunction &func);
+		bool getStencilOp(const ScriptNodePtr &node, StencilOperation &op);
+		bool getColourValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
 	private:
 		// The listener
 		CompositorScriptCompilerListener *mListener;

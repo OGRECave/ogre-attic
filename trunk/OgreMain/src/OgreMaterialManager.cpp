@@ -72,6 +72,7 @@ namespace Ogre {
 		// other copies for other threads may also be instantiated
 #if OGRE_USE_NEW_COMPILERS
 		OGRE_THREAD_POINTER_SET(mScriptCompiler2, new MaterialScriptCompiler2());
+		mCompilerListener = 0;
 #else
 #if OGRE_MATERIAL_SCRIPT_COMPILER
         OGRE_THREAD_POINTER_SET(mScriptCompiler, new MaterialScriptCompiler());
@@ -153,6 +154,7 @@ namespace Ogre {
 #endif
 
 		// Set the listener
+		mScriptCompiler2->setListener(mCompilerListener);
 
 		// Compile
 		mScriptCompiler2->compile(stream, groupName);
