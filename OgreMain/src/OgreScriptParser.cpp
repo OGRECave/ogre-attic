@@ -700,10 +700,10 @@ namespace Ogre {
 					>>
 					((quote[quote_action(&self.ast,true)])|(word[word_action(&self.ast,true)])|(variable[variable_action(&self.ast,true)]))
 					>>
-					*(ws >> ((quote[quote_action(&self.ast,true)])|(word[word_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
+					*(ws >> ((quote[quote_action(&self.ast,false)])|(word[word_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
 					>>
 					!(ws >> (str_p(":")[colon_action(&self.ast)]) >> ws >>
-						((quote[quote_action(&self.ast,true)])|(word[word_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
+						((quote[quote_action(&self.ast,false)])|(word[word_action(&self.ast,false)])|(variable[variable_action(&self.ast,false)])))
 					>>
 					*(ws|nl)
 					>>
