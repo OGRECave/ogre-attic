@@ -309,7 +309,6 @@ namespace Ogre {
             rsc->setCapability(RSC_VERTEX_PROGRAM);
 
             // Vertex Program Properties
-            rsc->setMaxVertexProgramVersion("arbvp1");
             rsc->setVertexProgramConstantBoolCount(0);
             rsc->setVertexProgramConstantIntCount(0);
 
@@ -320,13 +319,11 @@ namespace Ogre {
             rsc->addShaderProfile("arbvp1");
 						if (GLEW_NV_vertex_program2_option)
 						{
-								rsc->setMaxVertexProgramVersion("vp30");
 								rsc->addShaderProfile("vp30");
 						}
 
 						if (GLEW_NV_vertex_program3)
 						{
-								rsc->setMaxVertexProgramVersion("vp40");
 								rsc->addShaderProfile("vp40");
 						}
 				}
@@ -335,8 +332,6 @@ namespace Ogre {
             GLEW_NV_texture_shader)
         {
 						rsc->setCapability(RSC_FRAGMENT_PROGRAM);
-						rsc->setMaxFragmentProgramVersion("fp20");
-
 						rsc->addShaderProfile("fp20");
         }
 
@@ -344,7 +339,6 @@ namespace Ogre {
 				if (GLEW_ATI_fragment_shader)
 				{
 						rsc->setCapability(RSC_FRAGMENT_PROGRAM);
-						rsc->setMaxFragmentProgramVersion("ps_1_4");
 						// no boolean params allowed
 						rsc->setFragmentProgramConstantBoolCount(0);
 						// no integer params allowed
@@ -364,7 +358,6 @@ namespace Ogre {
             rsc->setCapability(RSC_FRAGMENT_PROGRAM);
 
             // Fragment Program Properties
-            rsc->setMaxFragmentProgramVersion("arbfp1");
             rsc->setFragmentProgramConstantBoolCount(0);
             rsc->setFragmentProgramConstantIntCount(0);
 
@@ -375,13 +368,11 @@ namespace Ogre {
             rsc->addShaderProfile("arbfp1");
 						if (GLEW_NV_fragment_program_option)
 						{
-								rsc->setMaxFragmentProgramVersion("fp30");
 								rsc->addShaderProfile("fp30");
 						}
 
 						if (GLEW_NV_fragment_program2)
 						{
-								rsc->setMaxFragmentProgramVersion("fp40");
 								rsc->addShaderProfile("fp40");
 						}        
 				}

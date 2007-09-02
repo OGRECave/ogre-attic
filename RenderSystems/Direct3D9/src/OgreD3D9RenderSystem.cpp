@@ -942,11 +942,10 @@ namespace Ogre
             }
         }
 
-        // Populate max version & params
+        // Populate max param count
         switch (major)
         {
         case 1:
-            rsc->setMaxVertexProgramVersion("vs_1_1");
             // No boolean params allowed
             rsc->setVertexProgramConstantBoolCount(0);
             // No integer params allowed
@@ -956,18 +955,6 @@ namespace Ogre
            
             break;
         case 2:
-            if (vs2a)
-            {
-                rsc->setMaxVertexProgramVersion("vs_2_a");
-            }
-            else if (vs2x)
-            {
-                rsc->setMaxVertexProgramVersion("vs_2_x");
-            }
-            else
-            {
-                rsc->setMaxVertexProgramVersion("vs_2_0");
-            }
             // 16 boolean params allowed
             rsc->setVertexProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
@@ -976,16 +963,12 @@ namespace Ogre
             rsc->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
             break;
         case 3:
-            rsc->setMaxVertexProgramVersion("vs_3_0");
             // 16 boolean params allowed
             rsc->setVertexProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
             rsc->setVertexProgramConstantIntCount(16);
             // float params, always 4D
             rsc->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
-            break;
-        default:
-            rsc->setMaxVertexProgramVersion(StringUtil::BLANK);
             break;
         }
 
@@ -1046,21 +1029,6 @@ namespace Ogre
         switch (major)
         {
         case 1:
-            switch(minor)
-            {
-            case 1:
-                rsc->setMaxFragmentProgramVersion("ps_1_1");
-                break;
-            case 2:
-                rsc->setMaxFragmentProgramVersion("ps_1_2");
-                break;
-            case 3:
-                rsc->setMaxFragmentProgramVersion("ps_1_3");
-                break;
-            case 4:
-                rsc->setMaxFragmentProgramVersion("ps_1_4");
-                break;
-            }
             // no boolean params allowed
             rsc->setFragmentProgramConstantBoolCount(0);
             // no integer params allowed
@@ -1071,22 +1039,6 @@ namespace Ogre
             rsc->setFragmentProgramConstantFloatCount(8);
             break;
         case 2:
-			if (ps2a)
-            {
-                rsc->setMaxFragmentProgramVersion("ps_2_a");
-            }
-			else if (ps2b)
-            {
-                rsc->setMaxFragmentProgramVersion("ps_2_b");
-            }
-			else if (ps2x)
-            {
-                rsc->setMaxFragmentProgramVersion("ps_2_x");
-            }
-            else
-            {
-                rsc->setMaxFragmentProgramVersion("ps_2_0");
-            }
             // 16 boolean params allowed
             rsc->setFragmentProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
@@ -1095,23 +1047,12 @@ namespace Ogre
             rsc->setFragmentProgramConstantFloatCount(32);
             break;
         case 3:
-            if (minor > 0)
-            {
-                rsc->setMaxFragmentProgramVersion("ps_3_x");
-            }
-            else
-            {
-                rsc->setMaxFragmentProgramVersion("ps_3_0");
-            }
             // 16 boolean params allowed
             rsc->setFragmentProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
             rsc->setFragmentProgramConstantIntCount(16);
             // float params, always 4D
             rsc->setFragmentProgramConstantFloatCount(224);
-            break;
-        default:
-            rsc->setMaxFragmentProgramVersion(StringUtil::BLANK);
             break;
         }
 
