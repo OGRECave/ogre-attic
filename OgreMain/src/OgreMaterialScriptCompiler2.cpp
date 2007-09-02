@@ -80,7 +80,7 @@ namespace Ogre{
 
 	// MaterialScriptCompiler2
 	MaterialScriptCompiler2::MaterialScriptCompiler2()
-		:mListener(0)
+		:mListener(0), mMaterial(0)
 	{
 		mAllowNontypedObjects = false; // All material objects must be typed
 
@@ -2643,29 +2643,32 @@ namespace Ogre{
 			}
 		}
 
-		// Allocate the program
-		GpuProgram *prog = 0;
-		if(mListener)
-			prog = mListener->getGpuProgram(name, mGroup, type, syntax, source);
-		else
-			prog = GpuProgramManager::getSingleton().createProgram(name, mGroup, source, type, syntax).get();
-		if(prog == 0)
-		{
-			addError(CE_OBJECTALLOCATIONERROR, node->file, node->line, -1);
-			return;
-		}
+		try{
+			// Allocate the program
+			GpuProgram *prog = 0;
+			if(mListener)
+				prog = mListener->getGpuProgram(name, mGroup, type, syntax, source);
+			else
+				prog = GpuProgramManager::getSingleton().createProgram(name, mGroup, source, type, syntax).get();
+			if(prog == 0)
+			{
+				addError(CE_OBJECTALLOCATIONERROR, node->file, node->line, -1);
+				return;
+			}
 
-		prog->_notifyOrigin(node->file);
+			prog->_notifyOrigin(node->file);
 
-		// Set custom parameters
-		for(std::list<std::pair<String,String> >::iterator k = customParameters.begin(); k != customParameters.end(); ++k)
-			prog->setParameter(k->first, k->second);
+			// Set custom parameters
+			for(std::list<std::pair<String,String> >::iterator k = customParameters.begin(); k != customParameters.end(); ++k)
+				prog->setParameter(k->first, k->second);
 
-		// Set up default parameters
-		if(prog->isSupported() && paramIter != (*i)->children.end())
-		{
-			GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
-			compileProgramParameters(*paramIter, params);
+			// Set up default parameters
+			if(prog->isSupported() && paramIter != (*i)->children.end())
+			{
+				GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
+				compileProgramParameters(*paramIter, params);
+			}
+		}catch(...){
 		}
 	}
 
@@ -2720,32 +2723,35 @@ namespace Ogre{
 			}
 		}
 
-		// Allocate the program
-		HighLevelGpuProgram *prog = 0;
-		if(mListener)
-			prog = mListener->getHighLevelGpuProgram(name, mGroup, type, language, source);
-		else
-		{
-			prog = HighLevelGpuProgramManager::getSingleton().createProgram(name, mGroup, language, type).get();
-			prog->setSourceFile(source);
-		}
-		if(prog == 0)
-		{
-			addError(CE_OBJECTALLOCATIONERROR, node->file, node->line, -1);
-			return;
-		}
+		try{
+			// Allocate the program
+			HighLevelGpuProgram *prog = 0;
+			if(mListener)
+				prog = mListener->getHighLevelGpuProgram(name, mGroup, type, language, source);
+			else
+			{
+				prog = HighLevelGpuProgramManager::getSingleton().createProgram(name, mGroup, language, type).get();
+				prog->setSourceFile(source);
+			}
+			if(prog == 0)
+			{
+				addError(CE_OBJECTALLOCATIONERROR, node->file, node->line, -1);
+				return;
+			}
 
-		prog->_notifyOrigin(node->file);
+			prog->_notifyOrigin(node->file);
 
-		// Set custom parameters
-		for(std::list<std::pair<String,String> >::iterator k = customParameters.begin(); k != customParameters.end(); ++k)
-			prog->setParameter(k->first, k->second);
+			// Set custom parameters
+			for(std::list<std::pair<String,String> >::iterator k = customParameters.begin(); k != customParameters.end(); ++k)
+				prog->setParameter(k->first, k->second);
 
-		// Set up default parameters
-		if(prog->isSupported() && paramIter != (*i)->children.end())
-		{
-			GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
-			compileProgramParameters(*paramIter, params);
+			// Set up default parameters
+			if(prog->isSupported() && paramIter != (*i)->children.end())
+			{
+				GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
+				compileProgramParameters(*paramIter, params);
+			}
+		}catch(...){
 		}
 	}
 
@@ -2785,23 +2791,26 @@ namespace Ogre{
 			}
 		}
 
-		// Allocate the program
-		HighLevelGpuProgram *prog = 0;
-		if(mListener)
-			prog = mListener->getHighLevelGpuProgram(name, mGroup, type, "unified", "");
-		else
-			prog = HighLevelGpuProgramManager::getSingleton().createProgram(name, mGroup, "unified", type).get();
-		if(prog == 0)
-		{
-			addError(CE_OBJECTALLOCATIONERROR, node->file, node->line, -1);
-			return;
+		try{
+			// Allocate the program
+			HighLevelGpuProgram *prog = 0;
+			if(mListener)
+				prog = mListener->getHighLevelGpuProgram(name, mGroup, type, "unified", "");
+			else
+				prog = HighLevelGpuProgramManager::getSingleton().createProgram(name, mGroup, "unified", type).get();
+			if(prog == 0)
+			{
+				addError(CE_OBJECTALLOCATIONERROR, node->file, node->line, -1);
+				return;
+			}
+
+			prog->_notifyOrigin(node->file);
+
+			// Set custom parameters
+			for(std::list<std::pair<String,String> >::iterator k = customParameters.begin(); k != customParameters.end(); ++k)
+				prog->setParameter(k->first, k->second);
+		}catch(...){
 		}
-
-		prog->_notifyOrigin(node->file);
-
-		// Set custom parameters
-		for(std::list<std::pair<String,String> >::iterator k = customParameters.begin(); k != customParameters.end(); ++k)
-			prog->setParameter(k->first, k->second);
 	}
 
 	void MaterialScriptCompiler2::compileProgramParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params)
