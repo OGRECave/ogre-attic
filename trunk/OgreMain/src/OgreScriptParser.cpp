@@ -833,8 +833,11 @@ namespace Ogre {
 		skip_grammar skip;
 		script_grammar g(ids);
 
-		typedef position_iterator<String::const_iterator> iter_t;
-		iter_t first(script.begin(), script.end(), source), last;
+		//typedef position_iterator<String::const_iterator> iter_t;
+		//iter_t first(script.begin(), script.end(), source), last;
+		typedef position_iterator<const char*> iter_t;
+		iter_t first(script.c_str(), script.c_str()+script.size(), source), last;
+
 		parse_info<iter_t> info = boost::spirit::parse(first, last, g, skip);
 
 		return g.ast.nodes;
