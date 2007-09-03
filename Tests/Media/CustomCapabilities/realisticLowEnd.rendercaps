@@ -1,5 +1,7 @@
 render_system_capabilities "TestCaps Realistic Low-End GPU" 
 {
+capabilities_valid_for_d3d9 true
+capabilities_valid_for_gl true
 automipmap true
 blending true
 anisotropy true
@@ -56,6 +58,4 @@ fragment_program_constant_float_count 64
 fragment_program_constant_int_count 0
 fragment_program_constant_bool_count 0
 num_vertex_texture_units 0
-max_vertex_program_version arbvp1
-max_fragment_program_version arbfp1
 }
