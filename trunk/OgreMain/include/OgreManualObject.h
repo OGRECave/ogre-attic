@@ -201,9 +201,13 @@ namespace Ogre
 		/// @copydoc ManualObject::textureCoord(Real)
 		virtual void textureCoord(Real u, Real v, Real w);
 		/// @copydoc ManualObject::textureCoord(Real)
+		virtual void textureCoord(Real x, Real y, Real z, Real w);
+		/// @copydoc ManualObject::textureCoord(Real)
 		virtual void textureCoord(const Vector2& uv);
 		/// @copydoc ManualObject::textureCoord(Real)
 		virtual void textureCoord(const Vector3& uvw);
+		/// @copydoc ManualObject::textureCoord(Real)
+		virtual void textureCoord(const Vector4& xyzw);
 
 		/** Add a vertex colour to a vertex.
 		*/
@@ -434,7 +438,7 @@ namespace Ogre
 		{
 			Vector3 position;
 			Vector3 normal;
-			Vector3 texCoord[OGRE_MAX_TEXTURE_COORD_SETS];
+			Vector4 texCoord[OGRE_MAX_TEXTURE_COORD_SETS];
 			ushort texCoordDims[OGRE_MAX_TEXTURE_COORD_SETS];
 			ColourValue colour;
 		};
