@@ -355,6 +355,30 @@ namespace Ogre {
 		++mTexCoordIndex;
 	}
 	//-----------------------------------------------------------------------------
+	void ManualObject::textureCoord(Real x, Real y, Real z, Real w)
+	{
+		if (!mCurrentSection)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You must call begin() before this method",
+				"ManualObject::textureCoord");
+		}
+		if (mFirstVertex && !mCurrentUpdating)
+		{
+			// defining declaration
+			mCurrentSection->getRenderOperation()->vertexData->vertexDeclaration
+				->addElement(0, mDeclSize, VET_FLOAT4, VES_TEXTURE_COORDINATES, mTexCoordIndex);
+			mDeclSize += VertexElement::getTypeSize(VET_FLOAT4);
+		}
+		mTempVertex.texCoordDims[mTexCoordIndex] = 4;
+		mTempVertex.texCoord[mTexCoordIndex].x = x;
+		mTempVertex.texCoord[mTexCoordIndex].y = y;
+		mTempVertex.texCoord[mTexCoordIndex].z = z;
+		mTempVertex.texCoord[mTexCoordIndex].w = w;
+
+		++mTexCoordIndex;
+	}
+	//-----------------------------------------------------------------------------
 	void ManualObject::textureCoord(const Vector2& uv)
 	{
 		textureCoord(uv.x, uv.y);
@@ -363,6 +387,11 @@ namespace Ogre {
 	void ManualObject::textureCoord(const Vector3& uvw)
 	{
 		textureCoord(uvw.x, uvw.y, uvw.z);
+	}
+	//---------------------------------------------------------------------
+	void ManualObject::textureCoord(const Vector4& xyzw)
+	{
+		textureCoord(xyzw.x, xyzw.y, xyzw.z, xyzw.w);
 	}
 	//-----------------------------------------------------------------------------
 	void ManualObject::colour(const ColourValue& col)
