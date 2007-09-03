@@ -307,7 +307,7 @@ protected:
 	void setupLighting()
 	{
 		// Set ambient light
-		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+		mSceneMgr->setAmbientLight(ColourValue::Black);
 		// Point light, movable, reddish
 		mLight = mSceneMgr->createLight("Light2");
 		mLight->setDiffuseColour(mMinLightColour);
