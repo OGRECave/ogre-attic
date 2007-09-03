@@ -168,7 +168,7 @@ void RenderSystemCapabilitiesTests::testSerializeStringCapability()
     // confirm that RSC was loaded
     CPPUNIT_ASSERT(rsc != 0);
 
-    CPPUNIT_ASSERT(rsc->getMaxVertexProgramVersion() == "vs99");
+    CPPUNIT_ASSERT(rsc->isShaderProfileSupported("vs99"));
 }
 
 void RenderSystemCapabilitiesTests::testSerializeBoolCapability()
@@ -242,7 +242,7 @@ void RenderSystemCapabilitiesTests::testWriteSimpleCapabilities()
     RenderSystemCapabilities caps;
     caps.setCapability(RSC_AUTOMIPMAP);
     caps.setMaxPointSize(10.5);
-    caps.setMaxVertexProgramVersion("vs999");
+    caps.addShaderProfile("vs999");
     caps.addShaderProfile("sp999");
     caps.setVertexTextureUnitsShared(true);
     caps.setNumWorldMatrices(777);
@@ -538,9 +538,9 @@ void RenderSystemCapabilitiesTests::testWriteAndReadComplexCapabilities()
     caps.setNumVertexBlendMatrices(33);
     caps.setNumMultiRenderTargets(23);
 
-    caps.setMaxVertexProgramVersion("99foo100");
+    caps.addShaderProfile("99foo100");
     // try out stranger names
-    caps.setMaxFragmentProgramVersion("..f(_)specialsymbolextravaganza!@#$%^&*_but_no_spaces");
+    caps.addShaderProfile("..f(_)specialsymbolextravaganza!@#$%^&*_but_no_spaces");
 
     caps.setVertexProgramConstantFloatCount(1111);
     caps.setVertexProgramConstantIntCount(2222);
@@ -638,9 +638,6 @@ void RenderSystemCapabilitiesTests::testWriteAndReadComplexCapabilities()
     CPPUNIT_ASSERT_EQUAL(caps.getStencilBufferBitDepth(), caps2.getStencilBufferBitDepth());
     CPPUNIT_ASSERT_EQUAL(caps.getNumVertexBlendMatrices(), caps2.getNumVertexBlendMatrices());
     CPPUNIT_ASSERT_EQUAL(caps.getNumMultiRenderTargets(), caps2.getNumMultiRenderTargets());
-
-    CPPUNIT_ASSERT_EQUAL(String(caps.getMaxVertexProgramVersion()), String(caps2.getMaxVertexProgramVersion()));
-    CPPUNIT_ASSERT_EQUAL(String(caps.getMaxFragmentProgramVersion()), String(caps2.getMaxFragmentProgramVersion()));
 
     CPPUNIT_ASSERT_EQUAL(caps.getVertexProgramConstantFloatCount(), caps2.getVertexProgramConstantFloatCount());
     CPPUNIT_ASSERT_EQUAL(caps.getVertexProgramConstantIntCount(), caps2.getVertexProgramConstantIntCount());

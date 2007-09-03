@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="TestOgreMain"
 	ProjectGUID="{0DC410D4-73C1-46F5-9A23-F4026B0B08F7}"
 	RootNamespace="TestOgreMain"
@@ -70,7 +70,7 @@
 				Version=""
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\lib&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="..\lib;&quot;..\Dependencies\lib\$(ConfigurationName)&quot;"
 				IgnoreAllDefaultLibraries="false"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
@@ -166,7 +166,7 @@
 				Version=""
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\lib&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="..\lib;&quot;..\Dependencies\lib\$(ConfigurationName)&quot;"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="1"

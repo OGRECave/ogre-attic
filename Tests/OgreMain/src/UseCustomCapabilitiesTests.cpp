@@ -152,8 +152,8 @@ void checkCaps(const Ogre::RenderSystemCapabilities* caps)
     CPPUNIT_ASSERT_EQUAL(caps->getFragmentProgramConstantBoolCount(), (Ogre::ushort)0);
 
     CPPUNIT_ASSERT_EQUAL(caps->getNumVertexTextureUnits(), (Ogre::ushort)0);
-    CPPUNIT_ASSERT_EQUAL(caps->getMaxVertexProgramVersion(), String("arbvp1"));
-    CPPUNIT_ASSERT_EQUAL(caps->getMaxFragmentProgramVersion(), String("arbfp1"));
+    CPPUNIT_ASSERT(caps->isShaderProfileSupported("arbvp1"));
+    CPPUNIT_ASSERT(caps->isShaderProfileSupported("arbfp1"));
 }
 
 void setUpGLRenderSystemOptions(Ogre::RenderSystem* rs)
@@ -201,7 +201,7 @@ void UseCustomCapabilitiesTests::testCustomCapabilitiesGL()
 	RenderSystem* rs = root->getRenderSystemByName("OpenGL Rendering Subsystem");
 	if(rs == 0)
 	{
-		CPPUNIT_ASSERT_ASSERTION_PASS_MESSAGE("This test is irrelevant because GL RenderSystem is not available", true);
+		CPPUNIT_ASSERT_ASSERTION_PASS("This test is irrelevant because GL RenderSystem is not available");
 	}
 	else
 	{
@@ -258,7 +258,7 @@ void UseCustomCapabilitiesTests::testCustomCapabilitiesD3D9()
 	RenderSystem* rs = root->getRenderSystemByName("Direct3D9 Rendering Subsystem");
 	if(rs == 0)
 	{
-		CPPUNIT_ASSERT_ASSERTION_PASS_MESSAGE("This test is irrelevant because D3D9 RenderSystem is not available", true);
+		CPPUNIT_ASSERT_ASSERTION_PASS("This test is irrelevant because D3D9 RenderSystem is not available");
 	}
 	else
 	{	

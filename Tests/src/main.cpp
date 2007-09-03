@@ -37,8 +37,10 @@ int main( int argc, char **argv)
     runner.run( controller );
 
     // Print test in a compiler compatible format.
-    CPPUNIT_NS::CompilerOutputter outputter( &result, CPPUNIT_NS::stdCOut() );
-    outputter.write();
+    CPPUNIT_NS::CompilerOutputter* outputter =
+        CPPUNIT_NS::CompilerOutputter::defaultOutputter(&result, std::cout);
+    outputter->write();
+    delete outputter;
 
     tearDownSuite();
 
