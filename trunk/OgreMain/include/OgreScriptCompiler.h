@@ -36,50 +36,6 @@ Torus Knot Software Ltd.
 
 namespace Ogre{
 
-	enum
-	{
-		CE_UNKNOWNTOKEN,
-		CE_OPENBRACEEXPECTED,
-		CE_VARIABLEEXPECTED,
-		CE_VARIABLEVALUEEXPECTED,
-		CE_UNDEFINEDVARIABLE,
-		CE_OBJECTNAMEEXPECTED,
-		CE_OBJECTTYPEEXPECTED,
-		CE_STRINGEXPECTED,
-		CE_NUMBEREXPECTED,
-		CE_VALUEEXPECTED,
-		CE_INVALIDPROPERTY,
-		CE_INVALIDPROPERTYVALUE,
-		CE_OBJECTALLOCATIONERROR,
-		CE_TRUTHVALUEEXPECTED,
-		CE_BASE_ERRORS_END
-	};
-
-	/** This struct stores semantic error information. It is information
-		about errors which may occur during the script compilation phase.
-		This is different than a script parsing error (syntax error).
-	*/
-	struct ScriptCompilerError
-	{
-		uint32 error;
-		String file;
-		int line, column;
-	};
-	typedef SharedPtr<ScriptCompilerError> ScriptCompilerErrorPtr;
-	typedef std::list<ScriptCompilerErrorPtr> ScriptCompilerErrorList;
-
-	/** This class is the base for all compiler listeners.
-		The base class provides a mechanism for overriding the script importing
-		behavior.
-	*/
-	class _OgreExport ScriptCompilerListener
-	{
-	public:
-		virtual ScriptNodeListPtr importFile(const String &name);
-		virtual void preParse(WordIDMap &ids);
-		virtual bool errorRaised(const ScriptCompilerErrorPtr &error);
-	};
-
 	/** This class acts as a base class for all compilers of Ogre scripts.
 		Each script target type (e.g. Materials, Particle Systems, etc.) has
 		its own derived compiler.
@@ -91,6 +47,49 @@ namespace Ogre{
 	*/
 	class _OgreExport ScriptCompiler
 	{
+	public:
+		// This enum defines values for the standard errors of the compiler
+		enum
+		{
+			CE_UNKNOWNTOKEN,
+			CE_OPENBRACEEXPECTED,
+			CE_VARIABLEEXPECTED,
+			CE_VARIABLEVALUEEXPECTED,
+			CE_UNDEFINEDVARIABLE,
+			CE_OBJECTNAMEEXPECTED,
+			CE_OBJECTTYPEEXPECTED,
+			CE_STRINGEXPECTED,
+			CE_NUMBEREXPECTED,
+			CE_VALUEEXPECTED,
+			CE_INVALIDPROPERTY,
+			CE_INVALIDPROPERTYVALUE,
+			CE_OBJECTALLOCATIONERROR,
+			CE_TRUTHVALUEEXPECTED,
+			CE_BASE_ERRORS_END
+		};
+		/** This struct stores semantic error information. It is information
+			about errors which may occur during the script compilation phase.
+			This is different than a script parsing error (syntax error).
+		*/
+		struct Error
+		{
+			uint32 error;
+			String file;
+			int line, column;
+		};
+		typedef SharedPtr<Error> ErrorPtr;
+		typedef std::list<ErrorPtr> ErrorList;
+		/** This class is the base for all compiler listeners.
+			The base class provides a mechanism for overriding the script importing
+			behavior.
+		*/
+		class _OgreExport Listener
+		{
+		public:
+			virtual ScriptNodeListPtr importFile(const String &name);
+			virtual void preParse(WordIDMap &ids);
+			virtual bool errorRaised(const ErrorPtr &error);
+		};
 	protected: // Variables and scope types
 		// This type stores information about the specific variable
 		typedef std::map<String,String> ScopedVariableMap;
@@ -144,16 +143,21 @@ namespace Ogre{
 		const String &getGroup() const;
 		/** Returns the list of errors from the last script compilation compilation
 		*/
-		const ScriptCompilerErrorList &getErrors() const;
+		const ErrorList &getErrors() const;
 		/** Returns a constant reference to the word id map used by this compiler.
 		@remarks The word id map identifies key words and maps them to integer keys.
 		Some compilers prefer to deal with tokens as integers intead of using strings.
 		This word id map is the mechanism that links string token to integer identifier.
 		*/
 		const WordIDMap &getWordIDs() const;
+		/** This sets the listener for the compiler, which allows for clients
+		    to override compiler behavior while it runs.
+		@param listener The listener implementation to call
+		*/
+		void setListener(Listener *listener);
 	protected: // Operations
 		/// This is the overridable function for base classes to compile the AST
-		virtual bool compileImpl(ScriptNodeListPtr nodes) = 0;
+		virtual bool compileImpl(const ScriptNodeListPtr &nodes);
 		/** This function descends into the tree and does a replacement of the variables.
 			Variables are replaced with their AST representations, which are fully processed.
 			This means a variable can expand to any valid construct, since inheritance and
@@ -186,12 +190,12 @@ namespace Ogre{
 		/** This function needs to be overridden in the derived compiler to funnel
 		    preParse calls to its specific listener implementation.
 		*/
-		virtual void preParse() = 0;
+		virtual void preParse();
 		/** This function must be overridden in derived compilers to funnel
 			notifications of errors to specific listener implementations.
 			If this function returns false, so error is added to the compilers error list.
 		*/
-		virtual bool errorRaised(const ScriptCompilerErrorPtr &error) = 0;
+		virtual bool errorRaised(const ErrorPtr &error);
 		// Retrieves the node at the index away from the current iterator, or a null node
 		ScriptNodePtr getNodeAt(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, int index) const;
 		// Retrieves an iterator to the next node of the given type
@@ -231,10 +235,13 @@ namespace Ogre{
 		ScopeStack mStack;
 
 		// Error information
-		ScriptCompilerErrorList mErrors;
+		ErrorList mErrors;
 
 		// This is the wordID map sent to the parser
 		WordIDMap mWordIDs;
+
+		// This is the listener which allows for overriding of compiler behavior
+		Listener *mListener;
 	};
 
 	/** This manager is a script loader for the new unified Ogre scripting language.
@@ -299,7 +306,7 @@ namespace Ogre{
 		 OGRE_THREAD_POINTER(ScriptCompiler, mCompiler);
 
 		 // This is the listener interface used to overload compiler behavior
-		 ScriptCompilerListener *mListener;
+		 ScriptCompiler::Listener *mListener;
 
 		 // This vector holds the script patterns handled by this manager
 		 StringVector mScriptPatterns;
