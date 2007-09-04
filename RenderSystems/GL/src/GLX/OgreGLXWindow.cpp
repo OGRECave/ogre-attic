@@ -60,10 +60,11 @@ namespace Ogre
 //-------------------------------------------------------------------------------------------------//
 GLXWindow::GLXWindow(Display *display) :
 	mDisplay(display), mWindow(0), mGlxContext(0), mVisualInfo(0), mDelVisualInfo(false), 
-	mDelWindow(false), mClosed(false), mVisible(true), mFullScreen(false), mOldMode(-1),
+	mDelWindow(false), mClosed(false), mVisible(true), mOldMode(-1),
 	mContext(0)
 {
 	mActive = false;
+	mIsFullScreen = false;
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -79,7 +80,7 @@ GLXWindow::~GLXWindow()
 		XDestroyWindow(mDisplay, mWindow);
 
 #ifndef NO_XRANDR
-	if(mFullScreen) 
+	if(mIsFullScreen) 
 	{
 		// Restore original video mode.
 		Window rootWindow = DefaultRootWindow(mDisplay);
@@ -380,7 +381,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	mName = name;
 	mWidth = width;
 	mHeight = height;
-	mFullScreen = fullScreen;
+	mIsFullScreen = fullScreen;
 
 	//Get the attributes of the screen
 	XWindowAttributes temp;

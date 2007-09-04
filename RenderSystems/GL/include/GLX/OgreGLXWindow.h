@@ -53,7 +53,6 @@ namespace Ogre
 
 		bool mClosed;			//Window has been closed
 		bool mVisible;			//Window is visible
-		bool mFullScreen;		//We are full screen
 		bool mTopLevel;			//This is false if the Ogre window is embedded
 		int mOldMode;			//Mode before switching to fullscreen
 
