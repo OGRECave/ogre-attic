@@ -388,6 +388,34 @@ namespace Ogre {
 
 		pCodec->codeToFile(wrapper, filename, codeDataPtr);
 	}
+	//---------------------------------------------------------------------
+	DataStreamPtr Image::encode(const String& formatextension)
+	{
+		if( !m_pBuffer )
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "No image data loaded", 
+				"Image::encode");
+		}
+
+		Codec * pCodec = Codec::getCodec(formatextension);
+		if( !pCodec )
+			OGRE_EXCEPT(
+			Exception::ERR_INVALIDPARAMS, 
+			"Unable to encode image data as '" + formatextension + "' - invalid extension.",
+			"Image::encode" );
+
+		ImageCodec::ImageData* imgData = new ImageCodec::ImageData();
+		imgData->format = m_eFormat;
+		imgData->height = m_uHeight;
+		imgData->width = m_uWidth;
+		imgData->depth = m_uDepth;
+		// Wrap in CodecDataPtr, this will delete
+		Codec::CodecDataPtr codeDataPtr(imgData);
+		// Wrap memory, be sure not to delete when stream destroyed
+		MemoryDataStreamPtr wrapper(new MemoryDataStream(m_pBuffer, m_uSize, false));
+
+		return pCodec->code(wrapper, codeDataPtr);
+	}
 	//-----------------------------------------------------------------------------
 	Image & Image::load(DataStreamPtr& stream, const String& type )
 	{
