@@ -34,24 +34,24 @@ Torus Knot Software Ltd.
 namespace Ogre{
 
 	// ScriptCompilerListener
-	ScriptNodeListPtr ScriptCompilerListener::importFile(const String &name)
+	ScriptNodeListPtr ScriptCompiler::Listener::importFile(const String &name)
 	{
 		return ScriptNodeListPtr();
 	}
 
-	void ScriptCompilerListener::preParse(Ogre::WordIDMap &ids)
+	void ScriptCompiler::Listener::preParse(Ogre::WordIDMap &ids)
 	{
 
 	}
 
-	bool ScriptCompilerListener::errorRaised(const ScriptCompilerErrorPtr &error)
+	bool ScriptCompiler::Listener::errorRaised(const ScriptCompiler::ErrorPtr &error)
 	{
 		return true;
 	}
 
 	// ScriptCompiler
 	ScriptCompiler::ScriptCompiler()
-		:mAllowNontypedObjects(false)
+		:mAllowNontypedObjects(false), mListener(0)
 	{
 		mWordIDs["on"] = ID_ON;
 		mWordIDs["off"] = ID_OFF;
@@ -104,7 +104,7 @@ namespace Ogre{
 		return mGroup;
 	}
 
-	const ScriptCompilerErrorList &ScriptCompiler::getErrors() const
+	const ScriptCompiler::ErrorList &ScriptCompiler::getErrors() const
 	{
 		return mErrors;
 	}
@@ -112,6 +112,16 @@ namespace Ogre{
 	const WordIDMap &ScriptCompiler::getWordIDs() const
 	{
 		return mWordIDs;
+	}
+
+	void ScriptCompiler::setListener(Listener *listener)
+	{
+		mListener = listener;
+	}
+
+	bool ScriptCompiler::compileImpl(const ScriptNodeListPtr &nodes)
+	{
+		return mErrors.empty();
 	}
 
 	void ScriptCompiler::processVariables(ScriptNodeList &nodes, const ScriptNodeListPtr &top)
@@ -450,6 +460,16 @@ namespace Ogre{
 		return newNodes;
 	}
 
+	void ScriptCompiler::preParse()
+	{
+		
+	}
+
+	bool ScriptCompiler::errorRaised(const ErrorPtr &err)
+	{
+		return true;
+	}	
+
 	bool ScriptCompiler::containsObject(const ScriptNodeList &nodes, const String &name)
 	{
 		// Search for a top-level object node
@@ -564,7 +584,7 @@ namespace Ogre{
 
 	void ScriptCompiler::addError(uint32 error, const String &file, int line, int col)
 	{
-		ScriptCompilerErrorPtr err(new ScriptCompilerError());
+		ScriptCompiler::ErrorPtr err(new ScriptCompiler::Error());
 		err->error = error;
 		err->file = file;
 		err->line = line;
@@ -619,6 +639,7 @@ namespace Ogre{
 
 	// ScriptCompilerManager
 	ScriptCompilerManager::ScriptCompilerManager()
+		:mListener(0)
 	{
 		OGRE_THREAD_POINTER_SET(mCompiler, new ScriptCompiler());
 
@@ -647,7 +668,13 @@ namespace Ogre{
 
 	void ScriptCompilerManager::parseScript(DataStreamPtr &stream, const String &groupName)
 	{
+#if OGRE_THREAD_SUPPORT
+		if(!mCompiler.get())
+			mCompiler.reset(new ScriptCompiler());
+#endif
 
+		mCompiler->setListener(mListener);
+		mCompiler->compile(stream, groupName);
 	}
 
 	Real ScriptCompilerManager::getLoadingOrder() const
