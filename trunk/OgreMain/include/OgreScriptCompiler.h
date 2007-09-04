@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 #define __SCRIPTCOMPILER_H_
 
 #include "OgreScriptParser.h"
+#include "OgreScriptLoader.h"
 #include "OgreDataStream.h"
 
 namespace Ogre{
@@ -235,6 +236,74 @@ namespace Ogre{
 		// This is the wordID map sent to the parser
 		WordIDMap mWordIDs;
 	};
+
+	/** This manager is a script loader for the new unified Ogre scripting language.
+	 *  It funnels the new scripts into the new unified compilers, which
+	 *  are managed here by thread-local storage.
+	 */
+	 class _OgreExport ScriptCompilerManager : public ScriptLoader, public Singleton<ScriptCompilerManager>
+	 {
+	 public:
+		 ScriptCompilerManager();
+		 virtual ~ScriptCompilerManager();
+
+		 /** Override standard Singleton retrieval.
+        @remarks
+        Why do we do this? Well, it's because the Singleton
+        implementation is in a .h file, which means it gets compiled
+        into anybody who includes it. This is needed for the
+        Singleton template to work, but we actually only want it
+        compiled into the implementation of the class based on the
+        Singleton, not all of them. If we don't change this, we get
+        link errors when trying to use the Singleton-based class from
+        an outside dll.
+        @par
+        This method just delegates to the template version anyway,
+        but the implementation stays in this single compilation unit,
+        preventing link errors.
+        */
+        static ScriptCompilerManager& getSingleton(void);
+        /** Override standard Singleton retrieval.
+        @remarks
+        Why do we do this? Well, it's because the Singleton
+        implementation is in a .h file, which means it gets compiled
+        into anybody who includes it. This is needed for the
+        Singleton template to work, but we actually only want it
+        compiled into the implementation of the class based on the
+        Singleton, not all of them. If we don't change this, we get
+        link errors when trying to use the Singleton-based class from
+        an outside dll.
+        @par
+        This method just delegates to the template version anyway,
+        but the implementation stays in this single compilation unit,
+        preventing link errors.
+        */
+        static ScriptCompilerManager* getSingletonPtr(void);
+
+		/**
+		@see ScriptLoader
+		*/
+		virtual const StringVector& getScriptPatterns(void) const;
+
+		/**
+		@see ScriptLoader
+		*/
+		virtual void parseScript(DataStreamPtr& stream, const String& groupName);
+
+		/**
+		@see ScriptLoader
+		*/
+		virtual Real getLoadingOrder(void) const;
+	 private:
+		 // This is a thread-local variable holding the compiler
+		 OGRE_THREAD_POINTER(ScriptCompiler, mCompiler);
+
+		 // This is the listener interface used to overload compiler behavior
+		 ScriptCompilerListener *mListener;
+
+		 // This vector holds the script patterns handled by this manager
+		 StringVector mScriptPatterns;
+	 };
 
 }
 
