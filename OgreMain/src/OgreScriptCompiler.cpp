@@ -616,4 +616,42 @@ namespace Ogre{
 		if(!mStack.empty())
 			mStack.front()->vars[name] = value;
 	}
+
+	// ScriptCompilerManager
+	ScriptCompilerManager::ScriptCompilerManager()
+	{
+		OGRE_THREAD_POINTER_SET(mCompiler, new ScriptCompiler());
+
+		mScriptPatterns.push_back("*.os");
+		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
+	}
+
+	ScriptCompilerManager::~ScriptCompilerManager()
+	{
+	}
+
+	template<> ScriptCompilerManager* Singleton<ScriptCompilerManager>::ms_Singleton = 0;
+    ScriptCompilerManager* ScriptCompilerManager::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    ScriptCompilerManager& ScriptCompilerManager::getSingleton(void)
+    {
+        assert( ms_Singleton );  return ( *ms_Singleton );
+    }
+
+	const StringVector &ScriptCompilerManager::getScriptPatterns() const
+	{
+		return mScriptPatterns;
+	}
+
+	void ScriptCompilerManager::parseScript(DataStreamPtr &stream, const String &groupName)
+	{
+
+	}
+
+	Real ScriptCompilerManager::getLoadingOrder() const
+	{
+		return 100.0f;
+	}
 }
