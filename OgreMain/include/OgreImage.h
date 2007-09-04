@@ -291,7 +291,13 @@ namespace Ogre {
         /** Save the image as a file. */
         void save(const String& filename);
 
-        /** Returns a pointer to the internal image buffer.
+		/** Encode the image and return a stream to the data. 
+			@param formatextension An extension to identify the image format
+				to encode into, e.g. "jpg" or "png"
+		*/
+		DataStreamPtr encode(const String& formatextension);
+
+		/** Returns a pointer to the internal image buffer.
 		@remarks
 			Be careful with this method. You will almost certainly
 			prefer to use getPixelBox, especially with complex images
