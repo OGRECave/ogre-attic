@@ -49,6 +49,11 @@ namespace Ogre{
 		return true;
 	}
 
+	bool ScriptCompiler::Listener::overrideNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	{
+		return false;
+	}
+
 	// ScriptCompiler
 	ScriptCompiler::ScriptCompiler()
 		:mAllowNontypedObjects(false), mListener(0)
@@ -122,6 +127,11 @@ namespace Ogre{
 	bool ScriptCompiler::compileImpl(const ScriptNodeListPtr &nodes)
 	{
 		return mErrors.empty();
+	}
+
+	bool ScriptCompiler::overrideNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	{
+		return mListener ? mListener->overrideNode(i, end) : false;
 	}
 
 	void ScriptCompiler::processVariables(ScriptNodeList &nodes, const ScriptNodeListPtr &top)
@@ -367,7 +377,10 @@ namespace Ogre{
 	{
 		ScriptNodeListPtr nodes;
 
-		if(ResourceGroupManager::getSingletonPtr())
+		if(mListener)
+			nodes = mListener->importFile(name);
+
+		if(nodes.isNull() && ResourceGroupManager::getSingletonPtr())
 		{
 			DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(name, mGroup);
 			if(!stream.isNull())
@@ -462,12 +475,13 @@ namespace Ogre{
 
 	void ScriptCompiler::preParse()
 	{
-		
+		if(mListener)
+			mListener->preParse(mWordIDs);
 	}
 
 	bool ScriptCompiler::errorRaised(const ErrorPtr &err)
 	{
-		return true;
+		return mListener ? mListener->errorRaised(err) : true;
 	}	
 
 	bool ScriptCompiler::containsObject(const ScriptNodeList &nodes, const String &name)
@@ -649,6 +663,7 @@ namespace Ogre{
 
 	ScriptCompilerManager::~ScriptCompilerManager()
 	{
+		OGRE_THREAD_POINTER_DELETE(mCompiler);
 	}
 
 	template<> ScriptCompilerManager* Singleton<ScriptCompilerManager>::ms_Singleton = 0;

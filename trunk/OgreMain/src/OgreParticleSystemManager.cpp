@@ -57,10 +57,6 @@ namespace Ogre {
     ParticleSystemManager::ParticleSystemManager()
     {
 		OGRE_LOCK_AUTO_MUTEX
-#if OGRE_USE_NEW_COMPILERS
-		mCompilerListener = 0;
-		OGRE_THREAD_POINTER_SET(mScriptCompiler, new ParticleScriptCompiler());
-#endif
         mScriptPatterns.push_back("*.particle");
         ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 		mFactory = new ParticleSystemFactory();
@@ -70,10 +66,6 @@ namespace Ogre {
     ParticleSystemManager::~ParticleSystemManager()
     {
 		OGRE_LOCK_AUTO_MUTEX
-
-#if OGRE_USE_NEW_COMPILERS
-		OGRE_THREAD_POINTER_DELETE(mScriptCompiler);
-#endif
 
         // Destroy all templates
         ParticleTemplateMap::iterator t;
@@ -113,20 +105,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystemManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
-#if OGRE_USE_NEW_COMPILERS
-#if OGRE_THREAD_SUPPORT
-		// Ensure a compiler exists for this thread
-		if(!mScriptCompiler.get())
-			mScriptCompiler.reset(new ParticleScriptCompiler());
-#endif
-		// Set the listener before the compiler is invoked
-		{
-			OGRE_LOCK_AUTO_MUTEX
-			mScriptCompiler->setListener(mCompilerListener);
-		}
-
-		mScriptCompiler->compile(stream, groupName);
-#else
         String line;
         ParticleSystem* pSys;
         std::vector<String> vecparams;
@@ -201,8 +179,6 @@ namespace Ogre {
 
 
         }
-#endif
-
     }
     //-----------------------------------------------------------------------
     void ParticleSystemManager::addEmitterFactory(ParticleEmitterFactory* factory)
@@ -435,15 +411,6 @@ namespace Ogre {
         addRendererFactory(mBillboardRendererFactory);
 
     }
-	//-----------------------------------------------------------------------
-#if OGRE_USE_NEW_COMPILERS
-	void ParticleSystemManager::setCompilerListener(ParticleScriptCompilerListener *listener)
-	{
-		OGRE_LOCK_AUTO_MUTEX
-
-		mCompilerListener = listener;
-	}
-#endif
     //-----------------------------------------------------------------------
     void ParticleSystemManager::parseNewEmitter(const String& type, DataStreamPtr& stream, ParticleSystem* sys)
     {

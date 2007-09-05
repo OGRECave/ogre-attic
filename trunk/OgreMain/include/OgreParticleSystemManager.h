@@ -37,9 +37,6 @@ Torus Knot Software Ltd.
 #include "OgreIteratorWrappers.h"
 #include "OgreScriptLoader.h"
 #include "OgreResourceGroupManager.h"
-#if OGRE_USE_NEW_COMPILERS
-#include "OgreParticleScriptCompiler.h"
-#endif
 
 namespace Ogre {
 
@@ -83,13 +80,6 @@ namespace Ogre {
     protected:
 		OGRE_AUTO_MUTEX
 			
-#if OGRE_USE_NEW_COMPILERS
-		/// This is the new compiler, in case it is enabled
-		OGRE_THREAD_POINTER(ParticleScriptCompiler, mScriptCompiler);
-		/// This is a set of compiler listeners which are added to each compiler that is allocated
-		ParticleScriptCompilerListener* mCompilerListener;
-#endif
-
         /// Templates based on scripts
         ParticleTemplateMap mSystemTemplates;
         
@@ -313,15 +303,6 @@ namespace Ogre {
             on construction. OGRE will call this method when the rendering subsystem is initialised.
         */
         void _initialise(void);
-
-#if OGRE_USE_NEW_COMPILERS
-		/** Sets the listener that is registered with the compiler before it compiles scripts
-		@remarks This call is synchronized with a block of code in parseScript that actually sets the
-		listener on the compiler. Be aware that calls to this and to parseScript in a threaded
-		environment will partially block each other.
-		*/
-		void setCompilerListener(ParticleScriptCompilerListener *listener);
-#endif
 
         /// @copydoc ScriptLoader::getScriptPatterns
         const StringVector& getScriptPatterns(void) const;

@@ -89,6 +89,7 @@ namespace Ogre{
 			virtual ScriptNodeListPtr importFile(const String &name);
 			virtual void preParse(WordIDMap &ids);
 			virtual bool errorRaised(const ErrorPtr &error);
+			virtual bool overrideNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
 		};
 	protected: // Variables and scope types
 		// This type stores information about the specific variable
@@ -158,6 +159,8 @@ namespace Ogre{
 	protected: // Operations
 		/// This is the overridable function for base classes to compile the AST
 		virtual bool compileImpl(const ScriptNodeListPtr &nodes);
+		/// This function allows a listener to override a node
+		bool overrideNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
 		/** This function descends into the tree and does a replacement of the variables.
 			Variables are replaced with their AST representations, which are fully processed.
 			This means a variable can expand to any valid construct, since inheritance and
