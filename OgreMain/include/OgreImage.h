@@ -370,7 +370,7 @@ namespace Ogre {
          * is only valid for cubemaps and volume textures. This uses the first (largest)
          * mipmap.
          */
-        ColourValue getColourAt(int x, int y, int z);
+        ColourValue getColourAt(int x, int y, int z) const;
         
         /**
          * Get a PixelBox encapsulating the image data of a mipmap
@@ -400,7 +400,7 @@ namespace Ogre {
 		
         // Static function to calculate size in bytes from the number of mipmaps, faces and the dimensions
         static size_t calculateSize(size_t mipmaps, size_t faces, size_t width, size_t height, size_t depth, PixelFormat format);
-    private:
+    protected:
         // The width of the image in pixels
         size_t m_uWidth;
         // The height of the image in pixels

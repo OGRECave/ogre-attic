@@ -298,12 +298,6 @@ namespace Ogre {
 	Image & Image::load(const String& strFileName, const String& group)
 	{
 
-		if( m_pBuffer && m_bAutoDelete )
-		{
-			delete[] m_pBuffer;
-			m_pBuffer = NULL;
-		}
-
 		String strExt;
 
 		size_t pos = strFileName.find_last_of(".");
@@ -316,37 +310,10 @@ namespace Ogre {
 		while( pos != strFileName.length() - 1 )
 			strExt += strFileName[++pos];
 
-		Codec * pCodec = Codec::getCodec(strExt);
-		if( !pCodec )
-			OGRE_EXCEPT(
-			Exception::ERR_INVALIDPARAMS, 
-			"Unable to load image file '" + strFileName + "' - invalid extension.",
-			"Image::load" );
-
 		DataStreamPtr encoded = 
-			ResourceGroupManager::getSingleton().openResource(strFileName, group);
+		ResourceGroupManager::getSingleton().openResource(strFileName, group);
 
-		Codec::DecodeResult res = pCodec->decode(encoded);
-
-		ImageCodec::ImageData* pData = 
-			static_cast<ImageCodec::ImageData*>(res.second.getPointer());
-
-		// Get the format and compute the pixel size
-		m_uWidth = pData->width;
-		m_uHeight = pData->height;
-		m_uDepth = pData->depth;
-		m_uSize = pData->size;
-		m_eFormat = pData->format;
-		m_uNumMipmaps = pData->num_mipmaps;
-		m_ucPixelSize = static_cast<uchar>(PixelUtil::getNumElemBytes( m_eFormat ));
-		m_uFlags = pData->flags;
-
-		// re-use the decoded buffer
-		m_pBuffer = res.first->getPtr();
-		// ensure we don't delete when stream is closed
-		res.first->setFreeOnClose(false);
-
-		return *this;
+		return load(encoded, strExt);
 
 	}
 	//-----------------------------------------------------------------------------
@@ -704,7 +671,7 @@ namespace Ogre {
 
 	//-----------------------------------------------------------------------------    
 
-	ColourValue Image::getColourAt(int x, int y, int z) 
+	ColourValue Image::getColourAt(int x, int y, int z) const
 	{
 		ColourValue rval;
 		PixelUtil::unpackColour(&rval, m_eFormat, &m_pBuffer[m_ucPixelSize * (z * m_uWidth * m_uHeight + m_uWidth * y + x)]);
