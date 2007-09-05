@@ -34,9 +34,6 @@ Torus Knot Software Ltd.
 #include "OgreCompositor.h"
 #include "OgreRectangle2D.h"
 #include "OgreCompositorSerializer.h"
-#if OGRE_USE_NEW_COMPILERS
-#	include "OgreCompositorScriptCompiler2.h"
-#endif
 
 #if OGRE_THREAD_SUPPORT
 // boost::thread_specific_ptr has 'new' in header but delete in lib
@@ -121,10 +118,6 @@ namespace Ogre {
 		/** Overridden from ResourceManager since we have to clean up chains too. */
 		void removeAll(void);
 
-#if OGRE_USE_NEW_COMPILERS
-		void setCompilerListener(CompositorScriptCompilerListener *listener);
-#endif
-
 		/** Override standard Singleton retrieval.
 		@remarks
 		Why do we do this? Well, it's because the Singleton
@@ -165,13 +158,6 @@ namespace Ogre {
 
 		/// Serializer - Hold instance per thread if necessary
 		OGRE_THREAD_POINTER(CompositorSerializer, mSerializer);
-
-#if OGRE_USE_NEW_COMPILERS
-		/// The newest script compiler, held per thread if necessary
-		OGRE_THREAD_POINTER(CompositorScriptCompiler2, mScriptCompiler2);
-		/// This is the listener set on the new compiler before compilation begins
-		CompositorScriptCompilerListener *mCompilerListener;
-#endif
 
         /** Clear composition chains for all viewports
          */
