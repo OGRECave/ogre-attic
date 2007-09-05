@@ -654,14 +654,9 @@ namespace Ogre{
 					addError(CE_OBJECTNAMEEXPECTED, (*cur)->file, (*cur)->line, -1);
 					continue;
 				}
-				else if(target->type != SNT_WORD)
-				{
-					addError(CE_OBJECTNAMEEXPECTED, target->file, target->line, target->column);
-					continue;
-				}
 				if(brace.isNull())
 				{
-					addError(CE_OBJECTNAMEEXPECTED, (*cur)->file, (*cur)->line, -1);
+					addError(CE_OPENBRACEEXPECTED, (*cur)->file, (*cur)->line, -1);
 					continue;
 				}
 				else if(brace->type != SNT_LBRACE)
