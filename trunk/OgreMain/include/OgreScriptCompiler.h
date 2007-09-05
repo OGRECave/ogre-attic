@@ -33,6 +33,8 @@ Torus Knot Software Ltd.
 #include "OgreScriptParser.h"
 #include "OgreScriptLoader.h"
 #include "OgreDataStream.h"
+#include "OgreTextureUnitState.h"
+#include "OgreHighLevelGpuProgram.h"
 
 namespace Ogre{
 
@@ -90,6 +92,16 @@ namespace Ogre{
 			virtual void preParse(WordIDMap &ids);
 			virtual bool errorRaised(const ErrorPtr &error);
 			virtual bool overrideNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+
+			// Material compilation procedures
+			virtual Material *getMaterial(const String &name, const String &group);
+			virtual void preApplyTextureAliases(std::map<String,String> &aliases);
+			virtual GpuProgram *getGpuProgram(const String &name, const String &group, const String &source, GpuProgramType type, const String &syntax);
+			virtual HighLevelGpuProgram *getHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source);
+
+			// Texture handling
+			/// Override this method for manipulating the names of textures being loaded
+			virtual void getTextures(String *names, int count);
 		};
 	protected: // Variables and scope types
 		// This type stores information about the specific variable
@@ -219,6 +231,25 @@ namespace Ogre{
 		std::pair<bool,String> findVariable(const String &name);
 		/// Sets the value of the variable in the current scope, does nothing if there is no scope
 		void setVariable(const String &name, const String &value);
+	private: // Implementation handlers for node compilation
+		void compileMaterial(const ScriptNodePtr &node);
+		void compileTechnique(const ScriptNodePtr &node);
+		void compilePass(const ScriptNodePtr &node, Technique *technique);
+		void compileTextureUnit(const ScriptNodePtr &node, Pass *pass);
+		void compileGpuProgram(const ScriptNodePtr &node);
+		void compileAsmGpuProgram(const String &name, const ScriptNodePtr &node);
+		void compileHighLevelGpuProgram(const String &name, const String &language, const ScriptNodePtr &node);
+		void compileUnifiedHighLevelGpuProgram(const String &name, const ScriptNodePtr &node);
+		void compileProgramParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params);
+		bool getColourValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
+		bool getBlendFactor(const ScriptNodePtr &node, SceneBlendFactor &sbf);
+		bool getCompareFunction(const ScriptNodePtr &node, CompareFunction &func);
+		bool getTextureAddressingMode(const ScriptNodePtr &node, TextureUnitState::TextureAddressingMode &mode);
+		bool getColourOperation(const ScriptNodePtr &node, Ogre::LayerBlendOperationEx &op);
+		bool getColourOperationSource(const ScriptNodePtr &node, Ogre::LayerBlendSource &source);
+		bool getMatrix4(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Matrix4 &m);
+		bool getInts(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, int *vals, int count);
+		bool getFloats(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, float *vals, int count);
 	protected:
 		// Compiler context data
 		String mGroup; // The resource group of the resultant resources
@@ -245,50 +276,22 @@ namespace Ogre{
 
 		// This is the listener which allows for overriding of compiler behavior
 		Listener *mListener;
+
+		// This stores a pointer to the material which may be compiling
+		Material *mMaterial;
+		// This is a map holding the texture aliases for each material
+		std::map<String,String> mTextureAliases;
 	};
 
 	/** This manager is a script loader for the new unified Ogre scripting language.
 	 *  It funnels the new scripts into the new unified compilers, which
 	 *  are managed here by thread-local storage.
 	 */
-	 class _OgreExport ScriptCompilerManager : public ScriptLoader, public Singleton<ScriptCompilerManager>
+	 class _OgreExport ScriptCompilerManager : public ScriptLoader
 	 {
 	 public:
 		 ScriptCompilerManager();
 		 virtual ~ScriptCompilerManager();
-
-		 /** Override standard Singleton retrieval.
-        @remarks
-        Why do we do this? Well, it's because the Singleton
-        implementation is in a .h file, which means it gets compiled
-        into anybody who includes it. This is needed for the
-        Singleton template to work, but we actually only want it
-        compiled into the implementation of the class based on the
-        Singleton, not all of them. If we don't change this, we get
-        link errors when trying to use the Singleton-based class from
-        an outside dll.
-        @par
-        This method just delegates to the template version anyway,
-        but the implementation stays in this single compilation unit,
-        preventing link errors.
-        */
-        static ScriptCompilerManager& getSingleton(void);
-        /** Override standard Singleton retrieval.
-        @remarks
-        Why do we do this? Well, it's because the Singleton
-        implementation is in a .h file, which means it gets compiled
-        into anybody who includes it. This is needed for the
-        Singleton template to work, but we actually only want it
-        compiled into the implementation of the class based on the
-        Singleton, not all of them. If we don't change this, we get
-        link errors when trying to use the Singleton-based class from
-        an outside dll.
-        @par
-        This method just delegates to the template version anyway,
-        but the implementation stays in this single compilation unit,
-        preventing link errors.
-        */
-        static ScriptCompilerManager* getSingletonPtr(void);
 
 		/**
 		@see ScriptLoader
