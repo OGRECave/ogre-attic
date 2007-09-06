@@ -142,7 +142,7 @@ namespace Ogre
 			zone = i->second;
 			return zone;
 		}
-		return 0; // couldn't find the zone 
+		return 0; // couldn't find the zone  
 	}
 
 	void PCZSceneManager::setZoneGeometry(const String & zoneName,
