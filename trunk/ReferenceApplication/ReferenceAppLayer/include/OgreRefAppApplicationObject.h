@@ -409,38 +409,18 @@ namespace OgreRefApp {
         /** Rotate the object around the local Z-axis.
         */
         virtual void roll(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void roll(Real angleunits) {
-            roll ( Angle(angleunits) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotate the object around the local X-axis.
         */
         virtual void pitch(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void pitch(Real angleunits) {
-            pitch ( Angle(angleunits) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotate the object around the local Y-axis.
         */
         virtual void yaw(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void yaw(Real angleunits) {
-            yaw ( Angle(angleunits) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotate the object around an arbitrary axis.
         */
         virtual void rotate(const Vector3& axis, const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void rotate(const Vector3& axis, Real angleunits) {
-            rotate ( axis, Angle(angleunits) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotate the object around an aritrary axis using a Quarternion.
         */

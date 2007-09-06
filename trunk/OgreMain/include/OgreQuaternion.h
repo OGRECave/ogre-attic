@@ -79,12 +79,6 @@ namespace Ogre {
         {
             this->FromAngleAxis(rfAngle, rkAxis);
         }
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline Quaternion(const Real& rfAngle, const Vector3& rkAxis)
-		{
-			this->FromAngleAxis(rfAngle, rkAxis);
-		}
-#endif//OGRE_FORCE_ANGLE_TYPES
         /// Construct a quaternion from 3 orthonormal local axes
         inline Quaternion(const Vector3& xaxis, const Vector3& yaxis, const Vector3& zaxis)
         {
@@ -138,16 +132,6 @@ namespace Ogre {
             ToAngleAxis ( rAngle, rkAxis );
             dAngle = rAngle;
         }
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void FromAngleAxis (const Real& rfAngle, const Vector3& rkAxis) {
-			FromAngleAxis ( Angle(rfAngle), rkAxis );
-		}
-        inline void ToAngleAxis (Real& rfAngle, Vector3& rkAxis) const {
-			Radian r;
-			ToAngleAxis ( r, rkAxis );
-			rfAngle = r.valueAngleUnits();
-		}
-#endif//OGRE_FORCE_ANGLE_TYPES
         void FromAxes (const Vector3* akAxis);
         void FromAxes (const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis);
         void ToAxes (Vector3* akAxis) const;

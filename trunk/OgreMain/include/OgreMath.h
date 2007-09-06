@@ -539,6 +539,14 @@ namespace Ogre
 		*/
 		static Real gaussianDistribution(Real x, Real offset = 0.0f, Real scale = 1.0f);
 
+		/** Clamp a value within an inclusive range. */
+		template <typename T>
+		static T Clamp(T val, T minval, T maxval)
+		{
+			assert (minval < maxval && "Invalid clamp range");
+			return std::max(std::min(val, maxval), minval);
+		}
+
         static const Real POS_INFINITY;
         static const Real NEG_INFINITY;
         static const Real PI;

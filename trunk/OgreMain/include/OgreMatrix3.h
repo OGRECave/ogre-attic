@@ -164,16 +164,6 @@ namespace Ogre
 			rfAngle = r;
 		}
         void FromAxisAngle (const Vector3& rkAxis, const Radian& fRadians);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void ToAxisAngle (Vector3& rkAxis, Real& rfRadians) const {
-			Radian r;
-			ToAxisAngle ( rkAxis, r );
-			rfRadians = r.valueRadians();
-		}
-        inline void FromAxisAngle (const Vector3& rkAxis, Real fRadians) {
-			FromAxisAngle ( rkAxis, Radian(fRadians) );
-		}
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         // The matrix must be orthonormal.  The decomposition is yaw*pitch*roll
         // where yaw is rotation about the Up vector, pitch is rotation about the
@@ -196,80 +186,6 @@ namespace Ogre
         void FromEulerAnglesYZX (const Radian& fYAngle, const Radian& fPAngle, const Radian& fRAngle);
         void FromEulerAnglesZXY (const Radian& fYAngle, const Radian& fPAngle, const Radian& fRAngle);
         void FromEulerAnglesZYX (const Radian& fYAngle, const Radian& fPAngle, const Radian& fRAngle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline bool ToEulerAnglesXYZ (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const {
-			Radian y, p, r;
-			bool b = ToEulerAnglesXYZ(y,p,r);
-			rfYAngle = y.valueRadians();
-			rfPAngle = p.valueRadians();
-			rfRAngle = r.valueRadians();
-			return b;
-		}
-        inline bool ToEulerAnglesXZY (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const {
-			Radian y, p, r;
-			bool b = ToEulerAnglesXZY(y,p,r);
-			rfYAngle = y.valueRadians();
-			rfPAngle = p.valueRadians();
-			rfRAngle = r.valueRadians();
-			return b;
-		}
-        inline bool ToEulerAnglesYXZ (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const {
-			Radian y, p, r;
-			bool b = ToEulerAnglesYXZ(y,p,r);
-			rfYAngle = y.valueRadians();
-			rfPAngle = p.valueRadians();
-			rfRAngle = r.valueRadians();
-			return b;
-		}
-        inline bool ToEulerAnglesYZX (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const {
-			Radian y, p, r;
-			bool b = ToEulerAnglesYZX(y,p,r);
-			rfYAngle = y.valueRadians();
-			rfPAngle = p.valueRadians();
-			rfRAngle = r.valueRadians();
-			return b;
-		}
-        inline bool ToEulerAnglesZXY (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const {
-			Radian y, p, r;
-			bool b = ToEulerAnglesZXY(y,p,r);
-			rfYAngle = y.valueRadians();
-			rfPAngle = p.valueRadians();
-			rfRAngle = r.valueRadians();
-			return b;
-		}
-        inline bool ToEulerAnglesZYX (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const {
-			Radian y, p, r;
-			bool b = ToEulerAnglesZYX(y,p,r);
-			rfYAngle = y.valueRadians();
-			rfPAngle = p.valueRadians();
-			rfRAngle = r.valueRadians();
-			return b;
-		}
-        inline void FromEulerAnglesXYZ (float fYAngle, float fPAngle, float fRAngle) {
-			FromEulerAnglesXYZ ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
-		}
-        inline void FromEulerAnglesXZY (float fYAngle, float fPAngle, float fRAngle) {
-			FromEulerAnglesXZY ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
-		}
-        inline void FromEulerAnglesYXZ (float fYAngle, float fPAngle, float fRAngle) {
-			FromEulerAnglesYXZ ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
-		}
-        inline void FromEulerAnglesYZX (float fYAngle, float fPAngle, float fRAngle) {
-			FromEulerAnglesYZX ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
-		}
-        inline void FromEulerAnglesZXY (float fYAngle, float fPAngle, float fRAngle) {
-			FromEulerAnglesZXY ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
-		}
-        inline void FromEulerAnglesZYX (float fYAngle, float fPAngle, float fRAngle) {
-			FromEulerAnglesZYX ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
-		}
-#endif//OGRE_FORCE_ANGLE_TYPES
         // eigensolver, matrix must be symmetric
         void EigenSolveSymmetric (Real afEigenvalue[3],
             Vector3 akEigenvector[3]) const;

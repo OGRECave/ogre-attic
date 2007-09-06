@@ -222,11 +222,6 @@ namespace Ogre {
             Maximum angle which initial particle direction can deviate from the emitter base direction vector.
         */
         virtual void setAngle(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void setAngle(Real angle) {
-            setAngle ( Angle(angle) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Returns the maximum angle which the initial particle direction can deviate from the emitters base direction. */
         virtual const Radian& getAngle(void) const;
