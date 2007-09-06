@@ -80,38 +80,18 @@ namespace OgreRefApp {
         /** Rotate the object around the local Z-axis.
         */
         void roll(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void roll(Real angleunits) {
-            roll ( Angle(angleunits) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotate the object around the local X-axis.
         */
         void pitch(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void pitch(Real angleunits) {
-            pitch ( Angle(angleunits) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotate the object around the local Y-axis.
         */
         void yaw(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void yaw(Real angleunits) {
-            yaw ( Angle(angleunits) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotate the object around an arbitrary axis.
         */
         void rotate(const Vector3& axis, const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void rotate(const Vector3& axis, Real angleunits) {
-            rotate ( axis, Angle(angleunits) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotate the object around an aritrary axis using a Quarternion.
         */
@@ -210,11 +190,6 @@ namespace OgreRefApp {
                 Setting the FOV overrides the value supplied for Camera::setNearClipPlane.
          */
         void setFOVy(const Radian& fovy);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void setFOVy(Real fovy) {
-            setFOVy ( Angle(fovy) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Retrieves the cameras Y-dimension Field Of View (FOV).
         */

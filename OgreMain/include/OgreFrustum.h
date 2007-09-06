@@ -191,11 +191,6 @@ namespace Ogre
                 Setting the FOV overrides the value supplied for frustum::setNearClipPlane.
          */
         virtual void setFOVy(const Radian& fovy);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void setFOVy(Real fovy) {
-            setFOVy ( Angle(fovy) );
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Retrieves the frustums Y-dimension Field Of View (FOV).
         */

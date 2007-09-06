@@ -25,9 +25,6 @@ http://www.gnu.org/copyleft/lesser.txt
 #ifndef __OgrePrerequisites_H__
 #define __OgrePrerequisites_H__
 
-// undefine this to not require new angular units where applicable
-#define OGRE_FORCE_ANGLE_TYPES
-
 // Platform-specific stuff
 #include "OgrePlatform.h"
 

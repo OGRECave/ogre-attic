@@ -90,18 +90,8 @@ namespace Ogre {
 
 		/** Sets the minimum rotation speed of particles to be emitted. */
         void setRotationSpeedRangeStart(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void setRotationSpeedRangeStart(Real angle) {
-            setRotationSpeedRangeStart(Angle(angle));
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
         /** Sets the maximum rotation speed of particles to be emitted. */
         void setRotationSpeedRangeEnd(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void setRotationSpeedRangeEnd(Real angle) {
-            setRotationSpeedRangeEnd(Angle(angle));
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
         /** Gets the minimum rotation speed of particles to be emitted. */
         const Radian& getRotationSpeedRangeStart(void) const;
         /** Gets the maximum rotation speed of particles to be emitted. */
@@ -110,18 +100,8 @@ namespace Ogre {
 		
 		/** Sets the minimum rotation angle of particles to be emitted. */
         void setRotationRangeStart(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void setRotationRangeStart(Real angle) {
-            setRotationRangeStart(Angle(angle));
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
         /** Sets the maximum rotation angle of particles to be emitted. */
         void setRotationRangeEnd(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void setRotationRangeEnd(Real angle) {
-            setRotationRangeEnd(Angle(angle));
-        }
-#endif//OGRE_FORCE_ANGLE_TYPES
         /** Gets the minimum rotation of particles to be emitted. */
         const Radian& getRotationRangeStart(void) const;
         /** Gets the maximum rotation of particles to be emitted. */

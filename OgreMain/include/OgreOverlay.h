@@ -211,22 +211,12 @@ namespace Ogre {
 
         /** Sets the rotation applied to this overlay.*/
         void setRotate(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-        inline void setRotate(Real degrees) {
-			setRotate ( Angle(degrees) );
-		}
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Gets the rotation applied to this overlay, in degrees.*/
         const Radian &getRotate(void) const { return mRotate; }
 
         /** Adds the passed in angle to the rotation applied to this overlay. */
         void rotate(const Radian& angle);
-#ifndef OGRE_FORCE_ANGLE_TYPES
-		inline void rotate(Real degrees) {
-			rotate ( Angle(degrees) );
-		}
-#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Sets the scaling factor of this overlay.
         @remarks
