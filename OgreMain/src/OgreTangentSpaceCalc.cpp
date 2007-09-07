@@ -44,51 +44,100 @@ namespace Ogre
 	}
 	//---------------------------------------------------------------------
 	TangentSpaceCalc::Result TangentSpaceCalc::build(
-		const VertexData* v_in, const IndexData* i_in, 
-		RenderOperation::OperationType opType,
+		VertexData* v_in, IndexData* i_in, 
 		VertexElementSemantic targetSemantic,
 		unsigned short sourceTexCoordSet, unsigned short index)
 	{
 		Result res;
-		// clone incoming vertex data & copy so that originals are unchanged
-		res.vdata = v_in->clone(true);
-		// clone index data but don't copy data yet, wait until we know if changed
-		res.idata = i_in->clone(false);
-
-		if (opType != RenderOperation::OT_TRIANGLE_FAN && 
-			opType != RenderOperation::OT_TRIANGLE_LIST && 
-			opType != RenderOperation::OT_TRIANGLE_STRIP)
-		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-				"Only indexed triangle (list, strip, fan) render operations are supported.",
-				"TangentSpaceCalc::build");
-
-		}
+		res.vdata = v_in;
+		res.idata = i_in;
 
 		// Pull out all the vertex components we'll need
 		populateVertexArray(v_in, sourceTexCoordSet);
 
 		// Now process the faces and calculate / add their contributions
-		processFaces(i_in, opType, res);
+		processFaces(i_in, res);
 
 		// Now normalise & orthogonalise
 		normaliseVertices();
 
 		// Create new final geometry
-		// Create / identify target
-		organiseTangentsBuffer(res.vdata, targetSemantic, sourceTexCoordSet, index);
+		// First extend existing buffers to cope with new vertices
+		extendBuffers(res);
 
-		// write tangents
-		// TODO
-
-		// Build new index data if any vertices were split
-		if (!res.trianglesRemapped.empty())
-		{
-
-		}
+		// Create / identify target & write tangents
+		insertTangents(res, targetSemantic, sourceTexCoordSet, index);
 
 		return res;
 
+
+	}
+	//---------------------------------------------------------------------
+	void TangentSpaceCalc::extendBuffers(Result& res)
+	{
+		if (!res.vertexSplits.empty())
+		{
+			// ok, need to increase the vertex buffer size, and alter some indexes
+
+			// vertex buffers first
+			VertexBufferBinding* newBindings = HardwareBufferManager::getSingleton().createVertexBufferBinding();
+			const VertexBufferBinding::VertexBufferBindingMap& bindmap = 
+				res.vdata->vertexBufferBinding->getBindings();
+			for (VertexBufferBinding::VertexBufferBindingMap::const_iterator i = 
+				bindmap.begin(); i != bindmap.end(); ++i)
+			{
+				HardwareVertexBufferSharedPtr srcbuf = i->second;
+				// Derive vertex count from buffer not vertex data, in case using
+				// the vertexStart option in vertex data
+				size_t newVertexCount = srcbuf->getNumVertices() + res.vdata->vertexCount;
+				// Create new buffer & bind
+				HardwareVertexBufferSharedPtr newBuf = 
+					HardwareBufferManager::getSingleton().createVertexBuffer(
+					srcbuf->getVertexSize(), newVertexCount, srcbuf->getUsage(), 
+					srcbuf->hasShadowBuffer());
+				newBindings->setBinding(i->first, newBuf);
+
+				// Copy existing contents (again, entire buffer, not just elements referenced)
+				newBuf->copyData(*(srcbuf.get()), 0, 0, srcbuf->getNumVertices(), true);
+
+				// Split vertices, read / write from new buffer
+				char* pBase = static_cast<char*>(newBuf->lock(HardwareBuffer::HBL_NORMAL));
+				for (VertexSplits::iterator spliti = res.vertexSplits.begin(); 
+					spliti != res.vertexSplits.end(); ++spliti)
+				{
+					const char* pSrcBase = pBase + spliti->first * newBuf->getVertexSize();
+					char* pDstBase = pBase + spliti->second * newBuf->getVertexSize();
+					memcpy(pDstBase, pSrcBase, newBuf->getVertexSize());
+				}
+				newBuf->unlock();
+
+			}
+
+			// Update vertex data
+			// Increase vertex count according to num splits
+			res.vdata->vertexCount += res.vertexSplits.size();
+			// Flip bindings over to new buffers (old buffers released)
+			HardwareBufferManager::getSingleton().destroyVertexBufferBinding(res.vdata->vertexBufferBinding);
+			res.vdata->vertexBufferBinding = newBindings;
+
+
+			// Now do index data
+			// no new buffer required, same size but some triangles remapped
+			uint16* p16 = 0;
+			uint32* p32 = 0;
+			if (res.idata->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+			{
+				p32 = static_cast<uint32*>(res.idata->indexBuffer->lock(HardwareBuffer::HBL_NORMAL));
+				remapIndexes(p32, res);
+			}
+			else
+			{
+				p16 = static_cast<uint16*>(res.idata->indexBuffer->lock(HardwareBuffer::HBL_NORMAL));
+				remapIndexes(p16, res);
+			}
+			res.idata->indexBuffer->unlock();
+			
+		}
 
 	}
 	//---------------------------------------------------------------------
@@ -119,8 +168,7 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	void TangentSpaceCalc::processFaces(const IndexData* i_in, RenderOperation::OperationType opType, 
-		Result& result)
+	void TangentSpaceCalc::processFaces(const IndexData* i_in, Result& result)
 	{
 		// Read data from buffers
 		uint16 *p16 = 0;
@@ -144,68 +192,26 @@ namespace Ogre
 		}
 		// current triangle
 		size_t vertInd[3];
-		bool invertOrdering;
 		// loop through all faces to calculate the tangents and normals
-		size_t faceCount = opType == RenderOperation::OT_TRIANGLE_LIST ?
-			(i_in->indexCount / 3) : (i_in->indexCount - 2);
+		size_t faceCount = i_in->indexCount / 3;
 		for (size_t f = 0; f < faceCount; ++f)
 		{
-			invertOrdering = false;
 			// Read 1 or 3 indexes depending on type
-			if (f == 0 || opType == RenderOperation::OT_TRIANGLE_LIST)
-			{
-				vertInd[0] = p32? *p32++ : *p16++;
-				vertInd[1] = p32? *p32++ : *p16++;
-				vertInd[2] = p32? *p32++ : *p16++;
-			}
-			else if (opType == RenderOperation::OT_TRIANGLE_FAN)
-			{
-				// Element 0 always remains the same
-				// Element 2 becomes element 1
-				vertInd[1] = vertInd[2];
-				// read new into element 2
-				vertInd[2] = p32? *p32++ : *p16++;
-			}
-			else if (opType == RenderOperation::OT_TRIANGLE_STRIP)
-			{
-				// Shunt everything down one, but also invert the ordering on 
-				// odd numbered triangles (== even numbered i's)
-				// we interpret front as anticlockwise all the time but strips alternate
-				if (f & 0x1)
-				{
-					// odd tris (index starts at 3, 5, 7)
-					invertOrdering = true;
-				}
-				vertInd[0] = vertInd[1];
-				vertInd[1] = vertInd[2];			
-				vertInd[2] = p32? *p32++ : *p16++;
-			}
-
-			// deal with strip inversion of winding
-			size_t localVertInd[3];
-			localVertInd[0] = vertInd[0];
-			if (invertOrdering)
-			{
-				localVertInd[1] = vertInd[2];
-				localVertInd[2] = vertInd[1];
-			}
-			else
-			{
-				localVertInd[1] = vertInd[1];
-				localVertInd[2] = vertInd[2];
-			}
+			vertInd[0] = p32? *p32++ : *p16++;
+			vertInd[1] = p32? *p32++ : *p16++;
+			vertInd[2] = p32? *p32++ : *p16++;
 
 			// For each triangle
 			//   Calculate tangent & binormal per triangle
 			//   Note these are not normalised, are weighted by UV area
 			Vector3 faceTsU, faceTsV, faceNorm;
-			calculateFaceTangentSpace(localVertInd, faceTsU, faceTsV, faceNorm);
+			calculateFaceTangentSpace(vertInd, faceTsU, faceTsV, faceNorm);
 
 			// Skip invalid UV space triangles
 			if (faceTsU.isZeroLength() || faceTsV.isZeroLength())
 				continue;
 
-			addFaceTangentSpaceToVertices(f, localVertInd, faceTsU, faceTsV, faceNorm, result);
+			addFaceTangentSpaceToVertices(f, vertInd, faceTsU, faceTsV, faceNorm, result);
 
 		}
 
@@ -240,6 +246,7 @@ namespace Ogre
 			// in triangle remap
 			// in vertex split list
 			bool splitVertex = false;
+			size_t reusedOppositeParity = 0;
 			if (!vertex->parity)
 			{
 				// probably a mirrored UV edge, need to split the vertex
@@ -247,9 +254,21 @@ namespace Ogre
 			}
 			else if (vertex->parity != faceParity)
 			{
-				splitVertex = true;
+				// Check for existing alternative parity
+				if (vertex->oppositeParityIndex)
+				{
+					// Ok, have already split this vertex because of parity
+					// Use the same one again
+					reusedOppositeParity = vertex->oppositeParityIndex;
+					vertex = &(mVertexArray[reusedOppositeParity]);
+				}
+				else
+				{
+					splitVertex = true;
+				}
 			}
-			else
+
+			if (!splitVertex)
 			{
 				// deal with excessive tangent space rotations as well as mirroring
 				// same kind of split behaviour appropriate
@@ -269,16 +288,24 @@ namespace Ogre
 			if (splitVertex)
 			{
 				size_t newVertexIndex = mVertexArray.size();
-				result.vertexSplits.push_back(VertexSplit(localVertInd[v], newVertexIndex));
+				VertexSplit splitInfo(localVertInd[v], newVertexIndex);
+				result.vertexSplits.push_back(splitInfo);
 				// copy old values but reset tangent space
 				VertexInfo newVertex = *vertex;
 				newVertex.tangent = Vector3::ZERO;
 				newVertex.binormal = Vector3::ZERO;
 				newVertex.parity = faceParity;
 				mVertexArray.push_back(newVertex);
-				result.trianglesRemapped.push_back(faceIndex);
+				result.indexesRemapped.push_back(IndexRemap(faceIndex, splitInfo));
 
 				vertex = &(mVertexArray[newVertexIndex]);
+
+			}
+			else if (reusedOppositeParity)
+			{
+				// didn't split again, but we do need to record the re-used remapping
+				VertexSplit splitInfo(localVertInd[v], reusedOppositeParity);
+				result.indexesRemapped.push_back(IndexRemap(faceIndex, splitInfo));
 
 			}
 
@@ -480,12 +507,13 @@ namespace Ogre
 
 	}
 	//---------------------------------------------------------------------
-	void TangentSpaceCalc::organiseTangentsBuffer(VertexData *vertexData,
+	void TangentSpaceCalc::insertTangents(Result& res,
 		VertexElementSemantic targetSemantic, unsigned short sourceTexCoordSet, 
 		unsigned short index)
 	{
-		VertexDeclaration *vDecl = vertexData->vertexDeclaration ;
-		VertexBufferBinding *vBind = vertexData->vertexBufferBinding ;
+		// Make a new tangents semantic or find an existing one
+		VertexDeclaration *vDecl = res.vdata->vertexDeclaration ;
+		VertexBufferBinding *vBind = res.vdata->vertexBufferBinding ;
 
 		const VertexElement *tangentsElem = vDecl->findElementBySemantic(targetSemantic, index);
 		bool needsToBeCreated = false;
@@ -503,14 +531,16 @@ namespace Ogre
 				"TangentSpaceCalc::organiseTangentsBuffer");
 		}
 
-		HardwareVertexBufferSharedPtr newBuffer;
+		HardwareVertexBufferSharedPtr targetBuffer, origBuffer;
+		unsigned char* pSrc;
+
 		if (needsToBeCreated)
 		{
 			// To be most efficient with our vertex streams,
 			// tack the new tangents onto the same buffer as the
 			// source texture coord set
 			const VertexElement* prevTexCoordElem =
-				vertexData->vertexDeclaration->findElementBySemantic(
+				res.vdata->vertexDeclaration->findElementBySemantic(
 				VES_TEXTURE_COORDINATES, sourceTexCoordSet);
 			if (!prevTexCoordElem)
 			{
@@ -520,44 +550,64 @@ namespace Ogre
 					"Mesh::orgagniseTangentsBuffer");
 			}
 			// Find the buffer associated with  this element
-			HardwareVertexBufferSharedPtr origBuffer =
-				vertexData->vertexBufferBinding->getBuffer(
+			origBuffer = res.vdata->vertexBufferBinding->getBuffer(
 				prevTexCoordElem->getSource());
 			// Now create a new buffer, which includes the previous contents
 			// plus extra space for the 3D coords
-			newBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
+			targetBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
 				origBuffer->getVertexSize() + 3*sizeof(float),
-				vertexData->vertexCount,
+				origBuffer->getNumVertices(),
 				origBuffer->getUsage(),
 				origBuffer->hasShadowBuffer() );
 			// Add the new element
-			vDecl->addElement(
+			tangentsElem = &(vDecl->addElement(
 				prevTexCoordElem->getSource(),
 				origBuffer->getVertexSize(),
 				VET_FLOAT3,
 				targetSemantic,
-				index);
-			// Now copy the original data across
-			unsigned char* pSrc = static_cast<unsigned char*>(
+				index));
+			// Set up the source pointer
+			pSrc = static_cast<unsigned char*>(
 				origBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
-			unsigned char* pDest = static_cast<unsigned char*>(
-				newBuffer->lock(HardwareBuffer::HBL_DISCARD));
-			size_t vertSize = origBuffer->getVertexSize();
-			for (size_t v = 0; v < vertexData->vertexCount; ++v)
-			{
-				// Copy original vertex data
-				memcpy(pDest, pSrc, vertSize);
-				pSrc += vertSize;
-				pDest += vertSize;
-				// Set the new part to 0 since we'll accumulate in this
-				memset(pDest, 0, sizeof(float)*3);
-				pDest += sizeof(float)*3;
-			}
-			origBuffer->unlock();
-			newBuffer->unlock();
-
 			// Rebind the new buffer
-			vBind->setBinding(prevTexCoordElem->getSource(), newBuffer);
+			vBind->setBinding(prevTexCoordElem->getSource(), targetBuffer);
+		}
+		else
+		{
+			// space already there
+			targetBuffer = origBuffer;
+		}
+
+
+		unsigned char* pDest = static_cast<unsigned char*>(
+			targetBuffer->lock(HardwareBuffer::HBL_DISCARD));
+		size_t origVertSize = origBuffer->getVertexSize();
+		size_t newVertSize = targetBuffer->getVertexSize();
+		for (size_t v = 0; v < origBuffer->getNumVertices(); ++v)
+		{
+			if (needsToBeCreated)
+			{
+				// Copy original vertex data as well 
+				memcpy(pDest, pSrc, origVertSize);
+				pSrc += origVertSize;
+			}
+			// Write in the tangent
+			float* pTangent;
+			tangentsElem->baseVertexPointerToElement(pDest, &pTangent);
+			VertexInfo& vertInfo = mVertexArray[v];
+			*pTangent++ = vertInfo.tangent.x;
+			*pTangent++ = vertInfo.tangent.y;
+			*pTangent++ = vertInfo.tangent.z;
+
+			// Next target vertex
+			pDest += newVertSize;
+
+		}
+		targetBuffer->unlock();
+
+		if (needsToBeCreated)
+		{
+			origBuffer->unlock();
 		}
 	}
 
