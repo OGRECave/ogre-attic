@@ -42,37 +42,49 @@ namespace Ogre
 		TangentSpaceCalc();
 		virtual ~TangentSpaceCalc();
 
-		/** List of triangles that are affected by index remapping (split vertices).
-			For details of the remappings, see VertexSplits.
-		*/
-		typedef std::list<size_t> TriangleRemapList;
 		typedef std::pair<size_t, size_t> VertexSplit;
+
+		/// Information about a remapped index
+		struct IndexRemap
+		{
+			/// The position in the index buffer that's affected
+			size_t faceIndex;
+			/// The old and new vertex index
+			VertexSplit splitVertex;
+
+			IndexRemap(size_t f, const VertexSplit& s) : faceIndex(f), splitVertex(s) {}
+		};
+		/** List of indexes that were remapped (split vertices).
+		*/
+		typedef std::list<IndexRemap> IndexRemapList;
 
 		typedef std::list<VertexSplit> VertexSplits;
 
 		/// The result of having built a tangent space basis
 		struct Result
 		{
-			/// The vertex data containing tangents
+			/// The vertex data 
 			VertexData* vdata;
-			/// The index data, which may have been modified
+			/// The index data
 			IndexData* idata;
 			/** A list of vertex indices which were split off into new vertices
 				because of mirroring. First item in each pair is the source vertex 
 				index, the secon value is the split vertex index.
 			*/
 			VertexSplits vertexSplits;
-			/** A list of triangles which were re-indexed. You can use this if you have other
+			/** A list of indexes which were affected by splits. You can use this if you have other
 				triangle-based data which you will need to alter to match. */
-			TriangleRemapList trianglesRemapped;
+			IndexRemapList indexesRemapped;
 		};
 
 		
 		/** Build a tangent space basis from the provided data.
-		@param v_in The incoming vertex data, not modified
-		@param i_in The incoming index data, not modified
-		@param opType The type of render operation being used, only valid options
-			are OT_TRIANGLE_LIST, OT_TRIANGLE_STRIP and OT_TRIANGLE_FAN
+		@remarks
+			Only indexed triangle lists are allowed. Strips and fans cannot be
+			supported because it may be necessary to split the geometry up to 
+			respect deviances in the tangent space basis better.
+		@param v_in The incoming vertex data, will be modified in-place
+		@param i_in The incoming index data, may be modified if vertex splits occur
 		@param targetSemantic The semantic to store the tangents in. Defaults to 
 			the explicit tangent binding, but note that this is only usable on more
 			modern hardware (Shader Model 2), so if you need portability with older
@@ -90,8 +102,7 @@ namespace Ogre
 			This is discontinuous, therefore the vertices have to be split along
 			this edge, resulting in new vertices.
 		*/
-		Result build(const VertexData* v_in, const IndexData* i_in, 
-			RenderOperation::OperationType opType, 
+		Result build(VertexData* v_in, IndexData* i_in, 
 			VertexElementSemantic targetSemantic = VES_TANGENT,
 			unsigned short sourceTexCoordSet = 0, unsigned short index = 1);
 
@@ -107,22 +118,22 @@ namespace Ogre
 			Vector3 binormal;
 			// Which way the tangent space is oriented (+1 / -1) (set on first time found)
 			int parity;
-			// What index the opposite parity vertex copy is at (-1 if not created yet)
-			long oppositeParityIndex;
+			// What index the opposite parity vertex copy is at (0 if not created yet)
+			size_t oppositeParityIndex;
 
 			VertexInfo() : tangent(Vector3::ZERO), binormal(Vector3::ZERO), 
-				parity(0), oppositeParityIndex(-1) {}
+				parity(0), oppositeParityIndex(0) {}
 		};
 		typedef std::vector<VertexInfo> VertexInfoArray;
 		VertexInfoArray mVertexArray;
 
-		void organiseTangentsBuffer(VertexData *vertexData,
+		void extendBuffers(Result& res);
+		void insertTangents(Result& res,
 			VertexElementSemantic targetSemantic, 
 			unsigned short sourceTexCoordSet, unsigned short index);
 
 		void populateVertexArray(const VertexData* v_in, unsigned short sourceTexCoordSet);
-		void processFaces(const IndexData* i_in, RenderOperation::OperationType opType, 
-			Result& result);
+		void processFaces(const IndexData* i_in, Result& result);
 		/// Calculate face tangent space, U and V are weighted by UV area, N is normalised
 		void calculateFaceTangentSpace(const size_t* vertInd, Vector3& tsU, Vector3& tsV, Vector3& tsN);
 		Real calculateAngleWeight(size_t v0, size_t v1, size_t v2);
@@ -130,6 +141,28 @@ namespace Ogre
 		void addFaceTangentSpaceToVertices(size_t faceIndex, size_t *localVertInd, 
 			const Vector3& faceTsU, const Vector3& faceTsV, const Vector3& faceNorm, Result& result);
 		void normaliseVertices();
+		template <typename T>
+		void remapIndexes(T* ibuf, Result& res)
+		{
+			for (IndexRemapList::iterator i = res.indexesRemapped.begin();
+				i != res.indexesRemapped.begin(); ++i)
+			{
+				IndexRemap& remap = *i;
+				T* pBuf;
+				pBuf = ibuf + remap.faceIndex * 3;
+				
+				for (int v = 0; v < 3; ++v, ++pBuf)
+				{
+					if (*pBuf == remap.splitVertex.first)
+					{
+						*pBuf = (T)remap.splitVertex.second;
+					}
+				}
+
+
+			}
+		}
+		
 
 	};
 
