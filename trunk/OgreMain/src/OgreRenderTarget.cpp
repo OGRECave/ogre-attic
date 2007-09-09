@@ -445,12 +445,12 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void RenderTarget::writeContentsToFile(const String& filename)
 	{
-		uchar *data = new uchar[mWidth * mHeight * 3];
-		PixelBox pb(mWidth, mHeight, 1, PF_BYTE_RGB, data);
+		uchar *data = new uchar[mWidth * mHeight * 4];
+		PixelBox pb(mWidth, mHeight, 1, PF_BYTE_RGBA, data);
 
 		copyContentsToMemory(pb);
 
-		Image().loadDynamicImage(data, mWidth, mHeight, 1, PF_BYTE_RGB, false, 1, 0).save(filename);
+		Image().loadDynamicImage(data, mWidth, mHeight, 1, PF_BYTE_RGBA, false, 1, 0).save(filename);
 
 		delete [] data;
 	}
