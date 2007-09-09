@@ -93,6 +93,10 @@ OGRE_CHECK_OPENEXR
 OGRE_CHECK_DX9
 OGRE_CHECK_SSE
 
+dnl Check to see if Ogre platform and GUI are the same
+dnl Fixes problem running make distclean when both are set to GLX
+OGRE_PLATFORM_AND_GUI
+
 dnl Check to see if user wants to disable building of demos (defaults is to build) - also checks for OIS
 OGRE_BUILD_DEMOS
 

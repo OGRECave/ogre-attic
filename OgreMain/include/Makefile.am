@@ -1,4 +1,7 @@
-SUBDIRS = $(OGRE_PLATFORM) $(OGRE_GUI)
+if !SAME_PLATFORM_AND_GUI
+	INCLUDE_SUBDIRS = $(OGRE_GUI)
+endif
+SUBDIRS = $(OGRE_PLATFORM) $(INCLUDE_SUBDIRS)
 
 pkginclude_HEADERS = Ogre.h \
                      OgreAlignedAllocator.h \
