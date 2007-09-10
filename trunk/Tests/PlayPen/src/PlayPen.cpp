@@ -91,6 +91,7 @@ bool testreload = false;
 String testBackgroundLoadGroup;
 Sphere* projectionSphere = 0;
 ManualObject* scissorRect = 0;
+Mesh* testUpdateMesh = 0;
 
 // Hacky globals
 GpuProgramParametersSharedPtr fragParams;
@@ -517,6 +518,35 @@ public:
             vol.intersects(mEntity->getWorldBoundingBox());
         }
         */
+
+		if (testUpdateMesh)
+		{
+			static Real updtimeout = 5.0f;
+			updtimeout -= evt.timeSinceLastFrame;
+
+			if (updtimeout < 0)
+			{
+				// change the mesh, add a new submesh
+
+				// Load another mesh
+				MeshPtr msh = MeshManager::getSingleton().load("ogrehead.mesh", 
+					ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+				for (unsigned short e = 0; e < msh->getNumSubMeshes(); ++e)
+				{
+					SubMesh* sm = msh->getSubMesh(e);
+
+					SubMesh* newsm = testUpdateMesh->createSubMesh();
+					newsm->useSharedVertices = false;
+					newsm->operationType = sm->operationType;
+					newsm->vertexData = sm->vertexData->clone();
+					newsm->indexData = sm->indexData->clone();
+				}
+
+
+				updtimeout = 100000;
+
+			}
+		}
 
         // Print camera details
         //mWindow->setDebugText("P: " + StringConverter::toString(mCamera->getDerivedPosition()) + " " + 
@@ -6071,8 +6101,6 @@ protected:
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject( pEnt );
 
 
-		mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
-
 		Plane plane;
 		plane.normal = Vector3::UNIT_Y;
 		plane.d = 100;
@@ -6091,9 +6119,28 @@ protected:
 
 	}
 
+	void testReinitialiseEntityAlteredMesh()
+	{
+		// test whether an Entity picks up that Mesh has changed
+		// and therefore rebuild SubEntities
+
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+
+		Light* l = mSceneMgr->createLight("l1");
+		l->setPosition(200, 300, 0);
+
+		Entity* pEnt = mSceneMgr->createEntity("testEnt", "knot.mesh");
+		testUpdateMesh = pEnt->getMesh().get();
+
+		mSceneMgr->getRootSceneNode()->attachObject(pEnt);
+
+	}
+
+
 	// Just override the mandatory create scene method
     void createScene(void)
     {
+
 
 		ErrorDialog e;
 
@@ -6193,7 +6240,7 @@ protected:
 		//testProjectSphere();
 		//testLightScissoring(false);
 		//testLightClipPlanes(false);
-		testManualIlluminationStage(SHADOWTYPE_STENCIL_ADDITIVE);
+		//testManualIlluminationStage(SHADOWTYPE_STENCIL_ADDITIVE);
 		//testTimeCreateDestroyObject();
 		//testManualBlend();
 		//testManualObjectNonIndexed();
@@ -6238,6 +6285,7 @@ protected:
 		//testGLSLTangent();
 		//testBackgroundLoadResourceGroup();
 		//testMRT();
+		testReinitialiseEntityAlteredMesh();
 		
     }
     // Create new frame listener

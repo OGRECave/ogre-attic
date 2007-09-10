@@ -42,7 +42,7 @@ namespace Ogre
 		const String& group, bool isManual, ManualResourceLoader* loader)
 		: mCreator(creator), mName(name), mGroup(group), mHandle(handle), 
 		mLoadingState(LOADSTATE_UNLOADED), mIsBackgroundLoaded(false),
-		mSize(0), mIsManual(isManual), mLoader(loader)
+		mSize(0), mIsManual(isManual), mLoader(loader), mStateCount(0)
 	{
 	}
 	//-----------------------------------------------------------------------
@@ -135,6 +135,7 @@ namespace Ogre
 		
 			// Now loaded
 			mLoadingState = LOADSTATE_LOADED;
+			_dirtyState();
 		}
 
 		// Notify manager
@@ -146,6 +147,13 @@ namespace Ogre
 			queueFireBackgroundLoadingComplete();
 
 
+	}
+	//---------------------------------------------------------------------
+	void Resource::_dirtyState()
+	{
+		// don't worry about threading here, count only ever increases so 
+		// doesn't matter if we get a lost increment (one is enough)
+		++mStateCount;	
 	}
 	//-----------------------------------------------------------------------
 	void Resource::changeGroupOwnership(const String& newGroup)

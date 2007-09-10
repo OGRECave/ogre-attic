@@ -81,6 +81,7 @@ namespace Ogre {
           mSkeletonInstance(0),
 		  mInitialised(false),
 		  mLastParentXform(Matrix4::ZERO),
+		  mMeshStateCount(0),
           mFullBoundingBox()
     {
     }
@@ -114,6 +115,7 @@ namespace Ogre {
 		mSkeletonInstance(0),
 		mInitialised(false),
 		mLastParentXform(Matrix4::ZERO),
+		mMeshStateCount(0),
         mFullBoundingBox()
 	{
 		_initialise();
@@ -196,6 +198,7 @@ namespace Ogre {
 
 
 		mInitialised = true;
+		mMeshStateCount = mMesh->getStateCount();
 
 	}
 	//-----------------------------------------------------------------------
@@ -469,6 +472,13 @@ namespace Ogre {
 		// Do nothing if not initialised yet
 		if (!mInitialised)
 			return;
+
+		// Check mesh state count, will be incremented if reloaded
+		if (mMesh->getStateCount() != mMeshStateCount)
+		{
+			// force reinitialise
+			_initialise(true);
+		}
 
         // Check we're not using a manual LOD
         if (mMeshLodIndex > 0 && mMesh->isLodManual())

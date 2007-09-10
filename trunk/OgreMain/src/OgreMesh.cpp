@@ -138,6 +138,9 @@ namespace Ogre {
 
         mSubMeshList.push_back(sub);
 
+		if (isLoaded())
+			_dirtyState();
+
         return sub;
     }
     //-----------------------------------------------------------------------
@@ -409,33 +412,38 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Mesh::setSkeletonName(const String& skelName)
     {
-        mSkeletonName = skelName;
+		if (skelName != mSkeletonName)
+		{
+			mSkeletonName = skelName;
 
-        if (skelName.empty())
-        {
-            // No skeleton
-            mSkeleton.setNull();
-        }
-        else
-        {
-            // Load skeleton
-            try {
-                mSkeleton = SkeletonManager::getSingleton().load(skelName, mGroup);
-            }
-            catch (...)
-            {
-                mSkeleton.setNull();
-                // Log this error
-                String msg = "Unable to load skeleton ";
-                msg += skelName + " for Mesh " + mName
-                    + ". This Mesh will not be animated. "
-                    + "You can ignore this message if you are using an offline tool.";
-                LogManager::getSingleton().logMessage(msg);
+			if (skelName.empty())
+			{
+				// No skeleton
+				mSkeleton.setNull();
+			}
+			else
+			{
+				// Load skeleton
+				try {
+					mSkeleton = SkeletonManager::getSingleton().load(skelName, mGroup);
+				}
+				catch (...)
+				{
+					mSkeleton.setNull();
+					// Log this error
+					String msg = "Unable to load skeleton ";
+					msg += skelName + " for Mesh " + mName
+						+ ". This Mesh will not be animated. "
+						+ "You can ignore this message if you are using an offline tool.";
+					LogManager::getSingleton().logMessage(msg);
 
-            }
+				}
 
 
-        }
+			}
+			if (isLoaded())
+				_dirtyState();
+		}
     }
     //-----------------------------------------------------------------------
     bool Mesh::hasSkeleton(void) const
