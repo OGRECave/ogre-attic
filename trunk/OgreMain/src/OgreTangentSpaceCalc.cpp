@@ -47,6 +47,7 @@ namespace Ogre
 	void TangentSpaceCalc::clear()
 	{
 		mIDataList.clear();
+		mOpTypes.clear();
 		mVData = 0;
 	}
 	//---------------------------------------------------------------------
@@ -55,9 +56,19 @@ namespace Ogre
 		mVData = v_in;
 	}
 	//---------------------------------------------------------------------
-	void TangentSpaceCalc::addIndexData(IndexData* i_in)
+	void TangentSpaceCalc::addIndexData(IndexData* i_in, RenderOperation::OperationType op)
 	{
+		if (op != RenderOperation::OT_TRIANGLE_FAN && 
+			op != RenderOperation::OT_TRIANGLE_LIST && 
+			op != RenderOperation::OT_TRIANGLE_STRIP)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"Only indexed triangle (list, strip, fan) render operations are supported.",
+				"TangentSpaceCalc::addIndexData");
+
+		}
 		mIDataList.push_back(i_in);
+		mOpTypes.push_back(op);
 	}
 	//---------------------------------------------------------------------
 	TangentSpaceCalc::Result TangentSpaceCalc::build(
@@ -202,9 +213,21 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void TangentSpaceCalc::processFaces(Result& result)
 	{
+		// Quick pre-check for triangle strips / fans
+		for (OpTypeList::iterator ot = mOpTypes.begin(); ot != mOpTypes.end(); ++ot)
+		{
+			if (*ot != RenderOperation::OT_TRIANGLE_LIST)
+			{
+				// Can't split strips / fans
+				setSplitMirrored(false);
+				setSplitRotated(false);
+			}
+		}
+
 		for (size_t i = 0; i < mIDataList.size(); ++i)
 		{
 			IndexData* i_in = mIDataList[i];
+			RenderOperation::OperationType opType = mOpTypes[i];
 
 			// Read data from buffers
 			uint16 *p16 = 0;
@@ -229,25 +252,67 @@ namespace Ogre
 			// current triangle
 			size_t vertInd[3];
 			// loop through all faces to calculate the tangents and normals
-			size_t faceCount = i_in->indexCount / 3;
+			size_t faceCount = opType == RenderOperation::OT_TRIANGLE_LIST ? 
+				i_in->indexCount / 3 : i_in->indexCount - 2;
 			for (size_t f = 0; f < faceCount; ++f)
 			{
+				bool invertOrdering = false;
 				// Read 1 or 3 indexes depending on type
-				vertInd[0] = p32? *p32++ : *p16++;
-				vertInd[1] = p32? *p32++ : *p16++;
-				vertInd[2] = p32? *p32++ : *p16++;
+				if (f == 0 || opType == RenderOperation::OT_TRIANGLE_LIST)
+				{
+					vertInd[0] = p32? *p32++ : *p16++;
+					vertInd[1] = p32? *p32++ : *p16++;
+					vertInd[2] = p32? *p32++ : *p16++;
+				}
+				else if (opType == RenderOperation::OT_TRIANGLE_FAN)
+				{
+					// Element 0 always remains the same
+					// Element 2 becomes element 1
+					vertInd[1] = vertInd[2];
+					// read new into element 2
+					vertInd[2] = p32? *p32++ : *p16++;
+				}
+				else if (opType == RenderOperation::OT_TRIANGLE_STRIP)
+				{
+					// Shunt everything down one, but also invert the ordering on 
+					// odd numbered triangles (== even numbered i's)
+					// we interpret front as anticlockwise all the time but strips alternate
+					if (f & 0x1)
+					{
+						// odd tris (index starts at 3, 5, 7)
+						invertOrdering = true;
+					}
+					vertInd[0] = vertInd[1];
+					vertInd[1] = vertInd[2];			
+					vertInd[2] = p32? *p32++ : *p16++;
+				}
+
+				// deal with strip inversion of winding
+				size_t localVertInd[3];
+				localVertInd[0] = vertInd[0];
+				if (invertOrdering)
+				{
+					localVertInd[1] = vertInd[2];
+					localVertInd[2] = vertInd[1];
+				}
+				else
+				{
+					localVertInd[1] = vertInd[1];
+					localVertInd[2] = vertInd[2];
+				}
+
 
 				// For each triangle
 				//   Calculate tangent & binormal per triangle
 				//   Note these are not normalised, are weighted by UV area
 				Vector3 faceTsU, faceTsV, faceNorm;
-				calculateFaceTangentSpace(vertInd, faceTsU, faceTsV, faceNorm);
+				calculateFaceTangentSpace(localVertInd, faceTsU, faceTsV, faceNorm);
 
 				// Skip invalid UV space triangles
 				if (faceTsU.isZeroLength() || faceTsV.isZeroLength())
 					continue;
 
-				addFaceTangentSpaceToVertices(i, f, vertInd, faceTsU, faceTsV, faceNorm, result);
+				addFaceTangentSpaceToVertices(i, f, localVertInd, faceTsU, faceTsV, faceNorm, result);
 
 			}
 

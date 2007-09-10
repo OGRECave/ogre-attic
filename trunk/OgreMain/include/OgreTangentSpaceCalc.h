@@ -80,10 +80,11 @@ namespace Ogre
 
 		/** Set the incoming vertex data (which will be modified) */
 		void setVertexData(VertexData* v_in);
+
 		/** Add a set of index data that references the vertex data.
 			This might be modified if there are vertex splits.
 		*/
-		void addIndexData(IndexData* i_in);
+		void addIndexData(IndexData* i_in, RenderOperation::OperationType opType = RenderOperation::OT_TRIANGLE_LIST);
 
 		/** Sets whether or not to split vertices when a mirrored tangent space
 			transition is detected (matrix parity differs).
@@ -96,6 +97,8 @@ namespace Ogre
 			in folds of the model and thus you can turn this option on, which will
 			prevent the results of those seams from getting smoothed into other
 			areas, which is exactly what you want.
+		@note This option is automatically disabled if you provide any strip or
+			fan based geometry.
 		*/
 		void setSplitMirrored(bool split) { mSplitMirrored = split; }
 		
@@ -115,6 +118,8 @@ namespace Ogre
 			in folds of the model and thus you can turn this option on, which will
 			prevent the results of those seams from getting smoothed into other
 			areas, which is exactly what you want.
+		@note This option is automatically disabled if you provide any strip or
+			fan based geometry.
 		*/
 		void setSplitRotated(bool split) { mSplitRotated = split; }
 		/** Sets whether or not to split vertices when tangent space rotates
@@ -152,7 +157,9 @@ namespace Ogre
 
 		VertexData* mVData;
 		typedef std::vector<IndexData*> IndexDataList;
+		typedef std::vector<RenderOperation::OperationType> OpTypeList;
 		IndexDataList mIDataList;
+		OpTypeList mOpTypes;
 		bool mSplitMirrored;
 		bool mSplitRotated;
 
