@@ -269,6 +269,7 @@
 		<Unit filename="../include/OgreSubEntity.h" />
 		<Unit filename="../include/OgreSubMesh.h" />
 		<Unit filename="../include/OgreTagPoint.h" />
+		<Unit filename="../include/OgreTangentSpaceCalc.h" />
 		<Unit filename="../include/OgreTechnique.h" />
 		<Unit filename="../include/OgreTextAreaOverlayElement.h" />
 		<Unit filename="../include/OgreTexture.h" />
@@ -450,6 +451,7 @@
 		<Unit filename="../src/OgreSubEntity.cpp" />
 		<Unit filename="../src/OgreSubMesh.cpp" />
 		<Unit filename="../src/OgreTagPoint.cpp" />
+		<Unit filename="../src/OgreTangentSpaceCalc.cpp" />
 		<Unit filename="../src/OgreTechnique.cpp" />
 		<Unit filename="../src/OgreTextAreaOverlayElement.cpp" />
 		<Unit filename="../src/OgreTexture.cpp" />

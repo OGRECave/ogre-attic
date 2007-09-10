@@ -1399,6 +1399,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgreTangentSpaceCalc.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgreTechnique.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -2305,6 +2312,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreTagPoint.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreTangentSpaceCalc.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
