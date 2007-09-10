@@ -85,6 +85,43 @@ namespace Ogre
 		*/
 		void addIndexData(IndexData* i_in);
 
+		/** Sets whether or not to split vertices when a mirrored tangent space
+			transition is detected (matrix parity differs).
+		@remarks
+			This defaults to 'off' because it's the safest option; tangents will be
+			interpolated in all cases even if they don't agree around a vertex, so
+			artefacts will be smoothed out. When you're using art assets of 
+			unknown quality this can avoid extra seams on the visible surface. 
+			However, if your artists are good, they will be hiding texture seams
+			in folds of the model and thus you can turn this option on, which will
+			prevent the results of those seams from getting smoothed into other
+			areas, which is exactly what you want.
+		*/
+		void setSplitMirrored(bool split) { mSplitMirrored = split; }
+		
+		/** Gets whether or not to split vertices when a mirrored tangent space
+			transition is detected.
+		*/
+		bool getSplitMirrored() const { return mSplitMirrored; }
+
+		/** Sets whether or not to split vertices when tangent space rotates
+			more than 90 degrees around a vertex.
+		@remarks
+			This defaults to 'off' because it's the safest option; tangents will be
+			interpolated in all cases even if they don't agree around a vertex, so
+			artefacts will be smoothed out. When you're using art assets of 
+			unknown quality this can avoid extra seams on the visible surface. 
+			However, if your artists are good, they will be hiding texture inconsistencies
+			in folds of the model and thus you can turn this option on, which will
+			prevent the results of those seams from getting smoothed into other
+			areas, which is exactly what you want.
+		*/
+		void setSplitRotated(bool split) { mSplitRotated = split; }
+		/** Sets whether or not to split vertices when tangent space rotates
+		more than 90 degrees around a vertex.
+		*/
+		bool getSplitRotated() const { return mSplitRotated; }
+
 		/** Build a tangent space basis from the provided data.
 		@remarks
 			Only indexed triangle lists are allowed. Strips and fans cannot be
@@ -116,6 +153,9 @@ namespace Ogre
 		VertexData* mVData;
 		typedef std::vector<IndexData*> IndexDataList;
 		IndexDataList mIDataList;
+		bool mSplitMirrored;
+		bool mSplitRotated;
+
 
 		struct VertexInfo
 		{

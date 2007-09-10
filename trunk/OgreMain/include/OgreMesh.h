@@ -375,6 +375,10 @@ namespace Ogre {
         */
         BoneAssignmentIterator getBoneAssignmentIterator(void);
 
+		/** Gets a const reference to the list of bone assignments
+		*/
+		const VertexBoneAssignmentList& getBoneAssignments() const { return mBoneAssignments; }
+
 
 		/** Automatically generates lower level of detail versions of this mesh for use
 			when a simpler version of the model is acceptable for rendering.
@@ -570,9 +574,14 @@ namespace Ogre {
         @param index The element index, ie the texture coordinate set which should be used to store the 3D
             coordinates representing a tangent vector per vertex, if targetSemantic is 
 			VES_TEXTURE_COORDINATES. If this already exists, it will be overwritten.
+		@param splitMirrored Sets whether or not to split vertices when a mirrored tangent space
+			transition is detected (matrix parity differs). @see TangentSpaceCalc::setSplitMirrored
+		@param splitRotated Sets whether or not to split vertices when a rotated tangent space
+			is detected. @see TangentSpaceCalc::setSplitRotated
         */
         void buildTangentVectors(VertexElementSemantic targetSemantic = VES_TANGENT,
-			unsigned short sourceTexCoordSet = 0, unsigned short index = 0);
+			unsigned short sourceTexCoordSet = 0, unsigned short index = 0, 
+			bool splitMirrored = false, bool splitRotated = false);
 
         /** Ask the mesh to suggest parameters to a future buildTangentVectors call, 
 			should you wish to use texture coordinates to store the tangents. 

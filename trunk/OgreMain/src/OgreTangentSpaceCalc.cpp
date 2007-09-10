@@ -29,14 +29,14 @@ Torus Knot Software Ltd.
 #include "OgreStableHeaders.h"
 #include "OgreTangentSpaceCalc.h"
 #include "OgreHardwareBufferManager.h"
+#include "OgreLogManager.h"
 
 namespace Ogre
 {
 	//---------------------------------------------------------------------
 	TangentSpaceCalc::TangentSpaceCalc()
-		: mVData(0)
+		: mVData(0), mSplitMirrored(false), mSplitRotated(false)
 	{
-
 	}
 	//---------------------------------------------------------------------
 	TangentSpaceCalc::~TangentSpaceCalc()
@@ -285,43 +285,60 @@ namespace Ogre
 			bool splitVertex = false;
 			size_t reusedOppositeParity = 0;
 			bool splitBecauseOfParity = false;
-			if (!vertex->parity)
+			if (mSplitMirrored)
 			{
-				// probably a mirrored UV edge, need to split the vertex
-				vertex->parity = faceParity;
-			}
-			else if (vertex->parity != faceParity)
-			{
-				// Check for existing alternative parity
-				if (vertex->oppositeParityIndex)
+				if (!vertex->parity)
 				{
-					// Ok, have already split this vertex because of parity
-					// Use the same one again
-					reusedOppositeParity = vertex->oppositeParityIndex;
-					vertex = &(mVertexArray[reusedOppositeParity]);
+					// probably a mirrored UV edge, need to split the vertex
+					vertex->parity = faceParity;
 				}
-				else
+				else if (faceParity != calculateParity(vertex->tangent, vertex->binormal, vertex->norm))//vertex->parity != faceParity)
 				{
-					splitVertex = true;
-					splitBecauseOfParity = true;
+					// Check for existing alternative parity
+					if (vertex->oppositeParityIndex)
+					{
+						// Ok, have already split this vertex because of parity
+						// Use the same one again
+						reusedOppositeParity = vertex->oppositeParityIndex;
+						vertex = &(mVertexArray[reusedOppositeParity]);
+					}
+					else
+					{
+						splitVertex = true;
+						splitBecauseOfParity = true;
+
+						LogManager::getSingleton().stream(LML_TRIVIAL)
+							<< "TSC parity split - Vpar: " << vertex->parity 
+							<< " Fpar: " << faceParity
+							<< " faceTsU: " << faceTsU
+							<< " faceTsV: " << faceTsV
+							<< " faceNorm: " << faceNorm
+							<< " vertTsU:" << vertex->tangent
+							<< " vertTsV:" << vertex->binormal
+							<< " vertNorm:" << vertex->norm;
+
+					}
 				}
 			}
 
-
-			// deal with excessive tangent space rotations as well as mirroring
-			// same kind of split behaviour appropriate
-			if (!splitVertex && vertex->tangent != Vector3::ZERO)
+			if (mSplitRotated)
 			{
-				// If more than 90 degrees, split
-				Vector3 uvCurrent = vertex->tangent + vertex->binormal;
 
-				// project down to the plane (plane normal = face normal)
-				Vector3 vRotHalf = uvCurrent - faceNorm;
-				vRotHalf *= faceNorm.dotProduct(uvCurrent);
-
-				if ((faceTsU + faceTsV).dotProduct(vRotHalf) < 0.0f)
+				// deal with excessive tangent space rotations as well as mirroring
+				// same kind of split behaviour appropriate
+				if (!splitVertex && vertex->tangent != Vector3::ZERO)
 				{
-					splitVertex = true;
+					// If more than 90 degrees, split
+					Vector3 uvCurrent = vertex->tangent + vertex->binormal;
+
+					// project down to the plane (plane normal = face normal)
+					Vector3 vRotHalf = uvCurrent - faceNorm;
+					vRotHalf *= faceNorm.dotProduct(uvCurrent);
+
+					if ((faceTsU + faceTsV).dotProduct(vRotHalf) < 0.0f)
+					{
+						splitVertex = true;
+					}
 				}
 			}
 
@@ -365,7 +382,7 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	int TangentSpaceCalc::calculateParity(const Vector3& u, const Vector3& v, const Vector3& n)
 	{
-		if (u.crossProduct(v).dotProduct(n) > 0.0f)
+		if (u.crossProduct(v).dotProduct(n) >= 0.0f)
 			return 1;
 		else
 			return -1;
