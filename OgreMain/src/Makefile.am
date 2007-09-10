@@ -144,6 +144,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreSubEntity.cpp \
                          OgreSubMesh.cpp \
                          OgreTagPoint.cpp \
+						 OgreTangentSpaceCalc.cpp \
                          OgreTechnique.cpp \
                          OgreTextAreaOverlayElement.cpp \
                          OgreTexture.cpp \
