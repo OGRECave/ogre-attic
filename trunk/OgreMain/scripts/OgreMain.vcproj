@@ -786,6 +786,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreTagPoint.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreTangentSpaceCalc.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreTechnique.cpp">
 			</File>
 			<File
@@ -1427,6 +1430,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreTagPoint.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreTangentSpaceCalc.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTechnique.h">

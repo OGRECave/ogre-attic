@@ -183,6 +183,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreSubEntity.h \
                      OgreSubMesh.h \
                      OgreTagPoint.h \
+					 OgreTangentSpaceCalc.h \
                      OgreTechnique.h \
                      OgreTextAreaOverlayElement.h \
                      OgreTextureUnitState.h \
