@@ -177,6 +177,11 @@ namespace Ogre {
         */
         BoneAssignmentIterator getBoneAssignmentIterator(void);
 
+		/** Gets a const reference to the list of bone assignments
+		*/
+		const VertexBoneAssignmentList& getBoneAssignments() { return mBoneAssignments; }
+
+
         /** Must be called once to compile bone assignments into geometry buffer. */
         void _compileBoneAssignments(void);
 

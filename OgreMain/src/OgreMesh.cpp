@@ -42,6 +42,7 @@ Torus Knot Software Ltd.
 #include "OgreAnimationState.h"
 #include "OgreAnimationTrack.h"
 #include "OgreOptimisedUtil.h"
+#include "OgreTangentSpaceCalc.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -1157,251 +1158,96 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void Mesh::buildTangentVectors(VertexElementSemantic targetSemantic, 
-		unsigned short sourceTexCoordSet, unsigned short index)
+		unsigned short sourceTexCoordSet, unsigned short index, 
+		bool splitMirrored, bool splitRotated)
     {
-		if (index == 0 && targetSemantic == VES_TEXTURE_COORDINATES)
+
+		TangentSpaceCalc tangentsCalc;
+		tangentsCalc.setSplitMirrored(splitMirrored);
+		tangentsCalc.setSplitRotated(splitRotated);
+
+		// shared geometry first
+		if (sharedVertexData)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-				"Destination texture coordinate set must be greater than 0",
-				"Mesh::buildTangentVectors");
+			tangentsCalc.setVertexData(sharedVertexData);
+			bool found = false;
+			for (SubMeshList::iterator i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
+			{
+				SubMesh* sm = *i;
+				if (sm->useSharedVertices)
+				{
+					tangentsCalc.addIndexData(sm->indexData);
+					found = true;
+				}
+			}
+			if (found)
+			{
+				TangentSpaceCalc::Result res = 
+					tangentsCalc.build(targetSemantic, sourceTexCoordSet, index);
+
+				// If any vertex splitting happened, we have to give them bone assignments
+				if (getSkeletonName() != StringUtil::BLANK)
+				{
+					for (TangentSpaceCalc::IndexRemapList::iterator r = res.indexesRemapped.begin(); 
+						r != res.indexesRemapped.end(); ++r)
+					{
+						TangentSpaceCalc::IndexRemap& remap = *r;
+						// Copy all bone assignments from the split vertex
+						VertexBoneAssignmentList::iterator vbstart = mBoneAssignments.lower_bound(remap.splitVertex.first);
+						VertexBoneAssignmentList::iterator vbend = mBoneAssignments.upper_bound(remap.splitVertex.first);
+						for (VertexBoneAssignmentList::iterator vba = vbstart; vba != vbend; ++vba)
+						{
+							VertexBoneAssignment newAsgn = vba->second;
+							newAsgn.vertexIndex = static_cast<unsigned int>(remap.splitVertex.second);
+							// multimap insert doesn't invalidate iterators
+							addBoneAssignment(newAsgn);
+						}
+						
+					}
+
+				}
+			}
 		}
 
-	    // our temp. buffers
-	    uint32			vertInd[3];
-	    Vector3         vertPos[3];
-        Real            u[3], v[3];
-	    // setup a new 3D texture coord-set buffer for every sub mesh
-	    int nSubMesh = getNumSubMeshes();
-	    for (int sm = 0; sm < nSubMesh; sm++)
-	    {
-		    // retrieve buffer pointers
-		    uint16	*pVIndices16 = NULL;    // the face indices buffer, read only
-		    uint32	*pVIndices32 = NULL;    // the face indices buffer, read only
-		    float	*p2DTC;	                // pointer to 2D tex.coords, read only
-		    float	*p3DTC;	                // pointer to 3D tex.coords, write/read (discard)
-		    float	*pVPos;	                // vertex position buffer, read only
-			float	*pVNorm;	            // vertex normal buffer, read only
-
-		    SubMesh *pSubMesh = getSubMesh(sm);
-
-		    // retrieve buffer pointers
-		    // first, indices
-		    IndexData *indexData = pSubMesh->indexData;
-		    HardwareIndexBufferSharedPtr buffIndex = indexData->indexBuffer;
-			bool use32bit = false;
-			if (buffIndex->getType() == HardwareIndexBuffer::IT_32BIT)
+		// Dedicated geometry
+		for (SubMeshList::iterator i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
+		{
+			SubMesh* sm = *i;
+			if (!sm->useSharedVertices)
 			{
-		    	pVIndices32 = static_cast<uint32*>(
-					buffIndex->lock(HardwareBuffer::HBL_READ_ONLY));
-				use32bit = true;
-			}
-			else
-			{
-		    	pVIndices16 = static_cast<uint16*>(
-					buffIndex->lock(HardwareBuffer::HBL_READ_ONLY));
-			}
-		    // then, vertices
-		    VertexData *usedVertexData ;
-		    if (pSubMesh->useSharedVertices) {
-			    usedVertexData = sharedVertexData;
-		    } else {
-			    usedVertexData = pSubMesh->vertexData;
-		    }
-		    VertexDeclaration *vDecl = usedVertexData->vertexDeclaration;
-		    VertexBufferBinding *vBind = usedVertexData->vertexBufferBinding;
+				tangentsCalc.clear();
+				tangentsCalc.setVertexData(sm->vertexData);
+				tangentsCalc.addIndexData(sm->indexData);
+				TangentSpaceCalc::Result res = 
+					tangentsCalc.build(targetSemantic, sourceTexCoordSet, index);
 
-
-		    // make sure we have a 3D coord to place data in
-			organiseTangentsBuffer(usedVertexData, targetSemantic, index, sourceTexCoordSet);
-
-            // Get the target element
-            const VertexElement* destElem = vDecl->findElementBySemantic(
-				targetSemantic, index);
-            // Get the source element
-            const VertexElement* srcElem = vDecl->findElementBySemantic(
-				VES_TEXTURE_COORDINATES, sourceTexCoordSet);
-
-            if (!srcElem || srcElem->getType() != VET_FLOAT2)
-            {
-                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-                    "SubMesh " + StringConverter::toString(sm) + " of Mesh " + mName +
-                    " has no 2D texture coordinates at the selected set, therefore we cannot calculate tangents.",
-                    "Mesh::buildTangentVectors");
-            }
-            HardwareVertexBufferSharedPtr srcBuf, destBuf, posBuf, normBuf;
-            unsigned char *pSrcBase, *pDestBase, *pPosBase, *pNormBase;
-            size_t srcInc, destInc, posInc, normInc;
-
-            srcBuf = vBind->getBuffer(srcElem->getSource());
-            // Is the source and destination buffer the same?
-            if (srcElem->getSource() == destElem->getSource())
-            {
-                // lock source for read and write
-                pSrcBase = static_cast<unsigned char*>(
-                    srcBuf->lock(HardwareBuffer::HBL_NORMAL));
-                srcInc = srcBuf->getVertexSize();
-                pDestBase = pSrcBase;
-                destInc = srcInc;
-            }
-            else
-            {
-                pSrcBase = static_cast<unsigned char*>(
-                    srcBuf->lock(HardwareBuffer::HBL_READ_ONLY));
-                srcInc = srcBuf->getVertexSize();
-                destBuf = vBind->getBuffer(destElem->getSource());
-                destInc = destBuf->getVertexSize();
-                pDestBase = static_cast<unsigned char*>(
-                    destBuf->lock(HardwareBuffer::HBL_NORMAL));
-            }
-
-		    // find a vertex coord buffer
-		    const VertexElement *elemVPos = vDecl->findElementBySemantic(VES_POSITION);
-            if (elemVPos->getSource() == srcElem->getSource())
-            {
-                pPosBase = pSrcBase;
-                posInc = srcInc;
-            }
-            else if (elemVPos->getSource() == destElem->getSource())
-            {
-                pPosBase = pDestBase;
-                posInc = destInc;
-            }
-            else
-            {
-                // A different buffer
-                posBuf = vBind->getBuffer(elemVPos->getSource());
-                pPosBase = static_cast<unsigned char*>(
-                    posBuf->lock(HardwareBuffer::HBL_READ_ONLY));
-                posInc = posBuf->getVertexSize();
-            }
-			// find a normal buffer
-			const VertexElement *elemVNorm = vDecl->findElementBySemantic(VES_NORMAL);
-			if (!elemVNorm)
-				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-					"No VES_NORMAL vertex element found", 
-					"Mesh::buildTangentVectors");
-
-			if (elemVNorm->getSource() == srcElem->getSource())
-			{
-				pNormBase = pSrcBase;
-				normInc = srcInc;
-			}
-			else if (elemVNorm->getSource() == destElem->getSource())
-			{
-				pNormBase = pDestBase;
-				normInc = destInc;
-			}
-			else if (elemVNorm->getSource() == elemVPos->getSource())
-			{
-			    // normals are in the same buffer as position
-			    // this condition arises when an animated(skeleton) mesh is not built with 
-			    // an edge list buffer ie no shadows being used.
-			    pNormBase = pPosBase;
-			    normInc = posInc;
-			}
-			else
-			{
-				// A different buffer
-				normBuf = vBind->getBuffer(elemVNorm->getSource());
-				pNormBase = static_cast<unsigned char*>(
-					normBuf->lock(HardwareBuffer::HBL_READ_ONLY));
-				normInc = normBuf->getVertexSize();
-			}
-
-		    size_t numFaces = indexData->indexCount / 3 ;
-
-		    // loop through all faces to calculate the tangents and normals
-		    size_t n;
-		    for (n = 0; n < numFaces; ++n)
-		    {
-			    int i;
-			    for (i = 0; i < 3; ++i)
-			    {
-				    // get indexes of vertices that form a polygon in the position buffer
-				    if (use32bit)
+				// If any vertex splitting happened, we have to give them bone assignments
+				if (getSkeletonName() != StringUtil::BLANK)
+				{
+					for (TangentSpaceCalc::IndexRemapList::iterator r = res.indexesRemapped.begin(); 
+						r != res.indexesRemapped.end(); ++r)
 					{
-						vertInd[i] = *pVIndices32++;
-					}
-					else
-					{
-						vertInd[i] = *pVIndices16++;
-					}
-				    // get the vertices positions from the position buffer
-                    unsigned char* vBase = pPosBase + (posInc * vertInd[i]);
-                    elemVPos->baseVertexPointerToElement(vBase, &pVPos);
-				    vertPos[i].x = pVPos[0];
-				    vertPos[i].y = pVPos[1];
-				    vertPos[i].z = pVPos[2];
-				    // get the vertices tex.coords from the 2D tex.coords buffer
-                    vBase = pSrcBase + (srcInc * vertInd[i]);
-                    srcElem->baseVertexPointerToElement(vBase, &p2DTC);
-				    u[i] = p2DTC[0];
-				    v[i] = p2DTC[1];
-			    }
-			    // calculate the TSB
-                Vector3 tangent = Math::calculateTangentSpaceVector(
-                    vertPos[0], vertPos[1], vertPos[2],
-                    u[0], v[0], u[1], v[1], u[2], v[2]);
-			    // write new tex.coords
-                // note we only write the tangent, not the binormal since we can calculate
-                // the binormal in the vertex program
-			    for (i = 0; i < 3; ++i)
-			    {
-				    // write values (they must be 0 and we must add them so we can average
-                    // all the contributions from all the faces
-                    unsigned char* vBase = pDestBase + (destInc * vertInd[i]);
-                    destElem->baseVertexPointerToElement(vBase, &p3DTC);
-				    p3DTC[0] += tangent.x;
-				    p3DTC[1] += tangent.y;
-				    p3DTC[2] += tangent.z;
-			    }
-		    }
-		    // now loop through all vertices and normalize them
-		    size_t numVerts = usedVertexData->vertexCount ;
-		    for (n = 0; n < numVerts; ++n)
-		    {
-                destElem->baseVertexPointerToElement(pDestBase, &p3DTC);
-			    // read the vertex
-			    Vector3 temp(p3DTC[0], p3DTC[1], p3DTC[2]);
-				// Orthogonalise with the vertex normal since it's currently
-				// orthogonal with the face normals, but will be close to ortho
-				// with vertex normal
-				// Get normal				
-				unsigned char* vBase = pNormBase + (normInc * n);
-				elemVNorm->baseVertexPointerToElement(vBase, &pVNorm);
-				Vector3 normal(pVNorm[0], pVNorm[1], pVNorm[2]);
-				// Apply Gram-Schmidt orthogonalise
-				temp = temp - (normal * normal.dotProduct(temp));
-				
-				// normalize the vertex
-			    temp.normalise();
+						TangentSpaceCalc::IndexRemap& remap = *r;
+						// Copy all bone assignments from the split vertex
+						VertexBoneAssignmentList::const_iterator vbstart = 
+							sm->getBoneAssignments().lower_bound(remap.splitVertex.first);
+						VertexBoneAssignmentList::const_iterator vbend = 
+							sm->getBoneAssignments().upper_bound(remap.splitVertex.first);
+						for (VertexBoneAssignmentList::const_iterator vba = vbstart; vba != vbend; ++vba)
+						{
+							VertexBoneAssignment newAsgn = vba->second;
+							newAsgn.vertexIndex = static_cast<unsigned int>(remap.splitVertex.second);
+							// multimap insert doesn't invalidate iterators
+							sm->addBoneAssignment(newAsgn);
+						}
 
-			    // write it back
-			    p3DTC[0] = temp.x;
-			    p3DTC[1] = temp.y;
-			    p3DTC[2] = temp.z;
+					}
 
-                pDestBase += destInc;
-		    }
-		    // unlock buffers
-            srcBuf->unlock();
-            if (!destBuf.isNull())
-            {
-                destBuf->unlock();
-            }
-            if (!posBuf.isNull())
-            {
-                posBuf->unlock();
-            }
-			if (!normBuf.isNull())
-			{
-				normBuf->unlock();
+				}
 			}
-		    buffIndex->unlock();
-	    }
+		}
 
     }
-
     //---------------------------------------------------------------------
     bool Mesh::suggestTangentVectorBuildParams(VertexElementSemantic targetSemantic,
 		unsigned short& outSourceCoordSet, unsigned short& outIndex)

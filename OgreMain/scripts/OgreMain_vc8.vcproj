@@ -1027,6 +1027,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreTangentSpaceCalc.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreTechnique.cpp"
 				>
 			</File>
@@ -1877,6 +1881,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreTagPoint.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreTangentSpaceCalc.h"
 				>
 			</File>
 			<File
