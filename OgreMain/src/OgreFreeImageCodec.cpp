@@ -48,8 +48,13 @@ namespace Ogre {
 	{
 		// Callback method as required by FreeImage to report problems
 		StringUtil::StrStreamType str;
-		str << "FreeImage error: '" << message << "' when loading format "
-			<< FreeImage_GetFormatFromFIF(fif);
+		str << "FreeImage error: '" << message << "'";
+		
+		const char* typeName = FreeImage_GetFormatFromFIF(fif);
+		if (typeName)
+		{
+			str << " when loading format " << typeName;
+		}
 
 		LogManager::getSingleton().logMessage(str.str());
 
