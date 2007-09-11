@@ -103,8 +103,12 @@ namespace Ogre
 			//find and remove factory from mPCZoneFactories
 			// Note that this does not free the factory from memory, just removes from the factory manager
 			String name = factory->getFactoryTypeName();
-			mPCZoneFactories.erase( mPCZoneFactories.find( name ) );
-			LogManager::getSingleton().logMessage("PCZone Factory Type '" + name + "' unregistered");
+			PCZoneFactoryMap::iterator zi = mPCZoneFactories.find(name);
+			if (zi != mPCZoneFactories.end())
+			{
+				mPCZoneFactories.erase( mPCZoneFactories.find( name ) );
+				LogManager::getSingleton().logMessage("PCZone Factory Type '" + name + "' unregistered");
+			}
 		}
 	}
 	PCZone* PCZoneFactoryManager::createPCZone(PCZSceneManager * pczsm,
