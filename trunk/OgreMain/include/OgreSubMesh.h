@@ -239,6 +239,11 @@ namespace Ogre {
         */
         void generateExtremes(size_t count);
 
+		/** Returns true(by default) if the submesh should be included in the mesh EdgeList, otherwise returns false.
+        */		
+		bool isBuildEdgesEnabled(void) const { return mBuildEdgesEnabled; }
+		void setBuildEdgesEnabled(bool b);
+
     protected:
 
         /// Name of the material this SubMesh uses.
@@ -258,10 +263,11 @@ namespace Ogre {
 		/// Type of vertex animation for dedicated vertex data (populated by Mesh)
 		mutable VertexAnimationType mVertexAnimationType;
 
+		/// Is Build Edges Enabled
+		bool mBuildEdgesEnabled;
 
         /// Internal method for removing LOD data
         void removeLodLevels(void);
-
 
 
     };

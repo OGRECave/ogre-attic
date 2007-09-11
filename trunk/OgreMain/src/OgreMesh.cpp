@@ -1435,7 +1435,7 @@ namespace Ogre {
                                 s->operationType);
                         }
                     }
-                    else
+                    else if(s->isBuildEdgesEnabled())
                     {
                         // own vertex data, add it and reference it directly
                         eb.addVertexData(s->vertexData);
