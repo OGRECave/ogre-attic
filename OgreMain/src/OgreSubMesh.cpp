@@ -44,6 +44,7 @@ namespace Ogre {
         , mMatInitialised(false)
         , mBoneAssignmentsOutOfDate(false)
 		, mVertexAnimationType(VAT_NONE)
+		, mBuildEdgesEnabled(true)
     {
 		indexData = new IndexData();
     }
@@ -429,5 +430,15 @@ namespace Ogre {
         vbuf->unlock ();
         indexData->indexBuffer->unlock ();
     }
+	 //---------------------------------------------------------------------
+	void SubMesh::setBuildEdgesEnabled(bool b)
+	{
+		mBuildEdgesEnabled = b;
+		if(parent)
+		{
+			parent->freeEdgeList();
+			parent->setAutoBuildEdgeLists(true);
+		}
+	}
 }
 
