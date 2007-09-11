@@ -86,6 +86,19 @@ namespace Ogre {
     AutoParamDataSource::~AutoParamDataSource()
     {
     }
+	//-----------------------------------------------------------------------------
+    const Light& AutoParamDataSource::getLight(size_t index) const
+    {
+        // If outside light range, return a blank light to ensure zeroised for program
+		if (index < mCurrentLightList->size())
+		{
+			return *((*mCurrentLightList)[index]);
+		}
+		else
+        {
+            return mBlankLight;
+        }        
+    }
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentRenderable(const Renderable* rend)
     {
@@ -140,6 +153,70 @@ namespace Ogre {
 	float AutoParamDataSource::getLightNumber(size_t index) const
 	{
 		return static_cast<float>(getLight(index)._getIndexInFrame());
+	}
+	//-----------------------------------------------------------------------------
+	const ColourValue& AutoParamDataSource::getLightDiffuseColour(size_t index) const
+	{
+		return getLight(index).getDiffuseColour();
+	}
+	//-----------------------------------------------------------------------------
+	const ColourValue& AutoParamDataSource::getLightSpecularColour(size_t index) const
+	{
+		return getLight(index).getSpecularColour();
+	}
+	//-----------------------------------------------------------------------------
+	const Vector3& AutoParamDataSource::getLightPosition(size_t index) const
+	{
+		return getLight(index).getDerivedPosition();
+	}
+	//-----------------------------------------------------------------------------
+	Vector4 AutoParamDataSource::getLightAs4DVector(size_t index) const
+	{
+		return getLight(index).getAs4DVector();
+	}
+	//-----------------------------------------------------------------------------
+	const Vector3& AutoParamDataSource::getLightDirection(size_t index) const
+	{
+		return getLight(index).getDerivedDirection();
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getLightPowerScale(size_t index) const
+	{
+		return getLight(index).getPowerScale();
+	}
+	//-----------------------------------------------------------------------------
+	Vector4 AutoParamDataSource::getLightAttenuation(size_t index) const
+	{
+		// range, const, linear, quad
+        const Light& l = getLight(index);
+		return Vector4(l.getAttenuationRange(),
+				       l.getAttenuationConstant(),
+					   l.getAttenuationLinear(),
+					   l.getAttenuationQuadric());
+	}
+	//-----------------------------------------------------------------------------
+	Vector4 AutoParamDataSource::getSpotlightParams(size_t index) const
+	{
+		// inner, outer, fallof, isSpot
+		const Light& l = getLight(index);
+		if (l.getType() == Light::LT_SPOTLIGHT)
+		{
+			return Vector4(Math::Cos(l.getSpotlightInnerAngle().valueRadians() * 0.5),
+						   Math::Cos(l.getSpotlightOuterAngle().valueRadians() * 0.5),
+						   l.getSpotlightFalloff(),
+						   1.0);
+		}
+		else
+		{
+			// Use safe values which result in no change to point & dir light calcs
+			// The spot factor applied to the usual lighting calc is 
+			// pow((dot(spotDir, lightDir) - y) / (x - y), z)
+			// Therefore if we set z to 0.0f then the factor will always be 1
+			// since pow(anything, 0) == 1
+			// However we also need to ensure we don't overflow because of the division
+			// therefore set x = 1 and y = 0 so divisor doesn't change scale
+			return Vector4(1.0, 0.0, 0.0, 1.0); // since the main op is pow(.., vec4.z), this will result in 1.0
+		}
 	}
 	//-----------------------------------------------------------------------------
 	void AutoParamDataSource::setMainCamBoundsInfo(VisibleObjectsBoundsInfo* info)
@@ -342,20 +419,7 @@ namespace Ogre {
             mCameraPositionObjectSpaceDirty = false;
         }
         return mCameraPositionObjectSpace;
-    }
-    //-----------------------------------------------------------------------------
-    const Light& AutoParamDataSource::getLight(size_t index) const
-    {
-        // If outside light range, return a blank light to ensure zeroised for program
-        if (mCurrentLightList->size() <= index)
-        {
-            return mBlankLight;
-        }
-        else
-        {
-            return *((*mCurrentLightList)[index]);
-        }
-    }
+    }    
     //-----------------------------------------------------------------------------
 	void AutoParamDataSource::setAmbientLightColour(const ColourValue& ambient)
 	{

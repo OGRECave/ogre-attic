@@ -1282,7 +1282,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Pass::_updateAutoParamsNoLights(const AutoParamDataSource& source) const
+    void Pass::_updateAutoParamsNoLights(const AutoParamDataSource* source) const
     {
         if (hasVertexProgram())
         {
@@ -1297,7 +1297,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Pass::_updateAutoParamsLightsOnly(const AutoParamDataSource& source) const
+    void Pass::_updateAutoParamsLightsOnly(const AutoParamDataSource* source) const
     {
         if (hasVertexProgram())
         {

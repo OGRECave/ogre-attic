@@ -614,8 +614,14 @@ namespace Ogre {
         virtual void renderSingleObject(const Renderable* rend, const Pass* pass, 
 			bool lightScissoringClipping, bool doLightIteration, const LightList* manualLightList = 0);
 
+		/** Internal method for creating the AutoParamDataSource instance. */
+		virtual AutoParamDataSource* createAutoParamDataSource(void) const
+		{
+			return new AutoParamDataSource();
+		}
+
         /// Utility class for calculating automatic parameters for gpu programs
-        AutoParamDataSource mAutoParamDataSource;
+        AutoParamDataSource* mAutoParamDataSource;
 
         ShadowTechnique mShadowTechnique;
         bool mDebugShadows;
