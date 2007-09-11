@@ -570,6 +570,8 @@
 		00DDBBD90B4CEEEF00E8E1C9 /* OgreOSXCarbonContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB790B4CDB7000E8E1C9 /* OgreOSXCarbonContext.cpp */; };
 		00DDBBDA0B4CEEFA00E8E1C9 /* OgreOSXCGLContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB980B4CE0E500E8E1C9 /* OgreOSXCGLContext.cpp */; };
 		AA123E6F0C53FAB9000009B6 /* OgreGLSLPreprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA123E390C53F7F9000009B6 /* OgreGLSLPreprocessor.cpp */; };
+		AA508FB50C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA508FB40C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp */; };
+		AA508FB70C972C9000D6EAD0 /* OgreTangentSpaceCalc.h in Headers */ = {isa = PBXBuildFile; fileRef = AA508FB60C972C8F00D6EAD0 /* OgreTangentSpaceCalc.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1320,6 +1322,8 @@
 		00DDBB9C0B4CE1C700E8E1C9 /* OgreOSXContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OgreOSXContext.cpp; path = ../../RenderSystems/GL/src/OSX/OgreOSXContext.cpp; sourceTree = SOURCE_ROOT; };
 		AA123E380C53F7DA000009B6 /* OgreGLSLPreprocessor.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreGLSLPreprocessor.h; path = ../../RenderSystems/GL/src/GLSL/include/OgreGLSLPreprocessor.h; sourceTree = SOURCE_ROOT; };
 		AA123E390C53F7F9000009B6 /* OgreGLSLPreprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreGLSLPreprocessor.cpp; path = ../../RenderSystems/GL/src/GLSL/src/OgreGLSLPreprocessor.cpp; sourceTree = SOURCE_ROOT; };
+		AA508FB40C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreTangentSpaceCalc.cpp; path = ../../OgreMain/src/OgreTangentSpaceCalc.cpp; sourceTree = SOURCE_ROOT; };
+		AA508FB60C972C8F00D6EAD0 /* OgreTangentSpaceCalc.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreTangentSpaceCalc.h; path = ../../OgreMain/include/OgreTangentSpaceCalc.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1660,6 +1664,7 @@
 				000E1F8D0B38D5AA004EA2DF /* OgreSubEntity.cpp */,
 				000E1F8E0B38D5AA004EA2DF /* OgreSubMesh.cpp */,
 				000E1F8F0B38D5AA004EA2DF /* OgreTagPoint.cpp */,
+				AA508FB40C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp */,
 				000E1F900B38D5AA004EA2DF /* OgreTechnique.cpp */,
 				000E1F910B38D5AA004EA2DF /* OgreTextAreaOverlayElement.cpp */,
 				000E1F920B38D5AA004EA2DF /* OgreTexture.cpp */,
@@ -1878,6 +1883,7 @@
 				000E1E070B38D566004EA2DF /* OgreSubEntity.h */,
 				000E1E080B38D566004EA2DF /* OgreSubMesh.h */,
 				000E1E090B38D566004EA2DF /* OgreTagPoint.h */,
+				AA508FB60C972C8F00D6EAD0 /* OgreTangentSpaceCalc.h */,
 				000E1E0B0B38D566004EA2DF /* OgreTechnique.h */,
 				000E1E0C0B38D566004EA2DF /* OgreTextAreaOverlayElement.h */,
 				000E1E0D0B38D566004EA2DF /* OgreTexture.h */,
@@ -2498,6 +2504,7 @@
 				005E5EA20B7F399C00658C32 /* OgreInstancedGeometry.h in Headers */,
 				005E5EA30B7F399C00658C32 /* OgrePlugin.h in Headers */,
 				005E5EA40B7F399C00658C32 /* OgreUTFString.h in Headers */,
+				AA508FB70C972C9000D6EAD0 /* OgreTangentSpaceCalc.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2856,6 +2863,7 @@
 				0054A5080B5465940037D8B9 /* OgrePrefabFactory.cpp in Sources */,
 				0054A5090B5465940037D8B9 /* OgreUnifiedHighLevelGpuProgram.cpp in Sources */,
 				005E5EA60B7F39CB00658C32 /* OgreInstancedGeometry.cpp in Sources */,
+				AA508FB50C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
