@@ -171,6 +171,8 @@ mSuppressShadows(false)
 	// init shadow texture config
 	setShadowTextureCount(1);
 
+	// create the auto param data source instance
+	mAutoParamDataSource = createAutoParamDataSource();
 
 }
 //-----------------------------------------------------------------------
@@ -196,6 +198,7 @@ SceneManager::~SceneManager()
     delete mShadowCasterSphereQuery;
     delete mShadowCasterAABBQuery;
     delete mRenderQueue;
+	delete mAutoParamDataSource;
 }
 //-----------------------------------------------------------------------
 RenderQueue* SceneManager::getRenderQueue(void)
@@ -827,7 +830,7 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 		}
 
         // Tell params about current pass
-        mAutoParamDataSource.setCurrentPass(pass);
+        mAutoParamDataSource->setCurrentPass(pass);
 
 		// TEST
 		/*
@@ -921,7 +924,7 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
         // Tell params about ORIGINAL fog
 		// Need to be able to override fixed function fog, but still have
 		// original fog parameters available to a shader than chooses to use
-        mAutoParamDataSource.setFog(
+        mAutoParamDataSource->setFog(
             mFogMode, mFogColour, mFogDensity, mFogStart, mFogEnd);
 
 		// The rest of the settings are the same no matter whether we use programs or not
@@ -984,7 +987,7 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 					// Enable projective texturing if fixed-function, but also need to
 					// disable it explicitly for program pipeline.
 					pTex->setProjectiveTexturing(!pass->hasVertexProgram(), cam);
-					mAutoParamDataSource.setTextureProjector(cam, shadowTexIndex);
+					mAutoParamDataSource->setTextureProjector(cam, shadowTexIndex);
 				}
 				else
 				{
@@ -992,7 +995,7 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 					// no projection since all uniform colour anyway
 					shadowTex = mNullShadowTexture;
 					pTex->setProjectiveTexturing(false);
-					mAutoParamDataSource.setTextureProjector(0, shadowTexIndex);
+					mAutoParamDataSource->setTextureProjector(0, shadowTexIndex);
 
 				}
 				pTex->_setTexturePtr(shadowTex);
@@ -1007,7 +1010,7 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 					pTex->getEffects().find(TextureUnitState::ET_PROJECTIVE_TEXTURE);
 				if (effi != pTex->getEffects().end())
 				{
-					mAutoParamDataSource.setTextureProjector(effi->second.frustum, unit);
+					mAutoParamDataSource->setTextureProjector(effi->second.frustum, unit);
 				}
 			}
 			mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
@@ -1050,7 +1053,7 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 		mDestRenderSystem->_setPolygonMode(pass->getPolygonMode());
 
 		// set pass number
-    	mAutoParamDataSource.setPassNumber( pass->getIndex() );
+    	mAutoParamDataSource->setPassNumber( pass->getIndex() );
 	}
 
     return pass;
@@ -1111,7 +1114,7 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 {
     Root::getSingleton()._setCurrentSceneManager(this);
 	mActiveQueuedRenderableVisitor->targetSceneMgr = this;
-	mAutoParamDataSource.setCurrentSceneManager(this);
+	mAutoParamDataSource->setCurrentSceneManager(this);
 
 	// Also set the internal viewport pointer at this point, for calls that need it
 	// However don't call setViewport just yet (see below)
@@ -1207,22 +1210,22 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 		}
 
 		// Tell params about viewport
-		mAutoParamDataSource.setCurrentViewport(vp);
+		mAutoParamDataSource->setCurrentViewport(vp);
 		// Set the viewport - this is deliberately after the shadow texture update
 		setViewport(vp);
 
 		// Tell params about camera
-		mAutoParamDataSource.setCurrentCamera(camera);
+		mAutoParamDataSource->setCurrentCamera(camera);
 		// Set autoparams for finite dir light extrusion
-		mAutoParamDataSource.setShadowDirLightExtrusionDistance(mShadowDirLightExtrudeDist);
+		mAutoParamDataSource->setShadowDirLightExtrusionDistance(mShadowDirLightExtrudeDist);
 
 		// Tell params about current ambient light
-		mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
+		mAutoParamDataSource->setAmbientLightColour(mAmbientLight);
 		// Tell rendersystem
 		mDestRenderSystem->setAmbientLight(mAmbientLight.r, mAmbientLight.g, mAmbientLight.b);
 
 		// Tell params about render target
-		mAutoParamDataSource.setCurrentRenderTarget(vp->getTarget());
+		mAutoParamDataSource->setCurrentRenderTarget(vp->getTarget());
 
 
 		// Set camera window clipping planes (if any)
@@ -1257,7 +1260,7 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 				mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
 			firePostFindVisibleObjects(vp);
 
-			mAutoParamDataSource.setMainCamBoundsInfo(&(camVisObjIt->second));
+			mAutoParamDataSource->setMainCamBoundsInfo(&(camVisObjIt->second));
 		}
 		// Add overlays, if viewport deems it
 		if (vp->getOverlaysEnabled() && mIlluminationStage != IRS_RENDER_TO_TEXTURE)
@@ -2074,13 +2077,13 @@ void SceneManager::renderTextureShadowCasterQueueGroupObjects(
 	if (isShadowTechniqueAdditive())
 	{
 		// Use simple black / white mask if additive
-		mAutoParamDataSource.setAmbientLightColour(ColourValue::Black);
+		mAutoParamDataSource->setAmbientLightColour(ColourValue::Black);
 		mDestRenderSystem->setAmbientLight(0, 0, 0);
 	}
 	else
 	{
 		// Use shadow colour as caster colour if modulative
-		mAutoParamDataSource.setAmbientLightColour(mShadowColour);
+		mAutoParamDataSource->setAmbientLightColour(mShadowColour);
 		mDestRenderSystem->setAmbientLight(mShadowColour.r, mShadowColour.g, mShadowColour.b);
 	}
 
@@ -2104,7 +2107,7 @@ void SceneManager::renderTextureShadowCasterQueueGroupObjects(
     }// for each priority
 
     // reset ambient light
-    mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
+    mAutoParamDataSource->setAmbientLightColour(mAmbientLight);
     mDestRenderSystem->setAmbientLight(mAmbientLight.r, mAmbientLight.g, mAmbientLight.b);
 }
 //-----------------------------------------------------------------------
@@ -2172,7 +2175,7 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 			texUnit->setTextureAddressingMode(TextureUnitState::TAM_BORDER);
 			texUnit->setTextureBorderColour(ColourValue::White);
 
-            mAutoParamDataSource.setTextureProjector(cam, 0);
+            mAutoParamDataSource->setTextureProjector(cam, 0);
             // if this light is a spotlight, we need to add the spot fader layer
 			// BUT not if using a custom projection matrix, since then it will be
 			// inappropriately shaped most likely
@@ -2302,7 +2305,7 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 					// clamp to border colour in case this is a custom material
 					texUnit->setTextureAddressingMode(TextureUnitState::TAM_BORDER);
 					texUnit->setTextureBorderColour(ColourValue::White);
-					mAutoParamDataSource.setTextureProjector(cam, 0);
+					mAutoParamDataSource->setTextureProjector(cam, 0);
 					// Remove any spot fader layer
 					if (targetPass->getNumTextureUnitStates() > 1 && 
 						targetPass->getTextureUnitState(1)->getTextureName() 
@@ -2386,7 +2389,7 @@ void SceneManager::renderTextureShadowReceiverQueueGroupObjects(
     RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
 
     // Override auto param ambient to force vertex programs to go full-bright
-    mAutoParamDataSource.setAmbientLightColour(ColourValue::White);
+    mAutoParamDataSource->setAmbientLightColour(ColourValue::White);
     mDestRenderSystem->setAmbientLight(1, 1, 1);
 
     while (groupIt.hasMoreElements())
@@ -2401,7 +2404,7 @@ void SceneManager::renderTextureShadowReceiverQueueGroupObjects(
     }// for each priority
 
     // reset ambient
-    mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
+    mAutoParamDataSource->setAmbientLightColour(mAmbientLight);
     mDestRenderSystem->setAmbientLight(mAmbientLight.r, mAmbientLight.g, mAmbientLight.b);
 
 }
@@ -2642,9 +2645,9 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
         if (pass->isProgrammable())
         {
             // Tell auto params object about the renderable change
-            mAutoParamDataSource.setCurrentRenderable(rend);
+            mAutoParamDataSource->setCurrentRenderable(rend);
             // Tell auto params object about the world matrices, eliminated query from renderable again
-            mAutoParamDataSource.setWorldMatrices(mTempXform, numMatrices);
+            mAutoParamDataSource->setWorldMatrices(mTempXform, numMatrices);
             pass->_updateAutoParamsNoLights(mAutoParamDataSource);
             if (pass->hasVertexProgram())
             {
@@ -2763,7 +2766,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 								tu->_setTexturePtr(shadowTex);
 								Camera *cam = shadowTex->getBuffer()->getRenderTarget()->getViewport(0)->getCamera();
 								tu->setProjectiveTexturing(!pass->hasVertexProgram(), cam);
-								mAutoParamDataSource.setTextureProjector(cam, numShadowTextureLights);
+								mAutoParamDataSource->setTextureProjector(cam, numShadowTextureLights);
 								++numShadowTextureLights;
 								// Have to set TU on rendersystem right now, although
 								// autoparams will be set later
@@ -2819,7 +2822,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 				{
 					// Update any automatic gpu params for lights
 					// Other bits of information will have to be looked up
-					mAutoParamDataSource.setCurrentLightList(pLightListToUse);
+					mAutoParamDataSource->setCurrentLightList(pLightListToUse);
 					pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
 					// NOTE: We MUST bind parameters AFTER updating the autos
 
@@ -2908,7 +2911,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 				if (manualLightList)
 				{
 					// Update any automatic gpu params for lights
-					mAutoParamDataSource.setCurrentLightList(manualLightList);
+					mAutoParamDataSource->setCurrentLightList(manualLightList);
 					pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
 				}
 
@@ -3219,10 +3222,10 @@ void SceneManager::manualRender(RenderOperation* rend,
 	// Do we need to update GPU program parameters?
 	if (pass->isProgrammable())
 	{
-		mAutoParamDataSource.setCurrentViewport(vp);
-		mAutoParamDataSource.setCurrentRenderTarget(vp->getTarget());
-		mAutoParamDataSource.setCurrentSceneManager(this);
-		mAutoParamDataSource.setWorldMatrices(&worldMatrix, 1);
+		mAutoParamDataSource->setCurrentViewport(vp);
+		mAutoParamDataSource->setCurrentRenderTarget(vp->getTarget());
+		mAutoParamDataSource->setCurrentSceneManager(this);
+		mAutoParamDataSource->setWorldMatrices(&worldMatrix, 1);
 		Camera dummyCam(StringUtil::BLANK, 0);
 		dummyCam.setCustomViewMatrix(true, viewMatrix);
 		dummyCam.setCustomProjectionMatrix(true, projMatrix);

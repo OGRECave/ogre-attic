@@ -1068,9 +1068,9 @@ namespace Ogre {
 		const AutoConstantEntry* _findRawAutoConstantEntryInt(size_t physicalIndex);
 
         /** Updates the automatic parameters (except lights) based on the details provided. */
-        void _updateAutoParamsNoLights(const AutoParamDataSource& source);
+        void _updateAutoParamsNoLights(const AutoParamDataSource* source);
         /** Updates the automatic parameters for lights based on the details provided. */
-        void _updateAutoParamsLightsOnly(const AutoParamDataSource& source);
+        void _updateAutoParamsLightsOnly(const AutoParamDataSource* source);
 
 		/** Tells the program whether to ignore missing parameters or not.
 		*/

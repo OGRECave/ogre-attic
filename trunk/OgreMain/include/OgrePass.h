@@ -1264,9 +1264,9 @@ namespace Ogre {
         void _notifyNeedsRecompile(void);
 
         /** Update any automatic parameters (except lights) on this pass */
-        void _updateAutoParamsNoLights(const AutoParamDataSource& source) const;
+        void _updateAutoParamsNoLights(const AutoParamDataSource* source) const;
         /** Update any automatic light parameters on this pass */
-        void _updateAutoParamsLightsOnly(const AutoParamDataSource& source) const;
+        void _updateAutoParamsLightsOnly(const AutoParamDataSource* source) const;
 
 		/** Gets the 'nth' texture which references the given content type.
 		@remarks
