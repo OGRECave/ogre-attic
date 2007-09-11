@@ -3668,6 +3668,10 @@ The height of the letters as a proportion of the screen height. Character widths
 A solid colour to render the text in. Often fonts are defined in monochrome, so this allows you to colour them in nicely and use the same texture for multiple different coloured text areas. The colour elements should all be expressed as values between 0 and 1. If you use predrawn fonts which are already full colour then you don't need this.
 @item colour_bottom <red> <green> <blue> / colour_top <red> <green> <blue>
 As an alternative to a solid colour, you can colour the text differently at the top and bottom to create a gradient colour effect which can be very effective.
+@item alignment <left | center | right>
+Sets the horizontal alignment of the text. This is different from the horz_align parameter.
+@item space_width <width>
+Sets the width of a space in relation to the screen.
 @end table
 
 @node Font Definition Scripts

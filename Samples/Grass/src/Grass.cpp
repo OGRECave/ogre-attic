@@ -138,8 +138,8 @@ public:
 			// a little randomness
 			xpos += reg->getCentre().x * 0.001;
 			zpos += reg->getCentre().z * 0.001;
-			offset.x = Math::Sin(xpos) * 0.05;
-			offset.z = Math::Sin(zpos) * 0.05;
+			offset.x = Math::Sin(xpos) * 5;
+			offset.z = Math::Sin(zpos) * 5;
 
 			StaticGeometry::Region::LODIterator lodit = reg->getLODIterator();
 			while (lodit.hasMoreElements())

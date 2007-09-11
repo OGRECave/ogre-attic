@@ -170,7 +170,7 @@ namespace Ogre {
                     // Different renderables, sort by depth
                     Real adepth = a.renderable->getSquaredViewDepth(camera);
                     Real bdepth = b.renderable->getSquaredViewDepth(camera);
-				    if (adepth == bdepth)
+					if (Math::RealEqual(adepth, bdepth))
 				    {
                         // Must return deterministic result, doesn't matter what
                         return a.pass < b.pass;
