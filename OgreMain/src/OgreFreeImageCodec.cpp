@@ -331,6 +331,12 @@ namespace Ogre {
 
 		FIBITMAP* fiBitmap = FreeImage_LoadFromMemory(
 			(FREE_IMAGE_FORMAT)mFreeImageType, fiMem);
+		if (!fiBitmap)
+		{
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+				"Error decoding image", 
+				"FreeImageCodec::decode");
+		}
 
 
 		ImageData* imgData = new ImageData();
