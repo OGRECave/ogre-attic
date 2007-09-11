@@ -47,9 +47,18 @@ namespace Ogre {
 	void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message) 
 	{
 		// Callback method as required by FreeImage to report problems
-		LogManager::getSingleton().stream() 
-			<< "FreeImage error: '" << message << "' when loading format "
-			<< FreeImage_GetFormatFromFIF(fif);
+		const char* typeName = FreeImage_GetFormatFromFIF(fif);
+		if (typeName)
+		{
+			LogManager::getSingleton().stream() 
+				<< "FreeImage error: '" << message << "' when loading format "
+				<< typeName;
+		}
+		else
+		{
+			LogManager::getSingleton().stream() 
+				<< "FreeImage error: '" << message << "'";
+		}
 
 	}
 	//---------------------------------------------------------------------
@@ -329,6 +338,12 @@ namespace Ogre {
 
 		FIBITMAP* fiBitmap = FreeImage_LoadFromMemory(
 			(FREE_IMAGE_FORMAT)mFreeImageType, fiMem);
+		if (!fiBitmap)
+		{
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+				"Error decoding image", 
+				"FreeImageCodec::decode");
+		}
 
 
 		ImageData* imgData = new ImageData();

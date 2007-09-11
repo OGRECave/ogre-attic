@@ -15,7 +15,8 @@ void grass_vp(float4 position : POSITION,
 {
 	float4 mypos = position;
 	//offset = float4(0.5, 0, 0, 0);
-	mypos = mypos + offset * mypos.yyyy;
+	float4 factor = float4(1,1,1,1) - uv.yyyy;
+	mypos = mypos + offset * factor;
 	oPosition = mul(worldViewProj, mypos);
 
 	oUv = uv;

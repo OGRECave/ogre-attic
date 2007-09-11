@@ -588,6 +588,12 @@ AC_DEFUN([OGRE_CHECK_GUI],
     AC_SUBST(GTK_LIBS)
 ])
 
+dnl Check whether Ogre platform and GUI to be built are the same
+dnl Fixes problem with running make distclean
+AC_DEFUN([OGRE_PLATFORM_AND_GUI],
+[AM_CONDITIONAL(SAME_PLATFORM_AND_GUI, test "x$OGRE_PLATFORM" = "x$OGRE_GUI")
+])
+
 dnl SSE support 
 AC_DEFUN([OGRE_CHECK_SSE],
 [

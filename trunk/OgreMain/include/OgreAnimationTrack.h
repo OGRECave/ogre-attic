@@ -159,6 +159,8 @@ namespace Ogre
             It is better to create KeyFrames in time order. Creating them out of order can result 
             in expensive reordering processing. Note that a KeyFrame at time index 0.0 is always created
             for you, so you don't need to create this one, just access it using getKeyFrame(0);
+		@note this method will always create a keyframe even if the track already has a keyframe
+			at the given time position.
         @param timePos The time from which this KeyFrame will apply.
         */
         virtual KeyFrame* createKeyFrame(Real timePos);
