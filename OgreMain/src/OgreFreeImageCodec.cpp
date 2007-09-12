@@ -147,7 +147,9 @@ namespace Ogre {
 
 		// determine the settings
 		FREE_IMAGE_TYPE imageType;
-		switch(pImgData->format)
+		PixelFormat determiningFormat = pImgData->format;
+
+		switch(determiningFormat)
 		{
 		case PF_R5G6B5:
 		case PF_B5G6R5:
@@ -169,7 +171,7 @@ namespace Ogre {
 			// I'd like to be able to use r/g/b masks to get FreeImage to load the data
 			// in it's existing format, but that doesn't work, FreeImage needs to have
 			// data in RGB[A] (big endian) and BGR[A] (little endian), always.
-			if (PixelUtil::hasAlpha(pImgData->format))
+			if (PixelUtil::hasAlpha(determiningFormat))
 			{
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
 				requiredFormat = PF_BYTE_RGBA;
@@ -232,6 +234,24 @@ namespace Ogre {
 		default:
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Invalid image format", "FreeImageCodec::encode");
 		};
+
+		// Check support for this image type & bit depth
+		if (!FreeImage_FIFSupportsExportType((FREE_IMAGE_FORMAT)mFreeImageType, imageType) ||
+			!FreeImage_FIFSupportsExportBPP((FREE_IMAGE_FORMAT)mFreeImageType, PixelUtil::getNumElemBits(requiredFormat)))
+		{
+			// Ok, need to allocate a fallback
+			// Only deal with RGBA -> RGB for now
+			switch (requiredFormat)
+			{
+			case PF_BYTE_RGBA:
+				requiredFormat = PF_BYTE_RGB;
+				break;
+			case PF_BYTE_BGRA:
+				requiredFormat = PF_BYTE_BGR;
+				break;
+			};
+
+		}
 
 		bool conversionRequired = false;
 

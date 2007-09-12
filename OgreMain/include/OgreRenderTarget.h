@@ -299,8 +299,17 @@ namespace Ogre {
         */
         virtual bool isAutoUpdated(void) const;
 
-		/** Copies the current contents of the render target to a pixelbox. */
+		/** Copies the current contents of the render target to a pixelbox. 
+		@remarks See suggestPixelFormat for a tip as to the best pixel format to
+			extract into, although you can use whatever format you like and the 
+			results will be converted.
+		*/
 		virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer = FB_AUTO) = 0;
+
+		/** Suggests a pixel format to use for extracting the data in this target, 
+			when calling copyContentsToMemory.
+		*/
+		virtual PixelFormat suggestPixelFormat() const { return PF_BYTE_RGBA; }
 		
         /** Writes the current contents of the render target to the named file. */
         void writeContentsToFile(const String& filename);
