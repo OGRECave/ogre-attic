@@ -64,6 +64,11 @@ namespace Ogre
 
 		mBuffer->blitToMemory(dst);
 	}
+	//---------------------------------------------------------------------
+	PixelFormat RenderTexture::suggestPixelFormat() const
+	{
+		return mBuffer->getFormat();
+	}
 	//-----------------------------------------------------------------------------
 	MultiRenderTarget::MultiRenderTarget(const String &name)
     {

@@ -47,6 +47,7 @@ namespace Ogre
         virtual ~RenderTexture();
 
 		virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
+		PixelFormat suggestPixelFormat() const;
 
 	protected:
 		HardwarePixelBuffer *mBuffer;
@@ -101,6 +102,9 @@ namespace Ogre
 			to disk. 
 		*/
 		virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
+
+		/// Irrelevant implementation since cannot copy
+		PixelFormat suggestPixelFormat() const { return PF_UNKNOWN; }
 
 		typedef std::vector<RenderTexture*> BoundSufaceList;
 		/// Get a list of the surfaces which have been bound
