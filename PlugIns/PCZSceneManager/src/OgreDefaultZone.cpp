@@ -130,6 +130,8 @@ namespace Ogre
 			}
 			// add portal to portals list
 	        mPortals.push_back( newPortal );
+			// tell the portal which zone it's currently in
+			newPortal->setCurrentHomeZone(this);
 		}
 	}
 

@@ -48,6 +48,7 @@ Portal::Portal(const String & name, const PORTAL_TYPE type)
 	mType = type,
 	mName = name;
     mTargetZone = 0;
+	mCurrentHomeZone = 0;
 	mNewHomeZone = 0;
 	mTargetPortal = 0;
 	mNode = 0;
@@ -95,6 +96,12 @@ void Portal::setTargetZone( PCZone * z )
 {
     mTargetZone = z ;
 }
+// Set the zone this portal is in.
+void Portal::setCurrentHomeZone( PCZone * z)
+{
+	mCurrentHomeZone = z;
+}
+
 // Set the zone this portal should be moved to
 void Portal::setNewHomeZone( PCZone * z)
 {
@@ -392,11 +399,16 @@ void Portal::adjustNodeToMatch(SceneNode *node )
 	{
 		mCorners[i] -= mLocalCP;
 	}
-	// NOTE: UNIT_Z is the basis for our local direction
-	// orient the node to match the direction
-	Quaternion q;
-	q = Vector3::UNIT_Z.getRotationTo(mDirection);
-	node->setOrientation(q);
+	if (mType != PORTAL_TYPE_AABB &&
+		mType != PORTAL_TYPE_SPHERE)
+	{
+		// NOTE: UNIT_Z is the basis for our local direction
+		// orient the node to match the direction
+		Quaternion q;
+		q = Vector3::UNIT_Z.getRotationTo(mDirection);
+		node->setOrientation(q);
+	}
+
 	// set the node as the portal's associated node
 	setNode(node);
 
