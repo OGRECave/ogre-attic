@@ -64,31 +64,15 @@ public:
             buildingTranslate = Vector3(0,10,0);
         }
 
-        if( mKeyboard->isKeyDown( OIS::KC_N ) )
+		if( mKeyboard->isKeyDown( OIS::KC_LSHIFT ) ||
+			mKeyboard->isKeyDown( OIS::KC_RSHIFT ))
         {
-            pThrusters->setDefaultDimensions( fDefDim + 0.25, fDefDim + 0.25 );
-            fDefDim += 0.25;
+            mMoveSpeed = 150;
         }
-
-        if( mKeyboard->isKeyDown( OIS::KC_M ) )
-        {
-            pThrusters->setDefaultDimensions( fDefDim - 0.25, fDefDim - 0.25 );
-            fDefDim -= 0.25;
-        }
-
-        if( mKeyboard->isKeyDown( OIS::KC_H ) )
-        {
-            pThrusters->getEmitter( 0 )->setParticleVelocity( fDefVel + 1 );
-            pThrusters->getEmitter( 1 )->setParticleVelocity( fDefVel + 1 );
-            fDefVel += 1;            
-        }
-
-        if( mKeyboard->isKeyDown( OIS::KC_J ) && !( fDefVel < 0.0f ) )
-        {
-            pThrusters->getEmitter( 0 )->setParticleVelocity( fDefVel - 1 );
-            pThrusters->getEmitter( 1 )->setParticleVelocity( fDefVel - 1 );
-            fDefVel -= 1;            
-        }
+		else
+		{
+            mMoveSpeed = 15;
+		}
 
         // test the ray scene query by showing bounding box of whatever the camera is pointing directly at 
         // (takes furthest hit)
@@ -140,7 +124,7 @@ protected:
         // Create the SceneManager, in this case a generic one
         mSceneMgr = mRoot->createSceneManager("PCZSceneManager", "PCZSceneManager");
 		// initialize the scene manager using terrain as default zone
-		String zoneTypeName = "ZoneType_Terrain";
+		String zoneTypeName = "ZoneType_Default";
 		String zoneFilename = "none";
 		((PCZSceneManager*)mSceneMgr)->init(zoneTypeName);
 		//mSceneMgr->showBoundingBoxes(true);
@@ -169,7 +153,64 @@ protected:
 //		((PCZSceneNode*)(mCameraNode))->setHomeZone(((PCZSceneManager*)(mSceneMgr))->getDefaultZone());
 
     }
- 
+	// utility function to create terrain zones easily
+	PCZone * createTerrainZone(String & zoneName, String & terrain_cfg)
+	{
+		// load terrain into the terrain zone
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        terrain_cfg = mResourcePath + terrain_cfg;
+#endif
+		PCZone * terrainZone = ((PCZSceneManager*)mSceneMgr)->createZone(String("ZoneType_Terrain"), zoneName);
+		terrainZone->notifyCameraCreated(mCamera);
+		((PCZSceneManager*)mSceneMgr)->setZoneGeometry( zoneName, (PCZSceneNode*)mSceneMgr->getRootSceneNode(), terrain_cfg );
+
+		// create aab portal(s) around the terrain
+		String portalName;
+		Vector3 corners[2];
+		AxisAlignedBox aabb;
+
+		// make portal from terrain to default
+		Portal * p;
+		terrainZone->getAABB(aabb);
+		portalName = Ogre::String("PortalFrom"+zoneName+"ToDefault_Zone");
+		p = new Portal(portalName, Ogre::Portal::PORTAL_TYPE_AABB);
+		corners[0] = aabb.getMinimum();
+		corners[1] = aabb.getMaximum();
+		p->setCorner(0, corners[0]);
+		p->setCorner(1, corners[1]);
+		p->setDirection(Ogre::Vector3::NEGATIVE_UNIT_Z); // this indicates an "inward" pointing normal
+		// associate the portal with the terrain's main node
+		p->setNode(terrainZone->getEnclosureNode());
+		// IMPORTANT: Update the derived values of the portal
+		p->updateDerivedValues();
+		// add the portal to the zone
+		terrainZone->_addPortal(p);
+	
+		// make portal from default to terrain
+		portalName = Ogre::String("PortalFromDefault_ZoneTo"+zoneName);
+		Portal * p2;
+		p2 = new Portal(portalName, Ogre::Portal::PORTAL_TYPE_AABB);
+		corners[0] = aabb.getMinimum();
+		corners[1] = aabb.getMaximum();
+		p2->setCorner(0, corners[0]);
+		p2->setCorner(1, corners[1]);
+		p2->setDirection(Ogre::Vector3::UNIT_Z); // this indicates an "outward" pointing normal
+		// associate the portal with the terrain's main node
+		p2->setNode(terrainZone->getEnclosureNode());
+		// IMPORTANT: Update the derived values of the portal
+		p2->updateDerivedValues();
+		// add the portal to the zone
+		((PCZSceneManager*)mSceneMgr)->getDefaultZone()->_addPortal(p2);
+
+		// connect the portals manually
+		p->setTargetPortal(p2);
+		p2->setTargetPortal(p);
+		p->setTargetZone(((PCZSceneManager*)mSceneMgr)->getDefaultZone());
+		p2->setTargetZone(terrainZone);
+
+		return terrainZone;
+	}
+
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -183,7 +224,7 @@ protected:
 
         // Create a light
         Light* l = mSceneMgr->createLight("MainLight");
-        l->setPosition(0,0,0);
+        l->setPosition(0,0,0); 
         l->setAttenuation(500, 0.5, 1.0, 0.0);
         // Accept default settings: point light, white diffuse, just set position
         // attach light to a scene node so the PCZSM can handle it properly (zone-wise)
@@ -198,18 +239,69 @@ protected:
         mSceneMgr->setFog( FOG_LINEAR, fadeColour, .001, 500, 1000);
         mWindow->getViewport(0)->setBackgroundColour(fadeColour);
 
-		// load terrain into the terrain zone
+		// create a terrain zone
         std::string terrain_cfg("terrain.cfg");
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-        terrain_cfg = mResourcePath + terrain_cfg;
-#endif
-		((PCZSceneManager*)mSceneMgr)->setZoneGeometry( "Default_Zone", (PCZSceneNode*)mSceneMgr->getRootSceneNode(), terrain_cfg );
+		std::string zoneName("Terrain1_Zone");
+		PCZone * terrainZone = createTerrainZone(zoneName, terrain_cfg);
 
-        // Infinite far plane?
-        if (mRoot->getRenderSystem()->getCapabilities()->hasCapability(RSC_INFINITE_FAR_PLANE))
-        {
-            mCamera->setFarClipDistance(0);
-        }
+		// Create another terrain zone
+        terrain_cfg = "terrain.cfg";
+		zoneName = "Terrain2_Zone";
+		terrainZone = createTerrainZone(zoneName, terrain_cfg);
+		// move second terrain next to first terrain
+		terrainZone->getEnclosureNode()->setPosition(1500, 0, 0);
+
+		// Create another terrain zone
+        terrain_cfg = "terrain.cfg";
+		zoneName = "Terrain3_Zone";
+		terrainZone = createTerrainZone(zoneName, terrain_cfg);
+		// move terrain next to first terrain
+		terrainZone->getEnclosureNode()->setPosition(0, 0, 1500);
+
+		// Create another terrain zone
+        terrain_cfg = "terrain.cfg";
+		zoneName = "Terrain4_Zone";
+		terrainZone = createTerrainZone(zoneName, terrain_cfg);
+		// move terrain next to first terrain
+		terrainZone->getEnclosureNode()->setPosition(-1500, 0, 0);
+
+		// Create another terrain zone
+        terrain_cfg = "terrain.cfg";
+		zoneName = "Terrain5_Zone";
+		terrainZone = createTerrainZone(zoneName, terrain_cfg);
+		// move terrain next to first terrain
+		terrainZone->getEnclosureNode()->setPosition(0, 0, -1500);
+
+		// Create another terrain zone
+        terrain_cfg = "terrain.cfg";
+		zoneName = "Terrain6_Zone";
+		terrainZone = createTerrainZone(zoneName, terrain_cfg);
+		// move terrain next to first terrain
+		terrainZone->getEnclosureNode()->setPosition(1500, 0, 1500);
+
+		// Create another terrain zone
+        terrain_cfg = "terrain.cfg";
+		zoneName = "Terrain7_Zone";
+		terrainZone = createTerrainZone(zoneName, terrain_cfg);
+		// move terrain next to first terrain
+		terrainZone->getEnclosureNode()->setPosition(-1500, 0, -1500);
+
+		// Create another terrain zone
+        terrain_cfg = "terrain.cfg";
+		zoneName = "Terrain8_Zone";
+		terrainZone = createTerrainZone(zoneName, terrain_cfg);
+		// move terrain next to first terrain
+		terrainZone->getEnclosureNode()->setPosition(-1500, 0, 1500);
+
+		// Create another terrain zone
+        terrain_cfg = "terrain.cfg";
+		zoneName = "Terrain9_Zone";
+		terrainZone = createTerrainZone(zoneName, terrain_cfg);
+		// move terrain next to first terrain
+		terrainZone->getEnclosureNode()->setPosition(1500, 0, -1500);
+
+		// set far clip plane to one terrain zone width (we have a LOT of terrain here, so we need to do far clipping!)
+        mCamera->setFarClipDistance(1500);
 
 		// create test buildinig
 		RoomObject roomObj;
