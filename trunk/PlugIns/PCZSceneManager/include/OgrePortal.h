@@ -76,6 +76,9 @@ namespace Ogre
         /** Set the Zone the Portal targets (connects to)
         */
         void setTargetZone( PCZone * );
+		/** Set the current home zone of the portal
+		*/
+		void setCurrentHomeZone( PCZone * );
 		/** Set the zone this portal should be moved to
 		*/
 		void setNewHomeZone( PCZone * );
@@ -134,7 +137,10 @@ namespace Ogre
         /** Get the Zone the Portal connects to
         */
         PCZone * getTargetZone() {return mTargetZone;}
-        /** Get the Zone the Portal connects to
+		/** Get the Zone the Portal is currently "in" 
+		*/
+		PCZone * getCurrentHomeZone() {return mCurrentHomeZone;}
+        /** Get the Zone the Portal should be moved to
         */
         PCZone * getNewHomeZone() {return mNewHomeZone;}
 		/** Get the connected portal (if any)
@@ -216,6 +222,8 @@ namespace Ogre
 		SceneNode * mNode;
         ///connected Zone
         PCZone * mTargetZone;
+		/// Zone this portal is currently owned by (in)
+		PCZone * mCurrentHomeZone;
 		///zone to transfer this portal to
 		PCZone * mNewHomeZone;
 		///Matching Portal in the target zone (usually in same world space 
