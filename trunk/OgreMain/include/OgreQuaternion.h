@@ -62,13 +62,6 @@ namespace Ogre {
 			y = fY;
 			z = fZ;
 		}
-        inline Quaternion (const Quaternion& rkQ)
-		{
-			w = rkQ.w;
-			x = rkQ.x;
-			y = rkQ.y;
-			z = rkQ.z;
-		}
         /// Construct a quaternion from a rotation matrix
         inline Quaternion(const Matrix3& rot)
         {

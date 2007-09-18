@@ -85,11 +85,6 @@ namespace Ogre
         }
 
 
-        inline Vector3( const Vector3& rkVector )
-            : x( rkVector.x ), y( rkVector.y ), z( rkVector.z )
-        {
-        }
-
 		inline Real operator [] ( const size_t i ) const
         {
             assert( i < 3 );
