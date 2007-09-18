@@ -213,7 +213,7 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 		}
 		if (!close) return 0;
 
-		for( ; start != end; ++start )
+		for(start = _msListeners.lower_bound(win); start != end; ++start )
 			(start->second)->windowClosed(win);
 		win->destroy();
 		return 0;
