@@ -846,6 +846,7 @@ namespace Ogre
         }
 
     }
+
 	/* Attempt to automatically connect unconnected portals to proper target zones 
 		* by looking for matching portals in other zones which are at the same location
 		*/
