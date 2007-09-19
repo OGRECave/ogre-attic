@@ -570,6 +570,10 @@
 		00DDBBD90B4CEEEF00E8E1C9 /* OgreOSXCarbonContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB790B4CDB7000E8E1C9 /* OgreOSXCarbonContext.cpp */; };
 		00DDBBDA0B4CEEFA00E8E1C9 /* OgreOSXCGLContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB980B4CE0E500E8E1C9 /* OgreOSXCGLContext.cpp */; };
 		AA123E6F0C53FAB9000009B6 /* OgreGLSLPreprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA123E390C53F7F9000009B6 /* OgreGLSLPreprocessor.cpp */; };
+		AA261E870CA17D99000A3707 /* OgreRenderSystemCapabilitiesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = AA261E850CA17D99000A3707 /* OgreRenderSystemCapabilitiesManager.h */; };
+		AA261E880CA17D9A000A3707 /* OgreRenderSystemCapabilitiesSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = AA261E860CA17D99000A3707 /* OgreRenderSystemCapabilitiesSerializer.h */; };
+		AA261E8C0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA261E8A0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesManager.cpp */; };
+		AA261E8D0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA261E8B0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesSerializer.cpp */; };
 		AA508FB50C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA508FB40C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp */; };
 		AA508FB70C972C9000D6EAD0 /* OgreTangentSpaceCalc.h in Headers */ = {isa = PBXBuildFile; fileRef = AA508FB60C972C8F00D6EAD0 /* OgreTangentSpaceCalc.h */; };
 /* End PBXBuildFile section */
@@ -1322,6 +1326,10 @@
 		00DDBB9C0B4CE1C700E8E1C9 /* OgreOSXContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OgreOSXContext.cpp; path = ../../RenderSystems/GL/src/OSX/OgreOSXContext.cpp; sourceTree = SOURCE_ROOT; };
 		AA123E380C53F7DA000009B6 /* OgreGLSLPreprocessor.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreGLSLPreprocessor.h; path = ../../RenderSystems/GL/src/GLSL/include/OgreGLSLPreprocessor.h; sourceTree = SOURCE_ROOT; };
 		AA123E390C53F7F9000009B6 /* OgreGLSLPreprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreGLSLPreprocessor.cpp; path = ../../RenderSystems/GL/src/GLSL/src/OgreGLSLPreprocessor.cpp; sourceTree = SOURCE_ROOT; };
+		AA261E850CA17D99000A3707 /* OgreRenderSystemCapabilitiesManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreRenderSystemCapabilitiesManager.h; path = ../../OgreMain/include/OgreRenderSystemCapabilitiesManager.h; sourceTree = SOURCE_ROOT; };
+		AA261E860CA17D99000A3707 /* OgreRenderSystemCapabilitiesSerializer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreRenderSystemCapabilitiesSerializer.h; path = ../../OgreMain/include/OgreRenderSystemCapabilitiesSerializer.h; sourceTree = SOURCE_ROOT; };
+		AA261E8A0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesManager.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreRenderSystemCapabilitiesManager.cpp; path = ../../OgreMain/src/OgreRenderSystemCapabilitiesManager.cpp; sourceTree = SOURCE_ROOT; };
+		AA261E8B0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreRenderSystemCapabilitiesSerializer.cpp; path = ../../OgreMain/src/OgreRenderSystemCapabilitiesSerializer.cpp; sourceTree = SOURCE_ROOT; };
 		AA508FB40C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreTangentSpaceCalc.cpp; path = ../../OgreMain/src/OgreTangentSpaceCalc.cpp; sourceTree = SOURCE_ROOT; };
 		AA508FB60C972C8F00D6EAD0 /* OgreTangentSpaceCalc.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreTangentSpaceCalc.h; path = ../../OgreMain/include/OgreTangentSpaceCalc.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -1627,6 +1635,8 @@
 				000E1F660B38D5AA004EA2DF /* OgreRenderQueueSortingGrouping.cpp */,
 				000E1F670B38D5AA004EA2DF /* OgreRenderSystem.cpp */,
 				000E1F680B38D5AA004EA2DF /* OgreRenderSystemCapabilities.cpp */,
+				AA261E8A0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesManager.cpp */,
+				AA261E8B0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesSerializer.cpp */,
 				000E1F690B38D5AA004EA2DF /* OgreRenderTarget.cpp */,
 				000E1F6A0B38D5AA004EA2DF /* OgreRenderTexture.cpp */,
 				000E1F6B0B38D5AA004EA2DF /* OgreRenderWindow.cpp */,
@@ -1836,6 +1846,8 @@
 				000E1DD80B38D566004EA2DF /* OgreRenderQueueSortingGrouping.h */,
 				000E1DD90B38D566004EA2DF /* OgreRenderSystem.h */,
 				000E1DDA0B38D566004EA2DF /* OgreRenderSystemCapabilities.h */,
+				AA261E850CA17D99000A3707 /* OgreRenderSystemCapabilitiesManager.h */,
+				AA261E860CA17D99000A3707 /* OgreRenderSystemCapabilitiesSerializer.h */,
 				000E1DDB0B38D566004EA2DF /* OgreRenderTarget.h */,
 				000E1DDC0B38D566004EA2DF /* OgreRenderTargetListener.h */,
 				000E1DDD0B38D566004EA2DF /* OgreRenderTexture.h */,
@@ -2505,6 +2517,8 @@
 				005E5EA30B7F399C00658C32 /* OgrePlugin.h in Headers */,
 				005E5EA40B7F399C00658C32 /* OgreUTFString.h in Headers */,
 				AA508FB70C972C9000D6EAD0 /* OgreTangentSpaceCalc.h in Headers */,
+				AA261E870CA17D99000A3707 /* OgreRenderSystemCapabilitiesManager.h in Headers */,
+				AA261E880CA17D9A000A3707 /* OgreRenderSystemCapabilitiesSerializer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2864,6 +2878,8 @@
 				0054A5090B5465940037D8B9 /* OgreUnifiedHighLevelGpuProgram.cpp in Sources */,
 				005E5EA60B7F39CB00658C32 /* OgreInstancedGeometry.cpp in Sources */,
 				AA508FB50C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp in Sources */,
+				AA261E8C0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesManager.cpp in Sources */,
+				AA261E8D0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesSerializer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
