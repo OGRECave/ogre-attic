@@ -154,7 +154,10 @@ namespace Ogre
 		int release;
 		int build;
 
-		DriverVersion() : major(0), minor(0), release(0), build(0) {}
+		DriverVersion() 
+		{
+			major = minor = release = build = 0;
+		}
 
 		String toString() const 
 		{
