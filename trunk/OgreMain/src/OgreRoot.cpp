@@ -41,6 +41,7 @@ Torus Knot Software Ltd.
 #include "OgreDynLib.h"
 #include "OgreConfigFile.h"
 #include "OgreMaterialManager.h"
+#include "OgreRenderSystemCapabilitiesManager.h"
 #include "OgreMeshManager.h"
 #include "OgreTextureManager.h"
 #include "OgreParticleSystemManager.h"
@@ -107,8 +108,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, 
 		const String& logFileName)
-      : mLogManager(0), mNextFrame(0), mFrameSmoothingTime(0.0f),
-	  mNextMovableObjectTypeFlag(1), mIsInitialised(false)
+      : mLogManager(0)
+	  , mRenderSystemCapabilitiesManager(0)
+	  , mNextFrame(0)
+	  , mFrameSmoothingTime(0.0f)
+	  , mNextMovableObjectTypeFlag(1)
+	  , mIsInitialised(false)
     {
         // superclass will do singleton checking
         String msg;
@@ -145,6 +150,8 @@ namespace Ogre {
         mCurrentSceneManager = NULL;
 
 		mShadowTextureManager = new ShadowTextureManager();
+
+		mRenderSystemCapabilitiesManager = new RenderSystemCapabilitiesManager();
 
         // ..material manager
         mMaterialManager = new MaterialManager();
@@ -239,6 +246,7 @@ namespace Ogre {
         shutdown();
         delete mSceneManagerEnum;
 		delete mShadowTextureManager;
+		delete mRenderSystemCapabilitiesManager;
 
 		destroyAllRenderQueueInvocationSequences();
         delete mCompositorManager;
@@ -484,7 +492,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    RenderWindow* Root::initialise(bool autoCreateWindow, const String& windowTitle)
+    RenderWindow* Root::initialise(bool autoCreateWindow, const String& windowTitle, const String& customCapabilitiesConfig)
     {
         if (!mActiveRenderer)
             OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
@@ -493,6 +501,40 @@ namespace Ogre {
 
         if (!mControllerManager)
 			mControllerManager = new ControllerManager();
+
+        // .rendercaps manager
+        RenderSystemCapabilitiesManager& rscManager = RenderSystemCapabilitiesManager::getSingleton();
+        // caller wants to load custom RenderSystemCapabilities form a config file
+        if(customCapabilitiesConfig != StringUtil::BLANK)
+        {
+            ConfigFile cfg;
+            cfg.load(customCapabilitiesConfig, "\t:=", false);
+
+            // Capabilities Database setting must be in the same format as
+            // resources.cfg in Ogre examples.
+            ConfigFile::SettingsIterator iter = cfg.getSettingsIterator("Capabilities Database");
+            while(iter.hasMoreElements())
+            {
+                String archType = iter.peekNextKey();
+                String filename = iter.getNext();
+
+                rscManager.parseCapabilitiesFromArchive(filename, archType, true);
+            }
+
+            String capsName = cfg.getSetting("Custom Capabilities");
+            // The custom capabilities have been parsed, let's retrieve them
+            RenderSystemCapabilities* rsc = rscManager.loadParsedCapabilities(capsName);
+			if(rsc == 0)
+			{
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+					String("Cannot load a RenderSystemCapability named ") + capsName,
+					"Root::initialise");
+			}
+
+            // Tell RenderSystem to use the comon rsc
+            useCustomRenderSystemCapabilities(rsc);
+        }
+
 
 		PlatformInformation::log(LogManager::getSingleton().getDefaultLog());
 		mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow, windowTitle);
@@ -514,6 +556,11 @@ namespace Ogre {
 
         return mAutoWindow;
 
+    }
+    //-----------------------------------------------------------------------
+    void Root::useCustomRenderSystemCapabilities(RenderSystemCapabilities* capabilities)
+    {
+        mActiveRenderer->useCustomRenderSystemCapabilities(capabilities);
     }
     //-----------------------------------------------------------------------
     String Root::getErrorDescription(long errorNumber)

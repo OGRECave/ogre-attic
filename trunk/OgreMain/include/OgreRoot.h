@@ -91,6 +91,7 @@ namespace Ogre
 		ResourceGroupManager* mResourceGroupManager;
 		ResourceBackgroundQueue* mResourceBackgroundQueue;
 		ShadowTextureManager* mShadowTextureManager;
+		RenderSystemCapabilitiesManager* mRenderSystemCapabilitiesManager;
 
         Timer* mTimer;
         RenderWindow* mAutoWindow;
@@ -294,10 +295,18 @@ namespace Ogre
                 A pointer to the automatically created window, if
                 requested, otherwise <b>NULL</b>.
         */
-	    RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
+	    RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window",
+                                    const String& customCapabilitiesConfig = StringUtil::BLANK);
 
 		/** Returns whether the system is initialised or not. */
 		bool isInitialised(void) const { return mIsInitialised; }
+
+        /** Requests active RenderSystem to use custom RenderSystemCapabilities
+        @remarks
+            This is useful for testing how the RenderSystem would behave on a machine with
+            less advanced GPUs. This method MUST be called before creating the first RenderWindow
+        */
+        void useCustomRenderSystemCapabilities(RenderSystemCapabilities* capabilities);
 
 		/** Register a new SceneManagerFactory, a factory object for creating instances
 			of specific SceneManagers. 

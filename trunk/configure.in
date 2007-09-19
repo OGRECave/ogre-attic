@@ -245,6 +245,8 @@ AC_CONFIG_FILES([Makefile \
     Tools/XMLConverter/Makefile \
     Tools/XMLConverter/src/Makefile \
     Tools/XMLConverter/include/Makefile \
+    Tools/rcapsdump/Makefile \
+    Tools/rcapsdump/src/Makefile \
     Tools/LightwaveConverter/Makefile \
     Tools/LightwaveConverter/src/Makefile \
     Tools/LightwaveConverter/include/Makefile \

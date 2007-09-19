@@ -80,6 +80,7 @@ namespace Ogre {
  
         GLint getBlendMode(SceneBlendFactor ogreBlend) const;
 		GLint getTextureAddressingMode(TextureUnitState::TextureAddressingMode tam) const;
+				void initialiseContext(RenderWindow* primary);
 
         void setLights();
 
@@ -107,8 +108,6 @@ namespace Ogre {
 
         // check if the GL system has already been initialized
         bool mGLInitialized;
-        // Initialise GL system and capabilities
-        void initGL(RenderTarget *primary);
 
         HardwareBufferManager* mHardwareBufferManager;
         GLGpuProgramManager* mGpuProgramManager;
@@ -165,6 +164,14 @@ namespace Ogre {
           RenderSystem
          */
         RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
+        /** See
+          RenderSystem
+         */
+				virtual RenderSystemCapabilities* createRenderSystemCapabilities() const;
+        /** See
+          RenderSystem
+         */
+				void initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary);
         /** See
           RenderSystem
          */

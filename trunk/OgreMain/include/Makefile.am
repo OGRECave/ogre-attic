@@ -138,6 +138,8 @@ pkginclude_HEADERS = Ogre.h \
                      OgreRenderQueueSortingGrouping.h \
                      OgreRenderSystem.h \
                      OgreRenderSystemCapabilities.h \
+                     OgreRenderSystemCapabilitiesManager.h \
+                     OgreRenderSystemCapabilitiesSerializer.h \
                      OgreRenderTarget.h \
                      OgreRenderTargetListener.h \
                      OgreRenderTexture.h \
