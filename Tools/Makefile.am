@@ -1,1 +1,1 @@
-SUBDIRS=XMLConverter MeshUpgrader MaterialUpgrader
+SUBDIRS=XMLConverter MeshUpgrader MaterialUpgrader rcapsdump

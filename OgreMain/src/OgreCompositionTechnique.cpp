@@ -190,7 +190,7 @@ bool CompositionTechnique::isSupported(bool acceptTextureDegradation)
 
 		// Firstly check MRTs
 		if (td->formatList.size() > 
-			Root::getSingleton().getRenderSystem()->getCapabilities()->numMultiRenderTargets())
+			Root::getSingleton().getRenderSystem()->getCapabilities()->getNumMultiRenderTargets())
 		{
 			return false;
 		}

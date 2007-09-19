@@ -678,6 +678,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreRenderSystemCapabilities.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreRenderSystemCapabilitiesManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreRenderSystemCapabilitiesSerializer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreRenderTarget.cpp">
 			</File>
 			<File
@@ -1289,6 +1295,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderSystemCapabilities.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRenderSystemCapabilitiesManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRenderSystemCapabilitiesSerializer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderTarget.h">

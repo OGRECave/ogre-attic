@@ -108,6 +108,8 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
 			 OgreRenderQueueSortingGrouping.cpp \
                          OgreRenderSystem.cpp \
                          OgreRenderSystemCapabilities.cpp \
+                         OgreRenderSystemCapabilitiesManager.cpp \
+                         OgreRenderSystemCapabilitiesSerializer.cpp \
                          OgreRenderTarget.cpp \
                          OgreRenderTexture.cpp \
                          OgreRenderWindow.cpp \

@@ -67,7 +67,7 @@ namespace Ogre
 		MultiRenderTarget(const String &name);
 
 		/** Bind a surface to a certain attachment point.
-            @param attachment	0 .. mCapabilities->numMultiRenderTargets()-1
+            @param attachment	0 .. mCapabilities->getNumMultiRenderTargets()-1
 			@param target		RenderTexture to bind.
 
 			It does not bind the surface and fails with an exception (ERR_INVALIDPARAMS) if:

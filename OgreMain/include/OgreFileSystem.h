@@ -90,7 +90,8 @@ namespace Ogre {
     };
 
     /** Specialisation of ArchiveFactory for FileSystem files. */
-    class _OgrePrivate FileSystemArchiveFactory : public ArchiveFactory
+    //class _OgrePrivate FileSystemArchiveFactory : public ArchiveFactory
+    class _OgreExport FileSystemArchiveFactory : public ArchiveFactory
     {
     public:
         virtual ~FileSystemArchiveFactory() {}

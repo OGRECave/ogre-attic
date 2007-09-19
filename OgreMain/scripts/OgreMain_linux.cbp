@@ -4,6 +4,7 @@
 	<Project>
 		<Option title="OgreMain" />
 		<Option platforms="Unix;" />
+		<Option pch_mode="0" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
@@ -219,6 +220,8 @@
 		<Unit filename="../include/OgreRenderQueueSortingGrouping.h" />
 		<Unit filename="../include/OgreRenderSystem.h" />
 		<Unit filename="../include/OgreRenderSystemCapabilities.h" />
+		<Unit filename="../include/OgreRenderSystemCapabilitiesManager.h" />
+		<Unit filename="../include/OgreRenderSystemCapabilitiesSerializer.h" />
 		<Unit filename="../include/OgreRenderTarget.h" />
 		<Unit filename="../include/OgreRenderTargetListener.h" />
 		<Unit filename="../include/OgreRenderTexture.h" />
@@ -414,6 +417,8 @@
 		<Unit filename="../src/OgreRenderQueueSortingGrouping.cpp" />
 		<Unit filename="../src/OgreRenderSystem.cpp" />
 		<Unit filename="../src/OgreRenderSystemCapabilities.cpp" />
+		<Unit filename="../src/OgreRenderSystemCapabilitiesManager.cpp" />
+		<Unit filename="../src/OgreRenderSystemCapabilitiesSerializer.cpp" />
 		<Unit filename="../src/OgreRenderTarget.cpp" />
 		<Unit filename="../src/OgreRenderTexture.cpp" />
 		<Unit filename="../src/OgreRenderWindow.cpp" />
@@ -467,8 +472,10 @@
 		<Unit filename="../src/OgreWindowEventUtilities.cpp" />
 		<Unit filename="../src/OgreWireBoundingBox.cpp" />
 		<Unit filename="../src/OgreZip.cpp" />
+		<Unit filename="../src/gtk/GLX_backdrop.h" />
 		<Extensions>
 			<code_completion />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

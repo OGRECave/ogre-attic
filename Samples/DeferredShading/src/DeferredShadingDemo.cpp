@@ -239,7 +239,7 @@ protected:
                 "run this demo. Sorry!", 
                 "DeferredShading::createScene");
         }
-		if (caps->numMultiRenderTargets()<2)
+		if (caps->getNumMultiRenderTargets()<2)
         {
             OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "Your card does not support at least two simulataneous render targets, so cannot "
                 "run this demo. Sorry!", 

@@ -26,38 +26,38 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef _ArchiveFactory_H__
-#define _ArchiveFactory_H__
 
-#include "OgrePrerequisites.h"
+#include "OgreException.h"
+#include "OgreLogManager.h"
+#include "OgreMaterialManager.h"
+#include "OgreCompositorManager.h"
+#include "OgreHighLevelGpuProgramManager.h"
+#include "OgreGpuProgramManager.h"
 
-#include "OgreFactoryObj.h"
+Ogre::LogManager* logMgr;
+void setUpSuite()
+{
+    logMgr = new Ogre::LogManager();
+    logMgr->createLog("OgreTest.log", true, true);
+}
 
-namespace Ogre {
+void tearDownSuite()
+{
+    // shutdown and release managers that might have been created
+	if(Ogre::HighLevelGpuProgramManager::getSingletonPtr())
+		delete Ogre::HighLevelGpuProgramManager::getSingletonPtr();
+	if(Ogre::GpuProgramManager::getSingletonPtr())
+		delete Ogre::GpuProgramManager::getSingletonPtr();
+	if(Ogre::CompositorManager::getSingletonPtr())
+		delete Ogre::CompositorManager::getSingletonPtr();
+	if(Ogre::MaterialManager::getSingletonPtr())
+		delete Ogre::MaterialManager::getSingletonPtr();
+	if(Ogre::ResourceGroupManager::getSingletonPtr())
+		delete Ogre::ResourceGroupManager::getSingletonPtr();
 
-    /** Abstract factory class, archive codec plugins can register concrete
-        subclasses of this.
-        @remarks
-            All access to 'archives' (collections of files, compressed or
-            just folders, maybe even remote) is managed via the abstract
-            Archive class. Plugins are expected to provide the
-            implementation for the actual codec itself, but because a
-            subclass of Archive has to be created for every archive, a
-            factory class is required to create the appropriate subclass.
-        @par
-            So archive plugins create a subclass of Archive AND a subclass
-            of ArchiveFactory which creates instances of the Archive
-            subclass. See the 'Zip' and 'FileSystem' plugins for examples.
-            Each Archive and ArchiveFactory subclass pair deal with a
-            single archive type (identified by a string).
-    */
-    class _OgreExport ArchiveFactory : public FactoryObj< Archive >
-    {
-    public:
-        virtual ~ArchiveFactory() {}
-        // No methods, must just override all methods inherited from FactoryObj
-    };
+	if(Ogre::LogManager::getSingletonPtr())
+		delete Ogre::LogManager::getSingletonPtr();
 
-} // namespace
+    logMgr = 0;
+}
 
-#endif

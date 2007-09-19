@@ -26,38 +26,34 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef _ArchiveFactory_H__
-#define _ArchiveFactory_H__
+#include <cppunit/BriefTestProgressListener.h>
+#include <cppunit/CompilerOutputter.h>
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/TestResult.h>
+#include <cppunit/TestResultCollector.h>
 
-#include "OgrePrerequisites.h"
+#include <qxcppunit/testrunner.h>
+#include <QApplication>
 
-#include "OgreFactoryObj.h"
+#include "Suite.h"
 
-namespace Ogre {
 
-    /** Abstract factory class, archive codec plugins can register concrete
-        subclasses of this.
-        @remarks
-            All access to 'archives' (collections of files, compressed or
-            just folders, maybe even remote) is managed via the abstract
-            Archive class. Plugins are expected to provide the
-            implementation for the actual codec itself, but because a
-            subclass of Archive has to be created for every archive, a
-            factory class is required to create the appropriate subclass.
-        @par
-            So archive plugins create a subclass of Archive AND a subclass
-            of ArchiveFactory which creates instances of the Archive
-            subclass. See the 'Zip' and 'FileSystem' plugins for examples.
-            Each Archive and ArchiveFactory subclass pair deal with a
-            single archive type (identified by a string).
-    */
-    class _OgreExport ArchiveFactory : public FactoryObj< Archive >
-    {
-    public:
-        virtual ~ArchiveFactory() {}
-        // No methods, must just override all methods inherited from FactoryObj
-    };
+int main( int argc, char **argv)
+{
 
-} // namespace
+    QApplication app(argc, argv);
 
-#endif
+    setUpSuite();
+
+    // Add the top suite to the test runner
+    QxCppUnit::TestRunner runner;
+    runner.addTest( CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest() );
+    runner.run();
+
+    tearDownSuite();
+    return 0;
+
+
+//
+//    return wasSuccessful ? 0 : 1;
+}
