@@ -318,7 +318,7 @@ namespace Ogre
 					&& p2->getTargetZone() != this)
 				{
 					// Portal#2 is bigger than Portal1, check for crossing
-					if (p->crossedPortal(p2))
+					if (p->crossedPortal(p2) && p->getCurrentHomeZone() != p2->getTargetZone())
 					{
 						// portal#1 crossed portal#2 - flag portal#1 to be moved to portal#2's target zone
 						p->setNewHomeZone(p2->getTargetZone());
@@ -340,7 +340,7 @@ namespace Ogre
 					if (pRadius < p3->getRadius())
 					{
 						// Portal#3 is bigger than Portal#1, check for crossing
-						if (p->crossedPortal(p3))
+						if (p->crossedPortal(p3) && p->getCurrentHomeZone() != p3->getTargetZone())
 						{
 							// Portal#1 crossed Portal#3 - switch target zones for Portal#1
 							p->setTargetZone(p3->getTargetZone());
