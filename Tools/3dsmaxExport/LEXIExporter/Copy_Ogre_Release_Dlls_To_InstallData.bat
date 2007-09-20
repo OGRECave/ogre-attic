@@ -3,7 +3,7 @@
 set CONFIGURATION=release
 set EXPORTERDIR=LEXIExporter
 
-set SDKSUBPATH_OGRE=..\..\SDK\Ogre\1.4.1\bin\bin
+set SDKSUBPATH_OGRE=%OGRE_HOME%\bin
 
 set OUTDIR=.\LexiExportInstall\InstallData
 set DLL_OUTDIR=%OUTDIR%\%EXPORTERDIR%\Dlls\
