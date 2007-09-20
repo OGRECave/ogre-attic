@@ -36,6 +36,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "LexiIntermediateBuilder.h"
 #include "LexiIntermediateBuilderSkeleton.h"
 #include "LexiIntermediateMesh.h"
+#include "LexiIntermediateLight.h"
+#include "LexiIntermediateCamera.h"
 
 //
 

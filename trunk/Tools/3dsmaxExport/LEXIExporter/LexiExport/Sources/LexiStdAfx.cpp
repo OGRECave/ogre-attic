@@ -68,6 +68,12 @@ bool ValidateFilenames()
 	sFilename = FixupFilename("test.test", "shader");
 	if(sFilename.size() < 4 || sFilename[1] != ':' || sFilename[2] != '\\') sError += "- Shaders\r\n";
 
+	sFilename = FixupFilename("test.test", "scene");
+	if(sFilename.size() < 4 || sFilename[1] != ':' || sFilename[2] != '\\') sError += "- Scenes\r\n";
+
+	sFilename = FixupFilename("test.test", "animation");
+	if(sFilename.size() < 4 || sFilename[1] != ':' || sFilename[2] != '\\') sError += "- Animations\r\n";
+
 	if(sError.size())
 	{
 		char strCurDir[512];
@@ -97,6 +103,8 @@ std::string FixupFilename(const char* pszFilename, const char* pszType)
 	else if(!stricmp(pszType, "material")) sPath = pConfig->GetString("DefaultMaterialFolder", "");
 	else if(!stricmp(pszType, "texture")) sPath = pConfig->GetString("DefaultTextureFolder", "");
 	else if(!stricmp(pszType, "shader")) sPath = pConfig->GetString("DefaultShaderFolder", "");
+	else if(!stricmp(pszType, "scene")) sPath = pConfig->GetString("DefaultSceneFolder", "");
+	else if(!stricmp(pszType, "animation")) sPath = pConfig->GetString("DefaultAnimationFolder", "");
 	else if(!stricmp(pszType, "root")) sPath = pConfig->GetString(ResolveMacros("$(username)@$(hostname).RootFolder").c_str(), "");
 	else return pszFilename;
 

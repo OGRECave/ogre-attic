@@ -6,7 +6,7 @@ Copyright 2006 NDS Limited
 
 Author(s):
 Mark Folkenberg,
-Bo Krohn
+Marty Rabens
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -24,21 +24,34 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __NDS_LexiExporter_IntermediateAPI__
-#define __NDS_LexiExporter_IntermediateAPI__
+#ifndef __NDS_LexiExporter_IntermediateLight__
+#define __NDS_LexiExporter_IntermediateLight__
+
+#include "LexiIntermediateObject.h"
+//
+
+class CIntermediateLight : public CIntermediateObject, public Ogre::MovableObject
+{
+
+	friend class CIntermediateBuilder;
+
+public:
+
+	// Destructor
+	~CIntermediateLight();
+
+protected:
+
+//	unsigned int m_iNodeID;
+
+	CIntermediateLight(unsigned int iNodeID);
+
+	virtual const Ogre::String& getMovableType(void) const;
+	virtual const Ogre::AxisAlignedBox& getBoundingBox(void) const;
+	virtual Ogre::Real getBoundingRadius(void) const;
+	virtual void _updateRenderQueue(Ogre::RenderQueue* queue);
+};
 
 //
 
-#include "LexiIntermediateMaterial.h"
-#include "LexiIntermediateClasses.h"
-#include "LexiIntermediateBone.h"
-#include "LexiIntermediateSkeleton.h"
-#include "LexiIntermediateBuilder.h"
-#include "LexiIntermediateBuilderSkeleton.h"
-#include "LexiIntermediateMesh.h"
-#include "LexiIntermediateLight.h"
-#include "LexiIntermediateCamera.h"
-
-//
-
-#endif // __NDS_LexiExporter_IntermediateAPI__
+#endif // __NDS_LexiExporter_IntermediateLight__

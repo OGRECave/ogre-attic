@@ -529,6 +529,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Res\NodeAnimation.ico"
+					>
+				</File>
+				<File
 					RelativePath=".\Res\PoseAnimation.ico"
 					>
 				</File>
@@ -574,6 +578,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Sources\LexiDialogNodeAnimationProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiDialogNodeAnimationProperties.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Sources\LexiDialogObjectProperties.cpp"
 				>
 			</File>
@@ -603,6 +615,14 @@
 			</File>
 			<File
 				RelativePath=".\Sources\LexiDialogProperties.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiDialogSceneProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiDialogSceneProperties.h"
 				>
 			</File>
 			<File
@@ -650,6 +670,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Sources\LexiExportObjectNodeAnimation.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectNodeAnimation.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Sources\LexiExportObjectPose.cpp"
 				>
 			</File>
@@ -671,6 +699,14 @@
 			</File>
 			<File
 				RelativePath=".\Sources\LexiExportObjectRoot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectScene.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectScene.h"
 				>
 			</File>
 			<File
@@ -754,11 +790,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Sources\LexiIntermediateCamera.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiIntermediateCamera.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Sources\LexiIntermediateClasses.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Sources\LexiIntermediateClasses.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiIntermediateLight.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiIntermediateLight.h"
 				>
 			</File>
 			<File
@@ -775,6 +827,14 @@
 			</File>
 			<File
 				RelativePath=".\Sources\LexiIntermediateMesh.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiIntermediateObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiIntermediateObject.h"
 				>
 			</File>
 			<File

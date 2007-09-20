@@ -83,20 +83,20 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E1AA4307C1E5406EACF5449108707E8B"
+        "MsmKey" = "8:_D934489D97604F7C8566174B413F4CAA"
         "OwnerKey" = "8:_1341BD61DACA47E3ACA8EF55F95E9219"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_E1AA4307C1E5406EACF5449108707E8B"
+        "MsmKey" = "8:_D934489D97604F7C8566174B413F4CAA"
         "OwnerKey" = "8:_CEB47FD7C21B4F91B9D09001EB6E3F9C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_E1C97AA30417475D93705DF4FE705240"
-        "OwnerKey" = "8:_E1AA4307C1E5406EACF5449108707E8B"
+        "MsmKey" = "8:_E5B9EECF850F4307BFD278061879A30B"
+        "OwnerKey" = "8:_D934489D97604F7C8566174B413F4CAA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -512,18 +512,18 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:LEXIExport"
-        "ProductCode" = "8:{9D8CD6E1-AE7A-4B60-B479-54FF7ACED7D0}"
-        "PackageCode" = "8:{58617D4F-1F8A-4584-A91F-8733DF095375}"
+        "ProductCode" = "8:{B31225D9-717F-4188-8DE9-B14222695901}"
+        "PackageCode" = "8:{2C7AF678-B0C4-4879-BDAC-780FA5705B97}"
         "UpgradeCode" = "8:{153F1498-CA22-4196-B639-B267C9BC0DFA}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.7"
+        "ProductVersion" = "8:1.0.8"
         "Manufacturer" = "8:NDS Denmark A/S"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:LEXIExport 1.0.7"
+        "Title" = "8:LEXIExport 1.0.8"
         "Subject" = "8:"
         "ARPCONTACT" = "8:NDS"
         "Keywords" = "8:"
@@ -1028,7 +1028,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E1AA4307C1E5406EACF5449108707E8B"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_D934489D97604F7C8566174B413F4CAA"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1042,7 +1042,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E1C97AA30417475D93705DF4FE705240"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E5B9EECF850F4307BFD278061879A30B"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"

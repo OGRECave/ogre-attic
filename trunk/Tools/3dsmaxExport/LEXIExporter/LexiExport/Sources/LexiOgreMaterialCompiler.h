@@ -30,7 +30,7 @@ class COgreMaterialCompiler
 {
 public:
 
-	COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial, Ogre::String sExtension="", bool bExportColours=false );
+	COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial, Ogre::String sExtension="", bool bExportColours=false, bool bReferenceShaders=true );
 	virtual ~COgreMaterialCompiler();
 
 	bool				WriteOgreMaterial( const Ogre::String& sFilename );

@@ -41,8 +41,13 @@
 #define IDI_ICON4                       139
 #define IDI_ICON_MESHPOSE               139
 #define IDD_DIALOG_ADDMULTIPLE          140
+#define IDD_DIALOG_OBJECTPROPERTIES1    141
+#define IDD_DIALOG_SCENEPROPERTIES      141
 #define IDI_ICON5                       142
 #define IDI_ICON_POSEANIM               142
+#define IDI_ICON_NODEANIM               143
+#define IDI_ICON6                       145
+#define IDD_DIALOG_NODEANIMPROPERTIES   146
 #define IDC_PROPERTIES_BUTTON           1023
 #define IDC_EXPORT_BUTTON               1024
 #define IDC_LIST                        1025
@@ -86,14 +91,15 @@
 #define IDC_LOCALPROGRESS               1061
 #define IDC_LOCALINFO                   1062
 #define IDC_                            1063
+#define IDC_OBJECT_CHILD_NODEANIM       1064
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        143
+#define _APS_NEXT_RESOURCE_VALUE        147
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1064
+#define _APS_NEXT_CONTROL_VALUE         1065
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

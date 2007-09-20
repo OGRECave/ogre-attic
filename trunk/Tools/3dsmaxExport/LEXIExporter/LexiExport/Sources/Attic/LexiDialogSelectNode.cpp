@@ -178,7 +178,7 @@ void CSelectNodeDlg::OnInitDialog()
 	ShaveTree();
 
 	// Check if there is any supported nodes
-	if(!m_Tree.ItemHasChildren(m_hRoot))
+	if(strcmp(m_pObj->GetType(), "scene") && !m_Tree.ItemHasChildren(m_hRoot))
 	{
 		MessageBox("Could not find any compatible objects in scene", NDS_EXPORTER_TITLE, MB_ICONERROR);
 		this->EndDialog(IDCANCEL);
@@ -211,7 +211,8 @@ void CSelectNodeDlg::UpdateStuff()
 		else
 		{
 			m_iNode = 0;
-			bOK = false;
+			if(!strcmp(m_pObj->GetType(), "scene")) bOK = true;
+			else bOK = false;
 		}
 	}
 

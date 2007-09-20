@@ -157,6 +157,35 @@ CDDObject* CExportObjectRoot::BuildMetaDesc( void )
 	lSettings.push_back(pDDMetaElement);
 
 	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID", "DefaultSceneFolder");
+	pDDMetaElement->SetString("Type", "string");
+	pDDMetaElement->SetString("Group", "Default Folders");
+	pDDMetaElement->SetString("Caption", "Scenes");
+	pDDMetaElement->SetString("Help", "Location of default scene folder");
+	pDDMetaElement->SetString("Default", "");
+	pDDMetaElement->SetString("HelperButton", "BrowseForFolder");
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID", "DefaultAnimationFolder");
+	pDDMetaElement->SetString("Type", "string");
+	pDDMetaElement->SetString("Group", "Default Folders");
+	pDDMetaElement->SetString("Caption", "Animations");
+	pDDMetaElement->SetString("Help", "Location of default animation folder");
+	pDDMetaElement->SetString("Default", "");
+	pDDMetaElement->SetString("HelperButton", "BrowseForFolder");
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","referenceShadersID");
+	pDDMetaElement->SetString("Type","bool");
+	pDDMetaElement->SetString("Group","Default Mesh Settings");
+	pDDMetaElement->SetString("Caption","Reference Shaders in Materials");
+	pDDMetaElement->SetString("Help","Include references to shaders in material files.");
+	pDDMetaElement->SetBool("Default", true);
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
 	pDDMetaElement->SetString("ID", "ForceSeperateAnimID");
 	pDDMetaElement->SetString("Type", "bool");
 	pDDMetaElement->SetString("Group", "Export Settings");

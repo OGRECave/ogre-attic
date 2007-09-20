@@ -102,6 +102,36 @@ BEGIN
     CONTROL         "",IDC_OBJECT_CHILD_POSE,"Static",SS_BLACKFRAME | NOT WS_VISIBLE,16,31,188,196
 END
 
+IDD_DIALOG_SCENEPROPERTIES DIALOGEX 0, 0, 216, 247
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "No&de:",IDC_STATIC,7,9,20,8
+    EDITTEXT        IDC_NODE,51,7,144,12,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "...",IDC_BROWSENODE,196,7,11,12
+    LTEXT           "&Name:",IDC_STATIC,7,27,22,8
+    EDITTEXT        IDC_NAME,51,25,156,12,ES_AUTOHSCROLL
+    LTEXT           "&Filename:",IDC_STATIC,8,45,32,8
+    EDITTEXT        IDC_FILENAME,52,43,144,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BROWSEFILE,197,43,11,12
+    GROUPBOX        "...",IDC_GROUPBOX_TITLE,7,61,201,179
+    CONTROL         "",IDC_OBJECT_CHILD,"Static",SS_BLACKFRAME | NOT WS_VISIBLE,14,71,188,169
+END
+
+IDD_DIALOG_NODEANIMPROPERTIES DIALOGEX 0, 0, 230, 248
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "&Name:",IDC_STATIC,9,10,22,8
+    EDITTEXT        IDC_NAME,53,9,156,12,ES_AUTOHSCROLL
+    LTEXT           "&Filename:",IDC_STATIC,9,28,32,8
+    EDITTEXT        IDC_FILENAME,53,26,144,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BROWSEFILE,199,26,11,12
+    GROUPBOX        "...",IDC_GROUPBOX_TITLE,7,43,203,193
+    CONTROL         "",IDC_OBJECT_CHILD_NODEANIM,"Static",SS_BLACKFRAME | NOT WS_VISIBLE,16,55,188,172
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -158,6 +188,22 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 241
     END
+
+    IDD_DIALOG_SCENEPROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 208
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 240
+    END
+
+    IDD_DIALOG_NODEANIMPROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 223
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 241
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -197,6 +243,7 @@ END
 // remains consistent on all systems.
 IDI_ICON_MESHPOSE       ICON                    "MeshPose.ico"
 IDI_ICON_POSEANIM       ICON                    "PoseAnimation.ico"
+IDI_ICON_NODEANIM       ICON                    "NodeAnimation.ico"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

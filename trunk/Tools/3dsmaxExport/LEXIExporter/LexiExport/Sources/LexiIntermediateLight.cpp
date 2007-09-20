@@ -6,7 +6,7 @@ Copyright 2006 NDS Limited
 
 Author(s):
 Mark Folkenberg,
-Bo Krohn
+Marty Rabens
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -24,21 +24,42 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __NDS_LexiExporter_IntermediateAPI__
-#define __NDS_LexiExporter_IntermediateAPI__
+#include "LexiStdAfx.h"
+#include "LexiIntermediateAPI.h"
 
 //
 
-#include "LexiIntermediateMaterial.h"
-#include "LexiIntermediateClasses.h"
-#include "LexiIntermediateBone.h"
-#include "LexiIntermediateSkeleton.h"
-#include "LexiIntermediateBuilder.h"
-#include "LexiIntermediateBuilderSkeleton.h"
-#include "LexiIntermediateMesh.h"
-#include "LexiIntermediateLight.h"
-#include "LexiIntermediateCamera.h"
+const Ogre::String& CIntermediateLight::getMovableType(void) const
+{
+	static Ogre::String sTypeName = "CIntermediateLight";
+	return sTypeName;
+}
 
-//
+const Ogre::AxisAlignedBox& CIntermediateLight::getBoundingBox(void) const
+{
+	static Ogre::AxisAlignedBox aab;
+	return aab;
+}
 
-#endif // __NDS_LexiExporter_IntermediateAPI__
+Ogre::Real CIntermediateLight::getBoundingRadius(void) const
+{
+	return 0.0f;
+}
+
+void CIntermediateLight::_updateRenderQueue(Ogre::RenderQueue* queue)
+{
+}
+
+///////////////////////////////////////////////////////////
+
+CIntermediateLight::CIntermediateLight(unsigned int iNodeID) : MovableObject(GetNodeFromID(iNodeID)->GetName()), CIntermediateObject(iNodeID)
+{
+	REGISTER_MODULE("Intermediate Light")
+	m_sObjectClass = "CIntermediateLight";
+}
+
+CIntermediateLight::~CIntermediateLight()
+{
+	UNREGISTER_MODULE
+}
+

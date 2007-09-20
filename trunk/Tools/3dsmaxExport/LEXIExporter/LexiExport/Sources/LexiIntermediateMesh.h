@@ -27,9 +27,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __NDS_LexiExporter_IntermediateMesh__
 #define __NDS_LexiExporter_IntermediateMesh__
 
+#include "LexiIntermediateObject.h"
 //
 
-class CIntermediateMesh : public Ogre::MovableObject {
+class CIntermediateMesh : public Ogre::MovableObject, public CIntermediateObject {
 
 	friend class CIntermediateBuilder;
 
@@ -85,7 +86,7 @@ class CIntermediateMesh : public Ogre::MovableObject {
 
 	protected:
 
-		unsigned int m_iNodeID;
+//		unsigned int m_iNodeID;
 		bool	m_bIsCollapsed;
 
 		//

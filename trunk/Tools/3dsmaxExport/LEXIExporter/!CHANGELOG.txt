@@ -1,3 +1,13 @@
+version 1.0.8
+=============
+- Export of scene (Courtesy: Marty Rabens)
+	* Cameras
+	* Lights
+	* Nodes
+- Export of node animations into seperate file.
+- Export of submeshes optimized. (Courtesy: jwatte)
+- User defined Binding Pose for skeleton animated meshes.
+
 version 1.0.7
 =============
 - Easier build from source process.
