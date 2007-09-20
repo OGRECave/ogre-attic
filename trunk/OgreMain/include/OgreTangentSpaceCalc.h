@@ -30,6 +30,10 @@ Torus Knot Software Ltd.
 #define _OgreTangentSpaceCalc_H_
 
 #include "OgrePrerequisites.h"
+#include "OgreRenderOperation.h"
+#include "OgreVector2.h"
+#include "OgreVector3.h"
+#include "OgreVertexIndexData.h"
 
 namespace Ogre
 {
