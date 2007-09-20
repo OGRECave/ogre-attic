@@ -30,7 +30,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 //
 
 class CIntermediateBuilderSkeleton;
-
+class CIntermediateLight;
+class CIntermediateCamera;
+class CIntermediateObject;
 
 class CIntermediateBuilder {
 
@@ -58,8 +60,15 @@ class CIntermediateBuilder {
 		// Collapse hierarchy
 		Ogre::SceneNode* CollapseHierarchy(Ogre::SceneNode* pHierarchy, const std::list<std::string>& Arrays, const char* pszName);
 
+		// Simple node hierarchy (no attached objects, etc.)
+		Ogre::SceneNode* CreateNodeHierarchy(unsigned int iNodeID, bool bHidden);
+		void UpdateNodeHierarchy(TimeValue iTime, Ogre::SceneNode* pSceneNode);
+		void CleanupNodeHierarchy(Ogre::SceneNode* pNode);
+
 		// Get the list of active intermediate materials
 		bool GetMaterials( std::map<Ogre::String, CIntermediateMaterial*>& materialMap ) const;
+
+		CIntermediateObject *GetObjectByNodeID(unsigned int iNode);
 
 		// Transform Max coord system to Ogre
 		static void Rotate90DegreesAroundX( Point3& inVec );
@@ -86,8 +95,12 @@ class CIntermediateBuilder {
 	private:
 
 		Ogre::SceneNode* CreateHierarchy(unsigned int iNodeID, Ogre::SceneNode* pParent, bool bRecursive, bool bHidden);
+		Ogre::SceneNode* CreateNodeHierarchy(unsigned int iNodeID, Ogre::SceneNode* pParent, bool bHidden);
 		CIntermediateMesh* CreateMesh(unsigned int iNodeID);
+		CIntermediateLight* CreateLight(unsigned int iNodeID);
+		CIntermediateCamera* CreateCamera(unsigned int iNodeID);
 
+		void SetInstanceIDs(CIntermediateObject *pIObject);
 		int m_iBoneIndex;
 		bool FindSkinModifier(INode* nodePtr, Modifier** pSkinMod,ISkin** pSkin, ISkinContextData** pSkinContext);
 		void CreateIntermediateBonePool(CIntermediateSkeleton* pSkel, ISkin* pSkin);
@@ -106,14 +119,17 @@ class CIntermediateBuilder {
 		CAnimSettings	m_AnimationSetting;
 
 		bool			m_bExportSkeleton;
+		int				m_iBindingPoseFrame;
 		int				m_iAnimStart;
 		int				m_iAnimEnd;
 		float			m_fSampleRate;
 		Ogre::String	m_sAnimationName;
 		float			m_fAnimTotalLength;
 
-		// record the created intermediate objects
-		std::vector< CIntermediateMesh* > m_lIMPool;
+  		// record the created intermediate objects
+  		std::vector< CIntermediateMesh* > m_lIMPool;
+
+		std::map<unsigned int,CIntermediateObject*>	m_mapIObjects;
 };
 
 //

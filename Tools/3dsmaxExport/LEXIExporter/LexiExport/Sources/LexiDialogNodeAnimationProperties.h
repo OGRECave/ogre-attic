@@ -6,7 +6,8 @@ Copyright 2006 NDS Limited
 
 Author(s):
 Mark Folkenberg,
-Bo Krohn
+Bo Krohn,
+Lasse Tassing
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -24,21 +25,49 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __NDS_LexiExporter_IntermediateAPI__
-#define __NDS_LexiExporter_IntermediateAPI__
+#ifndef __NDS_LexiExporter_NodeAnimationPropertiesDialog__
+#define __NDS_LexiExporter_NodeAnimationPropertiesDialog__
 
 //
 
-#include "LexiIntermediateMaterial.h"
-#include "LexiIntermediateClasses.h"
-#include "LexiIntermediateBone.h"
-#include "LexiIntermediateSkeleton.h"
-#include "LexiIntermediateBuilder.h"
-#include "LexiIntermediateBuilderSkeleton.h"
-#include "LexiIntermediateMesh.h"
-#include "LexiIntermediateLight.h"
-#include "LexiIntermediateCamera.h"
+class CNodeAnimationPropertiesDlg : public GDI::Dialog, public IDDNotify
+{
+
+	public:
+
+		CNodeAnimationPropertiesDlg(Window* pParent);	
+		~CNodeAnimationPropertiesDlg();
+
+		// Initialize controls from object
+		void Init(CDDObject* pMeta, const char* pszDefExt);	
+		void SetInstance(CDDObject* pData, CExportObject* pObj);
+
+	private:
+
+		void OnInitDialog();
+		void OnSize();	
+		void BrowseNode();
+		void BrowseFilename();
+		void OnNameChange();
+		void OnFilenameChange();
+		void OnChanged(const CDDObject* pInstance, const char* pszKey);
+		
+		//
+
+		std::string	m_sDefExt;
+
+		static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+		CExportObject* m_pObj;
+		CDDObject* m_pData;
+
+		HWND m_hMetaWnd;
+		GDI::MetaControl* m_pMetaCtrl;
+
+		RECT m_OrgClientRect;
+
+};
 
 //
 
-#endif // __NDS_LexiExporter_IntermediateAPI__
+#endif // __NDS_LexiExporter_NodeAnimationPropertiesDialog__

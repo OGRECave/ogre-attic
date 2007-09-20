@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "LexiIntermediateBuilder.h"
 #include "LexiIntermediateMesh.h"
 #include "LexiDialogSelectNode.h"
+#include "LexiMaxExport.h"
 
 #include <dbghelp.h>
 #pragma comment(lib,"Dbghelp.lib")
@@ -143,6 +144,10 @@ bool CSkinnedMeshExportObject::OnCreate(CExporterPropertiesDlg *pPropDialog)
 	RemoveIllegalChars(sTemp);
 //	sTemp = "C:\\" + sTemp;		
 	m_pDDConfig->SetString("FileName", sTemp.c_str());
+
+	// Initialize default mesh options from root
+	m_pDDConfig->SetBool("referenceShadersID", CExporter::Get()->GetRootConfig()->GetBool("referenceShadersID", true));
+
 	return true;
 }
 /*
@@ -181,6 +186,16 @@ CDDObject* CSkinnedMeshExportObject::BuildMetaDesc( void )
 	CDDObject* pDDMetaElement;
 
 	pDDMetaElement = new CDDObject();
+  	pDDMetaElement->SetString("ID","SkeletonBindingPoseFrameID");
+  	pDDMetaElement->SetString("Type","int");
+  	pDDMetaElement->SetString("Group","Export Settings");
+  	pDDMetaElement->SetString("Caption","Binding Pose");
+  	pDDMetaElement->SetString("Help","Frame where the default pose is located. All animated translations and rotations on bones will be relative to this frame.");
+  	pDDMetaElement->SetInt("Default", 0);
+  	pDDMetaElement->SetBool("EnableSlider",false);
+  	lSettings.push_back(pDDMetaElement);
+  
+  	pDDMetaElement = new CDDObject();
 	pDDMetaElement->SetString("ID","useSharedGeometryID");
 	pDDMetaElement->SetString("Type","bool");
 	pDDMetaElement->SetString("Group","Export Settings");
@@ -263,6 +278,16 @@ CDDObject* CSkinnedMeshExportObject::BuildMetaDesc( void )
 	lSettings.push_back(pDDMetaElement);
 
 	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","referenceShadersID");
+	pDDMetaElement->SetString("Type","bool");
+	pDDMetaElement->SetString("Group","Export Settings");
+	pDDMetaElement->SetString("Caption","Reference Shaders in Materials");
+	pDDMetaElement->SetString("Help","Include references to shaders in material files.");
+	pDDMetaElement->SetString("Condition", "$exportMaterialsID==true");
+	pDDMetaElement->SetBool("Default", true);
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
 	pDDMetaElement->SetString("ID","exportSingleMaterialFileID");
 	pDDMetaElement->SetString("Type","bool");
 	pDDMetaElement->SetString("Group","Resources");
@@ -288,7 +313,7 @@ CDDObject* CSkinnedMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetString("Group","Resources");
 	pDDMetaElement->SetString("Caption","Copy Shaders");
 	pDDMetaElement->SetString("Help","Copy Shaders To Output Folder");
-	pDDMetaElement->SetString("Condition", "$exportMaterialsID==true");
+	pDDMetaElement->SetString("Condition", "$exportMaterialsID==true && $referenceShadersID==true");
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
 
@@ -361,7 +386,7 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), false, false);
 			if(pNode == NULL)
 			{
-				LOGERROR "No node with such ID: %d", GetMAXNodeID());
+				LOGERROR "No node named \"%s\" with ID: %d", GetName(), GetMAXNodeID());
 				return false;
 			}
 
@@ -369,6 +394,7 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			bool bCopyTextures = m_pDDConfig->GetBool("copyTextureMaps", false);
 			bool bCopyShaders = m_pDDConfig->GetBool("copyShaders", false);
 			bool bExportMaterials = m_pDDConfig->GetBool("exportMaterialsID",true);
+			bool bReferenceShaders = m_pDDConfig->GetBool("referenceShadersID",false);
 			bool bInOneFile = m_pDDConfig->GetBool("exportSingleMaterialFileID",false);
 			bool bXMLexport = m_pDDConfig->GetBool("XmlID",false);
 			bool bExportColours = m_pDDConfig->GetBool("vertexColorsID", false);
@@ -531,7 +557,7 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 						matDesc += it->second->GetName();
 						pProgressDlg->LocalStep(matDesc.c_str());
 
-						COgreMaterialCompiler matComp( it->second, sExtension, bExportColours );
+						COgreMaterialCompiler matComp( it->second, sExtension, bExportColours, bReferenceShaders );
 						if(bInOneFile)
 						{
 							LOGDEBUG "Queueing material ...");

@@ -52,11 +52,11 @@ void CIntermediateMesh::_updateRenderQueue(Ogre::RenderQueue* queue)
 
 ///////////////////////////////////////////////////////////
 
-CIntermediateMesh::CIntermediateMesh(unsigned int iNumTriangles, unsigned int iNodeID) : MovableObject(GetNodeFromID(iNodeID)->GetName())
+CIntermediateMesh::CIntermediateMesh(unsigned int iNumTriangles, unsigned int iNodeID) : MovableObject(GetNodeFromID(iNodeID)->GetName()), CIntermediateObject(iNodeID)
 {
 	REGISTER_MODULE("Intermediate Mesh")
 
-	m_iNodeID = iNodeID;
+	m_sObjectClass = "CIntermediateMesh";
 	m_bIsCollapsed = false;
 
 	m_Triangles.Create(iNumTriangles);

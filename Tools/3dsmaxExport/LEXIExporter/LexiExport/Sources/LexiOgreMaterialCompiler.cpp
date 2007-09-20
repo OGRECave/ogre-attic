@@ -33,7 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <direct.h>
 
 
-COgreMaterialCompiler::COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial, Ogre::String sExtension, bool bExportColours )
+COgreMaterialCompiler::COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial, Ogre::String sExtension, bool bExportColours, bool bReferenceShaders )
 :	m_bShadersSupported(false),
 	m_bExportColours(bExportColours)
 {
@@ -48,13 +48,13 @@ COgreMaterialCompiler::COgreMaterialCompiler( CIntermediateMaterial* pIntermedia
 
 	Ogre::GpuProgramManager* pGPUMgr = Ogre::GpuProgramManager::getSingletonPtr();
 
-	if(pGPUMgr->isSyntaxSupported("arbvp1") && pGPUMgr->isSyntaxSupported("arbfp1"))
+	if(bReferenceShaders && pGPUMgr->isSyntaxSupported("arbvp1") && pGPUMgr->isSyntaxSupported("arbfp1"))
 		m_bShadersSupported = true;
 
 	// TEST:
 	//m_bShadersSupported = false;
 
-	if(!m_bShadersSupported)
+	if(bReferenceShaders && !m_bShadersSupported)
 		LOGWARNING "Shaders not supported on current Hardware! Writing simple reference materials.");
 
 	CreateOgreMaterial();

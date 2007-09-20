@@ -4,7 +4,7 @@
 #define NDS_EXPORTER_TITLE			"LEXIExporter"
 
 // Remember to change every release
-#define NDS_EXPORTER_VERSION		"1.0.7"
+#define NDS_EXPORTER_VERSION		"1.0.8"
 
 // Change only at config protocol break
 #define NDS_EXPORTER_CONFIG_VERSION	10002
