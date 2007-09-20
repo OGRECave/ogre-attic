@@ -200,10 +200,32 @@ namespace Ogre {
 	RenderSystemCapabilities* GLRenderSystem::createRenderSystemCapabilities() const
 	{
 		RenderSystemCapabilities* rsc = new RenderSystemCapabilities();
+
 		rsc->setCategoryRelevant(CAPS_CATEGORY_GL, true);
 		rsc->setDriverVersion(mDriverVersion);
-		rsc->setDeviceName((const char*)glGetString(GL_RENDERER));
+		const char* deviceName = (const char*)glGetString(GL_RENDERER);
+		const char* vendorName = (const char*)glGetString(GL_VENDOR);
+		rsc->setDeviceName(deviceName);
 		rsc->setRenderSystemName(getName());
+
+		// determine vendor
+		if (strstr(vendorName, "NVIDIA"))
+			rsc->setVendor(GPU_NVIDIA);
+		else if (strstr(vendorName, "ATI"))
+			rsc->setVendor(GPU_ATI);
+		else if (strstr(vendorName, "Intel"))
+			rsc->setVendor(GPU_INTEL);
+		else if (strstr(vendorName, "S3"))
+			rsc->setVendor(GPU_S3);
+		else if (strstr(vendorName, "Matrox"))
+			rsc->setVendor(GPU_MATROX);
+		else if (strstr(vendorName, "3DLabs"))
+			rsc->setVendor(GPU_3DLABS);
+		else
+			rsc->setVendor(GPU_UNKNOWN);
+
+		// Supports fixed-function
+		rsc->setCapability(RSC_FIXED_FUNCTION);
 
 		// Check for hardware mipmapping support.
 		if(GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap)

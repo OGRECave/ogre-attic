@@ -66,10 +66,12 @@ namespace Ogre
 		file << "\t" << "device_name " << caps->getDeviceName() << endl;
 		const DriverVersion& driverVer = caps->getDriverVersion();
 		file << "\t" << "driver_version " << driverVer.toString();
+		file << "\t" << "vendor " << caps->vendorToString(caps->getVendor());
 
 		file << endl;
 
         file << endl;
+		file << "\t" << "fixed_function " << StringConverter::toString(caps->hasCapability(RSC_FIXED_FUNCTION)) << endl;
         file << "\t" << "automipmap " << StringConverter::toString(caps->hasCapability(RSC_AUTOMIPMAP)) << endl;
         file << "\t" << "blending " << StringConverter::toString(caps->hasCapability(RSC_BLENDING)) << endl;
         file << "\t" << "anisotropy " << StringConverter::toString(caps->hasCapability(RSC_ANISOTROPY)) << endl;
@@ -297,6 +299,11 @@ namespace Ogre
 		// set up the setters 
 		addSetStringMethod("render_system_name", &RenderSystemCapabilities::setRenderSystemName);
 
+		// set up vendor parsing
+		addKeywordType("vendor", SET_STRING_METHOD);
+		// set up the setters for driver versions
+		addSetStringMethod("vendor", &RenderSystemCapabilities::parseVendorFromString);
+
 		// initialize int types
         addKeywordType("num_world_matrices", SET_INT_METHOD);
         addKeywordType("num_texture_units", SET_INT_METHOD);
@@ -328,8 +335,6 @@ namespace Ogre
         // initialize bool types
         addKeywordType("non_pow2_textures_limited", SET_BOOL_METHOD);
         addKeywordType("vertex_texture_units_shared", SET_BOOL_METHOD);
-        addKeywordType("capabilities_valid_for_d3d9", SET_BOOL_METHOD);
-        addKeywordType("capabilities_valid_for_gl", SET_BOOL_METHOD);
 
         // initialize bool setters
         addSetBoolMethod("non_pow2_textures_limited", &RenderSystemCapabilities::setNonPOW2TexturesLimited);
@@ -345,6 +350,7 @@ namespace Ogre
         addKeywordType("shader_profile", ADD_SHADER_PROFILE_STRING);
 
         // set up RSC_XXX style capabilities
+		addKeywordType("fixed_function", SET_CAPABILITY_ENUM_BOOL);
         addKeywordType("automipmap", SET_CAPABILITY_ENUM_BOOL);
         addKeywordType("blending", SET_CAPABILITY_ENUM_BOOL);
         addKeywordType("anisotropy", SET_CAPABILITY_ENUM_BOOL);
@@ -380,6 +386,7 @@ namespace Ogre
         addKeywordType("glew1_5_nohwocclusion", SET_CAPABILITY_ENUM_BOOL);
         addKeywordType("perstageconstant", SET_CAPABILITY_ENUM_BOOL);
 
+		addCapabilitiesMapping("fixed_function", RSC_FIXED_FUNCTION);
         addCapabilitiesMapping("automipmap", RSC_AUTOMIPMAP);
         addCapabilitiesMapping("blending", RSC_BLENDING);
         addCapabilitiesMapping("anisotropy", RSC_ANISOTROPY);
