@@ -76,7 +76,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(ProjectDir)\Sources\SharedUtilities.h $(OutDir)\..\include\"
+				CommandLine="xcopy /T /Y $(ProjectDir)\Sources\SharedUtilities.h $(OutDir)\..\include\&#x0D;&#x0A;copy $(ProjectDir)\Sources\SharedUtilities.h $(OutDir)\..\include\"
 			/>
 		</Configuration>
 		<Configuration
@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(ProjectDir)\Sources\SharedUtilities.h $(OutDir)\..\include"
+				CommandLine="xcopy /T /Y $(ProjectDir)\Sources\SharedUtilities.h $(OutDir)\..\include\&#x0D;&#x0A;copy $(ProjectDir)\Sources\SharedUtilities.h $(OutDir)\..\include\"
 			/>
 		</Configuration>
 		<Configuration
