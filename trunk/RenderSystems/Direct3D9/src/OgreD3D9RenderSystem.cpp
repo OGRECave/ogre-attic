@@ -727,6 +727,9 @@ namespace Ogre
 		rsc->setDeviceName(mActiveD3DDriver->DriverDescription());
 		rsc->setRenderSystemName(getName());
 
+		// Supports fixed-function
+		rsc->setCapability(RSC_FIXED_FUNCTION);
+
 		if (surfDesc.Format == D3DFMT_D24S8 || surfDesc.Format == D3DFMT_D24X8)
 		{
 			rsc->setCapability(RSC_HWSTENCIL);
@@ -795,6 +798,34 @@ namespace Ogre
 		// Adapter details
 		const D3DADAPTER_IDENTIFIER9& adapterID = mActiveD3DDriver->getAdapterIdentifier();
 
+		// determine vendor
+		// Full list of vendors here: http://www.pcidatabase.com/vendors.php?sort=id
+		switch(adapterID.VendorId)
+		{
+		case 0x10DE:
+			rsc->setVendor(GPU_NVIDIA);
+			break;
+		case 0x1002:
+			rsc->setVendor(GPU_ATI);
+			break;
+		case 0x163C:
+		case 0x8086:
+			rsc->setVendor(GPU_INTEL);
+			break;
+		case 0x5333:
+			rsc->setVendor(GPU_S3);
+			break;
+		case 0x3D3D:
+			rsc->setVendor(GPU_3DLABS);
+			break;
+		case 0x102B:
+			rsc->setVendor(GPU_MATROX);
+			break;
+		default:
+			rsc->setVendor(GPU_UNKNOWN);
+			break;
+		};
+
 		// Infinite projection?
 		// We have no capability for this, so we have to base this on our
 		// experience and reports from users
@@ -804,7 +835,7 @@ namespace Ogre
 			// GeForce4 Ti (and presumably GeForce3) does not
 			// render infinite projection properly, even though it does in GL
 			// So exclude all cards prior to the FX range from doing infinite
-			if (adapterID.VendorId != 0x10DE || // not nVidia
+			if (rsc->getVendor() != GPU_NVIDIA || // not nVidia
 				!((adapterID.DeviceId >= 0x200 && adapterID.DeviceId <= 0x20F) || //gf3
 				(adapterID.DeviceId >= 0x250 && adapterID.DeviceId <= 0x25F) || //gf4ti
 				(adapterID.DeviceId >= 0x280 && adapterID.DeviceId <= 0x28F) || //gf4ti

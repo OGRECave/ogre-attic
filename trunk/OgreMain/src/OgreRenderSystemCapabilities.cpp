@@ -37,9 +37,13 @@ namespace Ogre {
 
 	//-----------------------------------------------------------------------
 	RenderSystemCapabilities::RenderSystemCapabilities()
-		: mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
-		mNumVertexBlendMatrices(0), mNumMultiRenderTargets(1),
-		mNonPOW2TexturesLimited(false)
+		: mVendor(GPU_UNKNOWN)
+		, mNumWorldMatrices(0)
+		, mNumTextureUnits(0)
+		, mStencilBufferBitDepth(0)
+		, mNumVertexBlendMatrices(0)
+		, mNumMultiRenderTargets(1)
+		, mNonPOW2TexturesLimited(false)
 	{
 
 		for(int i = 0; i < CAPS_CATEGORY_COUNT; i++)
@@ -64,7 +68,11 @@ namespace Ogre {
 		pLog->logMessage("RenderSystem capabilities");
 		pLog->logMessage("-------------------------");
 		pLog->logMessage("RenderSystem Name: " + getRenderSystemName());
+		pLog->logMessage("GPU Vendor: " + vendorToString(getVendor()));
+		pLog->logMessage("Device Name: " + getDeviceName());
 		pLog->logMessage("Driver Version: " + getDriverVersion().toString());
+		pLog->logMessage(" * Fixed function pipeline: " 
+			+ StringConverter::toString(hasCapability(RSC_FIXED_FUNCTION), true));
 		pLog->logMessage(
 			" * Hardware generation of mipmaps: "
 			+ StringConverter::toString(hasCapability(RSC_AUTOMIPMAP), true));
@@ -210,4 +218,49 @@ namespace Ogre {
 		}
 
 	}
+	//---------------------------------------------------------------------
+	StringVector RenderSystemCapabilities::msGPUVendorStrings;
+	//---------------------------------------------------------------------
+	GPUVendor RenderSystemCapabilities::vendorFromString(const String& vendorString) const
+	{
+		initVendorStrings();
+		GPUVendor ret = GPU_UNKNOWN;
+		String cmpString = vendorString;
+		StringUtil::toLowerCase(cmpString);
+		for (int i = 0; i < GPU_VENDOR_COUNT; ++i)
+		{
+			// case insensitive (lower case)
+			if (msGPUVendorStrings[i] == cmpString)
+			{
+				ret = static_cast<GPUVendor>(i);
+				break;
+			}
+		}
+
+		return ret;
+		
+	}
+	//---------------------------------------------------------------------
+	String RenderSystemCapabilities::vendorToString(GPUVendor v) const
+	{
+		initVendorStrings();
+		return msGPUVendorStrings[v];
+	}
+	//---------------------------------------------------------------------
+	void RenderSystemCapabilities::initVendorStrings() const
+	{
+		if (msGPUVendorStrings.empty())
+		{
+			// Always lower case!
+			msGPUVendorStrings.resize(GPU_VENDOR_COUNT);
+			msGPUVendorStrings[GPU_UNKNOWN] = "unknown";
+			msGPUVendorStrings[GPU_NVIDIA] = "nvidia";
+			msGPUVendorStrings[GPU_ATI] = "ati";
+			msGPUVendorStrings[GPU_INTEL] = "intel";
+			msGPUVendorStrings[GPU_3DLABS] = "3dlabs";
+			msGPUVendorStrings[GPU_S3] = "s3";
+			msGPUVendorStrings[GPU_MATROX] = "matrox";
+		}
+	}
+
 };

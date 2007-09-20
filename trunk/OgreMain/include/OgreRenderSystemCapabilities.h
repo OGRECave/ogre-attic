@@ -123,6 +123,8 @@ namespace Ogre
 		RSC_TEXTURE_COMPRESSION_DXT = OGRE_CAPS_VALUE(CAPS_CATEGORY_COMMON_2, 1),
 		/// Supports compressed textures in the VTC format
 		RSC_TEXTURE_COMPRESSION_VTC = OGRE_CAPS_VALUE(CAPS_CATEGORY_COMMON_2, 2),
+		/// Supports fixed-function pipeline
+		RSC_FIXED_FUNCTION = OGRE_CAPS_VALUE(CAPS_CATEGORY_COMMON_2, 3),
 
 		// ***** DirectX specific caps *****
 		/// Is DirectX feature "per stage constants" supported
@@ -183,6 +185,19 @@ namespace Ogre
 		}
 	};
 
+	/** Enumeration of GPU vendors. */
+	enum GPUVendor
+	{
+		GPU_UNKNOWN = 0,
+		GPU_NVIDIA = 1,
+		GPU_ATI = 2, 
+		GPU_INTEL = 3,
+		GPU_S3 = 4,
+		GPU_MATROX = 5,
+		GPU_3DLABS = 6,
+		/// placeholder
+		GPU_VENDOR_COUNT = 7
+	};
 
 	/** singleton class for storing the capabilities of the graphics card. 
 	@remarks
@@ -200,6 +215,11 @@ namespace Ogre
 		/// if a RSC with same name, but newer version is introduced, the older one 
 		/// will be removed
 		DriverVersion mDriverVersion;
+		/// GPU Vendor
+		GPUVendor mVendor;
+
+		static StringVector msGPUVendorStrings;
+		void initVendorStrings() const;
 
 		/// The number of world matricies available
 		ushort mNumWorldMatrices;
@@ -268,6 +288,28 @@ namespace Ogre
 		{
 			return mDriverVersion;
 		}
+
+		GPUVendor getVendor() const
+		{
+			return mVendor;
+		}
+
+		void setVendor(GPUVendor v)
+		{
+			mVendor = v;
+		}
+
+		/// Parse and set vendor
+		void parseVendorFromString(const String& vendorString)
+		{
+			setVendor(vendorFromString(vendorString));
+		}
+
+		/// Convert a vendor string to an enum
+		GPUVendor vendorFromString(const String& vendorString) const;
+		/// Convert a vendor enum to a string
+		String vendorToString(GPUVendor v) const;
+
 
 		bool isDriverOlderThanVersion(DriverVersion v) const
 		{
