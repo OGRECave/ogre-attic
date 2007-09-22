@@ -818,7 +818,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void Root::initialisePlugins(void)
 	{
-		for (PluginInstanceList::reverse_iterator i = mPlugins.rbegin(); i != mPlugins.rend(); ++i)
+		for (PluginInstanceList::iterator i = mPlugins.begin(); i != mPlugins.end(); ++i)
 		{
 			(*i)->initialise();
 		}
