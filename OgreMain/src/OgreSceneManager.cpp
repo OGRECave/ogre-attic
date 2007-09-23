@@ -2745,7 +2745,11 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 							LightList::const_iterator copyStart = rendLightList.begin();
 							std::advance(copyStart, pass->getStartLight());
 							LightList::const_iterator copyEnd = copyStart;
-							std::advance(copyEnd, pass->getMaxSimultaneousLights());
+							// Clamp lights to copy to avoid overrunning the end of the list
+							size_t lightsToCopy = std::min(
+								static_cast<size_t>(pass->getMaxSimultaneousLights()), 
+								rendLightList.size() - pass->getStartLight());
+							std::advance(copyEnd, lightsToCopy);
 							localLightList.insert(localLightList.begin(), 
 								copyStart, copyEnd);
 							pLightListToUse = &localLightList;
