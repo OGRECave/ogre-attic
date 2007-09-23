@@ -1357,7 +1357,7 @@ namespace Ogre
 				vec3 = m3 * source.getLight(i->data).getDerivedDirection();
 				vec3.normalise();
                 // Set as 4D vector for compatibility
-                _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount);
+                _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 0.0f), i->elementCount);
                 break;
 			case ACT_LIGHT_POSITION_VIEW_SPACE:
                 _writeRawConstant(i->physicalIndex, 
@@ -1369,7 +1369,7 @@ namespace Ogre
 				vec3 = m3 * source.getLight(i->data).getDerivedDirection();
                 vec3.normalise();
                 // Set as 4D vector for compatibility
-                _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 1.0f),i->elementCount);
+                _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 0.0f),i->elementCount);
                 break;
             case ACT_LIGHT_DISTANCE_OBJECT_SPACE:
                 vec3 = source.getInverseWorldMatrix().transformAffine(source.getLight(i->data).getDerivedPosition());
@@ -1448,7 +1448,7 @@ namespace Ogre
 					vec3 = source.getLight(l).getDerivedDirection();
 					// Set as 4D vector for compatibility
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
-						Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount);
+						Vector4(vec3.x, vec3.y, vec3.z, 0.0f), i->elementCount);
 				}
 				break;
 
@@ -1468,7 +1468,7 @@ namespace Ogre
 					vec3 = m3 * source.getLight(l).getDerivedDirection();
 					vec3.normalise();
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
-						Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount); 
+						Vector4(vec3.x, vec3.y, vec3.z, 0.0f), i->elementCount); 
 				}
 				break;
 
@@ -1488,7 +1488,7 @@ namespace Ogre
 					vec3.normalise();
 					// Set as 4D vector for compatibility
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
-						Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount);
+						Vector4(vec3.x, vec3.y, vec3.z, 0.0f), i->elementCount);
 				}
 				break;
 
