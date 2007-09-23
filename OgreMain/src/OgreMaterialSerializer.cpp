@@ -488,7 +488,7 @@ namespace Ogre
         }
 
         if (vecparams[0]=="once")
-            context.pass->setIteratePerLight(false);
+            context.pass->setIteratePerLight(false, false);
         else if (vecparams[0]=="once_per_light")
         {
             if (vecparams.size() == 2)

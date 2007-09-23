@@ -138,7 +138,7 @@ namespace Ogre {
 		, mStartLight(0)
 		, mIteratePerLight(false)
 		, mLightsPerIteration(1)
-		, mRunOnlyForOneLightType(true)
+		, mRunOnlyForOneLightType(false)
 		, mOnlyLightType(Light::LT_POINT)
 		, mShadeOptions(SO_GOURAUD)
 		, mPolygonMode(PM_SOLID)

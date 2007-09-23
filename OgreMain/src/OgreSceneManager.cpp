@@ -2797,39 +2797,54 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 		}
 		else // no automatic light processing
 		{
-			// Do we need to update GPU program parameters?
-			if (pass->isProgrammable())
+			// Even if manually driving lights, check light type passes
+			bool skipBecauseOfLightType = false;
+			if (pass->getRunOnlyForOneLightType())
 			{
-				// Do we have a manual light list?
-				if (manualLightList)
+				if (!manualLightList ||
+					(manualLightList->size() == 1 && 
+					manualLightList->at(0)->getType() != pass->getOnlyLightType())) 
 				{
-					// Update any automatic gpu params for lights
-					mAutoParamDataSource.setCurrentLightList(manualLightList);
-					pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
-				}
-
-				if (pass->hasVertexProgram())
-				{
-					mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
-						pass->getVertexProgramParameters());
-				}
-				if (pass->hasFragmentProgram())
-				{
-					mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
-						pass->getFragmentProgramParameters());
+					skipBecauseOfLightType = true;
 				}
 			}
 
-			// Use manual lights if present, and not using vertex programs that don't use fixed pipeline
-			if (manualLightList && 
-				pass->getLightingEnabled() && passSurfaceAndLightParams)
+			if (!skipBecauseOfLightType)
 			{
-				mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
-			}
-			// issue the render op		
-			// nfz: set up multipass rendering
-			mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
-			mDestRenderSystem->_render(ro);
+				// Do we need to update GPU program parameters?
+				if (pass->isProgrammable())
+				{
+					// Do we have a manual light list?
+					if (manualLightList)
+					{
+						// Update any automatic gpu params for lights
+						mAutoParamDataSource.setCurrentLightList(manualLightList);
+						pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
+					}
+
+					if (pass->hasVertexProgram())
+					{
+						mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+							pass->getVertexProgramParameters());
+					}
+					if (pass->hasFragmentProgram())
+					{
+						mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+							pass->getFragmentProgramParameters());
+					}
+				}
+
+				// Use manual lights if present, and not using vertex programs that don't use fixed pipeline
+				if (manualLightList && 
+					pass->getLightingEnabled() && passSurfaceAndLightParams)
+				{
+					mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
+				}
+				// issue the render op		
+				// nfz: set up multipass rendering
+				mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
+				mDestRenderSystem->_render(ro);
+			} // !skipBecauseOfLightType
 		}
 
 	}
