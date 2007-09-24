@@ -1806,8 +1806,11 @@ namespace Ogre {
 						->getBuffer(i)->getSizeInBytes();
 				}
 			}
-			// Index data
-			ret += (*si)->indexData->indexBuffer->getSizeInBytes();
+			if (!(*si)->indexData->indexBuffer.isNull())
+			{
+				// Index data
+				ret += (*si)->indexData->indexBuffer->getSizeInBytes();
+			}
 
 		}
 		return ret;

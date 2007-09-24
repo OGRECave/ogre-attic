@@ -43,6 +43,7 @@ namespace Ogre {
     {
         // Populate preprocessor defines
         String stringBuffer;
+
         std::vector<D3DXMACRO> defines;
         const D3DXMACRO* pDefines = 0;
         if (!mPreprocessorDefines.empty())
@@ -57,8 +58,21 @@ namespace Ogre {
                 macro.Name = &stringBuffer[pos];
                 macro.Definition = 0;
 
+				String::size_type start_pos=pos;
+
                 // Find delims
                 pos = stringBuffer.find_first_of(";,=", pos);
+
+				if(start_pos==pos)
+				{
+					if(pos==stringBuffer.length())
+					{
+						break;
+					}
+					pos++;
+					continue;
+				}
+
                 if (pos != String::npos)
                 {
                     // Check definition part
@@ -81,8 +95,18 @@ namespace Ogre {
                         stringBuffer[pos++] = '\0';
                     }
                 }
-
-                defines.push_back(macro);
+				else
+				{
+					macro.Definition = "1";
+				}
+				if(strlen(macro.Name)>0)
+				{
+					defines.push_back(macro);
+				}
+				else
+				{
+					break;
+				}
             }
 
             // Add NULL terminator

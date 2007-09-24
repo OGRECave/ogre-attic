@@ -1535,7 +1535,7 @@ namespace Ogre {
 			iteration <number> [per_n_lights] <number> [light type]
         */
         if (testNextTokenID(ID_ONCE))
-            mScriptContext.pass->setIteratePerLight(false);
+            mScriptContext.pass->setIteratePerLight(false, false);
         else if (testNextTokenID(ID_ONCE_PER_LIGHT))
         {
             getNextToken();

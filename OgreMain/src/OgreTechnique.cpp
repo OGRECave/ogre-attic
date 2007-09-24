@@ -959,6 +959,7 @@ namespace Ogre {
 							newPass->setSpecular(ColourValue::Black);
 							newPass->setSelfIllumination(ColourValue::Black);
 							newPass->setLightingEnabled(false);
+							newPass->setIteratePerLight(false, false);
 							// modulate
 							newPass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
 

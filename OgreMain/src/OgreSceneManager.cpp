@@ -2803,7 +2803,11 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 							LightList::const_iterator copyStart = rendLightList.begin();
 							std::advance(copyStart, pass->getStartLight());
 							LightList::const_iterator copyEnd = copyStart;
-							std::advance(copyEnd, pass->getMaxSimultaneousLights());
+							// Clamp lights to copy to avoid overrunning the end of the list
+							size_t lightsToCopy = std::min(
+								static_cast<size_t>(pass->getMaxSimultaneousLights()), 
+								rendLightList.size() - pass->getStartLight());
+							std::advance(copyEnd, lightsToCopy);
 							localLightList.insert(localLightList.begin(), 
 								copyStart, copyEnd);
 							pLightListToUse = &localLightList;
@@ -2904,61 +2908,83 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 		}
 		else // no automatic light processing
 		{
-			// Do we need to update GPU program parameters?
-			if (pass->isProgrammable())
+			// Even if manually driving lights, check light type passes
+			bool skipBecauseOfLightType = false;
+			if (pass->getRunOnlyForOneLightType())
 			{
-				// Do we have a manual light list?
-				if (manualLightList)
+				if (!manualLightList ||
+					(manualLightList->size() == 1 && 
+					manualLightList->at(0)->getType() != pass->getOnlyLightType())) 
 				{
-					// Update any automatic gpu params for lights
-					mAutoParamDataSource->setCurrentLightList(manualLightList);
-					pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
-				}
-
-				if (pass->hasVertexProgram())
-				{
-					mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
-						pass->getVertexProgramParameters());
-				}
-				if (pass->hasFragmentProgram())
-				{
-					mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
-						pass->getFragmentProgramParameters());
+					skipBecauseOfLightType = true;
 				}
 			}
 
-			// Use manual lights if present, and not using vertex programs that don't use fixed pipeline
-			if (manualLightList && 
-				pass->getLightingEnabled() && passSurfaceAndLightParams)
+			if (!skipBecauseOfLightType)
 			{
-				mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
-			}
+				// Do we need to update GPU program parameters?
+				if (pass->isProgrammable())
+				{
+					// Do we have a manual light list?
+					if (manualLightList)
+					{
+						// Update any automatic gpu params for lights
+						mAutoParamDataSource->setCurrentLightList(manualLightList);
+						pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
+					}
 
-			// optional light scissoring
-			ClipResult scissored = CLIPPED_NONE;
-			ClipResult clipped = CLIPPED_NONE;
-			if (lightScissoringClipping && manualLightList && pass->getLightScissoringEnabled())
-			{
-				scissored = buildAndSetScissor(*manualLightList, mCameraInProgress);
-			}
-			if (lightScissoringClipping && manualLightList && pass->getLightClipPlanesEnabled())
-			{
-				clipped = buildAndSetLightClip(*manualLightList);
-			}
+					if (pass->hasVertexProgram())
+					{
+						mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+							pass->getVertexProgramParameters());
+					}
+					if (pass->hasFragmentProgram())
+					{
+						mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+							pass->getFragmentProgramParameters());
+					}
+				}
 
-			// don't bother rendering if clipped / scissored entirely
-			if (scissored != CLIPPED_ALL && clipped != CLIPPED_ALL)
-			{
-				// issue the render op		
-				// nfz: set up multipass rendering
-				mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
-				mDestRenderSystem->_render(ro);
-			}
+				// Use manual lights if present, and not using vertex programs that don't use fixed pipeline
+				if (manualLightList && 
+					pass->getLightingEnabled() && passSurfaceAndLightParams)
+				{
+					mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
+				}
 
-			if (scissored == CLIPPED_SOME)
-				resetScissor();
-			if (clipped == CLIPPED_SOME)
-				resetLightClip();
+				// Use manual lights if present, and not using vertex programs that don't use fixed pipeline
+				if (manualLightList && 
+					pass->getLightingEnabled() && passSurfaceAndLightParams)
+				{
+					mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
+				}
+	
+				// optional light scissoring
+				ClipResult scissored = CLIPPED_NONE;
+				ClipResult clipped = CLIPPED_NONE;
+				if (lightScissoringClipping && manualLightList && pass->getLightScissoringEnabled())
+				{
+					scissored = buildAndSetScissor(*manualLightList, mCameraInProgress);
+				}
+				if (lightScissoringClipping && manualLightList && pass->getLightClipPlanesEnabled())
+				{
+					clipped = buildAndSetLightClip(*manualLightList);
+				}
+	
+				// don't bother rendering if clipped / scissored entirely
+				if (scissored != CLIPPED_ALL && clipped != CLIPPED_ALL)
+				{
+					// issue the render op		
+					// nfz: set up multipass rendering
+					mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
+					mDestRenderSystem->_render(ro);
+				}
+				if (scissored == CLIPPED_SOME)
+					resetScissor();
+				if (clipped == CLIPPED_SOME)
+					resetLightClip();
+				
+			} // !skipBecauseOfLightType
 		}
 
 	}
