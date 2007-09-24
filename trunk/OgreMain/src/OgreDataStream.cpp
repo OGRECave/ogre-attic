@@ -571,7 +571,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     size_t FileHandleDataStream::read(void* buf, size_t count)
     {
-        return fread(buf, count, 1, mFileHandle);
+        return fread(buf, 1, count, mFileHandle);
     }
     //-----------------------------------------------------------------------
     void FileHandleDataStream::skip(long count)

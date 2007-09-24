@@ -243,6 +243,16 @@ namespace Ogre
 			// clip bodyB with sceneBB
 			mBodyB.clip(sceneBB);
 
+			// Also clip based on shadow far distance if appropriate
+			Real farDist = sm.getShadowFarDistance();
+			if (farDist)
+			{
+				Vector3 pointOnPlane = cam.getDerivedPosition() + 
+					(cam.getDerivedDirection() * farDist);
+				Plane p(cam.getDerivedDirection(), pointOnPlane);
+				mBodyB.clip(p);
+			}
+
 			// Extrude the intersection bodyB into the inverted light direction and store 
 			// the info in the point list.
 			// The sceneBB holds the maximum extent of the extrusion.

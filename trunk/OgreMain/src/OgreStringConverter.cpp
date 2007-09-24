@@ -276,7 +276,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned int StringConverter::parseUnsignedInt(const String& val)
     {
-        return static_cast<unsigned int>(strtoul(val.c_str(), 0, 10));
+		// Use istringstream for direct correspondence with toString
+		std::istringstream str(val);
+		unsigned int ret = 0;
+		str >> ret;
+
+		return ret;
     }
     //-----------------------------------------------------------------------
     long StringConverter::parseLong(const String& val)
