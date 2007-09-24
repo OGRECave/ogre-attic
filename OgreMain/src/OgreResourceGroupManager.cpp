@@ -533,6 +533,7 @@ namespace Ogre {
         const String& resourceName, const String& groupName, 
 		bool searchGroupsIfNotFound, Resource* resourceBeingLoaded)
     {
+		OGRE_LOCK_AUTO_MUTEX
 		// Try to find in resource index first
 		ResourceGroup* grp = getResourceGroup(groupName);
 		if (!grp)
@@ -616,6 +617,7 @@ namespace Ogre {
     DataStreamListPtr ResourceGroupManager::openResources(
         const String& pattern, const String& groupName)
     {
+		OGRE_LOCK_AUTO_MUTEX
 		ResourceGroup* grp = getResourceGroup(groupName);
 		if (!grp)
 		{
