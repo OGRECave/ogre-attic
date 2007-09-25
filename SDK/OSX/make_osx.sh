@@ -1,8 +1,9 @@
 #!/bin/bash
 
-OGRE_VERSION="v1.4.4"
+OGRE_VERSION="v1.4.5"
 # Only build for i386, halves the size
 ARCH="i386"
+REMOVE_ARCH="ppc"
 
 # invoke xcode build
 xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Release
@@ -14,16 +15,16 @@ mkdir sdk_contents
 
 # frameworks
 echo Copying frameworks...
-mkdir sdk_contents/Frameworks
+mkdir sdk_contents/Dependencies
 
 # Stuff we've built
-ditto -arch $ARCH ../../Mac/build/Release/Ogre.framework sdk_contents/Frameworks/Ogre.framework
+ditto -arch $ARCH ../../Mac/build/Release/Ogre.framework sdk_contents/Dependencies/Ogre.framework
 
 # dependencies
-ditto -arch $ARCH /Library/Frameworks/Cg.framework sdk_contents/Frameworks/Cg.framework
-ditto -arch $ARCH /Library/Frameworks/CEGUI.framework sdk_contents/Frameworks/CEGUI.framework
+ditto -arch $ARCH ../../Dependencies/Cg.framework sdk_contents/Dependencies/Cg.framework
+ditto -arch $ARCH ../../Dependencies/CEGUI.framework sdk_contents/Dependencies/CEGUI.framework
 # OgreCEGUIrenderer is currently in the precompiled deps, maybe move
-ditto -arch $ARCH /Library/Frameworks/OgreCEGUIRenderer.framework sdk_contents/Frameworks/OgreCEGUIRenderer.framework
+ditto -arch $ARCH ../../Dependencies/OgreCEGUIRenderer.framework sdk_contents/Dependencies/OgreCEGUIRenderer.framework
 
 echo Frameworks copied.
 
@@ -64,18 +65,19 @@ find ../../samples -iname *.h -exec cp \{\} sdk_contents/Samples/include \;
 cp ../../ReferenceApplication/BspCollision/src/*.cpp sdk_contents/Samples/src
 
 # Copy dependencies
-mkdir sdk_contents/Samples/Dependencies
-mkdir sdk_contents/Samples/Dependencies/include
-mkdir sdk_contents/Samples/Dependencies/lib
-#mkdir sdk_contents/Samples/Dependencies/lib/Debug
-mkdir sdk_contents/Samples/Dependencies/lib/Release
-cp -R ../../Dependencies/include/OIS sdk_contents/Samples/Dependencies/include
-#cp ../../Dependencies/lib/Debug/libois.a sdk_contents/Samples/Dependencies/lib/Debug/
-cp ../../Dependencies/lib/Release/libois.a sdk_contents/Samples/Dependencies/lib/Release/
+mkdir sdk_contents/Dependencies/include
+mkdir sdk_contents/Dependencies/lib
+#mkdir sdk_contents/Dependencies/lib/Debug
+mkdir sdk_contents/Dependencies/lib/Release
+cp -R ../../Dependencies/include/OIS sdk_contents/Dependencies/include
+#cp ../../Dependencies/lib/Debug/libois.a sdk_contents/Dependencies/lib/Debug/
+cp ../../Dependencies/lib/Release/libois.a sdk_contents/Dependencies/lib/Release/
 
 # Fix up project references (2 stage rather than in-place since in-place only works for single sed commands)
 sed -f editsamples.sed sdk_contents/Samples/Samples.xcodeproj/project.pbxproj > tmp.xcodeproj
 mv tmp.xcodeproj sdk_contents/Samples/Samples.xcodeproj/project.pbxproj
+# Fix up architecture
+sed -i -e "s/$REMOVE_ARCH,//g" sdk_contents/Samples/Samples.xcodeproj/project.pbxproj
 
 echo Samples copied.
 
