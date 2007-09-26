@@ -232,6 +232,11 @@ namespace Ogre
 		*/
 		virtual TerrainZonePage* getTerrainZonePage( const Vector3 & pt );
 
+		/** Return the TerrainZonePage according to page coordinates
+		If page coordinates are outside of valid range, page 0,0 is returned
+		*/
+		virtual TerrainZonePage* getTerrainZonePage( unsigned short x, unsigned short z);
+
 		/** called when the scene manager creates a camera in order to store the first camera created as the primary
 			one, for determining error metrics and the 'home' terrain page.
 		*/
