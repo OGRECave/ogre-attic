@@ -69,8 +69,8 @@ because the clean up of portals is handled by the scene manager directly.
 Instantiating portals using the C++ 'new' command will result in memory leaks
 and errors if the scene is destroyed and recreated.
 
-To destroy a portal use PCZSceneManager::deletePortal(Portal *p) or 
-PCZSceneManager::deletePortal(String & portalName).
+To destroy a portal use PCZSceneManager::destroyPortal(Portal *p) or 
+PCZSceneManager::destroyPortal(String & portalName).
 
 ***
 

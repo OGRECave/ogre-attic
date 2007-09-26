@@ -92,11 +92,11 @@ namespace Ogre
 
 		/** Delete a portal instance by pointer
 		*/
-		void deletePortal(Portal * p);
+		void destroyPortal(Portal * p);
 
 		/** Delete a portal instance by name
 		*/
-		void deletePortal(String & portalName);
+		void destroyPortal(String & portalName);
 
 		/** Create a zone from a file (type of file
 		  * depends on the zone type
