@@ -4,7 +4,8 @@ Some items are specific, some are not, it's just a list to keep notes for myself
 
 TODO:
 -------------
-* Encapsulate Portal creation in PCZSceneManager function.
+* Add support for multiple cameras
+* Allow portals to connect to the same zone they are in
 * Test function to prevent scenenodes from crossing portals which they won't fit through
 * More testing 
 

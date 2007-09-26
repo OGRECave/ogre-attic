@@ -135,7 +135,7 @@ namespace Ogre
 		}
 	}
 
-	/* Remove a portal from the zone
+	/* Remove a portal from the zone (does not erase the portal object, just removes reference)
 	*/
 	void DefaultZone::_removePortal( Portal * removePortal)
 	{
