@@ -194,7 +194,7 @@ namespace Ogre
 		}
 	}
 
-	/* Remove a portal from the zone
+	/* Remove a portal reference from the zone (does not delete the portal object)
 	*/
 	void OctreeZone::_removePortal( Portal * removePortal)
 	{

@@ -536,6 +536,27 @@ namespace Ogre
         }
     }
     //-------------------------------------------------------------------------
+    TerrainZonePage* TerrainZone::getTerrainZonePage( unsigned short x, unsigned short z)
+    {
+        if (mPagingEnabled)
+        {
+            // TODO
+            return 0;
+        }
+        else
+        {
+            // Single page
+            if (mTerrainZonePages.empty() || mTerrainZonePages[0].empty())
+                return 0;
+			if (x > mOptions.pageSize || z > mOptions.pageSize)
+			{
+				return mTerrainZonePages[0][0];
+			}
+            return mTerrainZonePages[x][z];
+        }
+    }
+
+    //-------------------------------------------------------------------------
     TerrainZoneRenderable * TerrainZone::getTerrainTile( const Vector3 & pt )
     {
 		TerrainZonePage* tp = getTerrainZonePage(pt);

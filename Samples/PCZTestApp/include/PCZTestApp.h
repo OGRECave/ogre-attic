@@ -173,7 +173,7 @@ protected:
 		Portal * p;
 		terrainZone->getAABB(aabb);
 		portalName = Ogre::String("PortalFrom"+zoneName+"ToDefault_Zone");
-		p = new Portal(portalName, Ogre::Portal::PORTAL_TYPE_AABB);
+		p = ((PCZSceneManager*)mSceneMgr)->createPortal(portalName, Ogre::Portal::PORTAL_TYPE_AABB);
 		corners[0] = aabb.getMinimum();
 		corners[1] = aabb.getMaximum();
 		p->setCorner(0, corners[0]);
@@ -189,7 +189,7 @@ protected:
 		// make portal from default to terrain
 		portalName = Ogre::String("PortalFromDefault_ZoneTo"+zoneName);
 		Portal * p2;
-		p2 = new Portal(portalName, Ogre::Portal::PORTAL_TYPE_AABB);
+		p2 = ((PCZSceneManager*)mSceneMgr)->createPortal(portalName, Ogre::Portal::PORTAL_TYPE_AABB);
 		corners[0] = aabb.getMinimum();
 		corners[1] = aabb.getMaximum();
 		p2->setCorner(0, corners[0]);

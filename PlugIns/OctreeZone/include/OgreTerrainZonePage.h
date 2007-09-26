@@ -91,6 +91,17 @@ namespace Ogre {
         */
         TerrainZoneRenderable * getTerrainZoneTile( const Vector3 & pt );
 
+		/** Returns the TerrainZoneRenderable Tile with given index
+		*/
+		TerrainZoneRenderable * getTerrainZoneTile(unsigned short x, unsigned short z)
+		{
+			/* Todo: error checking!  
+			*/
+			//TerrainZoneRenderable * tile = tiles[ 0 ][ 0 ];
+			return tiles[x][z];
+		}
+
+
 		/** Sets the render queue group which the tiles should be rendered in. */
 		void setRenderQueue(uint8 qid);
 
