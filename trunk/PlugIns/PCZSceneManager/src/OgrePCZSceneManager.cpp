@@ -134,7 +134,7 @@ namespace Ogre
 	}
 
 	// delete a portal instance by pointer
-	void PCZSceneManager::deletePortal(Portal * p)
+	void PCZSceneManager::destroyPortal(Portal * p)
 	{
 		// remove the portal from it's target portal
 		Portal * targetPortal = p->getTargetPortal();
@@ -160,7 +160,7 @@ namespace Ogre
 	}
 
 	// delete a portal instance by pointer
-	void PCZSceneManager::deletePortal(String & portalName)
+	void PCZSceneManager::destroyPortal(String & portalName)
 	{
 		// find the portal from the master portal list
 		Portal * p;
