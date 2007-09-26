@@ -25,6 +25,7 @@ README file</p>
 <p class="mainheader" align="left">Getting Started</p>
 
 <p>This distribution contains the precompiled SDK release of OGRE for Mac OS X. Just drag the 'OgreSDK' folder to the location on your drive where you want to install the SDK. Please do drag the entire folder rather than opening it and copying any subfolders, since the internal folder structure is relevant when building the samples.</p>
+<p><b>Important:</b>If you have used a previous version of OGRE, make sure you <i>remove</i> Ogre.framework, CEGUI.Framework, Cg.framework and OgreCEGUIRenderer.framework from your /Library/Frameworks folder or any other 'root' folder. From version 1.4.5, all frameworks are referenced and deployed locally which is much more flexible when dealing with multiple versions, and also reflects how you would want to deploy an end application (see below).</p>
 
 <p class="mainheader" align="left">Building the Samples</p>
 
