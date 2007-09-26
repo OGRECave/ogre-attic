@@ -56,12 +56,7 @@ namespace Ogre
     {
 		// clear list of nodes contained within the zone
 		_clearNodeLists(HOME_NODE_LIST|VISITOR_NODE_LIST);
-		// delete portals
-		PortalList::iterator i = mPortals.begin();
-		for (i = mPortals.begin(); i != mPortals.end(); ++i)
-		{
-			delete *i;
-		}
+		// clear portal list (actual deletion of portals takes place in the PCZSM)
 		mPortals.clear();
     }
 

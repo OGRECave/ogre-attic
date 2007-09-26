@@ -59,14 +59,23 @@ encompassing exterior zone").
 CREATING PORTALS:
 
 Once the user has created a zone (in addition to the default zone), 
-they can create portals to attach two zones together.  To do this, the user 
-just creates a new Portal instance (i.e. newPortal = new Portal) and sets
-the portal corner points, attaches it to a node, and then adds it to the zone
-(see PCZTestApp -> RoomObject.cpp -> createPortals() function).  
+they can create portals to attach two zones together.  
 
-NOTE: In a future revision, I will probably change this so that it is a 
-function call instead of explicit instantiation by the user in order to
-prevent mis-use.
+*** NEW AS OF 9/25/07: 
+
+To create a portal, the user just calls PCZSceneManager::createPortal(). 
+NOTE: The user should NOT just instantiate a portal manually (i.e. portal = new Portal)
+because the clean up of portals is handled by the scene manager directly.
+Instantiating portals using the C++ 'new' command will result in memory leaks
+and errors if the scene is destroyed and recreated.
+
+To destroy a portal use PCZSceneManager::deletePortal(Portal *p) or 
+PCZSceneManager::deletePortal(String & portalName).
+
+***
+
+Then set the portal corner points, attaches it to a node, and then adds it 
+to the zone (see PCZTestApp -> RoomObject.cpp -> createPortals() function).  
 
 NOTE: Portals currently only connect different zones.  The user can't
 connect portals to the same zone yet (i.e. no teleporters).  This functionality

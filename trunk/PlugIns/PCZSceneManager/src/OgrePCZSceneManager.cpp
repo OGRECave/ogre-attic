@@ -61,6 +61,16 @@ namespace Ogre
         // we don't delete the root scene node here because the
         // base scene manager class does that.
 
+		// delete ALL portals
+		Portal * p;
+		PortalList::iterator i = mPortals.begin();
+		for (i = mPortals.begin(); i != mPortals.end(); i++)
+		{
+			p = *i;
+			delete p;
+		}
+		mPortals.clear();
+
 		// delete all the zones
 		for (ZoneMap::iterator j = mZones.begin();
 			j != mZones.end(); ++j)
@@ -83,6 +93,16 @@ namespace Ogre
         if ( mSceneRoot != 0 )
             delete mSceneRoot; 
 
+		// delete ALL portals
+		Portal * p;
+		PortalList::iterator i = mPortals.begin();
+		for (i = mPortals.begin(); i != mPortals.end(); i++)
+		{
+			p = *i;
+			delete p;
+		}
+		mPortals.clear();
+
 		// delete all the zones
 		for (ZoneMap::iterator j = mZones.begin();
 			j != mZones.end(); ++j)
@@ -104,6 +124,79 @@ namespace Ogre
 		mZoneFactoryManager = PCZoneFactoryManager::getSingletonPtr();
 		mDefaultZone = createZoneFromFile(mDefaultZoneTypeName, "Default_Zone", (PCZSceneNode*)mSceneRoot, mDefaultZoneFileName);
     }
+
+	// Create a portal instance
+	Portal* PCZSceneManager::createPortal(const String &name, Ogre::Portal::PORTAL_TYPE type)
+	{
+		Portal* newPortal = new Portal(name, type);
+		mPortals.push_front(newPortal);
+		return newPortal;
+	}
+
+	// delete a portal instance by pointer
+	void PCZSceneManager::deletePortal(Portal * p)
+	{
+		// remove the portal from it's target portal
+		Portal * targetPortal = p->getTargetPortal();
+		if (targetPortal)
+		{
+			targetPortal->setTargetPortal(0); // the targetPortal will still have targetZone value, but targetPortal will be invalid
+		}
+		// remove the Portal from it's home zone
+		PCZone * homeZone = p->getCurrentHomeZone();
+		if (homeZone)
+		{
+			homeZone->_removePortal(p);
+		}
+
+		// remove the portal from the master portal list
+		PortalList::iterator it = std::find( mPortals.begin(), mPortals.end(), p );
+		if (it != mPortals.end())
+		{
+			mPortals.erase(it);
+		}
+		// delete the portal instance
+		delete p;
+	}
+
+	// delete a portal instance by pointer
+	void PCZSceneManager::deletePortal(String & portalName)
+	{
+		// find the portal from the master portal list
+		Portal * p;
+		Portal * thePortal = 0;
+		PortalList::iterator it = mPortals.begin();
+		while (it != mPortals.end())
+		{
+			p = *it;
+			if (p->getName() == portalName)
+			{
+				thePortal = p;
+				// erase entry in the master list
+				mPortals.erase(it);
+				break;
+			}
+			it++;
+		}
+		if (thePortal)
+		{
+			// remove the portal from it's target portal
+			Portal * targetPortal = thePortal->getTargetPortal();
+			if (targetPortal)
+			{
+				targetPortal->setTargetPortal(0); // the targetPortal will still have targetZone value, but targetPortal will be invalid
+			}
+			// remove the Portal from it's home zone
+			PCZone * homeZone = thePortal->getCurrentHomeZone();
+			if (homeZone)
+			{
+				homeZone->_removePortal(thePortal);
+			}
+
+			// delete the portal instance
+			delete thePortal;
+		}
+	}
 
 	/** Create a zone from a file (type of file
 		* depends on the zone type
