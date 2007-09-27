@@ -65,6 +65,8 @@ public:
 	// Default file extension
 	//	const char* GetDefaultFileExt() const;
 
+	virtual void PreExport();
+
 private:
 	// Build meta description object
 	CDDObject* BuildMetaDesc( void );
@@ -76,6 +78,7 @@ private:
 
 	TiXmlDocument* DotSceneFromHierarchy(Ogre::SceneNode* pRootNode);
 	void DotSceneAddNode(Ogre::SceneNode* pNode, TiXmlElement* pElem);
+
 };
 
 DECLARE_EXPORT_OBJECT(CSceneExportObject, "scene", "Scene", IDI_ICON_SCENE)

@@ -142,7 +142,6 @@ bool CSkinnedMeshExportObject::OnCreate(CExporterPropertiesDlg *pPropDialog)
 	std::string sTemp = GetNameFromID(m_pDDConfig->GetInt("NodeID"));
 	sTemp += ".mesh";	
 	RemoveIllegalChars(sTemp);
-//	sTemp = "C:\\" + sTemp;		
 	m_pDDConfig->SetString("FileName", sTemp.c_str());
 
 	// Initialize default mesh options from root
@@ -178,7 +177,7 @@ CDDObject* CSkinnedMeshExportObject::GetEditMeta() const
 	return m_pConfig;
 }*/
 
-CDDObject* CSkinnedMeshExportObject::BuildMetaDesc( void )
+CDDObject* CSkinnedMeshExportObject::BuildDefMetaDesc()
 {
 	CDDObject* pDDMetaDesc = new CDDObject();
 
@@ -348,6 +347,11 @@ CDDObject* CSkinnedMeshExportObject::BuildMetaDesc( void )
 	pDDMetaDesc->SetDDList("MetaList", lSettings, false);
 
 	return pDDMetaDesc;
+}
+
+CDDObject* CSkinnedMeshExportObject::BuildMetaDesc( void )
+{
+	return BuildDefMetaDesc();
 }
 
 //

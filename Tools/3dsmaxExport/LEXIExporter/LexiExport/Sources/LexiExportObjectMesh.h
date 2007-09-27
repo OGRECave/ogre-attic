@@ -67,6 +67,8 @@ public:
 	// IExportObjectMeshSupport implementation
 	CIntermediateMesh* GetIntermediateMesh(void);
 
+	static CDDObject* BuildDefMetaDesc();
+
 private:
 	// Build meta description object
 	CDDObject* BuildMetaDesc( void );

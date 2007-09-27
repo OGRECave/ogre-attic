@@ -227,7 +227,7 @@ void MetaGroup::OnMouseDown(WPARAM wParam, POINT &p)
 {
 	if(p.x<g_iGroupLabelHeight && p.y<g_iGroupLabelHeight)
 	{
-		m_bOpen^=1;	
+		m_bOpen = !m_bOpen;	
 		DoLayout();
 		for(unsigned i=0;i<m_lControls.size();i++)
 			m_lControls[i]->ShowWindow(m_bOpen ? SW_SHOW : SW_HIDE);
@@ -259,7 +259,7 @@ void MetaGroup::SetPosition(int iYPos)
 }
 int	MetaGroup::GetHeight()
 {
-	return m_iHeight;
+	return m_iHeight;//m_bOpen ? m_iHeight : g_iGroupLabelHeight;
 }
 
 HFONT MetaGroup::GetCtrlFont()
@@ -312,4 +312,15 @@ faststring MetaGroup::GetTitle(void)
 	return m_sTitle;
 }
 
+//
+
+void MetaGroup::Expand(bool bExpand)
+{
+	m_bOpen = bExpand;
+	DoLayout();
 }
+
+//
+
+} // namespace GDI
+

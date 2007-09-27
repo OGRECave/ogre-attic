@@ -172,7 +172,7 @@ CDDObject* CNodeAnimationExportObject::BuildMetaDesc()
 	pDDAnimElement->SetString("Group", "Animation");
 	pDDAnimElement->SetString("Caption", "Samplerate");
 	pDDAnimElement->SetString("Help", "Number of samples per second");
-	pDDAnimElement->SetFloat("Default", 30.0f);
+	pDDAnimElement->SetFloat("Default", (float)GetFrameRate());
 	lAnimSettings.push_back(pDDAnimElement);
 
 	pDDAnimElement = new CDDObject();
@@ -285,7 +285,8 @@ bool CNodeAnimationExportObject::Export(CExportProgressDlg* pProgressDlg, bool b
 	unsigned int iEndFrame = m_pDDConfig->GetInt("AnimationEndID", GetAnimEnd() / GetTicksPerFrame());
 	unsigned int iNumFrames = iEndFrame - iStartFrame + 1;
 
-	float fSPS = m_pDDConfig->GetFloat("AnimationSampleRateID", 30.0f);
+	float fSPS = m_pDDConfig->GetFloat("AnimationSampleRateID", (float)GetFrameRate());
+	if(fSPS < 0.0001f) fSPS = 1.0f;
 
 	float fFPS = (float)GetFrameRate();
 

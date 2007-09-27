@@ -166,7 +166,7 @@ CDDObject* CMeshExportObject::GetEditMeta() const
 	return m_pConfig;
 }*/
 
-CDDObject* CMeshExportObject::BuildMetaDesc( void )
+CDDObject* CMeshExportObject::BuildDefMetaDesc()
 {
 	CDDObject* pDDMetaDesc = new CDDObject();
 
@@ -341,6 +341,11 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaDesc->SetDDList("MetaList", lSettings, false);
 
 	return pDDMetaDesc;
+}
+
+CDDObject* CMeshExportObject::BuildMetaDesc( void )
+{
+	return BuildDefMetaDesc();
 }
 
 //
