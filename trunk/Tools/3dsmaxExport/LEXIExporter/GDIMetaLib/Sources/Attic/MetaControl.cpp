@@ -300,6 +300,10 @@ void MetaControl::AddControl(const char *pszID, const CDDObject *pMetaKey)
 	} else if(_stricmp(pszType, "vec4")==0 || _stricmp(pszType, "vector4")==0 || _stricmp(pszType, "quaternion")==0)
 	{
 		pMetaCtrl=new MetaVec4();
+	} else if(_stricmp(pszType, "group") == 0)
+	{
+		bool bExpanded = pMetaKey->GetBool("Expanded", true);
+		pMetaGroup->Expand(bExpanded);
 	}
 
 	// Bail if a new instance was not created
@@ -483,7 +487,7 @@ void MetaControl::UpdateScroll(int iNewHeight, int iContentHeight)
 	}
 	SCROLLINFO sInfo;
 	sInfo.cbSize=sizeof(SCROLLINFO);
-	sInfo.fMask=SIF_RANGE|SIF_POS|SIF_PAGE|SIF_DISABLENOSCROLL;
+	sInfo.fMask=SIF_RANGE|SIF_POS|SIF_PAGE/*|SIF_DISABLENOSCROLL*/;
 	sInfo.nMin=0;
 	sInfo.nPos=m_iYOffset;
 	sInfo.nPage=iNewHeight;
@@ -594,7 +598,7 @@ void MetaControl::DoLayout()
 		lGroups[i]->DoLayout();
 		lGroups[i]->SetPosition(iY);
 		iY+=lGroups[i]->GetHeight();
-	}	
+	}
 
 	int iDelta=m_iContentHeight-iY;
 	m_iContentHeight=iY;

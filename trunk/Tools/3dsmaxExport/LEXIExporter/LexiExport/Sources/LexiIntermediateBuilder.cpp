@@ -78,7 +78,8 @@ void CIntermediateBuilder::SetConfig( CDDObject* pConfig )
 	m_bExportSkeleton = pConfig->GetBool("SkeletonID", false);
 	m_iAnimStart = pConfig->GetInt("AnimationStartID", 0);
 	m_iAnimEnd = pConfig->GetInt("AnimationEndID", 1);
-	m_fSampleRate = pConfig->GetFloat("AnimationSampleRateID", 1.0);
+	m_fSampleRate = pConfig->GetFloat("AnimationSampleRateID", (float)GetFrameRate());
+	if(m_fSampleRate < 0.0001f) m_fSampleRate = 1.0f;
 	m_sAnimationName = pConfig->GetString("AnimationNameID", "Anim1");
 
 	m_iBindingPoseFrame = pConfig->GetInt("SkeletonBindingPoseFrameID", 0);
@@ -98,7 +99,7 @@ void CIntermediateBuilder::SetConfig( CDDObject* pConfig )
 	//	curAnimSetting.m_sAnimName = pCurAnim->GetString("AnimationNameID","NO_NAME");
 	//	curAnimSetting.m_iStartFrame = pCurAnim->GetInt("AnimationStartID",0);
 	//	curAnimSetting.m_iEndFrame = pCurAnim->GetInt("AnimationEndID",100);
-	//	curAnimSetting.m_fSampleRate = pCurAnim->GetFloat("AnimationSampleRateID",1.0);
+	//	curAnimSetting.m_fSampleRate = pCurAnim->GetFloat("AnimationSampleRateID",(float)GetFrameRate());
 	//	curAnimSetting.m_bOptimize = pCurAnim->GetBool("AnimationOptimizeID",true);
 
 

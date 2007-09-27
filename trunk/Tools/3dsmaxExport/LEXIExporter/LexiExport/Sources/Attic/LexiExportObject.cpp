@@ -75,7 +75,7 @@ void CExportObject::Initialize()
 	}
 }
 
-CExportObject* CExportObject::Construct(CDDObject *pConfig)
+CExportObject* CExportObject::Construct(CDDObject* pConfig)
 {
 	const char* pszType=pConfig->GetString("Type");
 	ObjectMap::const_iterator it = m_ObjectMap.find(pszType);
@@ -98,7 +98,7 @@ void CExportObject::EnumObjects(std::vector<Desc>& objlist)
 }
 
 //
-CExportObject::CExportObject(CDDObject *pConfig)
+CExportObject::CExportObject(CDDObject* pConfig)
 {
 	m_pDDConfig=pConfig;
 	m_pDDConfig->AddRef();
@@ -110,10 +110,10 @@ CExportObject::CExportObject(CDDObject *pConfig)
 	m_bEnabled=true;
 
 	// Construct all child exports
-	fastvector<const CDDObject *> lChildren=m_pDDConfig->GetDDList("Children");
+	fastvector<const CDDObject*> lChildren=m_pDDConfig->GetDDList("Children");
 	for(unsigned i=0;i<lChildren.size();i++)
 	{
-		CExportObject *pChild=Construct((CDDObject *)lChildren[i]);
+		CExportObject* pChild=Construct((CDDObject*)lChildren[i]);
 		if(pChild != NULL)
 			pChild->SetParent(this);
 	}
@@ -132,8 +132,14 @@ CDDObject* CExportObject::GetConfig() const
 	return m_pDDConfig;
 }
 
+void CExportObject::SetConfig(const CDDObject* pConfig)
+{
+	if(m_pDDConfig) m_pDDConfig->Release();
+	m_pDDConfig = (CDDObject*)pConfig->Clone();
+}
+
 // Save configuration 
-void CExportObject::SaveConfig(CDDObject *pOutput) const
+void CExportObject::SaveConfig(CDDObject* pOutput) const
 {
 	pOutput->MergeWith(m_pDDConfig);
 
@@ -145,7 +151,7 @@ void CExportObject::SaveConfig(CDDObject *pOutput) const
 
 		for(unsigned i=0;i<m_lChildren.size();i++)
 		{
-			CDDObject *pChildConfig=new CDDObject;
+			CDDObject* pChildConfig=new CDDObject;
 			m_lChildren[i]->SaveConfig(pChildConfig);
 			lChildDD.push_back(pChildConfig);
 		}
@@ -163,7 +169,7 @@ void CExportObject::Release()
 {
 	// Make a copy of list of children
 	// Each child will be removed from m_lChildren list when it is released
-	std::vector<CExportObject *> lCopyList=m_lChildren;
+	std::vector<CExportObject*> lCopyList=m_lChildren;
 	for(unsigned i=0;i<lCopyList.size();i++)
 	{		
 		lCopyList[i]->Release();
@@ -206,7 +212,7 @@ bool CExportObject::GetEnabled() const
 }
 
 // Supports node class. Default implementation just returns false.
-bool CExportObject::SupportsMAXNode(INode *pMAXNode) const
+bool CExportObject::SupportsMAXNode(INode* pMAXNode) const
 {
 	return false;
 }
@@ -225,7 +231,7 @@ unsigned int CExportObject::GetMAXNodeID() const
 
 // Set new parent object. This will automatically add current instance
 // as child on the parent and remove it from the old parent (if available)
-void CExportObject::SetParent(CExportObject *pParent)
+void CExportObject::SetParent(CExportObject* pParent)
 {
 	// Check if we have the same parent
 	if(m_pParent==pParent) return;
@@ -248,13 +254,13 @@ CExportObject* CExportObject::GetParent() const
 }
 
 // Add child to this instance
-void CExportObject::AddChild(CExportObject *pChild)
+void CExportObject::AddChild(CExportObject* pChild)
 {
 	m_lChildren.push_back(pChild);
 }
 
 // Remove child from instance.
-void CExportObject::RemoveChild(CExportObject *pChild)
+void CExportObject::RemoveChild(CExportObject* pChild)
 {
 	for(int i=0;i<m_lChildren.size();i++)
 	{
@@ -279,37 +285,76 @@ bool CExportObject::HasChildren() const
 // Get number of children - optionally recurse to count all subchildren
 unsigned int CExportObject::GetChildCount(bool bRecursive)
 {
-	unsigned int iCount=m_lChildren.size();
+	unsigned int iCount = m_lChildren.size() + m_DefaultChildren.size();
 
 	if(bRecursive)
 	{
-		// Iterate all children and call export on them
-		for(unsigned int i=0;i<m_lChildren.size();i++)
+		for(unsigned int i = 0; i < m_lChildren.size(); i++)
 		{
-			iCount+=m_lChildren[i]->GetChildCount(true);
+			iCount += m_lChildren[i]->GetChildCount(true);
 		}
 	}
+
 	return iCount;
 }
 
 // Export object
-bool CExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
+bool CExportObject::Export(CExportProgressDlg* pProgressDlg, bool bForceAll)
 {
-	bool bOK=true;
+	bool bOK = true;
 	pProgressDlg->GlobalStep();
 
 	// Iterate all children and call export on them
-	for(unsigned int i=0;i<m_lChildren.size();i++)
+	for(unsigned int i = 0; i < m_lChildren.size(); i++)
 	{
 		// Check if user wants to abort current export
-		if(pProgressDlg->CheckAbort()==true) return false;
+		if(pProgressDlg->CheckAbort() == true) return false;
 
 		// Export child object
-		if(!m_lChildren[i]->Export(pProgressDlg, bForceAll))
-			bOK=false;
+		if(!m_lChildren[i]->Export(pProgressDlg, bForceAll)) bOK = false;
 	}
+
+	// Iterate all default children and call export on them
+	for(unsigned int x = 0; x < m_DefaultChildren.size(); x++)
+	{
+		// Check if user wants to abort current export
+		if(pProgressDlg->CheckAbort() == true) return false;
+
+		// Export default object
+		if(!m_DefaultChildren[x]->Export(pProgressDlg, bForceAll)) bOK = false;
+	}
+
 	return bOK;
 }
+
+//
+
+void CExportObject::PreExport()
+{
+	for(unsigned int x = 0; x < m_lChildren.size(); x++)
+	{
+		m_lChildren[x]->PreExport();
+	}
+}
+
+void CExportObject::PostExport()
+{
+	for(unsigned int x = 0; x < m_lChildren.size(); x++)
+	{
+		m_lChildren[x]->PostExport();
+	}
+
+	//
+
+	for(unsigned int x = 0; x < m_DefaultChildren.size(); x++)
+	{
+		CExportObject* pEO = m_DefaultChildren[x];
+		pEO->Release();
+	}
+	m_DefaultChildren.clear();
+}
+
+//
 
 ///////////////////////////////////////////////////////////
 const char* GetNameFromID(unsigned int iID)

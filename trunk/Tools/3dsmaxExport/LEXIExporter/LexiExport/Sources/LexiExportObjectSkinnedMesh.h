@@ -23,8 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __NDS_LexiExporter_ExportObject_Mesh__
-#define __NDS_LexiExporter_ExportObject_Mesh__
+#ifndef __NDS_LexiExporter_ExportObject_SkinnedMesh__
+#define __NDS_LexiExporter_ExportObject_SkinnedMesh__
 
 #include "..\res\resource.h"
 #include "LexiExportSupportTypes.h"
@@ -63,6 +63,8 @@ public:
 	// IExportObjectSkinSupport implementation
 	CIntermediateMesh* GetIntermediateMesh(void);
 
+	static CDDObject* BuildDefMetaDesc();
+
 private:
 	// Build meta description object
 	CDDObject* BuildMetaDesc( void );
@@ -79,4 +81,4 @@ DECLARE_EXPORT_OBJECT(CSkinnedMeshExportObject, "skinnedmesh", "Skinned Mesh", I
 
 //
 
-#endif // __NDS_LexiExporter_ExportObject_Mesh__
+#endif // __NDS_LexiExporter_ExportObject_SkinnedMesh__

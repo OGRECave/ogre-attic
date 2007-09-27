@@ -49,6 +49,7 @@ public:
 	int		GetHeight();
 	HFONT	GetCtrlFont();
 	HFONT	GetCtrlFontBold();
+	void	Expand(bool bExpand);
 
 	faststring	GetTitle(void);
 

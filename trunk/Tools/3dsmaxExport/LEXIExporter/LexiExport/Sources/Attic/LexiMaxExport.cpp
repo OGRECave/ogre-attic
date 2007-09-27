@@ -83,6 +83,11 @@ CDDObject* CExporter::GetRootConfig() const
 	return m_pExportRoot->GetConfig();
 }
 
+CExportObjectRoot* CExporter::GetExportRoot() const
+{
+	return m_pExportRoot;
+}
+
 //
 
 CExporter::CExporter()//CExporterDesc* pDesc)
@@ -418,14 +423,16 @@ void CExporter::ExportItems(bool bForceAll)
 	LOGINFO "Progress created");
 	dlg.ShowWindow(SW_SHOW);
 	LOGINFO "Progress show");
-	unsigned int iCount=m_pExportRoot->GetChildCount(true);
-	iCount++; // Inclusive Root Object
+	m_pExportRoot->PreExport();
+	unsigned int iCount = m_pExportRoot->GetChildCount(true) - 1;
+//	iCount++; // Inclusive Root Object
 	LOGINFO "Counted: %d", iCount);
 	dlg.InitGlobal(iCount);
 	LOGINFO "Progress initglobal");
 
 	LOGINFO "Exporting %i topitem(s)", m_pExportRoot->GetChildren().size());
 	m_pExportRoot->Export(&dlg, bForceAll);
+	m_pExportRoot->PostExport();
 
 //	dlg.MessageBox("Done", NDS_EXPORTER_TITLE, MB_ICONINFORMATION);
 //	dlg.DestroyWindow();

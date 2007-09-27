@@ -111,7 +111,7 @@ bool CBoneAnimExportObject::SupportsParentType(const CExportObject *pParent) con
 	return true;
 
 	// Bone animation requires a mesh parent
-//	if(pParent==NULL || stricmp(pParent->GetType(), "skinnedmesh")!=0) return false;
+//	if(pParent==NULL || stricmp(pParent->GetType(), CSkinnedMeshExportObjectHelper::Type())!=0) return false;
 //	return true;
 }
 
@@ -192,9 +192,9 @@ CDDObject* CBoneAnimExportObject::BuildMetaDesc( void )
 	pDDAnimElement->SetBool("EnableSlider", false);
 	pDDAnimElement->SetString("Group","Bone");
 	pDDAnimElement->SetString("Caption","Samplerate");
-	pDDAnimElement->SetString("Help","Rate at which samples should be done. e.g 2 yields every second frame in max.");
+	pDDAnimElement->SetString("Help","Number of samples per second");
 	pDDAnimElement->SetString("Condition", "$AnimationTypeID=0");
-	pDDAnimElement->SetFloat("Default", 1.0);
+	pDDAnimElement->SetFloat("Default", (float)GetFrameRate());
 	lAnimSettings.push_back(pDDAnimElement);
 
 	AnimContainer->SetDDList("MetaList", lAnimSettings, false);

@@ -1,3 +1,12 @@
+version 1.0.9
+=============
+- Automatic export of meshes contained in a .scene.
+- Fixed so that animation sampling framerates is 'frames per second' instead of a sampling scale relative to Max's animation FPS.
+- Default animation sampling framerates are now same as Max's animation FPS.
+- Bug Fixes:
+	* Missing scrollbar in properties - FIXED
+	* Crash in .scene xml export - FIXED
+
 version 1.0.8
 =============
 - Export of scene (Courtesy: Marty Rabens)

@@ -52,6 +52,9 @@ public:
 	// Singleton
 	static CExporter* Get();
 
+	// Root
+	CExportObjectRoot* GetExportRoot() const;
+
 	// Global settings
 	CDDObject* GetGlobalSettings();
 	CDDObject* GetRootConfig() const;

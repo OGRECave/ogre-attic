@@ -27,8 +27,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "LexiStdAfx.h"
 #include "LexiDialogSceneProperties.h"
+#include "LexiDialogObjectProperties.h"
 #include "LexiIntermediateLight.h"
 #include "LexiExportObjectScene.h"
+#include "LexiExportObjectMesh.h"
+#include "LexiExportObjectSkinnedMesh.h"
 #include "LexiDialogSelectNode.h"
 #include "LexiMaxExport.h"
 #include "tinyxml.h"
@@ -116,8 +119,45 @@ bool CSceneExportObject::OnCreate(CExporterPropertiesDlg* pPropDialog)
 CDDObject* CSceneExportObject::BuildMetaDesc( void )
 {
 	CDDObject* pDDMetaDesc = new CDDObject();
+	fastvector<const CDDObject*> lSettings;
 
-	fastvector< const CDDObject* > lSettings;
+	//
+
+	CDDObject* pDefMeshSettings = CMeshExportObject::BuildDefMetaDesc();
+	const fastvector<const CDDObject*>& defmeshsettings = pDefMeshSettings->GetDDList("MetaList");
+
+	for(unsigned int x = 0; x < defmeshsettings.size(); x++)
+	{
+		CDDObject* pEntry = (CDDObject*)defmeshsettings[x]->Clone();
+		const char* pszGroup = pEntry->GetString("Group");
+		if(!stricmp(pszGroup, "Export Settings")) pEntry->SetString("Group", "Default Mesh Settings");
+		else if(!stricmp(pszGroup, "Resources")) pEntry->SetString("Group", "Default Mesh Settings: Resources");
+		lSettings.push_back(pEntry);
+	}
+
+	pDefMeshSettings->Release();
+
+	//
+
+/*	// Uncomment this entire section to enable default values for "auto" skinned mesh export
+
+	CDDObject* pDefSkinnedMeshSettings = CSkinnedMeshExportObject::BuildDefMetaDesc();
+	const fastvector<const CDDObject*>& defskinnedmeshsettings = pDefSkinnedMeshSettings->GetDDList("MetaList");
+
+	for(unsigned int x = 0; x < defskinnedmeshsettings.size(); x++)
+	{
+		CDDObject* pEntry = (CDDObject*)defskinnedmeshsettings[x]->Clone();
+		const char* pszGroup = pEntry->GetString("Group");
+		if(!stricmp(pszGroup, "Export Settings")) pEntry->SetString("Group", "Default SkinnedMesh Settings");
+		else if(!stricmp(pszGroup, "Resources")) pEntry->SetString("Group", "Default SkinnedMesh Settings: Resources");
+		lSettings.push_back(pEntry);
+	}
+
+	pDefSkinnedMeshSettings->Release();
+
+*/
+
+	//
 
 	pDDMetaDesc->SetDDList("MetaList", lSettings, false);
 
@@ -125,6 +165,94 @@ CDDObject* CSceneExportObject::BuildMetaDesc( void )
 }
 
 //
+
+static void BuildNodeList(unsigned int iNodeID, std::list<unsigned int>& nodelist)
+{
+	INode* pNode = GetNodeFromID(iNodeID);
+	if(!pNode) return;
+
+	SClass_ID nClass = GetClassIDFromNode(pNode);
+	if(nClass == GEOMOBJECT_CLASS_ID)
+	{
+		nodelist.push_back(iNodeID);
+	}
+
+	unsigned int iNodeCount = pNode->NumberOfChildren();
+	for(unsigned int x = 0; x < iNodeCount; x++)
+	{
+		BuildNodeList(pNode->GetChildNode(x)->GetHandle(), nodelist);
+	}
+}
+
+void CSceneExportObject::PreExport()
+{
+	CExportObject::PreExport();
+
+	CDDObject* pConfig = (CDDObject*)GetConfig()->Clone();
+	pConfig->SetBool("referenceShadersID", CExporter::Get()->GetRootConfig()->GetBool("referenceShadersID", true));
+
+	//
+
+	std::list<unsigned int> nodelist;
+	BuildNodeList(GetMAXNodeID(), nodelist);
+
+	CExportObjectRoot* pRoot = CExporter::Get()->GetExportRoot();
+
+	for(std::list<unsigned int>::iterator it = nodelist.begin(); it != nodelist.end(); ++it)
+	{
+		unsigned int iNodeID = *it;
+
+		bool bFound = false;
+
+		const std::vector<CExportObject*>& RootChildren = pRoot->GetChildren();
+		for(unsigned int x = 0; x < RootChildren.size(); x++)
+		{
+			CExportObject* pRootChild = RootChildren[x];
+
+			unsigned int iID = pRootChild->GetMAXNodeID();
+			const char* pszType = pRootChild->GetType();
+
+			if(iID == iNodeID && (!stricmp(pszType, CMeshExportObjectHelper::Type()) || !stricmp(pszType, CSkinnedMeshExportObjectHelper::Type())))
+			{
+				bFound = true;
+				break;
+			}
+		}
+
+		if(!bFound)
+		{
+			CDDObject* pCreateCfg = new CDDObject();
+
+			INode* pMaxNode = GetNodeFromID(iNodeID);
+
+			// Uncomment these two lines and comment the third to enable automatic skinned mesh exporting
+//			if(CIntermediateBuilderSkeleton::QuerySkinModifier(pMaxNode)) pCreateCfg->SetString("Type", CSkinnedMeshExportObjectHelper::Type());
+//			else pCreateCfg->SetString("Type", CMeshExportObjectHelper::Type());
+			pCreateCfg->SetString("Type", CMeshExportObjectHelper::Type());
+
+			std::string sTemp = GetNameFromID(iNodeID);
+			sTemp += ".mesh";	
+			RemoveIllegalChars(sTemp);
+			pConfig->SetString("FileName", sTemp.c_str());
+
+			pConfig->SetInt("NodeID", iNodeID);
+
+			CMeshExportObject* pMesh = (CMeshExportObject*)CExportObject::Construct(pCreateCfg);
+			pMesh->SetConfig(pConfig);
+
+			m_DefaultChildren.push_back(pMesh);
+
+			pCreateCfg->Release();
+		}
+	}
+
+	//
+
+	pConfig->Release();
+}
+
+//
+
 bool CSceneExportObject::Export(CExportProgressDlg* pProgressDlg, bool bForceAll)
 {
 	START_PROFILE("CSceneExportObject::Export()");
@@ -217,10 +345,15 @@ TiXmlDocument* CSceneExportObject::DotSceneFromHierarchy(Ogre::SceneNode* pRootN
 	pElem = pElem->InsertEndChild(TiXmlElement("environment"))->ToElement();
 	pElem = pElem->InsertEndChild(TiXmlElement("colourAmbient"))->ToElement();
 	Point3 col = CExporter::GetMax()->GetAmbient(0, Interval(0,0));
-	pElem->SetDoubleAttribute("r", col.x); pElem->SetDoubleAttribute("g", col.y); pElem->SetDoubleAttribute("b", col.z);
+	pElem->SetDoubleAttribute("r", col.x);
+	pElem->SetDoubleAttribute("g", col.y);
+	pElem->SetDoubleAttribute("b", col.z);
+
 	pElem = pElem->Parent()->ToElement()->InsertEndChild(TiXmlElement("colourBackground"))->ToElement();
 	col = CExporter::GetMax()->GetBackGround(0, Interval(0,0));
-	pElem->SetDoubleAttribute("r", col.x); pElem->SetDoubleAttribute("g", col.y); pElem->SetDoubleAttribute("b", col.z);
+	pElem->SetDoubleAttribute("r", col.x);
+	pElem->SetDoubleAttribute("g", col.y);
+	pElem->SetDoubleAttribute("b", col.z);
 	pElem = pElem->Parent()->Parent()->ToElement();
 
 	pElem = pElem->InsertEndChild(TiXmlElement("nodes"))->ToElement();
@@ -240,15 +373,22 @@ void CSceneExportObject::DotSceneAddNode(Ogre::SceneNode* pNode, TiXmlElement* p
 
 	v = pNode->getPosition();
 	pElem = pNodeElem->InsertEndChild(TiXmlElement("position"))->ToElement();
-	pElem->SetDoubleAttribute("x", v.x); pElem->SetDoubleAttribute("y", v.y); pElem->SetDoubleAttribute("z", v.z);
+	pElem->SetDoubleAttribute("x", v.x);
+	pElem->SetDoubleAttribute("y", v.y);
+	pElem->SetDoubleAttribute("z", v.z);
 
 	q = pNode->getOrientation();
 	pElem = pNodeElem->InsertEndChild(TiXmlElement("rotation"))->ToElement();
-	pElem->SetDoubleAttribute("qx", q.x); pElem->SetDoubleAttribute("qy", q.y); pElem->SetDoubleAttribute("qz", q.z); pElem->SetDoubleAttribute("qw", q.w);
+	pElem->SetDoubleAttribute("qx", q.x);
+	pElem->SetDoubleAttribute("qy", q.y);
+	pElem->SetDoubleAttribute("qz", q.z);
+	pElem->SetDoubleAttribute("qw", q.w);
 
 	v = pNode->getScale();
 	pElem = pNodeElem->InsertEndChild(TiXmlElement("scale"))->ToElement();
-	pElem->SetDoubleAttribute("x", v.x); pElem->SetDoubleAttribute("y", v.y); pElem->SetDoubleAttribute("z", v.z);
+	pElem->SetDoubleAttribute("x", v.x);
+	pElem->SetDoubleAttribute("y", v.y);
+	pElem->SetDoubleAttribute("z", v.z);
 
 	if(pNode->numAttachedObjects() > 0)
 	{
@@ -259,7 +399,7 @@ void CSceneExportObject::DotSceneAddNode(Ogre::SceneNode* pNode, TiXmlElement* p
 			CIntermediateMesh* pIMesh = (CIntermediateMesh*)pObject;
 			pElem = pNodeElem->InsertEndChild(TiXmlElement("entity"))->ToElement();
 			pElem->SetAttribute("name", pIMesh->getName());
-			pElem->SetAttribute("meshFile", ((CIntermediateMesh*)pIMesh->GetBaseInstanceObject())->getName() + ".mesh");
+			pElem->SetAttribute("meshFile", pIMesh->getName() + ".mesh");
 			pElem->SetAttribute("static", (pIMesh->GetSkeleton() == NULL) ? "true" : "false");
 			pElem->SetAttribute("castShadows", pIMesh->GetStringValue("castShadows"));
 		}
