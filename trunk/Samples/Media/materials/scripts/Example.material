@@ -777,7 +777,7 @@ material Examples/GrassBlades
             cull_software none
             texture_unit
             {
-                texture gras_02.png 
+                texture grassWalpha.tga 
             }
         }
     }
@@ -793,7 +793,7 @@ material Examples/GrassBlades
             cull_software none
             texture_unit
             {
-                texture gras_02.png 
+                texture grassWalpha.tga 
             }
         }
     }
