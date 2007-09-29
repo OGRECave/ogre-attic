@@ -302,6 +302,58 @@ Rendering Engine)</p>
 
 
 
+<p class="mainheader" align="left">v1.4.5 [Eihort] (29 September 2007) - Maintenance Release</p>
+<ul>
+	<li>D3D:
+	<ul>
+		<li>Fix checking of capabilities in D3D when selecting non-default device</li>
+		<li>Fix HLSL preprocessor_defines in edge cases such as ending string with a ';' and empty clauses</li>
+	</ul>
+	</li>
+	<li>GL:
+	<ul>
+		<li>Ensure that GL RTTs generate a unique render target name in all cases, don't make it deterministic based on the texture name.  This resolves an issue when if you removed a RTT but did not cause it to be destroyed, then created a new RTT with the same name, the render targets would have the same name and there would be issues with destroying them.</li>
+		<li>Fix isFullScreen reporting in GLXWindow (was using own member variable)</li>
+		
+	</ul>
+	</li>
+	<li>OS X:
+	<ul>
+		<li>Frameworks reorganisation - now we default to embedding all frameworks in the .app to support drag &amp; drop install of applications in the traditional OS X way</li>
+		<li>No longer expect frameworks in /Library/Frameworks, and don't copy Ogre.framework there after building - link dependency
+		frameworks from Dependencies/ now (deps archive reorganised)</li>
+		<li>After building all samples, symlink all frameworks into Foo.app/Contents/Frameworks. This means we don't have to duplicate them but the app is still self-contained. Real apps would genuinely copy of course.</li>
+		<li>Enable stripping on release builds to see if that makes them smaller</li>
+		<li>Fix SDK sample project so it only tries to build the included architecture.</li>
+		<li>Specify a local PCH directory rather than the default shared directory, which causes problems if you use multiple branches of the same project.</li>
+	</ul>
+	</li>
+	<li>Linux:
+	<ul>
+		<li>Fix "make distclean" problems</li>
+	</ul>
+	</li>
+	<li>Fix for random crashing in some cases when using /fp:fast and certain combinations of renderer / debug &amp; release settings</li>
+	<li>Prevent an std::advance overrun in SceneManager::renderSingleObject when using start_light, and max_simultaneous_lights would run off the end of the light list.</li>
+	<li>When using additive stencil shadows, the 'only for light type' pass iteration option was not being respected. Every iteration
+	once_per_light pass was being executed no matter what.</li>
+	<li>Fix problem with light_direction_object_space when using non-uniform scaling.</li>
+	<li>All light_direction_* auto params now have 0 in the w component to make them safe to transform in shaders by 4x4 matrices with translations</li>
+	<li>In focused texture shadow camera setups (e.g. uniform focused or LiSPSM), truncate the scene AABB by the plane formed by the shadow far distance. This allows much tighter focus regions and thus better shadow quality in sprawling scenes.</li>
+	<li>Fix a minor bug where the shadow camera lists were not updated in some variants of destroyCamera</li>
+	<li>Compositor scripts: fix grammar bug that prevented multiple techniques from being defined.</li>
+	<li>Fix to Plane::projectVector in some cases</li>
+	<li>Use std::istringstream in StringConverter::parseUnsignedInt for direct correlation with toString and std::ostringstream outputs.
+	Could cause some problems in other locales with non-symmetric behaviour.</li>
+	<li>Grass demo shader - make grass waving based on UV not absolute Y so people can move the grass if they want</li>
+	<li>Fix segfault when logging a FreeImage error that returns null for FreeImage_GetFormatFromFIF</li>
+	<li>Root::initialisePlugins should iterate in forward order of plugins, not reverse (looks like bad copy &amp; paste from shutdownPlugins)</li>
+	<li>Fix ResourceGroupManager potential deadlock</li>
+	<li>Fix FileHandleDataStream::read, was returning incorrect counts (and is never used in core OGRE, hence why missed)</li>
+	<li>Fixed build when memory manager is turned on (default is off now)</li>
+	<li>Documentation updates</li>
+</ul>
+</p>
 
 
 
