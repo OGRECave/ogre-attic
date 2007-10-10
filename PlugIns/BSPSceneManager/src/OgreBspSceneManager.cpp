@@ -233,8 +233,6 @@ namespace Ogre {
         mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix(true));
         mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrixRS());
 
-		mDestRenderSystem->clearFrameBuffer(FBT_COLOUR | FBT_DEPTH);
-
         // For each material in turn, cache rendering data & render
         MaterialFaceGroupMap::const_iterator mati;
 
