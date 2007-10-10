@@ -203,6 +203,19 @@ namespace Ogre {
         // Movables are now added to the render queue in processVisibleLeaf
         walkTree(cam, &(findIt->second), onlyShadowCasters);
     }
+	//---------------------------------------------------------------------
+	bool BspSceneManager::fireRenderQueueEnded(uint8 id, const String& invocation)
+	{
+		bool repeat = SceneManager::fireRenderQueueEnded(id, invocation);
+		// Trigger level render just after skies
+		// can't trigger on mWorldGeometryRenderQueue because we're not queueing there
+		if (id == RENDER_QUEUE_SKIES_EARLY)
+		{
+			renderStaticGeometry();
+		}
+		return repeat;
+
+	}
     //-----------------------------------------------------------------------
     void BspSceneManager::renderStaticGeometry(void)
     {
@@ -219,6 +232,8 @@ namespace Ogre {
         // Set view / proj
         mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix(true));
         mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrixRS());
+
+		mDestRenderSystem->clearFrameBuffer(FBT_COLOUR | FBT_DEPTH);
 
         // For each material in turn, cache rendering data & render
         MaterialFaceGroupMap::const_iterator mati;
@@ -269,17 +284,6 @@ namespace Ogre {
         }
         */
     }
-    //-----------------------------------------------------------------------
-    void BspSceneManager::_renderVisibleObjects(void)
-    {
-        // Render static level geometry first
-        renderStaticGeometry();
-
-        // Call superclass to render the rest
-        SceneManager::_renderVisibleObjects();
-
-    }
-
     //-----------------------------------------------------------------------
     // REMOVE THIS CRAP
     //-----------------------------------------------------------------------
