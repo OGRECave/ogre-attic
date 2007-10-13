@@ -858,9 +858,14 @@ namespace Ogre {
 
 			StringVector tokens = StringUtil::split(mGLSupport->getGLVersion(), ".");
 
-			mDriverVersion.major = StringConverter::parseInt(tokens[0]);
-			mDriverVersion.minor = StringConverter::parseInt(tokens[1]);
-			mDriverVersion.release = StringConverter::parseInt(tokens[2]); 
+			if (!tokens.empty())
+			{
+				mDriverVersion.major = StringConverter::parseInt(tokens[0]);
+				if (tokens.size() > 1)
+					mDriverVersion.minor = StringConverter::parseInt(tokens[1]);
+				if (tokens.size() > 2)
+					mDriverVersion.release = StringConverter::parseInt(tokens[2]); 
+			}
 			mDriverVersion.build = 0;
 			// Initialise GL after the first window has been created
 			// TODO: fire this from emulation options, and don't duplicate Real and Current capabilities
