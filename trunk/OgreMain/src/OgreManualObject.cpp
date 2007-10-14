@@ -54,7 +54,7 @@ namespace Ogre {
 		  mTempIndexBuffer(0), mTempIndexSize(TEMP_INITIAL_INDEX_SIZE),
 		  mDeclSize(0), mEstVertexCount(0), mEstIndexCount(0), mTexCoordIndex(0), 
 		  mRadius(0), mAnyIndexed(false), mEdgeList(0), 
-		  mUseIdentityProjection(false), mUseIdentityView(false)
+		  mUseIdentityProjection(false), mUseIdentityView(false), mKeepDeclarationOrder(false)
 	{
 	}
 	//-----------------------------------------------------------------------------
@@ -792,6 +792,9 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	void ManualObject::_updateRenderQueue(RenderQueue* queue)
 	{
+		// To be used when order of creation must be kept while rendering
+		unsigned int priority = 0;
+
 		for (SectionList::iterator i = mSectionList.begin(); i != mSectionList.end(); ++i)
 		{
 			// Skip empty sections (only happens if non-empty first, then updated)
@@ -801,9 +804,9 @@ namespace Ogre {
 				continue;
 
 			if (mRenderQueueIDSet)
-				queue->addRenderable(*i, mRenderQueueID);
+				queue->addRenderable(*i, mRenderQueueID, mKeepDeclarationOrder ? priority++ : 0);
 			else
-				queue->addRenderable(*i);
+				queue->addRenderable(*i, queue->getDefaultQueueGroup(), mKeepDeclarationOrder ? priority++ : 0);
 		}
 	}
 	//-----------------------------------------------------------------------------
