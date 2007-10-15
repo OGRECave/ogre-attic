@@ -281,6 +281,7 @@ namespace Ogre {
         mFrames.resize(forUVW ? 1 : 6);
 		// resize pointers, but don't populate until asked for
         mFramePtrs.resize(forUVW ? 1 : 6);
+		mAnimDuration = 0;
         mCurrentFrame = 0;
         mCubic = true;
         mTextureType = forUVW ? TEX_TYPE_CUBE_MAP : TEX_TYPE_2D;

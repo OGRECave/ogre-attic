@@ -25,19 +25,11 @@ README file</p>
 <p class="mainheader" align="left">Getting Started</p>
 
 <p>This distribution contains the precompiled SDK release of OGRE for Mac OS X. Just drag the 'OgreSDK' folder to the location on your drive where you want to install the SDK. Please do drag the entire folder rather than opening it and copying any subfolders, since the internal folder structure is relevant when building the samples.</p>
+<p><b>Important:</b>If you have used a previous version of OGRE, make sure you <i>remove</i> Ogre.framework, CEGUI.Framework, Cg.framework and OgreCEGUIRenderer.framework from your /Library/Frameworks folder or any other 'root' folder. From version 1.4.5, all frameworks are referenced and deployed locally which is much more flexible when dealing with multiple versions, and also reflects how you would want to deploy an end application (see below).</p>
 
 <p class="mainheader" align="left">Building the Samples</p>
 
 <p>After installing the SDK, you can build the samples simply by navigating to the OgreSDK/Samples folder and double-clicking on Samples.xcodeproj. In XCode you can then build all the samples. </p>
-
-<p class="mainheader" align="left">Runtime configuration</p>
-
-<p>In order to run the samples, or to run your own applications based on Ogre, you will need to copy the frameworks in OgreSDK/Frameworks into your framework path. This could be /Library/Frameworks if you have admin access, otherwise put it your local ~/Library/Frameworks and make sure that's on your framework path.</p>
-
-<p class="mainheader" align="left">Building your own applications</p>
-<p>Because of a limitation in XCode, it is not possible to reference different versions of a single framework from a central location, so the best way to organise your builds is to add Ogre.framework to your application and reference it from the SDK location, not from /Library/Frameworks. This is because if you add a different version of Ogre later you still want to be in control of which one your application is building against (at runtime multiple versions can resolve successfully).
-
-You should also add the Ogre.framework/Headers location to your include path, since this avoids needing to use the 'Ogre/' prefix to access the headers.</p>
 
 <p class="mainheader" align="left">Limitations of the SDK</p>
 
@@ -47,7 +39,10 @@ You should also add the Ogre.framework/Headers location to your include path, si
 
 You can build multiple architectures and the debug version by obtaining the source release.
 
+<p class="mainheader" align="left">Deploying your own applications</p>
+<p>In order to conform with standard OS X application behaviour, applications should contain all the dependencies they need inside the .app file in order to be installable via drag & drop. The Samples provided with this SDK cheat here to avoid copying dependencies verbatim into every single sample .app folder - instead we use a Run Script build phase to create a symbolic link in the Fo.app/Contents/Frameworks location which points to each framework in the Dependencies folder. You can do something similar for development but when you distribute a real application, obviously you will need to actually copy the dependencies properly into Foo.app so it can be deployed as a unit.</p>
 
+	
 <p class="mainheader" align="left">Index Of Contents</p>
 
 <p class="newsdate"><a href="ChangeLog.html">What's

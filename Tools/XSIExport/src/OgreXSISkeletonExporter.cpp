@@ -399,18 +399,6 @@ namespace Ogre
 	void XsiSkeletonExporter::createAnimationTracksSampled(Animation* pAnim, 
 		AnimationEntry& animEntry, DeformerMap& deformers, float fps, AxisAlignedBox& AABBPadding)
 	{
-		// Save the current selection
-		CString seltext(mXsiApp.GetSelection().GetAsText());
-
-		// Clear current animation
-		CValueArray args;
-		CValue dummy;
-		mXsiApp.ExecuteCommand(L"SelectAll", args, dummy);
-		mXsiApp.ExecuteCommand(L"RemoveAllAnimation", args, dummy);
-
-		// Reset selection
-		mXsiApp.GetSelection().SetAsText(seltext);
-
 
 		// Create all tracks first
 		std::vector<NodeAnimationTrack*> deformerTracks;

@@ -1342,8 +1342,8 @@ namespace Ogre {
                     "Mesh::suggestTangentVectorBuildParams");
             }
             // Check that we agree with previous decisions, if this is not the
-            // first one
-            if (!firstOne)
+            // first one, and if we're not just using the existing one
+            if (!firstOne && !foundExisting)
             {
                 if (sourceElem->getIndex() != outSourceCoordSet)
                 {

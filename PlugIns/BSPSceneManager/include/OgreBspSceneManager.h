@@ -109,6 +109,8 @@ namespace Ogre {
 		/** @copydoc SceneManager::clearScene */
 		void clearScene(void);
 
+		// Overridden so we can manually render world geometry
+		bool fireRenderQueueEnded(uint8 id, const String& invocation);
 
         typedef std::set<const MovableObject*> MovablesForRendering;
         MovablesForRendering mMovablesForRendering;
@@ -148,9 +150,6 @@ namespace Ogre {
         /** Overriden from SceneManager. */
         void _findVisibleObjects(Camera* cam, VisibleObjectsBoundsInfo* visibleBounds, 
 			bool onlyShadowCasters);
-
-        /** Overriden from SceneManager. */
-        void _renderVisibleObjects(void);
 
         /** Creates a specialized BspSceneNode */
         SceneNode * createSceneNode ( void );
