@@ -366,7 +366,7 @@ namespace Ogre {
         // Sky plane
         Entity* mSkyPlaneEntity;
         Entity* mSkyDomeEntity[5];
-        Entity* mSkyBoxEntity[6];
+        ManualObject* mSkyBoxObj;
 
         SceneNode* mSkyPlaneNode;
         SceneNode* mSkyDomeNode;

@@ -88,6 +88,7 @@ mName(name),
 mRenderQueue(0),
 mCurrentViewport(0),
 mSkyPlaneEntity(0),
+mSkyBoxObj(0),
 mSkyPlaneNode(0),
 mSkyDomeNode(0),
 mSkyBoxNode(0),
@@ -146,12 +147,7 @@ mSuppressShadows(false)
 	mSceneRoot->_notifyRootNode();
 
     // init sky
-    size_t i;
-    for (i = 0; i < 6; ++i)
-    {
-        mSkyBoxEntity[i] = 0;
-    }
-    for (i = 0; i < 5; ++i)
+    for (size_t i = 0; i < 5; ++i)
     {
         mSkyDomeEntity[i] = 0;
     }
@@ -1467,9 +1463,14 @@ void SceneManager::setSkyBox(
         m->setDepthWriteEnabled(false);
         // Ensure loaded
         m->load();
-        // Also clamp texture, don't wrap (otherwise edges can get filtered)
-        m->getBestTechnique()->getPass(0)->getTextureUnitState(0)->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 
+		bool t3d = m->getBestTechnique()->getPass(0)->getTextureUnitState(0)->is3D();
+
+		if (!t3d)
+		{
+			// Also clamp texture, don't wrap (otherwise edges can get filtered)
+			m->getBestTechnique()->getPass(0)->getTextureUnitState(0)->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		}
 
         mSkyBoxDrawFirst = drawFirst;
 
@@ -1483,50 +1484,158 @@ void SceneManager::setSkyBox(
             mSkyBoxNode->detachAllObjects();
         }
 
+		// Create object
+		if (!mSkyBoxObj)
+		{
+			mSkyBoxObj = createManualObject("SkyBox");
+			mSkyBoxObj->setCastShadows(false);
+			mSkyBoxNode->attachObject(mSkyBoxObj);
+		}
+		else
+		{
+			mSkyBoxObj->clear();
+		}
+		
+		mSkyBoxObj->setRenderQueueGroup(mSkyBoxDrawFirst? 
+			RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE);
+
+		if (t3d)
+		{
+			mSkyBoxObj->begin(materialName);
+		}
+
         MaterialManager& matMgr = MaterialManager::getSingleton();
         // Set up the box (6 planes)
         for (int i = 0; i < 6; ++i)
         {
-            MeshPtr planeMesh = createSkyboxPlane((BoxPlane)i, distance, orientation, groupName);
-            String entName = mName + "SkyBoxPlane" + StringConverter::toString(i);
+			Plane plane;
+			String meshName;
+			Vector3 middle;
+			Vector3 up, right;
 
-            // Create entity 
-            if (mSkyBoxEntity[i])
-            {
-                // destroy old one, do it by name for speed
-                destroyEntity(entName);
-            }
-            mSkyBoxEntity[i] = createEntity(entName, planeMesh->getName());
-            mSkyBoxEntity[i]->setCastShadows(false);
-            // Have to create 6 materials, one for each frame
-            // Used to use combined material but now we're using queue we can't split to change frame
-            // This doesn't use much memory because textures aren't duplicated
-            MaterialPtr boxMat = matMgr.getByName(entName);
-            if (boxMat.isNull())
-            {
-                // Create new by clone
-                boxMat = m->clone(entName);
-                boxMat->load();
-            }
-            else
-            {
-                // Copy over existing
-                m->copyDetailsTo(boxMat);
-                boxMat->load();
-            }
-            // Set active frame
-			Material::TechniqueIterator ti = boxMat->getSupportedTechniqueIterator();
-			while (ti.hasMoreElements())
+			switch(i)
 			{
-				Technique* tech = ti.getNext();
-				tech->getPass(0)->getTextureUnitState(0)->setCurrentFrame(i);
+			case BP_FRONT:
+				middle = Vector3(0, 0, -distance);
+				up = Vector3::UNIT_Y * distance;
+				right = Vector3::UNIT_X * distance;
+				break;
+			case BP_BACK:
+				middle = Vector3(0, 0, distance);
+				up = Vector3::UNIT_Y * distance;
+				right = Vector3::NEGATIVE_UNIT_X * distance;
+				break;
+			case BP_LEFT:
+				middle = Vector3(-distance, 0, 0);
+				up = Vector3::UNIT_Y * distance;
+				right = Vector3::NEGATIVE_UNIT_Z * distance;
+				break;
+			case BP_RIGHT:
+				middle = Vector3(distance, 0, 0);
+				up = Vector3::UNIT_Y * distance;
+				right = Vector3::UNIT_Z * distance;
+				break;
+			case BP_UP:
+				middle = Vector3(0, distance, 0);
+				up = Vector3::UNIT_Z * distance;
+				right = Vector3::UNIT_X * distance;
+				break;
+			case BP_DOWN:
+				middle = Vector3(0, -distance, 0);
+				up = Vector3::NEGATIVE_UNIT_Z * distance;
+				right = Vector3::UNIT_X * distance;
+				break;
+			}
+			// Modify by orientation
+			middle = orientation * middle;
+			up = orientation * up;
+			right = orientation * right;
+
+            
+			if (t3d)
+			{
+				// 3D cubic texture 
+				// Note UVs mirrored front/back
+				// I could save a few vertices here by sharing the corners
+				// since 3D coords will function correctly but it's really not worth
+				// making the code more complicated for the sake of 16 verts
+				// top left
+				Vector3 pos;
+				pos = middle + up - right;
+				mSkyBoxObj->position(pos);
+				mSkyBoxObj->textureCoord(pos.normalisedCopy() * Vector3(1,1,-1));
+				// bottom left
+				pos = middle - up - right;
+				mSkyBoxObj->position(pos);
+				mSkyBoxObj->textureCoord(pos.normalisedCopy() * Vector3(1,1,-1));
+				// bottom right
+				pos = middle - up + right;
+				mSkyBoxObj->position(pos);
+				mSkyBoxObj->textureCoord(pos.normalisedCopy() * Vector3(1,1,-1));
+				// top right
+				pos = middle + up + right;
+				mSkyBoxObj->position(pos);
+				mSkyBoxObj->textureCoord(pos.normalisedCopy() * Vector3(1,1,-1));
+
+				uint16 base = i * 4;
+				mSkyBoxObj->quad(base, base+1, base+2, base+3);
+
+			}
+			else // !t3d
+			{
+				// If we're using 6 separate images, have to create 6 materials, one for each frame
+				// Used to use combined material but now we're using queue we can't split to change frame
+				// This doesn't use much memory because textures aren't duplicated
+				String matName = mName + "SkyBoxPlane" + StringConverter::toString(i);
+				MaterialPtr boxMat = matMgr.getByName(matName);
+				if (boxMat.isNull())
+				{
+					// Create new by clone
+					boxMat = m->clone(matName);
+					boxMat->load();
+				}
+				else
+				{
+					// Copy over existing
+					m->copyDetailsTo(boxMat);
+					boxMat->load();
+				}
+				// Set active frame
+				Material::TechniqueIterator ti = boxMat->getSupportedTechniqueIterator();
+				while (ti.hasMoreElements())
+				{
+					Technique* tech = ti.getNext();
+					tech->getPass(0)->getTextureUnitState(0)->setCurrentFrame(i);
+				}
+
+				// section per material
+				mSkyBoxObj->begin(matName);
+				// top left
+				mSkyBoxObj->position(middle + up - right);
+				mSkyBoxObj->textureCoord(0,0);
+				// bottom left
+				mSkyBoxObj->position(middle - up - right);
+				mSkyBoxObj->textureCoord(0,1);
+				// bottom right
+				mSkyBoxObj->position(middle - up + right);
+				mSkyBoxObj->textureCoord(1,1);
+				// top right
+				mSkyBoxObj->position(middle + up + right);
+				mSkyBoxObj->textureCoord(1,0);
+				
+				mSkyBoxObj->quad(0, 1, 2, 3);
+
+				mSkyBoxObj->end();
+
 			}
 
-            mSkyBoxEntity[i]->setMaterialName(boxMat->getName());
-
-            // Attach to node
-            mSkyBoxNode->attachObject(mSkyBoxEntity[i]);
         } // for each plane
+
+		if (t3d)
+		{
+			mSkyBoxObj->end();
+		}
+
 
     }
 	mSkyBoxEnabled = enable;
@@ -3347,19 +3456,12 @@ RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
         getRenderQueue()->addRenderable(mSkyPlaneEntity->getSubEntity(0), qid, OGRE_RENDERABLE_DEFAULT_PRIORITY);
     }
 
-    uint plane;
     if (mSkyBoxEnabled)
     {
-        qid = mSkyBoxDrawFirst? 
-RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
-
-        for (plane = 0; plane < 6; ++plane)
-        {
-            getRenderQueue()->addRenderable(
-                mSkyBoxEntity[plane]->getSubEntity(0), qid, OGRE_RENDERABLE_DEFAULT_PRIORITY);
-        }
+		mSkyBoxObj->_updateRenderQueue(getRenderQueue());
     }
 
+	uint plane;
     if (mSkyDomeEnabled)
     {
         qid = mSkyDomeDrawFirst? 
