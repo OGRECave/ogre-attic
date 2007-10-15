@@ -490,7 +490,7 @@ namespace Ogre {
             and fudge the AutpoParamDataSource to set black lighting for
             passes with vertex programs. 
         */
-        const Pass* deriveShadowCasterPass(const Pass* pass);
+        virtual const Pass* deriveShadowCasterPass(const Pass* pass);
         /** Internal method for turning a regular pass into a shadow receiver pass.
         @remarks
         This is only used for texture shadows, basically we're trying to
@@ -499,7 +499,7 @@ namespace Ogre {
         all fixed function passes, but will merge in a vertex program
         for passes with vertex programs. 
         */
-        const Pass* deriveShadowReceiverPass(const Pass* pass);
+        virtual const Pass* deriveShadowReceiverPass(const Pass* pass);
     
         /** Internal method to validate whether a Pass should be allowed to render.
         @remarks
@@ -507,7 +507,7 @@ namespace Ogre {
             allow the SceneManager to omit it if required. A return value of false
             skips this pass. 
         */
-        bool validatePassForRendering(const Pass* pass);
+        virtual bool validatePassForRendering(const Pass* pass);
 
         /** Internal method to validate whether a Renderable should be allowed to render.
         @remarks
@@ -515,7 +515,7 @@ namespace Ogre {
         allow the SceneManager to omit it if required. A return value of false
         skips it. 
         */
-        bool validateRenderableForRendering(const Pass* pass, const Renderable* rend);
+        virtual bool validateRenderableForRendering(const Pass* pass, const Renderable* rend);
 
         enum BoxPlane
         {
@@ -529,7 +529,7 @@ namespace Ogre {
 
         /* Internal utility method for creating the planes of a skybox.
         */
-        MeshPtr createSkyboxPlane(
+        virtual MeshPtr createSkyboxPlane(
             BoxPlane bp,
             Real distance,
             const Quaternion& orientation,
@@ -537,7 +537,7 @@ namespace Ogre {
 
         /* Internal utility method for creating the planes of a skydome.
         */
-        MeshPtr createSkydomePlane(
+        virtual MeshPtr createSkydomePlane(
             BoxPlane bp,
             Real curvature, Real tiling, Real distance,
             const Quaternion& orientation,
@@ -556,11 +556,11 @@ namespace Ogre {
 
         /** Internal method used by _renderSingleObject to deal with renderables
             which override the camera's own view / projection materices. */
-        void useRenderableViewProjMode(const Renderable* pRend);
+        virtual void useRenderableViewProjMode(const Renderable* pRend);
         
         /** Internal method used by _renderSingleObject to deal with renderables
             which override the camera's own view / projection matrices. */
-        void resetViewProjMode(void);
+        virtual void resetViewProjMode(void);
 
         typedef std::vector<RenderQueueListener*> RenderQueueListenerList;
         RenderQueueListenerList mRenderQueueListeners;
@@ -568,20 +568,20 @@ namespace Ogre {
         typedef std::vector<Listener*> ListenerList;
         ListenerList mListeners;
         /// Internal method for firing the queue start event, returns true if queue is to be skipped
-        bool fireRenderQueueStarted(uint8 id, const String& invocation);
+        virtual bool fireRenderQueueStarted(uint8 id, const String& invocation);
         /// Internal method for firing the queue end event, returns true if queue is to be repeated
-        bool fireRenderQueueEnded(uint8 id, const String& invocation);
+        virtual bool fireRenderQueueEnded(uint8 id, const String& invocation);
 
 		/// Internal method for firing the texture shadows updated event
-        void fireShadowTexturesUpdated(size_t numberOfShadowTextures);
+        virtual void fireShadowTexturesUpdated(size_t numberOfShadowTextures);
 		/// Internal method for firing the pre caster texture shadows event
-        void fireShadowTexturesPreCaster(Light* light, Camera* camera);
+        virtual void fireShadowTexturesPreCaster(Light* light, Camera* camera);
 		/// Internal method for firing the pre receiver texture shadows event
-        void fireShadowTexturesPreReceiver(Light* light, Frustum* f);
+        virtual void fireShadowTexturesPreReceiver(Light* light, Frustum* f);
 		/// Internal method for firing find visible objects event
-		void firePreFindVisibleObjects(Viewport* v);
+		virtual void firePreFindVisibleObjects(Viewport* v);
 		/// Internal method for firing find visible objects event
-		void firePostFindVisibleObjects(Viewport* v);
+		virtual void firePostFindVisibleObjects(Viewport* v);
         /** Internal method for setting the destination viewport for the next render. */
         virtual void setViewport(Viewport *vp);
 

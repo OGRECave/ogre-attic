@@ -254,7 +254,6 @@
 		0053F5480BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
 		0053F5490BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
 		0053F54A0BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0062EE290B4ACACE0076F733 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
 		0062EE2B0B4ACACE0076F733 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
 		0062EE2D0B4ACACE0076F733 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
 		0062EE2F0B4ACACE0076F733 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
@@ -270,7 +269,8 @@
 		00ABEEE60B4F7A4E0059129A /* GreenSkin.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 00ABEEE30B4F7A4E0059129A /* GreenSkin.jpg */; };
 		00ABEEE70B4F7A4E0059129A /* spheremap.png in Resources */ = {isa = PBXBuildFile; fileRef = 00ABEEE40B4F7A4E0059129A /* spheremap.png */; };
 		00ABEF030B4F7C660059129A /* WeirdEye.png in Resources */ = {isa = PBXBuildFile; fileRef = 00ABEF020B4F7C660059129A /* WeirdEye.png */; };
-		AAD4E96D0C80C67000AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
+		AA215F5C0CA9BEAF006DBEA2 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
+		AA215F650CA9BED3006DBEA2 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
 		AAD4E9980C80C82600AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
 		AAD4E9990C80C82800AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
 		AAD4E99B0C80C83E00AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
@@ -654,7 +654,7 @@
 		0053F52E0BB5908100328359 /* libois.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libois.a; path = ../../Dependencies/lib/Release/libois.a; sourceTree = SOURCE_ROOT; };
 		0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OgreCEGUIRenderer.framework; path = ../../Dependencies/OgreCEGUIRenderer.framework; sourceTree = SOURCE_ROOT; };
 		0062EE270B4ACACE0076F733 /* CEGUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CEGUI.framework; path = ../../Dependencies/CEGUI.framework; sourceTree = SOURCE_ROOT; };
-		00ABEB520B4D8A980059129A /* OgreCustomNib.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = OgreCustomNib.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		00ABEB520B4D8A980059129A /* OgreCustomNib.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OgreCustomNib.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00ABEB540B4D8A990059129A /* OgreCustomNib-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "OgreCustomNib-Info.plist"; path = "plist/OgreCustomNib-Info.plist"; sourceTree = "<group>"; };
 		00ABEB6B0B4D913B0059129A /* OgreController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreController.h; path = cocoa/OgreController.h; sourceTree = "<group>"; };
 		00ABEB6C0B4D913B0059129A /* OgreController.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = OgreController.mm; path = cocoa/OgreController.mm; sourceTree = "<group>"; };
@@ -723,9 +723,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E273C0B39A09D004EA2DF /* Ogre.framework in Frameworks */,
-				0062EE290B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
 				0053F5320BB5908100328359 /* libois.a in Frameworks */,
-				AAD4E96D0C80C67000AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA215F5C0CA9BEAF006DBEA2 /* CEGUI.framework in Frameworks */,
+				AA215F650CA9BED3006DBEA2 /* OgreCEGUIRenderer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3404,6 +3404,7 @@
 					i386,
 				);
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = ../../Dependencies;
 				HEADER_SEARCH_PATHS = (
 					"../../OgreMain/include/**",
 					../../Dependencies/include,
@@ -3422,6 +3423,7 @@
 					i386,
 				);
 				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = ../../Dependencies;
 				HEADER_SEARCH_PATHS = (
 					"../../OgreMain/include/**",
 					../../Dependencies/include,
@@ -3618,9 +3620,10 @@
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -3659,9 +3662,10 @@
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies\"";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;

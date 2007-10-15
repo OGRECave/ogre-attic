@@ -103,7 +103,8 @@ namespace Ogre {
                 "Unable to load world geometry. Invalid extension (must be .bsp).",
                 "BspSceneManager::setWorldGeometry");
 
-        strcpy(extension, filename.substr(pos + 1, filename.length() - pos).c_str());
+        strncpy(extension, filename.substr(pos + 1, filename.length() - pos).c_str(), 5);
+		extension[5] = 0;
 
         if (stricmp(extension, "bsp"))
             OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
@@ -203,6 +204,19 @@ namespace Ogre {
         // Movables are now added to the render queue in processVisibleLeaf
         walkTree(cam, &(findIt->second), onlyShadowCasters);
     }
+	//---------------------------------------------------------------------
+	bool BspSceneManager::fireRenderQueueEnded(uint8 id, const String& invocation)
+	{
+		bool repeat = SceneManager::fireRenderQueueEnded(id, invocation);
+		// Trigger level render just after skies
+		// can't trigger on mWorldGeometryRenderQueue because we're not queueing there
+		if (id == RENDER_QUEUE_SKIES_EARLY)
+		{
+			renderStaticGeometry();
+		}
+		return repeat;
+
+	}
     //-----------------------------------------------------------------------
     void BspSceneManager::renderStaticGeometry(void)
     {
@@ -269,17 +283,6 @@ namespace Ogre {
         }
         */
     }
-    //-----------------------------------------------------------------------
-    void BspSceneManager::_renderVisibleObjects(void)
-    {
-        // Render static level geometry first
-        renderStaticGeometry();
-
-        // Call superclass to render the rest
-        SceneManager::_renderVisibleObjects();
-
-    }
-
     //-----------------------------------------------------------------------
     // REMOVE THIS CRAP
     //-----------------------------------------------------------------------
