@@ -165,6 +165,9 @@ namespace Ogre {
         // ..particle system manager
         mParticleManager = new ParticleSystemManager();
 
+		// Compiler manager
+		mCompilerManager = new ScriptCompilerManager();
+
         mTimer = new Timer();
 
         // Overlay manager
@@ -271,6 +274,7 @@ namespace Ogre {
         delete mSkeletonManager;
         delete mMeshManager;
         delete mParticleManager;
+		delete mCompilerManager;
 
         if( mControllerManager )
             delete mControllerManager;

@@ -35,6 +35,14 @@ Torus Knot Software Ltd.
 #include "OgrePass.h"
 #include "OgreGpuProgramManager.h"
 #include "OgreHighLevelGpuProgramManager.h"
+#include "OgreParticleSystemManager.h"
+#include "OgreParticleSystemRenderer.h"
+#include "OgreParticleEmitter.h"
+#include "OgreParticleAffector.h"
+#include "OgreCompositorManager.h"
+#include "OgreCompositionTechnique.h"
+#include "OgreCompositionTargetPass.h"
+#include "OgreLogManager.h"
 
 namespace Ogre{
 
@@ -44,7 +52,7 @@ namespace Ogre{
 		return ScriptNodeListPtr();
 	}
 
-	void ScriptCompiler::Listener::preParse(Ogre::WordIDMap &ids)
+	void ScriptCompiler::Listener::preParse(Ogre::WordIDMap &ids, ObjectIDSet &obj)
 	{
 
 	}
@@ -76,6 +84,24 @@ namespace Ogre{
 	HighLevelGpuProgram *ScriptCompiler::Listener::getHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source)
 	{
 		return (HighLevelGpuProgram*)HighLevelGpuProgramManager::getSingleton().createProgram(name, group, language, type).get();
+	}
+
+	void ScriptCompiler::Listener::getGpuProgramName(String &name)
+	{
+	}
+
+	ParticleSystem *ScriptCompiler::Listener::getParticleSystem(const String &name, const String &group)
+	{
+		return (ParticleSystem*)ParticleSystemManager::getSingleton().createTemplate(name, group);
+	}
+
+	void ScriptCompiler::Listener::getMaterialName(String &name)
+	{
+	}
+	
+	Compositor *ScriptCompiler::Listener::getCompositor(const String &name, const String &group)
+	{
+		return (Compositor*)CompositorManager::getSingleton().create(name, group).get();
 	}
 
 	void ScriptCompiler::Listener::getTextures(String *names, int count)
@@ -267,10 +293,57 @@ namespace Ogre{
 		ID_CONTENT_TYPE,
 			ID_NAMED,
 			ID_SHADOW,
+
+		ID_PARTICLE_SYSTEM,
+		ID_EMITTER,
+		ID_AFFECTOR,
+
+		ID_COMPOSITOR,
+			ID_TARGET,
+			ID_TARGET_OUTPUT,
+
+			ID_INPUT,
+				ID_PREVIOUS,
+				ID_TARGET_WIDTH,
+				ID_TARGET_HEIGHT,
+			ID_ONLY_INITIAL,
+			ID_VISIBILITY_MASK,
+			ID_LOD_BIAS,
+			ID_MATERIAL_SCHEME,
+
+			ID_CLEAR,
+			ID_STENCIL,
+			ID_RENDER_SCENE,
+			ID_RENDER_QUAD,
+			ID_IDENTIFIER,
+			ID_FIRST_RENDER_QUEUE,
+			ID_LAST_RENDER_QUEUE,
+
+			ID_BUFFERS,
+				ID_COLOUR,
+				ID_DEPTH,
+			ID_COLOUR_VALUE,
+			ID_DEPTH_VALUE,
+			ID_STENCIL_VALUE,
+
+			ID_CHECK,
+			ID_COMP_FUNC,
+			ID_REF_VALUE,
+			ID_MASK,
+			ID_FAIL_OP,
+				ID_KEEP,
+				ID_INCREMENT,
+				ID_DECREMENT,
+				ID_INCREMENT_WRAP,
+				ID_DECREMENT_WRAP,
+				ID_INVERT,
+			ID_DEPTH_FAIL_OP,
+			ID_PASS_OP,
+			ID_TWO_SIDED
 	};
 
 	ScriptCompiler::ScriptCompiler()
-		:mAllowNontypedObjects(false), mListener(0)
+		:mListener(0), mMaterial(0), mSystem(0), mCompositor(0)
 	{
 		mWordIDs["on"] = ID_ON;
 		mWordIDs["off"] = ID_OFF;
@@ -280,6 +353,19 @@ namespace Ogre{
 		mWordIDs["no"] = ID_NO;
 
 		// Material ids
+		mObjectIDs.insert("material");
+		mObjectIDs.insert("vertex_program");
+		mObjectIDs.insert("fragment_program");
+		mObjectIDs.insert("default_params");
+		mObjectIDs.insert("technique");
+		mObjectIDs.insert("pass");
+		mObjectIDs.insert("texture_unit");
+		mObjectIDs.insert("vertex_program_ref");
+		mObjectIDs.insert("fragment_program_ref");
+		mObjectIDs.insert("shadow_caster_vertex_program_ref");
+		mObjectIDs.insert("shadow_receiver_vertex_program_ref");
+		mObjectIDs.insert("shadow_receiver_fragment_program_ref");
+
 		mWordIDs["material"] = ID_MATERIAL;
 		mWordIDs["vertex_program"] = ID_VERTEX_PROGRAM;
 		mWordIDs["fragment_program"] = ID_FRAGMENT_PROGRAM;
@@ -456,6 +542,66 @@ namespace Ogre{
 		mWordIDs["content_type"] = ID_CONTENT_TYPE;
 			mWordIDs["named"] = ID_NAMED;
 			mWordIDs["shadow"] = ID_SHADOW;
+
+		// Particle system
+		mObjectIDs.insert("particle_system");
+		mObjectIDs.insert("emitter");
+		mObjectIDs.insert("affector");
+
+		mWordIDs["particle_system"] = ID_PARTICLE_SYSTEM;
+		mWordIDs["emitter"] = ID_EMITTER;
+		mWordIDs["affector"] = ID_AFFECTOR;
+
+		// Compositor
+		mObjectIDs.insert("compositor");
+		mObjectIDs.insert("target");
+		mObjectIDs.insert("target_output");
+		mObjectIDs.insert("clear");
+		mObjectIDs.insert("stencil");
+
+		mWordIDs["compositor"] = ID_COMPOSITOR;
+		mWordIDs["target"] = ID_TARGET;
+		mWordIDs["target_output"] = ID_TARGET_OUTPUT;
+
+		mWordIDs["input"] = ID_INPUT;
+			mWordIDs["none"] = ID_NONE;
+			mWordIDs["previous"] = ID_PREVIOUS;
+			mWordIDs["target_width"] = ID_TARGET_WIDTH;
+			mWordIDs["target_height"] = ID_TARGET_HEIGHT;
+		mWordIDs["only_initial"] = ID_ONLY_INITIAL;
+		mWordIDs["visibility_mask"] = ID_VISIBILITY_MASK;
+		mWordIDs["lod_bias"] = ID_LOD_BIAS;
+		mWordIDs["material_scheme"] = ID_MATERIAL_SCHEME;
+
+		mWordIDs["clear"] = ID_CLEAR;
+		mWordIDs["stencil"] = ID_STENCIL;
+		mWordIDs["render_scene"] = ID_RENDER_SCENE;
+		mWordIDs["render_quad"] = ID_RENDER_QUAD;
+		mWordIDs["identifier"] = ID_IDENTIFIER;
+		mWordIDs["first_render_queue"] = ID_FIRST_RENDER_QUEUE;
+		mWordIDs["last_render_queue"] = ID_LAST_RENDER_QUEUE;
+
+		mWordIDs["buffers"] = ID_BUFFERS;
+			mWordIDs["colour"] = ID_COLOUR;
+			mWordIDs["depth"] = ID_DEPTH;
+		mWordIDs["colour_value"] = ID_COLOUR_VALUE;
+		mWordIDs["depth_value"] = ID_DEPTH_VALUE;
+		mWordIDs["stencil_value"] = ID_STENCIL_VALUE;
+
+		mWordIDs["check"] = ID_CHECK;
+		mWordIDs["comp_func"] = ID_COMP_FUNC;
+		mWordIDs["ref_value"] = ID_REF_VALUE;
+		mWordIDs["mask"] = ID_MASK;
+		mWordIDs["fail_op"] = ID_FAIL_OP;
+			mWordIDs["keep"] = ID_KEEP;
+			mWordIDs["increment"] = ID_INCREMENT;
+			mWordIDs["decrement"] = ID_DECREMENT;
+			mWordIDs["increment_wrap"] = ID_INCREMENT_WRAP;
+			mWordIDs["decrement_wrap"] = ID_DECREMENT_WRAP;
+			mWordIDs["invert"] = ID_INVERT;
+		mWordIDs["depth_fail_op"] = ID_DEPTH_FAIL_OP;
+		mWordIDs["pass_op"] = ID_PASS_OP;
+		mWordIDs["two_sided"] = ID_TWO_SIDED;
 	}
 
 	bool ScriptCompiler::compile(const String &text, const String &group, const String &source)
@@ -464,8 +610,23 @@ namespace Ogre{
 		preParse();
 
 		// Delegate to the other overload of this function
-		return compile(parse(text, source, mWordIDs), group);
+		return compile(parse(text, source, mWordIDs, mObjectIDs), group);
 	}
+
+	/*
+	static void print(ScriptNodeList &nodes, int tab)
+	{
+		String tabstr = "";
+		for(int i = 0; i < tab; ++i)
+			tabstr += "\t";
+		for(ScriptNodeList::iterator i = nodes.begin(); i != nodes.end(); ++i)
+		{
+			String str = tabstr + (*i)->token + " (" + (*i)->file + ")";
+			Ogre::LogManager::getSingleton().logMessage(str);
+			print((*i)->children, tab + 1);
+		}
+	}
+	*/
 
 	bool ScriptCompiler::compile(ScriptNodeListPtr nodes, const String &group)
 	{
@@ -488,6 +649,7 @@ namespace Ogre{
 		processImports(nodes);
 		processObjects(*nodes.get(), nodes);
 		processVariables(*nodes.get(), nodes);
+		//print(*nodes.get(), 0);
 		return compileImpl(nodes);
 	}
 
@@ -528,6 +690,10 @@ namespace Ogre{
 					compileMaterial(*i);
 				else if((*i)->wordID == ID_VERTEX_PROGRAM || (*i)->wordID == ID_FRAGMENT_PROGRAM)
 					compileGpuProgram(*i);
+				else if((*i)->wordID == ID_PARTICLE_SYSTEM)
+					compileParticleSystem(*i);
+				else if((*i)->wordID == ID_COMPOSITOR)
+					compileCompositor(*i);
 				++i;
 			}
 		}
@@ -598,7 +764,7 @@ namespace Ogre{
 				if(var.first)
 				{
 					// 1. parse, 2. inheritance, 3. variables
-					ScriptNodeListPtr newNodes = parse(var.second, (*cur)->file);
+					ScriptNodeListPtr newNodes = parseChunk(var.second, (*cur)->file, mWordIDs);
 					if(!newNodes.isNull() && !newNodes->empty())
 					{
 						processObjects(*newNodes.get(), top);
@@ -626,7 +792,7 @@ namespace Ogre{
 			}
 
 			// Descend into children first
-			if(currentValid && !(*cur)->children.empty())
+			if(currentValid && !(*cur)->children.empty() && (*cur)->token != "abstract")
 				processVariables((*cur)->children, top);
 		}
 	}
@@ -682,8 +848,9 @@ namespace Ogre{
 						findNode(obj->children.begin(), obj->children.end(), SNT_LBRACE);
 					if(braceIter !=  obj->children.end())
 					{
-						brace->children.insert(brace->children.begin(), 
-							(*braceIter)->children.begin(), (*braceIter)->children.end());
+						overlayObject(*braceIter, brace);
+						//brace->children.insert(brace->children.begin(), 
+						//	(*braceIter)->children.begin(), (*braceIter)->children.end());
 					}
 				}
 			}
@@ -802,67 +969,27 @@ namespace Ogre{
 		{
 			if((*i)->isObject)
 			{
-				// If only typed objects are allowed, the first child is the name
-				// Otherwise, search this node and its first child
-				if(mAllowNontypedObjects)
+				if((*i)->token == "abstract")
 				{
-					if((*i)->token == "abstract")
-					{
-						// It could be the first or second child
-						ScriptNodeList::iterator j = (*i)->children.begin();
-						if(j != (*i)->children.end() && (*j)->token == target)
-						{
-							iter = i;
-							break;
-						}
-
+					// We're looking for the second child now
+					ScriptNodeList::iterator j = (*i)->children.begin();
+					if(j != (*i)->children.end())
 						++j;
-						if(j != (*i)->children.end() && (*j)->token == target)
-						{
-							iter = i;
-							break;
-						}
-					}
-					else
+					if(j != (*i)->children.end() && (*j)->token == target)
 					{
-						if((*i)->token == target)
-						{
-							iter = i;
-							break;
-						}
-						else
-						{
-							if(!(*i)->children.empty() && (*(*i)->children.begin())->token == target)
-							{
-								iter = i;
-								break;
-							}
-						}
+						iter = i;
+						break;
 					}
 				}
 				else
 				{
-					if((*i)->token == "abstract")
+					if(!(*i)->children.empty() && (*(*i)->children.begin())->token == target)
 					{
-						// We're looking for the second child now
-						ScriptNodeList::iterator j = (*i)->children.begin();
-						if(j != (*i)->children.end())
-							++j;
-						if(j != (*i)->children.end() && (*j)->token == target)
-						{
-							iter = i;
-							break;
-						}
-					}
-					else
-					{
-						if(!(*i)->children.empty() && (*(*i)->children.begin())->token == target)
-						{
-							iter = i;
-							break;
-						}
+						iter = i;
+						break;
 					}
 				}
+				
 			}
 		}
 
@@ -877,7 +1004,7 @@ namespace Ogre{
 	void ScriptCompiler::preParse()
 	{
 		if(mListener)
-			mListener->preParse(mWordIDs);
+			mListener->preParse(mWordIDs, mObjectIDs);
 	}
 
 	bool ScriptCompiler::errorRaised(const ErrorPtr &err)
@@ -892,32 +1019,103 @@ namespace Ogre{
 		{
 			if((*i)->isObject)
 			{
-				// If only typed objects are allowed, the first child is the name
-				// Otherwise, search this node and its first child
-				if(mAllowNontypedObjects)
+				if(!(*i)->children.empty() && (*(*i)->children.begin())->token == name)
 				{
-					if((*i)->token == name)
-					{
-						return true;
-					}
-					else
-					{
-						if(!(*i)->children.empty() && (*(*i)->children.begin())->token == name)
-						{
-							return true;
-						}
-					}
-				}
-				else
-				{
-					if(!(*i)->children.empty() && (*(*i)->children.begin())->token == name)
-					{
-						return true;
-					}
+					return true;
 				}
 			}
 		}
 		return false;
+	}
+
+	void ScriptCompiler::overlayObject(const ScriptNodePtr &source, ScriptNodePtr &dest)
+	{
+		ScriptNodeList::iterator insertPos = dest->children.begin();
+		int pos = 0;
+
+		// Iterate through, copying all those that aren't objects, and overlaying those that are
+		for(ScriptNodeList::const_iterator i = source->children.begin(); i != source->children.end(); ++i)
+		{
+			if((*i)->isObject)
+			{
+				if(pos >= 0)
+				{
+					// Attemp to find the pos-th object in the child
+					// Which is of the same type as the current one
+					int n = 0;
+					ScriptNodeList::iterator iter = dest->children.end();
+					for(ScriptNodeList::iterator j = dest->children.begin(); j != dest->children.end(); ++j)
+					{
+						if((*j)->isObject)
+						{
+							if(n == pos)
+							{
+								if((*j)->token == (*i)->token)
+								{
+									iter = j;
+								}
+								break;
+							}
+							else
+								n++;
+						}
+					}
+
+					// If the target node was not found, the pattern of overrides is broken,
+					// which means there is no more overriding allowed in this object definition
+					if(iter != dest->children.end())
+					{
+						// Find the '{' in both source and destination
+						ScriptNodeList::iterator sourceBrace = findNode((*i)->children.begin(), (*i)->children.end(), SNT_LBRACE),
+							destBrace = findNode((*iter)->children.begin(), (*iter)->children.end(), SNT_LBRACE);
+						if(sourceBrace != (*i)->children.end() && destBrace != (*iter)->children.end())
+						{
+							overlayObject(*sourceBrace, *destBrace);
+						}
+					}
+					else
+					{
+						pos = -1;
+					}
+				}
+
+				// If we get into this condition, then we are just copying object definitions into the child
+				if(pos == -1)
+				{
+					dest->children.insert(insertPos, copyNode(*i));
+				}
+				else
+				{
+					pos++;
+				}
+			}
+			else
+			{
+				dest->children.insert(insertPos, copyNode(*i));
+			}
+		}
+	}
+
+	ScriptNodePtr ScriptCompiler::copyNode(const ScriptNodePtr &node)
+	{
+		ScriptNodePtr retval(new ScriptNode());
+		retval->column = node->column;
+		retval->data = node->data;
+		retval->file = node->file;
+		retval->isObject = node->isObject;
+		retval->isProperty = node->isProperty;
+		retval->line = node->line;
+		retval->token = node->token;
+		retval->type = node->type;
+		retval->wordID = node->wordID;
+
+		// Perform the copy operation on the children as well
+		for(ScriptNodeList::iterator i = node->children.begin(); i != node->children.end(); ++i)
+		{
+			retval->children.push_back(copyNode(*i));
+		}
+
+		return retval;
 	}
 
 	ScriptNodePtr ScriptCompiler::getNodeAt(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, int index) const
@@ -951,6 +1149,34 @@ namespace Ogre{
 		for(ScriptNodeList::const_iterator i = from; i != to; ++i)
 		{
 			if((*i)->type == type)
+			{
+				rslt = i;
+				break;
+			}
+		}
+		return rslt;
+	}
+
+	ScriptNodeList::iterator ScriptCompiler::findNode(ScriptNodeList::iterator &from, ScriptNodeList::iterator &to, const String &token) const
+	{
+		ScriptNodeList::iterator rslt = to;
+		for(ScriptNodeList::iterator i = from; i != to; ++i)
+		{
+			if((*i)->token == token)
+			{
+				rslt = i;
+				break;
+			}
+		}
+		return rslt;
+	}
+
+	ScriptNodeList::const_iterator ScriptCompiler::findNode(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &to, const String &token) const
+	{
+		ScriptNodeList::const_iterator rslt = to;
+		for(ScriptNodeList::const_iterator i = from; i != to; ++i)
+		{
+			if((*i)->token == token)
 			{
 				rslt = i;
 				break;
@@ -1427,8 +1653,8 @@ namespace Ogre{
 							isValid = false;
 						}
 						
-						if(isValid)
-							pass->setSeparateSceneBlending(sbt, sbta);
+						//if(isValid)
+							//pass->setSeparateSceneBlending(sbt, sbta);
 					}
 					else if((*j)->children.size() == 4)
 					{
@@ -1459,8 +1685,8 @@ namespace Ogre{
 							addError(CE_INVALIDPROPERTYVALUE, node4->file, node4->line, node4->column);
 							isValid = false;
 						}
-						if(isValid)
-							pass->setSeparateSceneBlending(sbf1, sbf2, sbfa1, sbfa2);
+						//if(isValid)
+							//pass->setSeparateSceneBlending(sbf1, sbf2, sbfa1, sbfa2);
 					}
 					else
 						addError(CE_INVALIDPROPERTYVALUE, (*j)->file, (*j)->line, -1);
@@ -1535,7 +1761,7 @@ namespace Ogre{
 					ScriptNodePtr node1 = getNodeAt((*j)->children.begin(), (*j)->children.end(), 0);
 					if(!node1.isNull() && node1->type == SNT_NUMBER)
 					{
-						pass->setIterationDepthBias(node1->data);
+						//pass->setIterationDepthBias(node1->data);
 					}
 					else
 					{
@@ -1574,12 +1800,14 @@ namespace Ogre{
 				{
 					if(!(*j)->children.empty())
 					{
+						/*
 						bool val;
 						if(getTruthValue((*j)->children.front(), val))
 							pass->setLightScissoringEnabled(val);
 						else
 							addError(CE_INVALIDPROPERTYVALUE, (*j)->children.front()->file,
 							(*j)->children.front()->line, (*j)->children.front()->column);
+						*/
 					}
 					else
 					{
@@ -1590,12 +1818,14 @@ namespace Ogre{
 				{
 					if(!(*j)->children.empty())
 					{
+						/*
 						bool val;
 						if(getTruthValue((*j)->children.front(), val))
 							pass->setLightClipPlanesEnabled(val);
 						else
 							addError(CE_INVALIDPROPERTYVALUE, (*j)->children.front()->file,
 							(*j)->children.front()->line, (*j)->children.front()->column);
+						*/
 					}
 					else
 					{
@@ -1606,6 +1836,7 @@ namespace Ogre{
 				{
 					if(!(*j)->children.empty())
 					{
+						/*
 						ScriptNodeList::iterator k = (*j)->children.begin();
 						switch((*k)->wordID)
 						{
@@ -1621,6 +1852,7 @@ namespace Ogre{
 						default:
 							addError(CE_INVALIDPROPERTYVALUE, (*k)->file, (*k)->line, (*k)->column);
 						}
+						*/
 					}
 					else
 					{
@@ -1681,12 +1913,14 @@ namespace Ogre{
 				{
 					if(!(*j)->children.empty())
 					{
+						/*
 						bool val;
 						if(getTruthValue((*j)->children.front(), val))
 							pass->setNormaliseNormals(val);
 						else
 							addError(CE_INVALIDPROPERTYVALUE, (*j)->children.front()->file,
 							(*j)->children.front()->line, (*j)->children.front()->column);
+						*/
 					}
 					else
 					{
@@ -1763,12 +1997,14 @@ namespace Ogre{
 				{
 					if(!(*j)->children.empty())
 					{
+						/*
 						bool val;
 						if(getTruthValue((*j)->children.front(), val))
 							pass->setPolygonModeOverrideable(val);
 						else
 							addError(CE_INVALIDPROPERTYVALUE, (*j)->children.front()->file,
 							(*j)->children.front()->line, (*j)->children.front()->column);
+						*/
 					}
 					else
 					{
@@ -2148,6 +2384,8 @@ namespace Ogre{
 					{
 						ScriptNodeList::iterator k = (*j)->children.begin();
 						String name = (*k)->token;
+						if(mListener)
+							mListener->getGpuProgramName(name);
 
 						// Next is the '{', somewhere...
 						k = findNode(k, (*j)->children.end(), SNT_LBRACE);
@@ -2195,6 +2433,8 @@ namespace Ogre{
 					{
 						ScriptNodeList::iterator k = (*j)->children.begin();
 						String name = (*k)->token;
+						if(mListener)
+							mListener->getGpuProgramName(name);
 
 						// Next is the '{', somewhere...
 						k = findNode(k, (*j)->children.end(), SNT_LBRACE);
@@ -2242,6 +2482,8 @@ namespace Ogre{
 					{
 						ScriptNodeList::iterator k = (*j)->children.begin();
 						String name = (*k)->token;
+						if(mListener)
+							mListener->getGpuProgramName(name);
 
 						// Next is the '{', somewhere...
 						k = findNode(k, (*j)->children.end(), SNT_LBRACE);
@@ -2289,6 +2531,8 @@ namespace Ogre{
 					{
 						ScriptNodeList::iterator k = (*j)->children.begin();
 						String name = (*k)->token;
+						if(mListener)
+							mListener->getGpuProgramName(name);
 
 						// Next is the '{', somewhere...
 						k = findNode(k, (*j)->children.end(), SNT_LBRACE);
@@ -3425,6 +3669,7 @@ namespace Ogre{
 				GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
 				compileProgramParameters(*paramIter, params);
 			}
+			prog->touch();
 		}catch(...){
 		}
 	}
@@ -3508,6 +3753,7 @@ namespace Ogre{
 				GpuProgramParametersSharedPtr params = prog->getDefaultParameters();
 				compileProgramParameters(*paramIter, params);
 			}
+			prog->touch();
 		}catch(...){
 		}
 	}
@@ -3530,7 +3776,14 @@ namespace Ogre{
 			if(!overrideNode(j, (*i)->children.end()))
 			{
 				// Expect name followed by any number of values. Put the values into 1 string
-				if(!(*j)->children.empty())
+				if((*j)->token == "delegate")
+				{
+					String name = (*j)->children.front()->token;
+					if(mListener)
+							mListener->getGpuProgramName(name);
+					customParameters.push_back(std::make_pair("delegate", name));
+				}
+				else if(!(*j)->children.empty())
 				{
 					ScriptNodeList::iterator k = (*j)->children.begin();
 					String name = (*j)->token, value = (*k)->token;
@@ -3566,6 +3819,7 @@ namespace Ogre{
 			// Set custom parameters
 			for(std::list<std::pair<String,String> >::iterator k = customParameters.begin(); k != customParameters.end(); ++k)
 				prog->setParameter(k->first, k->second);
+			prog->touch();
 		}catch(...){
 		}
 	}
@@ -3759,10 +4013,11 @@ namespace Ogre{
 								// Otherwise we will expect that 3rd parameter
 								if(node3.isNull())
 								{
-									if(def->acType == GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX ||
-										def->acType == GpuProgramParameters::ACT_TEXTURE_WORLDVIEWPROJ_MATRIX ||
-										def->acType == GpuProgramParameters::ACT_SPOTLIGHT_VIEWPROJ_MATRIX ||
-										def->acType == GpuProgramParameters::ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX)
+									if(def->acType == GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX //||
+										//def->acType == GpuProgramParameters::ACT_TEXTURE_WORLDVIEWPROJ_MATRIX ||
+										//def->acType == GpuProgramParameters::ACT_SPOTLIGHT_VIEWPROJ_MATRIX ||
+										//def->acType == GpuProgramParameters::ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX
+										)
 									{
 										if(named)
 											params->setNamedAutoConstant(name, def->acType, 0);
@@ -4136,6 +4391,853 @@ namespace Ogre{
 		return success;
 	}
 
+	void ScriptCompiler::compileParticleSystem(const ScriptNodePtr &node)
+	{
+		// Get the first child, which should be the name
+		if(node->children.empty())
+		{
+			addError(CE_STRINGEXPECTED, node->file, node->line, -1);
+			return;
+		}
+
+		// Get the name
+		String name;
+		ScriptNodeList::iterator i = node->children.begin();
+		while(i != node->children.end() && (*i)->type != SNT_LBRACE)
+		{
+			if(name.empty())
+				name = (*i)->token;
+			else
+				name = name + " " + (*i)->token;
+			++i;
+		}
+
+		// Check for the '{'
+		if(i == node->children.end())
+		{
+			addError(CE_OPENBRACEEXPECTED, node->file, node->line, -1);
+			return;
+		}
+		if((*i)->type != SNT_LBRACE)
+		{
+			addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		// Use the listener to get the particle system object
+		if(mListener)
+			mSystem = mListener->getParticleSystem(name, mGroup);
+		else
+			mSystem = ParticleSystemManager::getSingleton().createTemplate(name, mGroup);
+		if(!mSystem)
+		{
+			addError(CE_OBJECTALLOCATIONERROR, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		mSystem->removeAllEmitters();
+		mSystem->removeAllAffectors();
+
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
+		{
+			if(!overrideNode(j, (*i)->children.end()))
+			{
+				if((*j)->wordID == ID_EMITTER)
+				{
+					compileEmitter(*j);
+				}
+				else if((*j)->wordID == ID_AFFECTOR)
+				{
+					compileAffector(*j);
+				}
+				else if((*j)->wordID == ID_MATERIAL)
+				{
+					String value = getParameterValue((*j)->children.begin(), (*j)->children.end());
+					if(mListener)
+						mListener->getMaterialName(value);
+					if(!mSystem->setParameter("material", value))
+					{
+						if(mSystem->getRenderer())
+						{
+							if(!mSystem->getRenderer()->setParameter("material", value))
+								addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
+						}
+					}
+				}
+				else
+				{
+					// Each property in the particle system has only 1 value associated with it
+					// Construct the parameter values from the children of the property
+					String name = (*j)->token, value = getParameterValue((*j)->children.begin(), (*j)->children.end());
+					if(!mSystem->setParameter(name, value))
+					{
+						if(mSystem->getRenderer())
+						{
+							if(!mSystem->getRenderer()->setParameter(name, value))
+								addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
+						}
+					}
+				}
+				++j;
+			}
+		}
+
+		// Reset the pointer to the system
+		mSystem = 0;
+	}
+
+	void ScriptCompiler::compileEmitter(const ScriptNodePtr &node)
+	{
+		if(node->children.empty() || node->children.front()->type != SNT_WORD)
+			return;
+
+		// Create the emitter based on the first child
+		ParticleEmitter *emitter = 0;
+		String type = node->children.front()->token;
+		try{
+			emitter = mSystem->addEmitter(type);
+		}catch(...){
+			addError(CE_OBJECTALLOCATIONERROR, node->children.front()->file, 
+				node->children.front()->line, node->children.front()->column);
+			return;
+		}
+
+		// Jump ahead now to the '{' as the emitter does not support other parameters in the header
+		ScriptNodeList::iterator i = findNode(node->children.begin(), node->children.end(), SNT_LBRACE);
+		if(i == node->children.end())
+			return;
+
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
+		{
+			if(!overrideNode(j, (*i)->children.end()))
+			{
+				String name = (*j)->token, 
+					value = getParameterValue((*j)->children.begin(), (*j)->children.end());
+				if(!emitter->setParameter(name, value))
+					addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
+				++j;
+			}
+		}
+	}
+
+	void ScriptCompiler::compileAffector(const ScriptNodePtr &node)
+	{
+		if(node->children.empty() || node->children.front()->type != SNT_WORD)
+			return;
+
+		// Create the emitter based on the first child
+		ParticleAffector *affector = 0;
+		String type = node->children.front()->token;
+		try{
+			affector = mSystem->addAffector(type);
+		}catch(...){
+			addError(CE_OBJECTALLOCATIONERROR, node->children.front()->file, 
+				node->children.front()->line, node->children.front()->column);
+			return;
+		}
+
+		// Jump ahead now to the '{' as the emitter does not support other parameters in the header
+		ScriptNodeList::iterator i = findNode(node->children.begin(), node->children.end(), SNT_LBRACE);
+		if(i == node->children.end())
+			return;
+
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
+		{
+			if(!overrideNode(j, (*i)->children.end()))
+			{
+				String name = (*j)->token, 
+					value = getParameterValue((*j)->children.begin(), (*j)->children.end());
+				if(!affector->setParameter(name, value))
+					addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
+				++j;
+			}
+		}
+	}
+
+	String ScriptCompiler::getParameterValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	{
+		String retval;
+		if(i != end)
+		{
+			retval = (*i)->token;
+		}
+
+		++i;
+		while(i != end)
+		{
+			retval = retval + " " + (*i)->token;
+			++i;
+		}
+
+		return retval;
+	}
+
+	void ScriptCompiler::compileCompositor(const ScriptNodePtr &node)
+	{
+		if(node->children.empty())
+		{
+			addError(CE_STRINGEXPECTED, node->file, node->line, -1);
+			return;
+		}
+
+		// Anything up until the '{' is put together to form the compositor name
+		ScriptNodeList::iterator i = node->children.begin();
+		String name = (*i)->token;
+		++i;
+		while(i != node->children.end() && (*i)->type != SNT_LBRACE)
+		{
+			name = name + " " + (*i)->token;
+			++i;
+		}
+
+		// Verify we reached the '{'
+		if(i == node->children.end())
+		{
+			addError(CE_OPENBRACEEXPECTED, node->file, node->line, -1);
+			return;
+		}
+		if((*i)->type != SNT_LBRACE)
+		{
+			addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		if(mListener)
+			mCompositor = mListener->getCompositor(name, mGroup);
+		else
+			mCompositor = (Compositor*)CompositorManager::getSingleton().create(name, mGroup).get();
+
+		if(!mCompositor)
+		{
+			addError(CE_OBJECTALLOCATIONERROR, node->file, node->line, node->column);
+			return;
+		}
+
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
+		{
+			if(!overrideNode(j, (*i)->children.end()))
+			{
+				// Only techniques are supported here
+				if((*j)->wordID == ID_TECHNIQUE)
+				{
+					compileCompositionTechnique(*j);
+				}
+				++j;
+			}
+		}
+
+		mCompositor = 0;
+	}
+
+	void ScriptCompiler::compileCompositionTechnique(const Ogre::ScriptNodePtr &node)
+	{
+		// The technique immediately starts with a '{'
+		if(node->children.empty())
+		{
+			addError(CE_OPENBRACEEXPECTED, node->file, node->line, node->column);
+			return;
+		}
+
+		ScriptNodeList::iterator i = node->children.begin();
+		if((*i)->type != SNT_LBRACE)
+		{
+			addError(CE_OPENBRACEEXPECTED, node->file, node->line, node->column);
+			return;
+		}
+
+		CompositionTechnique *technique = mCompositor->createTechnique();
+
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
+		{
+			if(!overrideNode(j, (*i)->children.end()))
+			{
+				if((*j)->wordID == ID_TEXTURE)
+				{
+					if((*j)->children.size() >= 4)
+					{
+						ScriptNodePtr node1 = getNodeAt((*j)->children.begin(), (*j)->children.end(), 0),
+							node2 = getNodeAt((*j)->children.begin(), (*j)->children.end(), 1),
+							node3 = getNodeAt((*j)->children.begin(), (*j)->children.end(), 2),
+							node4 = getNodeAt((*j)->children.begin(), (*j)->children.end(), 3);
+
+						if(node2->wordID != ID_TARGET_WIDTH && node2->type != SNT_NUMBER)
+						{
+							addError(CE_INVALIDPROPERTYVALUE, node2->file, node2->line, node2->column);
+							goto fail;
+						}
+						if(node3->wordID != ID_TARGET_HEIGHT && node3->type != SNT_NUMBER)
+						{
+							addError(CE_INVALIDPROPERTYVALUE, node3->file, node3->line, node3->column);
+							goto fail;
+						}
+
+						PixelFormat format = PixelUtil::getFormatFromName(node4->token, true);
+						CompositionTechnique::TextureDefinition *def = 
+							technique->createTextureDefinition(node1->token);
+						def->width = node2->wordID == ID_TARGET_WIDTH ? 0 : node2->data;
+						def->height = node3->wordID == ID_TARGET_HEIGHT ? 0 : node3->data;
+						def->formatList.push_back(format);
+					}
+					else
+					{
+						addError(CE_VALUEEXPECTED, (*j)->file, (*j)->line, -1);
+					}
+				}
+				else if((*j)->wordID == ID_TARGET)
+				{
+					compileCompositionTarget(*j, technique);
+				}
+				else if((*j)->wordID == ID_TARGET_OUTPUT)
+				{
+					compileCompositionTargetOutput(*j, technique);
+				}
+fail:
+				++j;
+			}
+		}
+	}
+
+	void ScriptCompiler::compileCompositionTarget(const Ogre::ScriptNodePtr &node, Ogre::CompositionTechnique *technique)
+	{
+		if(node->children.empty())
+		{
+			addError(CE_STRINGEXPECTED, node->file, node->line, -1);
+			return;
+		}
+
+		// Anything up until the '{' is put together to form the compositor name
+		ScriptNodeList::iterator i = node->children.begin();
+		String name = (*i)->token;
+		++i;
+		while(i != node->children.end() && (*i)->type != SNT_LBRACE)
+		{
+			name = name + " " + (*i)->token;
+			++i;
+		}
+
+		// Verify we reached the '{'
+		if(i == node->children.end())
+		{
+			addError(CE_OPENBRACEEXPECTED, node->file, node->line, -1);
+			return;
+		}
+		if((*i)->type != SNT_LBRACE)
+		{
+			addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		// Create the target
+		CompositionTargetPass *target = technique->createTargetPass();
+		target->setOutputName(name);
+
+		compileCompositionTargetOptions((*i)->children.begin(), (*i)->children.end(), target);		
+	}
+
+	void ScriptCompiler::compileCompositionTargetOutput(const Ogre::ScriptNodePtr &node, Ogre::CompositionTechnique *technique)
+	{
+		// The target_output immediately starts with a '{'
+		if(node->children.empty())
+		{
+			addError(CE_OPENBRACEEXPECTED, node->file, node->line, node->column);
+			return;
+		}
+
+		ScriptNodeList::iterator i = node->children.begin();
+		if((*i)->type != SNT_LBRACE)
+		{
+			addError(CE_OPENBRACEEXPECTED, node->file, node->line, node->column);
+			return;
+		}
+
+		compileCompositionTargetOptions((*i)->children.begin(), (*i)->children.end(), technique->getOutputTargetPass());
+	}
+
+	void ScriptCompiler::compileCompositionPass(const Ogre::ScriptNodePtr &node, Ogre::CompositionTargetPass *target)
+	{
+		// The pass starts out with a type
+		if(node->children.empty())
+		{
+			addError(CE_STRINGEXPECTED, node->file, node->line, -1);
+			return;
+		}
+
+		ScriptNodeList::iterator i = node->children.begin();
+		CompositionPass::PassType type;
+		switch((*i)->wordID)
+		{
+		case ID_CLEAR:
+			type = CompositionPass::PT_CLEAR;
+			break;
+		case ID_STENCIL:
+			type = CompositionPass::PT_STENCIL;
+			break;
+		case ID_RENDER_SCENE:
+			type = CompositionPass::PT_RENDERSCENE;
+			break;
+		case ID_RENDER_QUAD:
+			type = CompositionPass::PT_RENDERQUAD;
+			break;
+		default:
+			addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		// Search for the '{'
+		i = findNode(i, node->children.end(), SNT_LBRACE);
+		if(i == node->children.end())
+		{
+			addError(CE_OPENBRACEEXPECTED, node->file, node->line, -1);
+			return;
+		}
+
+		CompositionPass *pass = target->createPass();
+		pass->setType(type);
+
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
+		{
+			if(!overrideNode(j, (*i)->children.end()))
+			{
+				if((*j)->wordID == ID_MATERIAL)
+				{
+					if((*j)->children.empty())
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						goto fail;
+					}
+
+					String name = (*j)->children.front()->token;
+					if(mListener)
+						mListener->getMaterialName(name);
+					pass->setMaterialName(name);
+				}
+				else if((*j)->wordID == ID_INPUT)
+				{
+					if((*j)->children.size() >= 2)
+					{
+						ScriptNodePtr node1 = getNodeAt((*j)->children.begin(), (*j)->children.end(), 0),
+							node2 = getNodeAt((*j)->children.begin(), (*j)->children.end(), 1);
+						if(node1->type != SNT_NUMBER)
+						{
+							addError(CE_INVALIDPROPERTYVALUE, node1->file, node1->line, node1->column);
+							goto fail;
+						}
+
+						pass->setInput(node1->data, node2->token);
+					}
+					else
+					{
+						addError(CE_VALUEEXPECTED, (*j)->file, (*j)->line, -1);
+					}
+				}
+				else if((*j)->wordID == ID_IDENTIFIER)
+				{
+					if((*j)->children.empty())
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						goto fail;
+					}
+
+					ScriptNodePtr node = (*j)->children.front();
+					if(node->type == SNT_NUMBER)
+						pass->setIdentifier(StringConverter::parseUnsignedInt(node->token));
+					else
+						addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+				}
+				else if((*j)->wordID == ID_FIRST_RENDER_QUEUE)
+				{
+					if((*j)->children.empty())
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						goto fail;
+					}
+
+					ScriptNodePtr node = (*j)->children.front();
+					if(node->type == SNT_NUMBER)
+						pass->setFirstRenderQueue(StringConverter::parseUnsignedInt(node->token));
+					else
+						addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+				}
+				else if((*j)->wordID == ID_LAST_RENDER_QUEUE)
+				{
+					if((*j)->children.empty())
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						goto fail;
+					}
+
+					ScriptNodePtr node = (*j)->children.front();
+					if(node->type == SNT_NUMBER)
+						pass->setLastRenderQueue(StringConverter::parseUnsignedInt(node->token));
+					else
+						addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+				}
+				else if((*j)->wordID == ID_CLEAR)
+				{
+					ScriptNodeList::iterator k = findNode((*j)->children.begin(), (*j)->children.end(), SNT_LBRACE);
+					if(k == (*j)->children.end())
+					{
+						addError(CE_OPENBRACEEXPECTED, (*j)->file, (*j)->line, -1);
+						goto fail;
+					}
+
+					while(k != (*j)->children.end())
+					{
+						if(!overrideNode(k, (*j)->children.end()))
+						{
+							if((*k)->wordID == ID_BUFFERS)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_STRINGEXPECTED, (*k)->file, (*k)->line, -1);
+									goto clear_fail;
+								}
+
+								uint32 buffers = 0;
+								for(ScriptNodeList::iterator m = (*j)->children.begin(); m != (*j)->children.end(); ++m)
+								{
+									switch((*m)->wordID)
+									{
+									case ID_COLOUR:
+										buffers |= FBT_COLOUR;
+										break;
+									case ID_DEPTH:
+										buffers |= FBT_DEPTH;
+										break;
+									case ID_STENCIL:
+										buffers |= FBT_STENCIL;
+										break;
+									default:
+										addError(CE_INVALIDPROPERTYVALUE, (*m)->file, (*m)->line, (*m)->column);
+									}
+								}
+
+								pass->setClearBuffers(buffers);
+							}
+							else if((*k)->wordID == ID_COLOUR_VALUE)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_STRINGEXPECTED, (*k)->file, (*k)->line, -1);
+									goto clear_fail;
+								}
+
+								ColourValue c;
+								if(getColourValue((*k)->children.begin(), (*k)->children.end(), c))
+									pass->setClearColour(c);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, (*j)->file, (*j)->line, -1);
+							}
+							else if((*k)->wordID == ID_DEPTH_VALUE)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_NUMBEREXPECTED, (*k)->file, (*k)->line, -1);
+									goto clear_fail;
+								}
+
+								ScriptNodePtr node = (*k)->children.front();
+								if(node->type == SNT_NUMBER)
+									pass->setClearDepth(node->data);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, (*k)->file, (*k)->line, (*k)->column);
+							}
+							else if((*k)->wordID == ID_STENCIL_VALUE)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_NUMBEREXPECTED, (*k)->file, (*k)->line, -1);
+									goto clear_fail;
+								}
+
+								ScriptNodePtr node = (*k)->children.front();
+								if(node->type == SNT_NUMBER)
+									pass->setClearStencil(node->data);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, (*k)->file, (*k)->line, (*k)->column);
+							}
+clear_fail:
+							++k;
+						}
+					}
+				}
+				else if((*j)->wordID == ID_STENCIL)
+				{
+					ScriptNodeList::iterator k = findNode((*j)->children.begin(), (*j)->children.end(), SNT_LBRACE);
+					if(k == (*j)->children.end())
+					{
+						addError(CE_OPENBRACEEXPECTED, (*j)->file, (*j)->line, -1);
+						goto fail;
+					}
+
+					while(k != (*j)->children.end())
+					{
+						if(!overrideNode(k, (*j)->children.end()))
+						{
+							if((*k)->wordID == ID_CHECK)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_TRUTHVALUEEXPECTED, (*k)->file, (*k)->line, -1);
+									goto stencil_fail;
+								}
+
+								bool val = true;
+								ScriptNodePtr node = (*k)->children.front();
+								if(getTruthValue(node, val))
+									pass->setStencilCheck(val);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+							}
+							else if((*k)->wordID == ID_COMP_FUNC)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_TRUTHVALUEEXPECTED, (*k)->file, (*k)->line, -1);
+									goto stencil_fail;
+								}
+
+								CompareFunction func;
+								ScriptNodePtr node = (*k)->children.front();
+								if(getCompareFunction(node, func))
+									pass->setStencilFunc(func);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+							}
+							else if((*k)->wordID == ID_REF_VALUE)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_NUMBEREXPECTED, (*k)->file, (*k)->line, -1);
+									goto stencil_fail;
+								}
+
+								ScriptNodePtr node = (*k)->children.front();
+								if(node->type == SNT_NUMBER)
+									pass->setStencilRefValue(node->data);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, (*k)->file, (*k)->line, (*k)->column);
+							}
+							else if((*k)->wordID == ID_MASK)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_NUMBEREXPECTED, (*k)->file, (*k)->line, -1);
+									goto stencil_fail;
+								}
+
+								ScriptNodePtr node = (*k)->children.front();
+								if(node->type == SNT_NUMBER)
+									pass->setStencilMask(StringConverter::parseUnsignedInt(node->token));
+								else
+									addError(CE_INVALIDPROPERTYVALUE, (*k)->file, (*k)->line, (*k)->column);
+							}
+							else if((*k)->wordID == ID_FAIL_OP)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_TRUTHVALUEEXPECTED, (*k)->file, (*k)->line, -1);
+									goto stencil_fail;
+								}
+
+								StencilOperation op;
+								ScriptNodePtr node = (*k)->children.front();
+								if(getStencilOp(node, op))
+									pass->setStencilFailOp(op);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+							}
+							else if((*k)->wordID == ID_DEPTH_FAIL_OP)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_TRUTHVALUEEXPECTED, (*k)->file, (*k)->line, -1);
+									goto stencil_fail;
+								}
+
+								StencilOperation op;
+								ScriptNodePtr node = (*k)->children.front();
+								if(getStencilOp(node, op))
+									pass->setStencilDepthFailOp(op);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+							}
+							else if((*k)->wordID == ID_PASS_OP)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_TRUTHVALUEEXPECTED, (*k)->file, (*k)->line, -1);
+									goto stencil_fail;
+								}
+
+								StencilOperation op;
+								ScriptNodePtr node = (*k)->children.front();
+								if(getStencilOp(node, op))
+									pass->setStencilPassOp(op);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+							}
+							if((*k)->wordID == ID_TWO_SIDED)
+							{
+								if((*k)->children.empty())
+								{
+									addError(CE_TRUTHVALUEEXPECTED, (*k)->file, (*k)->line, -1);
+									goto stencil_fail;
+								}
+
+								bool val = true;
+								ScriptNodePtr node = (*k)->children.front();
+								if(getTruthValue(node, val))
+									pass->setStencilTwoSidedOperation(val);
+								else
+									addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+							}
+stencil_fail:
+							++k;
+						}
+					}
+				}
+fail:
+				++j;
+			}
+		}
+	}
+
+	void ScriptCompiler::compileCompositionTargetOptions(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::CompositionTargetPass *target)
+	{
+		while(i != end)
+		{
+			if(!overrideNode(i, end))
+			{
+				if((*i)->wordID == ID_INPUT)
+				{
+					if((*i)->children.empty())
+					{
+						addError(CE_STRINGEXPECTED, (*i)->file, (*i)->line, -1);
+						goto fail;
+					}
+					ScriptNodePtr node = (*i)->children.front();
+					switch(node->wordID)
+					{
+					case ID_NONE:
+						target->setInputMode(CompositionTargetPass::IM_NONE);
+						break;
+					case ID_PREVIOUS:
+						target->setInputMode(CompositionTargetPass::IM_PREVIOUS);
+						break;
+					default:
+						addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+						goto fail;
+					}
+				}
+				else if((*i)->wordID == ID_ONLY_INITIAL)
+				{
+					if((*i)->children.empty())
+					{
+						addError(CE_TRUTHVALUEEXPECTED, (*i)->file, (*i)->line, -1);
+						goto fail;
+					}
+
+					bool val = false;
+					ScriptNodePtr node = (*i)->children.front();
+					if(getTruthValue(node, val))
+						target->setOnlyInitial(val);
+					else
+						addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+				}
+				else if((*i)->wordID == ID_VISIBILITY_MASK)
+				{
+					if((*i)->children.empty())
+					{
+						addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, -1);
+						goto fail;
+					}
+
+					// Notice we don't use data here!
+					// Just in case we do a conversion straight to an integer because we could lose
+					// large numbers!
+					ScriptNodePtr node = (*i)->children.front();
+					if(node->type == SNT_NUMBER)
+						target->setVisibilityMask(StringConverter::parseUnsignedInt(node->token));
+					else
+						addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+				}
+				else if((*i)->wordID == ID_LOD_BIAS)
+				{
+					if((*i)->children.empty())
+					{
+						addError(CE_NUMBEREXPECTED, (*i)->file, (*i)->line, -1);
+						goto fail;
+					}
+
+					ScriptNodePtr node = (*i)->children.front();
+					if(node->type == SNT_NUMBER)
+						target->setLodBias(node->data);
+					else
+						addError(CE_INVALIDPROPERTYVALUE, node->file, node->line, node->column);
+				}
+				else if((*i)->wordID == ID_MATERIAL_SCHEME)
+				{
+					if((*i)->children.empty())
+					{
+						addError(CE_STRINGEXPECTED, (*i)->file, (*i)->line, -1);
+						goto fail;
+					}
+
+					ScriptNodePtr node = (*i)->children.front();
+					target->setMaterialScheme(node->token);
+				}
+				else if((*i)->wordID == ID_PASS)
+				{
+					compileCompositionPass(*i, target);
+				}
+fail:
+				++i;
+			}
+		}
+	}
+
+	bool ScriptCompiler::getStencilOp(const ScriptNodePtr &node, StencilOperation &op)
+	{
+		bool success = true;
+		switch(node->wordID)
+		{
+		case ID_KEEP:
+			op = SOP_KEEP;
+			break;
+		case ID_ZERO:
+			op = SOP_ZERO;
+			break;
+		case ID_REPLACE:
+			op = SOP_REPLACE;
+			break;
+		case ID_INCREMENT:
+			op = SOP_INCREMENT;
+			break;
+		case ID_DECREMENT:
+			op = SOP_DECREMENT;
+			break;
+		case ID_INCREMENT_WRAP:
+			op = SOP_INCREMENT_WRAP;
+			break;
+		case ID_DECREMENT_WRAP:
+			op = SOP_DECREMENT_WRAP;
+			break;
+		case ID_INVERT:
+			op = SOP_INVERT;
+			break;
+		default:
+			success = false;
+		}
+		return success;
+	}
+
 	// ScriptCompilerManager
 	ScriptCompilerManager::ScriptCompilerManager()
 		:mListener(0)
@@ -4143,7 +5245,9 @@ namespace Ogre{
 		OGRE_THREAD_POINTER_SET(mCompiler, new ScriptCompiler());
 
 		mScriptPatterns.push_back("*.os");
+#if OGRE_USE_NEW_COMPILERS
 		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
+#endif
 	}
 
 	ScriptCompilerManager::~ScriptCompilerManager()

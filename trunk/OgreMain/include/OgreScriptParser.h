@@ -32,7 +32,6 @@ Torus Knot Software Ltd.
 
 #include "OgrePrerequisites.h"
 #include "OgreSharedPtr.h"
-#include "OgreScriptLexer.h"
 
 namespace Ogre {
 
@@ -94,7 +93,7 @@ namespace Ogre {
 		It identified where in the file the error occurs and may
 		include additional information about the nature of the error.
 	*/
-	class _OgreExport ParseErrorException : public std::exception
+	class ParseErrorException : public std::exception
 	{
 	private:
 		String mFile;
@@ -116,6 +115,9 @@ namespace Ogre {
 	/// This is the wordID map sent into the parser to identify word tokens
 	typedef std::map<String,unsigned int> WordIDMap;
 
+	/// This set defines what tokens are considered type identifiers indicating the start of object definitions
+	typedef std::set<String> ObjectIDSet;
+
 	/** This is the free parse function. It takes the input and parses it into
 		an AST, returning it in a ScriptNodeListPtr. If there is a parse error
 		then it will throw a ParseErrorException.
@@ -124,7 +126,17 @@ namespace Ogre {
 		@param source This is the source of the code for the script, for instance the file
 		@param ids This map identifies word tokens as integer ids
 	*/
-	ScriptNodeListPtr _OgreExport parse(const String &script, const String &source, const WordIDMap &ids = WordIDMap());
+	ScriptNodeListPtr parse(const String &script, const String &source, const WordIDMap &ids = WordIDMap(), const ObjectIDSet &objs = ObjectIDSet());
+
+	/** This free parse function parses a chunk. A chunk is basically a list
+		of values, either variables, strings, or numbers. If a parser error
+		occurs, a ParseErrorException is thrown.
+
+		@param script This is the code for the script chunk
+		@param source This is the source for the script, like a file
+		@param ids This is a map which identifies tokens as integer ids
+	*/
+	ScriptNodeListPtr parseChunk(const String &script, const String &source, const WordIDMap &ids = WordIDMap());
 }
 
 #endif
