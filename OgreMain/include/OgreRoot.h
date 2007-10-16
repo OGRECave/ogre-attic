@@ -36,6 +36,7 @@ Torus Knot Software Ltd.
 #include "OgreString.h"
 #include "OgreSceneManagerEnumerator.h"
 #include "OgreResourceGroupManager.h"
+#include "OgreScriptCompiler.h"
 
 #include <exception>
 
@@ -92,6 +93,7 @@ namespace Ogre
 		ResourceBackgroundQueue* mResourceBackgroundQueue;
 		ShadowTextureManager* mShadowTextureManager;
 		RenderSystemCapabilitiesManager* mRenderSystemCapabilitiesManager;
+		ScriptCompilerManager *mCompilerManager;
 
         Timer* mTimer;
         RenderWindow* mAutoWindow;

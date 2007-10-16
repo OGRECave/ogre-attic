@@ -35,6 +35,7 @@ Torus Knot Software Ltd.
 #include "OgreDataStream.h"
 #include "OgreTextureUnitState.h"
 #include "OgreHighLevelGpuProgram.h"
+#include "OgreCompositionPass.h"
 
 namespace Ogre{
 
@@ -47,7 +48,7 @@ namespace Ogre{
 		abstract syntax tree over to the derived class for translation into
 		the target form.
 	*/
-	class _OgreExport ScriptCompiler
+	class ScriptCompiler
 	{
 	public:
 		// This enum defines values for the standard errors of the compiler
@@ -85,11 +86,11 @@ namespace Ogre{
 			The base class provides a mechanism for overriding the script importing
 			behavior.
 		*/
-		class _OgreExport Listener
+		class Listener
 		{
 		public:
 			virtual ScriptNodeListPtr importFile(const String &name);
-			virtual void preParse(WordIDMap &ids);
+			virtual void preParse(WordIDMap &ids, ObjectIDSet &objs);
 			virtual bool errorRaised(const ErrorPtr &error);
 			virtual bool overrideNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
 
@@ -98,6 +99,14 @@ namespace Ogre{
 			virtual void preApplyTextureAliases(std::map<String,String> &aliases);
 			virtual GpuProgram *getGpuProgram(const String &name, const String &group, const String &source, GpuProgramType type, const String &syntax);
 			virtual HighLevelGpuProgram *getHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source);
+			virtual void getGpuProgramName(String &name);
+
+			/// This provides the compiler with the particle system it wishes to compile into. Override it for custom system allocations.
+			virtual ParticleSystem *getParticleSystem(const String &name, const String &group);
+			virtual void getMaterialName(String &name);
+
+			/// Override this to customly allocate compositors
+			virtual Compositor *getCompositor(const String &name, const String &group);
 
 			// Texture handling
 			/// Override this method for manipulating the names of textures being loaded
@@ -202,6 +211,15 @@ namespace Ogre{
 			it returns false.
 		*/
 		bool containsObject(const ScriptNodeList &nodes, const String &name);
+		/** This function is responsible for overlaying the parent's definition on the child.
+			What this means is that properties are copied to front of a child's definition, while
+			parent objects are overlayed on matching child objects.
+		*/
+		void overlayObject(const ScriptNodePtr &source, ScriptNodePtr &dest);
+		/** This function performs a deep copy of the given node and returns this copy
+			to the caller.
+		*/
+		ScriptNodePtr copyNode(const ScriptNodePtr &node);
 		/** This function needs to be overridden in the derived compiler to funnel
 		    preParse calls to its specific listener implementation.
 		*/
@@ -217,6 +235,10 @@ namespace Ogre{
 		ScriptNodeList::iterator findNode(ScriptNodeList::iterator &from, ScriptNodeList::iterator &end, uint32 type) const;
 		// Retrieves an iterator to the next node of the given type
 		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, uint32 type) const;
+		// Retrieves an iterator to the next node of the given type
+		ScriptNodeList::iterator findNode(ScriptNodeList::iterator &from, ScriptNodeList::iterator &end, const String &token) const;
+		// Retrieves an iterator to the next node of the given type
+		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, const String &token) const;
 		// Verifies that the next node is the given type and that it exists
 		bool verifyNextNodeType(ScriptNodeList::const_iterator &i, ScriptNodeList::const_iterator &end, uint32 type) const;
 		/// Retrieves the truth value from the node and returns it in val. Returns true if successful, false if not.
@@ -250,12 +272,22 @@ namespace Ogre{
 		bool getMatrix4(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Matrix4 &m);
 		bool getInts(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, int *vals, int count);
 		bool getFloats(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, float *vals, int count);
+
+		void compileParticleSystem(const ScriptNodePtr &node);
+		void compileEmitter(const ScriptNodePtr &node);
+		void compileAffector(const ScriptNodePtr &node);
+		String getParameterValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+
+		void compileCompositor(const ScriptNodePtr &node);
+		void compileCompositionTechnique(const ScriptNodePtr &node);
+		void compileCompositionTarget(const ScriptNodePtr &node, CompositionTechnique *technique);
+		void compileCompositionTargetOutput(const ScriptNodePtr &node, CompositionTechnique *technique);
+		void compileCompositionPass(const ScriptNodePtr &node, CompositionTargetPass *target);
+		void compileCompositionTargetOptions(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, CompositionTargetPass *target);
+		bool getStencilOp(const ScriptNodePtr &node, StencilOperation &op);
 	protected:
 		// Compiler context data
 		String mGroup; // The resource group of the resultant resources
-
-		// This controls whether objects in the script can have just names and not types
-		bool mAllowNontypedObjects;
 		
 		typedef std::map<String,ScriptNodeListPtr> ImportCacheMap;
 		ImportCacheMap mImports; // The set of imported scripts to avoid circular dependencies
@@ -274,6 +306,9 @@ namespace Ogre{
 		// This is the wordID map sent to the parser
 		WordIDMap mWordIDs;
 
+		// This set stores keywords identifying the start of objects
+		ObjectIDSet mObjectIDs;
+
 		// This is the listener which allows for overriding of compiler behavior
 		Listener *mListener;
 
@@ -281,13 +316,19 @@ namespace Ogre{
 		Material *mMaterial;
 		// This is a map holding the texture aliases for each material
 		std::map<String,String> mTextureAliases;
+
+		// This stores a pointer to the particle system which may be compiling
+		ParticleSystem *mSystem;
+
+		// This stores a pointer to the compositor which may be compiling
+		Compositor *mCompositor;
 	};
 
 	/** This manager is a script loader for the new unified Ogre scripting language.
 	 *  It funnels the new scripts into the new unified compilers, which
 	 *  are managed here by thread-local storage.
 	 */
-	 class _OgreExport ScriptCompilerManager : public ScriptLoader
+	 class ScriptCompilerManager : public ScriptLoader
 	 {
 	 public:
 		 ScriptCompilerManager();

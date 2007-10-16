@@ -29,13 +29,15 @@ Torus Knot Software Ltd.
 
 #include "OgreStableHeaders.h"
 #include "OgreScriptParser.h"
-#include <boost/spirit.hpp>
 
+#if OGRE_USE_NEW_COMPILERS
+#include <boost/spirit.hpp>
 using namespace boost;
 using namespace boost::spirit;
+#endif
 
 namespace Ogre {
-
+#if OGRE_USE_NEW_COMPILERS
 	/** This class is meant to stand-in for regular spirit grammars. It is much faster,
 		using no virtual functions and storing the sub-parser by reference.
 		It is based on code in the boost spirit documentation.
@@ -136,11 +138,12 @@ namespace Ogre {
 	struct script_ast
 	{
 		script_ast()
-			:nodes(ScriptNodeListPtr(new ScriptNodeList())), current(0), ids(0)
+			:nodes(ScriptNodeListPtr(new ScriptNodeList())), current(0), ids(0), objs(0)
 		{}
 		ScriptNodeListPtr nodes;
 		ScriptNode *current;
 		WordIDMap *ids;
+		ObjectIDSet *objs;
 	};
 
 	// Matches any length of adjacent whitespace characters
@@ -528,6 +531,27 @@ namespace Ogre {
 		mutable script_ast *ast;
 		object_grammar(script_ast *rhs):ast(rhs){}
 
+		struct type_action
+		{
+			script_ast **ast;
+			type_action(script_ast **rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_WORD;
+				node->token.assign(first, last);
+				node->isObject = true;
+				node->isProperty = false;
+				node->parent = (*ast)->current;
+				if((*ast)->current)
+					(*ast)->current->children.push_back(node);
+				else
+					(*ast)->nodes->push_back(node);
+				(*ast)->current = node.get();
+			}
+		};
 		struct variable_action
 		{
 			script_ast **ast;
@@ -695,7 +719,15 @@ namespace Ogre {
 			definition(object_grammar const& self)
 				:prop(self.ast), variable_assign(self.ast)
 			{
+				if(self.ast && self.ast->objs)
+				{
+					for(ObjectIDSet::iterator i = self.ast->objs->begin(); i != self.ast->objs->end(); ++i)
+						continuations.add(i->c_str(), 0);
+				}
 				object = 
+					//eps_p(continuations)
+					//>>
+					//(word[type_action(&self.ast)])
 					eps_p(object_header)
 					>>
 					((quote[quote_action(&self.ast,true)])|(word[word_action(&self.ast,true)])|(variable[variable_action(&self.ast,true)]))
@@ -725,6 +757,7 @@ namespace Ogre {
 			variable_assign_grammar variable_assign;
 			quote_grammar quote;
 			object_header_grammar object_header;
+			boost::spirit::symbols<> continuations;
 			rule<ScannerT> object;
 			rule<ScannerT> const& start() const{return object;}
 		};
@@ -739,7 +772,7 @@ namespace Ogre {
 		// This is type definition of the rule which this grammar defines
 		typedef boost::spirit::sequence<boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> >,boost::spirit::kleene_star<boost::spirit::sequence<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<Ogre::import_grammar,Ogre::variable_assign_grammar>,Ogre::object_grammar>,Ogre::property_grammar>,boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> > > > > start_t;
 
-		script_grammar(const WordIDMap &ids)
+		script_grammar(const WordIDMap &ids, const ObjectIDSet &objs)
 			:prop(&ast), import(&ast), variable_assign(&ast), object(&ast),
 			 start
 			 (
@@ -749,6 +782,7 @@ namespace Ogre {
 			 )
 		{
 			ast.ids = const_cast<WordIDMap*>(&ids);
+			ast.objs = const_cast<ObjectIDSet*>(&objs);
 		}
 
 		// These are this grammar's dependent grammars
@@ -758,6 +792,86 @@ namespace Ogre {
 		property_grammar prop;
 		variable_assign_grammar variable_assign;
 		object_grammar object;
+
+		start_t start;
+		script_ast ast;
+	};
+
+	/** This grammar matches a list of values, like those that are valid within
+	    a property.
+	*/
+	struct value_list_grammar : public sub_grammar<value_list_grammar>
+	{
+		struct variable_action
+		{
+			script_ast *ast;
+			variable_action(script_ast *rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = SNT_VARIABLE;
+				node->token.assign(first, last);
+				node->isObject = false;
+				node->isProperty = false;
+				node->parent = ast->current;
+				if(ast->current)
+					ast->current->children.push_back(node);
+				else
+					ast->nodes->push_back(node);
+			}
+		};
+		struct word_action
+		{
+			script_ast *ast;
+			word_action(script_ast *rhs):ast(rhs){}
+			template<class IterT>void operator()(IterT first, IterT last) const{
+				ScriptNodePtr node(new ScriptNode());
+
+				bool isNumber = false;
+				if(boost::spirit::parse(first, last, real_p[assign_a(node->data)]).full)
+					isNumber = true;
+
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = isNumber ? SNT_NUMBER : SNT_WORD;
+				node->token.assign(first, last);
+				if(!isNumber)
+				{
+					WordIDMap::const_iterator i = ast->ids->find(node->token);
+					if(i != ast->ids->end())
+						node->wordID = i->second;
+				}
+				node->isObject = false;
+				node->isProperty = false;
+				node->parent = ast->current;
+				if(ast->current)
+					ast->current->children.push_back(node);
+				else
+					ast->nodes->push_back(node);
+			}
+		};
+
+		typedef boost::spirit::sequence<boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> >,boost::spirit::kleene_star<boost::spirit::sequence<boost::spirit::alternative<boost::spirit::action<Ogre::word_grammar,Ogre::value_list_grammar::word_action>,boost::spirit::action<Ogre::variable_grammar,Ogre::value_list_grammar::variable_action> >,boost::spirit::kleene_star<boost::spirit::alternative<Ogre::whitespace_grammar,Ogre::newline_grammar> > > > > start_t;
+
+		value_list_grammar(const WordIDMap &ids)
+			:start
+			 (
+				*(ws|nl)
+				>>
+				*(((word[word_action(&ast)])|(variable[variable_action(&ast)])) >> *(ws|nl)) 
+			 )
+		{
+			ast.ids = const_cast<WordIDMap*>(&ids);
+		}
+
+		// These are the dependent grammars
+		whitespace_grammar ws;
+		newline_grammar nl;
+		word_grammar word;
+		variable_grammar variable;
 
 		start_t start;
 		script_ast ast;
@@ -826,12 +940,14 @@ namespace Ogre {
 		return error;
 	}
 	/** End ParseErrorException */
+#endif
 
 	/** Begin parse */
-	ScriptNodeListPtr parse(const String &script, const String &source, const WordIDMap &ids)
+	ScriptNodeListPtr parse(const String &script, const String &source, const WordIDMap &ids, const ObjectIDSet &objs)
 	{
+#if OGRE_USE_NEW_COMPILERS
 		skip_grammar skip;
-		script_grammar g(ids);
+		script_grammar g(ids, objs);
 
 		//typedef position_iterator<String::const_iterator> iter_t;
 		//iter_t first(script.begin(), script.end(), source), last;
@@ -841,6 +957,29 @@ namespace Ogre {
 		parse_info<iter_t> info = boost::spirit::parse(first, last, g, skip);
 
 		return g.ast.nodes;
+#else
+		return ScriptNodeListPtr();
+#endif
 	}
 	/** End parse */
+
+	/** Begin parseChunk */
+	ScriptNodeListPtr parseChunk(const String &script, const String &source, const WordIDMap &ids)
+	{
+#if OGRE_USE_NEW_COMPILERS
+		value_list_grammar g(ids);
+
+		//typedef position_iterator<String::const_iterator> iter_t;
+		//iter_t first(script.begin(), script.end(), source), last;
+		typedef position_iterator<const char*> iter_t;
+		iter_t first(script.c_str(), script.c_str()+script.size(), source), last;
+
+		parse_info<iter_t> info = boost::spirit::parse(first, last, g);
+
+		return g.ast.nodes;
+#else
+		return ScriptNodeListPtr();
+#endif
+	}
+	/** End parseChunk */
 }
