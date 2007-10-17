@@ -726,6 +726,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreSceneQuery.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreScriptCompiler.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreScriptParser.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreSerializer.cpp">
 			</File>
 			<File
@@ -1348,7 +1354,13 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreSceneQuery.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreScriptCompiler.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreScriptLoader.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreScriptParser.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreSerializer.h">
