@@ -55,7 +55,8 @@ namespace Ogre
 		mpVolumeTex(NULL),
         mpTex(NULL),
         mD3DPool(D3DPOOL_MANAGED),
-		mDynamicTextures(false)
+		mDynamicTextures(false),
+		mHwGammaSupported(false)
 	{
         _initDevice();
 	}
@@ -576,6 +577,11 @@ namespace Ogre
 				mDynamicTextures = false;
 			}
 		}
+		// Check sRGB support
+		if (mHwGamma)
+		{
+			mHwGammaSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_TEXTURE, d3dPF);
+		}
 		// check if mip maps are supported on hardware
 		mMipmapsHardwareGenerated = false;
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP)
@@ -673,6 +679,11 @@ namespace Ogre
 				mDynamicTextures = false;
 			}
 		}
+		// Check sRGB support
+		if (mHwGamma)
+		{
+			mHwGammaSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_CUBETEXTURE, d3dPF);
+		}
 		// check if mip map cube textures are supported
 		mMipmapsHardwareGenerated = false;
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP)
@@ -768,6 +779,11 @@ namespace Ogre
 			{
 				mDynamicTextures = false;
 			}
+		}
+		// Check sRGB support
+		if (mHwGamma)
+		{
+			mHwGammaSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF);
 		}
 		// check if mip map volume textures are supported
 		mMipmapsHardwareGenerated = false;
@@ -1001,6 +1017,35 @@ namespace Ogre
 			return true;
 		else
 			return false;
+	}
+	/****************************************************************************************/
+	bool D3D9Texture::_canUseHardwareGammaCorrection(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat)
+	{
+		// those MUST be initialized !!!
+		assert(mpDev);
+		assert(mpD3D);
+
+
+		if (srcUsage & D3DUSAGE_RENDERTARGET)
+			srcUsage |= D3DUSAGE_QUERY_SRGBWRITE;
+		else
+			srcUsage |= D3DUSAGE_QUERY_SRGBREAD;
+
+		// Check for sRGB support
+		HRESULT hr;
+		// check for auto gen. mip maps support
+		hr = mpD3D->CheckDeviceFormat(
+			mDevCreParams.AdapterOrdinal, 
+			mDevCreParams.DeviceType, 
+			mBBPixelFormat, 
+			srcUsage,
+			srcType,
+			srcFormat);
+		if (hr == D3D_OK)
+			return true;
+		else
+			return false;
+
 	}
 	/****************************************************************************************/
 	bool D3D9Texture::_canAutoGenMipmaps(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat)

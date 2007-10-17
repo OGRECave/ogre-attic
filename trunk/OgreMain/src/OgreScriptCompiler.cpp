@@ -223,6 +223,7 @@ namespace Ogre{
 			ID_CUBIC,
 			ID_UNLIMITED,
 			ID_ALPHA,
+			ID_GAMMA,
 		ID_ANIM_TEXTURE,
 		ID_CUBIC_TEXTURE,
 			ID_SEPARATE_UV,
@@ -473,6 +474,7 @@ namespace Ogre{
 			mWordIDs["cubic"] = ID_CUBIC;
 			mWordIDs["unlimited"] = ID_UNLIMITED;
 			mWordIDs["alpha"] = ID_ALPHA;
+			mWordIDs["gamma"] = ID_GAMMA;
 		mWordIDs["anim_texture"] = ID_ANIM_TEXTURE;
 		mWordIDs["cubic_texture"] = ID_CUBIC_TEXTURE;
 			mWordIDs["separateUV"] = ID_SEPARATE_UV;
@@ -2678,6 +2680,7 @@ namespace Ogre{
 					{
 						Ogre::TextureType texType = Ogre::TEX_TYPE_2D;
 						bool isAlpha = false;
+						bool hwGamma = false;
 						PixelFormat format = PF_UNKNOWN;
 						int mipmaps = MIP_DEFAULT;
 						
@@ -2705,6 +2708,9 @@ namespace Ogre{
 							case ID_ALPHA:
 								isAlpha = true;
 								break;
+							case ID_GAMMA:
+								hwGamma = true;
+								break;
 							default:
 								if((*k)->type == SNT_NUMBER)
 									mipmaps = (*k)->data;
@@ -2722,6 +2728,7 @@ namespace Ogre{
 						unit->setNumMipmaps(mipmaps);
 						unit->setDesiredFormat(format);
 						unit->setIsAlpha(isAlpha);
+						unit->setHardwareGammaEnabled(hwGamma);
 					}
 					else
 					{

@@ -1185,7 +1185,7 @@ Default: If a texture_unit has a name then the texture_alias defaults to the tex
 
 Sets the name of the static texture image this layer will use.@*@*
 
-Format: texture <texturename> [<type>] [unlimited | numMipMaps] [alpha] [<PixelFormat>]@*@*
+Format: texture <texturename> [<type>] [unlimited | numMipMaps] [alpha] [<PixelFormat>] [gamma]@*@*
 
 Example: texture funkywall.jpg@*@*
 
@@ -1266,6 +1266,9 @@ like PF_A8B8G8R8, but alpha will get discarded
 @item PF_SHORT_RGBA
 64-bit pixel format, 16 bits for red, green, blue and alpha
 @end table
+
+The 'gamma' option informs the renderer that you want the graphics hardware to perform gamma correction on the texture values as they are sampled for rendering. This is only applicable for textures which have 8-bit colour channels (e.g.PF_R8G8B8). Often, 8-bit per channel textures will be stored in gamma space in order to increase the precision of the darker colours (@url{http://en.wikipedia.org/wiki/Gamma_correction}) but this can throw out blending and filtering calculations since they assume linear space colour values. For the best quality shading, you may want to enable gamma correction so that the hardware converts the texture values to linear space for you automatically when sampling the texture, then the calculations in the pipeline can be done in a reliable linear colour space. When rendering to a final 8-bit per channel display, you'll also want to convert back to gamma space which can be done in your shader (by raising to the power 1/2.2) or you can enable gamma correction on the texture being rendered to or the render window. Note that the 'gamma' option on textures is applied on loading the texture so must be specified consistently if you use this texture in multiple places.
+
 
 @anchor{anim_texture}
 @subheading anim_texture

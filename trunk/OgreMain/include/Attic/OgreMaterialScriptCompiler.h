@@ -104,7 +104,7 @@ namespace Ogre {
 
             // texture unit state
             // texture
-            ID_1D, ID_2D, ID_3D, ID_CUBIC, ID_UNLIMITED, ID_ALPHA,
+            ID_1D, ID_2D, ID_3D, ID_CUBIC, ID_UNLIMITED, ID_ALPHA, ID_GAMMA,
             // cubic texture
             ID_SEPARATE_UV, ID_COMBINED_UVW,
             // address mode

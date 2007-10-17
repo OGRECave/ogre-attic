@@ -75,6 +75,9 @@ namespace Ogre {
 		typedef std::vector<HardwarePixelBufferSharedPtr> SurfaceList;
 		SurfaceList						mSurfaceList;
 	
+		/// Is hardware gamma supported?
+		bool mHwGammaSupported;
+
         /// Initialise the device and get formats
         void _initDevice(void);
 		/// internal method, load a cube texture
@@ -108,6 +111,8 @@ namespace Ogre {
 		bool _canUseDynamicTextures(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat);
 		/// internal method, return true if the device/texture combination can auto gen. mip maps
 		bool _canAutoGenMipmaps(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat);
+		/// internal method, return true if the device/texture combination can use hardware gamma
+		bool _canUseHardwareGammaCorrection(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat);
 		
 		/// internal method, the cube map face name for the spec. face index
 		String _getCubeFaceName(unsigned char face) const
@@ -143,6 +148,15 @@ namespace Ogre {
 		/// retrieves a pointer to the cube texture
 		IDirect3DCubeTexture9 *getCubeTexture()
 		{ assert(mpCubeTex); return mpCubeTex; }
+
+		/** Indicates whether the hardware gamma is actually enabled and supported. 
+		@remarks
+			Because hardware gamma might not actually be supported, we need to 
+			ignore it sometimes. Because D3D doesn't encode sRGB in the format but
+			as a sampler state, and we don't want to change the original requested
+			hardware gamma flag (e.g. serialisation) we need another indicator.
+		*/
+		bool isHardwareGammaToBeUsed() const { return mHwGamma && mHwGammaSupported; }
 		
 		
 

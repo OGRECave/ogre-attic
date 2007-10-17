@@ -166,7 +166,7 @@ namespace Ogre {
 		"                             <Scale> | <Wave_Xform> | <Transform> | <Binding_Type> | <Content_Type> \n"
         "           <Texture_Alias> ::= 'texture_alias' <Label> \n"
         "           <Texture> ::= 'texture' <Label> {<Texture_Properties>} \n"
-        "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
+        "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | 'gamma' | <#mipmap> \n"
         "                                    | " + PixelUtil::getBNFExpressionOfPixelFormats(true) + " \n"
         "           <Anim_Texture> ::= 'anim_texture' <Label> <Anim_Texture_Properties> \n"
         "               <Anim_Texture_Properties> ::= <Numbered_Anim_Texture> | <Seperate_Anim_Textures> \n"
@@ -419,6 +419,7 @@ namespace Ogre {
             addLexemeToken("cubic", ID_CUBIC);
             addLexemeToken("unlimited", ID_UNLIMITED);
             addLexemeToken("alpha", ID_ALPHA);
+			addLexemeToken("gamma", ID_GAMMA);
         addLexemeAction("anim_texture", &MaterialScriptCompiler::parseAnimTexture);
         addLexemeAction("cubic_texture", &MaterialScriptCompiler::parseCubicTexture);
             addLexemeToken("separateuv", ID_SEPARATE_UV);
@@ -1726,6 +1727,7 @@ namespace Ogre {
         TextureType tt = TEX_TYPE_2D;
 		int mipmaps = MIP_DEFAULT; // When passed to TextureManager::load, this means default to default number of mipmaps
         bool isAlpha = false;
+		bool hwGamma = false;
         PixelFormat desiredFormat = PF_UNKNOWN;
         const String& textureName = getNextTokenLabel();
 
@@ -1751,6 +1753,9 @@ namespace Ogre {
             case ID_ALPHA:
                 isAlpha = true;
                 break;
+			case ID_GAMMA:
+				hwGamma = true;
+				break;
             case _value_:
                 replaceToken();
                 mipmaps = static_cast<int>(getNextTokenValue());
@@ -1764,6 +1769,7 @@ namespace Ogre {
         mScriptContext.textureUnit->setNumMipmaps(mipmaps);
         mScriptContext.textureUnit->setIsAlpha(isAlpha);
         mScriptContext.textureUnit->setDesiredFormat(desiredFormat);
+		mScriptContext.textureUnit->setHardwareGammaEnabled(hwGamma);
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseAnimTexture(void)
