@@ -92,7 +92,7 @@ namespace Ogre{
 			virtual ScriptNodeListPtr importFile(const String &name);
 			virtual void preParse(WordIDMap &ids, ObjectIDSet &objs);
 			virtual bool errorRaised(const ErrorPtr &error);
-			virtual bool overrideNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+			virtual bool overrideNode(ScriptNodeList::iterator i, ScriptNodeList::iterator end);
 
 			// Material compilation procedures
 			virtual Material *getMaterial(const String &name, const String &group);
@@ -181,7 +181,7 @@ namespace Ogre{
 		/// This is the overridable function for base classes to compile the AST
 		virtual bool compileImpl(const ScriptNodeListPtr &nodes);
 		/// This function allows a listener to override a node
-		bool overrideNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		bool overrideNode(ScriptNodeList::iterator i, ScriptNodeList::iterator end);
 		/** This function descends into the tree and does a replacement of the variables.
 			Variables are replaced with their AST representations, which are fully processed.
 			This means a variable can expand to any valid construct, since inheritance and
@@ -230,17 +230,17 @@ namespace Ogre{
 		*/
 		virtual bool errorRaised(const ErrorPtr &error);
 		// Retrieves the node at the index away from the current iterator, or a null node
-		ScriptNodePtr getNodeAt(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, int index) const;
+		ScriptNodePtr getNodeAt(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator end, int index) const;
 		// Retrieves an iterator to the next node of the given type
-		ScriptNodeList::iterator findNode(ScriptNodeList::iterator &from, ScriptNodeList::iterator &end, uint32 type) const;
+		ScriptNodeList::iterator findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator end, uint32 type) const;
 		// Retrieves an iterator to the next node of the given type
-		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, uint32 type) const;
+		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator end, uint32 type) const;
 		// Retrieves an iterator to the next node of the given type
-		ScriptNodeList::iterator findNode(ScriptNodeList::iterator &from, ScriptNodeList::iterator &end, const String &token) const;
+		ScriptNodeList::iterator findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator end, const String &token) const;
 		// Retrieves an iterator to the next node of the given type
-		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, const String &token) const;
+		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator end, const String &token) const;
 		// Verifies that the next node is the given type and that it exists
-		bool verifyNextNodeType(ScriptNodeList::const_iterator &i, ScriptNodeList::const_iterator &end, uint32 type) const;
+		bool verifyNextNodeType(ScriptNodeList::const_iterator i, ScriptNodeList::const_iterator end, uint32 type) const;
 		/// Retrieves the truth value from the node and returns it in val. Returns true if successful, false if not.
 		bool getTruthValue(const ScriptNodePtr &node, bool &val) const;
 		/// This registers a new error
@@ -263,27 +263,27 @@ namespace Ogre{
 		void compileHighLevelGpuProgram(const String &name, const String &language, const ScriptNodePtr &node);
 		void compileUnifiedHighLevelGpuProgram(const String &name, const ScriptNodePtr &node);
 		void compileProgramParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params);
-		bool getColourValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
+		bool getColourValue(ScriptNodeList::iterator i, ScriptNodeList::iterator end, ColourValue &c);
 		bool getBlendFactor(const ScriptNodePtr &node, SceneBlendFactor &sbf);
 		bool getCompareFunction(const ScriptNodePtr &node, CompareFunction &func);
 		bool getTextureAddressingMode(const ScriptNodePtr &node, TextureUnitState::TextureAddressingMode &mode);
 		bool getColourOperation(const ScriptNodePtr &node, Ogre::LayerBlendOperationEx &op);
 		bool getColourOperationSource(const ScriptNodePtr &node, Ogre::LayerBlendSource &source);
-		bool getMatrix4(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Matrix4 &m);
-		bool getInts(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, int *vals, int count);
-		bool getFloats(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, float *vals, int count);
+		bool getMatrix4(ScriptNodeList::iterator i, ScriptNodeList::iterator end, Matrix4 &m);
+		bool getInts(ScriptNodeList::iterator i, ScriptNodeList::iterator end, int *vals, int count);
+		bool getFloats(ScriptNodeList::iterator i, ScriptNodeList::iterator end, float *vals, int count);
 
 		void compileParticleSystem(const ScriptNodePtr &node);
 		void compileEmitter(const ScriptNodePtr &node);
 		void compileAffector(const ScriptNodePtr &node);
-		String getParameterValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		String getParameterValue(ScriptNodeList::iterator i, ScriptNodeList::iterator end);
 
 		void compileCompositor(const ScriptNodePtr &node);
 		void compileCompositionTechnique(const ScriptNodePtr &node);
 		void compileCompositionTarget(const ScriptNodePtr &node, CompositionTechnique *technique);
 		void compileCompositionTargetOutput(const ScriptNodePtr &node, CompositionTechnique *technique);
 		void compileCompositionPass(const ScriptNodePtr &node, CompositionTargetPass *target);
-		void compileCompositionTargetOptions(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, CompositionTargetPass *target);
+		void compileCompositionTargetOptions(ScriptNodeList::iterator i, ScriptNodeList::iterator end, CompositionTargetPass *target);
 		bool getStencilOp(const ScriptNodePtr &node, StencilOperation &op);
 	protected:
 		// Compiler context data
