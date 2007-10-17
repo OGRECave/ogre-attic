@@ -2159,7 +2159,7 @@ namespace Ogre{
 						ScriptNodePtr node = (*j)->children.front();
 						if(node->wordID == ID_ONCE)
 						{
-							pass->setIteratePerLight(false);
+							pass->setIteratePerLight(false, false);
 						}
 						else if(node->wordID == ID_ONCE_PER_LIGHT)
 						{
