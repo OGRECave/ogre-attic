@@ -62,7 +62,7 @@ namespace Ogre{
 		return true;
 	}
 
-	bool ScriptCompiler::Listener::overrideNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	bool ScriptCompiler::Listener::overrideNode(ScriptNodeList::iterator i, ScriptNodeList::iterator end)
 	{
 		return false;
 	}
@@ -703,7 +703,7 @@ namespace Ogre{
 		return mErrors.empty();
 	}
 
-	bool ScriptCompiler::overrideNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	bool ScriptCompiler::overrideNode(ScriptNodeList::iterator i, ScriptNodeList::iterator end)
 	{
 		return mListener ? mListener->overrideNode(i, end) : false;
 	}
@@ -1120,7 +1120,7 @@ namespace Ogre{
 		return retval;
 	}
 
-	ScriptNodePtr ScriptCompiler::getNodeAt(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &end, int index) const
+	ScriptNodePtr ScriptCompiler::getNodeAt(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator end, int index) const
 	{
 		int n = 0;
 		for(ScriptNodeList::const_iterator i = from; i != end; ++i, ++n)
@@ -1131,7 +1131,7 @@ namespace Ogre{
 		return ScriptNodePtr();
 	}
 
-	ScriptNodeList::iterator ScriptCompiler::findNode(ScriptNodeList::iterator &from, ScriptNodeList::iterator &to, uint32 type) const
+	ScriptNodeList::iterator ScriptCompiler::findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator to, uint32 type) const
 	{
 		ScriptNodeList::iterator rslt = to;
 		for(ScriptNodeList::iterator i = from; i != to; ++i)
@@ -1145,7 +1145,7 @@ namespace Ogre{
 		return rslt;
 	}
 
-	ScriptNodeList::const_iterator ScriptCompiler::findNode(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &to, uint32 type) const
+	ScriptNodeList::const_iterator ScriptCompiler::findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator to, uint32 type) const
 	{
 		ScriptNodeList::const_iterator rslt = to;
 		for(ScriptNodeList::const_iterator i = from; i != to; ++i)
@@ -1159,7 +1159,7 @@ namespace Ogre{
 		return rslt;
 	}
 
-	ScriptNodeList::iterator ScriptCompiler::findNode(ScriptNodeList::iterator &from, ScriptNodeList::iterator &to, const String &token) const
+	ScriptNodeList::iterator ScriptCompiler::findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator to, const String &token) const
 	{
 		ScriptNodeList::iterator rslt = to;
 		for(ScriptNodeList::iterator i = from; i != to; ++i)
@@ -1173,7 +1173,7 @@ namespace Ogre{
 		return rslt;
 	}
 
-	ScriptNodeList::const_iterator ScriptCompiler::findNode(ScriptNodeList::const_iterator &from, ScriptNodeList::const_iterator &to, const String &token) const
+	ScriptNodeList::const_iterator ScriptCompiler::findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator to, const String &token) const
 	{
 		ScriptNodeList::const_iterator rslt = to;
 		for(ScriptNodeList::const_iterator i = from; i != to; ++i)
@@ -1187,7 +1187,7 @@ namespace Ogre{
 		return rslt;
 	}
 
-	bool ScriptCompiler::verifyNextNodeType(ScriptNodeList::const_iterator &i, ScriptNodeList::const_iterator &end, uint32 type) const
+	bool ScriptCompiler::verifyNextNodeType(ScriptNodeList::const_iterator i, ScriptNodeList::const_iterator end, uint32 type) const
 	{
 		ScriptNodeList::const_iterator j = i;
 		++j;
@@ -4092,7 +4092,7 @@ namespace Ogre{
 		}
 	}
 
-	bool ScriptCompiler::getColourValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c)
+	bool ScriptCompiler::getColourValue(ScriptNodeList::iterator i, ScriptNodeList::iterator end, ColourValue &c)
 	{
 		if(i == end)
 			return false;
@@ -4330,7 +4330,7 @@ namespace Ogre{
 		return success;
 	}
 
-	bool ScriptCompiler::getMatrix4(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Matrix4 &m)
+	bool ScriptCompiler::getMatrix4(ScriptNodeList::iterator i, ScriptNodeList::iterator end, Matrix4 &m)
 	{
 		bool success = true;
 		size_t index = 0;
@@ -4348,7 +4348,7 @@ namespace Ogre{
 		return success;
 	}
 
-	bool ScriptCompiler::getInts(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, int *vals, int count)
+	bool ScriptCompiler::getInts(ScriptNodeList::iterator i, ScriptNodeList::iterator end, int *vals, int count)
 	{
 		bool success = true;
 		int n = 0;
@@ -4373,7 +4373,7 @@ namespace Ogre{
 		return success;
 	}
 
-	bool ScriptCompiler::getFloats(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, float *vals, int count)
+	bool ScriptCompiler::getFloats(ScriptNodeList::iterator i, ScriptNodeList::iterator end, float *vals, int count)
 	{
 		bool success = true;
 		int n = 0;
@@ -4564,7 +4564,7 @@ namespace Ogre{
 		}
 	}
 
-	String ScriptCompiler::getParameterValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	String ScriptCompiler::getParameterValue(ScriptNodeList::iterator i, ScriptNodeList::iterator end)
 	{
 		String retval;
 		if(i != end)
@@ -5116,7 +5116,7 @@ fail:
 		}
 	}
 
-	void ScriptCompiler::compileCompositionTargetOptions(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::CompositionTargetPass *target)
+	void ScriptCompiler::compileCompositionTargetOptions(ScriptNodeList::iterator i, ScriptNodeList::iterator end, Ogre::CompositionTargetPass *target)
 	{
 		while(i != end)
 		{
