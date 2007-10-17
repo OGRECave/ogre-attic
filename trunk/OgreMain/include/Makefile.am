@@ -156,7 +156,9 @@ pkginclude_HEADERS = Ogre.h \
                      OgreSceneManagerEnumerator.h \
                      OgreSceneNode.h \
                      OgreSceneQuery.h \
+                     OgreScriptCompiler.h \
                      OgreScriptLoader.h \
+                     OgreScriptParser.h \
                      OgreSearchOps.h \
                      OgreSerializer.h \
                      OgreShadowCameraSetup.h \

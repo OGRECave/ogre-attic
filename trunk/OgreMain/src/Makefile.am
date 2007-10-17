@@ -124,6 +124,8 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreSceneManagerEnumerator.cpp \
                          OgreSceneNode.cpp \
                          OgreSceneQuery.cpp \
+                         OgreScriptCompiler.cpp \
+                         OgreScriptParser.cpp \
                          OgreSearchOps.cpp \
                          OgreSerializer.cpp \
 						 OgreShadowCameraSetup.cpp \
