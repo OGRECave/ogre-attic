@@ -882,7 +882,7 @@ namespace Ogre {
 		:mFile(file), mLine(line), mColumn(column), mError(err)
 	{}
 
-	const char *ParseErrorException::what() const
+	const char *ParseErrorException::what() const throw()
 	{
 		if(mErrorStr.empty())
 		{

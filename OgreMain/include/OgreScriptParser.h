@@ -102,8 +102,9 @@ namespace Ogre {
 		ParseError mError;
 	public:
 		ParseErrorException(const Ogre::String &file, int line, int column, ParseError err);
+		~ParseErrorException() throw() {}
 		
-		const char *what() const;
+		const char *what() const throw();
 		const Ogre::String &getFile() const;
 		int getLine() const;
 		ParseError getError() const;
