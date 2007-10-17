@@ -123,15 +123,44 @@ namespace Ogre {
 		*/
 		virtual bool getMipmapsHardwareGenerated(void) const { return mMipmapsHardwareGenerated; }
 
-        /** Returns the gamma adjustment factor applied to this texture.
+        /** Returns the gamma adjustment factor applied to this texture on loading.
         */
         virtual float getGamma(void) const { return mGamma; }
 
-        /** Sets the gamma adjustment factor applied to this texture.
+        /** Sets the gamma adjustment factor applied to this texture on loading the
+			data.
             @note
-                Must be called before any 'load' method.
+                Must be called before any 'load' method. This gamma factor will
+				be premultiplied in and may reduce the precision of your textures.
+				You can use setHardwareGamma if supported to apply gamma on 
+				sampling the texture instead.
         */
         virtual void setGamma(float g) { mGamma = g; }
+
+		/** Sets whether this texture will be set up so that on sampling it, 
+			hardware gamma correction is applied.
+		@remarks
+			24-bit textures are often saved in gamma colour space; this preserves
+			precision in the 'darks'. However, if you're performing blending on 
+			the sampled colours, you really want to be doing it in linear space. 
+			One way is to apply a gamma correction value on loading (see setGamma),
+			but this means you lose precision in those dark colours. An alternative
+			is to get the hardware to do the gamma correction when reading the 
+			texture and converting it to a floating point value for the rest of
+			the pipeline. This option allows you to do that; it's only supported
+			in relatively recent hardware (others will ignore it) but can improve
+			the quality of colour reproduction.
+		@note
+			Must be called before any 'load' method since it may affect the
+			construction of the underlying hardware resources.
+			Also note this only useful on textures using 8-bit colour channels.
+		*/
+		virtual void setHardwareGammaEnabled(bool enabled) { mHwGamma = enabled; }
+
+		/** Gets whether this texture will be set up so that on sampling it, 
+		hardware gamma correction is applied.
+		*/
+		virtual bool isHardwareGammaEnabled() const { return mHwGamma; }
 
         /** Returns the height of the texture.
         */
@@ -323,6 +352,7 @@ namespace Ogre {
 		size_t mNumMipmaps;
 		bool mMipmapsHardwareGenerated;
         float mGamma;
+		bool mHwGamma;
 
         TextureType mTextureType;
 		PixelFormat mFormat;

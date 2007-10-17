@@ -884,6 +884,7 @@ namespace Ogre
         TextureType tt = TEX_TYPE_2D;
 		int mipmaps = MIP_DEFAULT; // When passed to TextureManager::load, this means default to default number of mipmaps
         bool isAlpha = false;
+		bool hwGamma = false;
         PixelFormat desiredFormat = PF_UNKNOWN;
 		for (size_t p = 1; p < numParams; ++p)
 		{
@@ -916,6 +917,10 @@ namespace Ogre
 			{
 				isAlpha = true;
 			}
+			else if (vecparams[p] == "gamma")
+			{
+				hwGamma = true;
+			}
             else if ((desiredFormat = PixelUtil::getFormatFromName(vecparams[p], true)) != PF_UNKNOWN)
             {
                 // nothing to do here
@@ -931,6 +936,7 @@ namespace Ogre
         context.textureUnit->setNumMipmaps(mipmaps);
         context.textureUnit->setIsAlpha(isAlpha);
         context.textureUnit->setDesiredFormat(desiredFormat);
+		context.textureUnit->setHardwareGammaEnabled(hwGamma);
         return false;
     }
 	//---------------------------------------------------------------------

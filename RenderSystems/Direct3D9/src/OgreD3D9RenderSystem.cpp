@@ -1636,6 +1636,16 @@ namespace Ogre
 				// set stage desc.
 				mTexStageDesc[stage].pTex = pTex;
 				mTexStageDesc[stage].texType = D3D9Mappings::get(dt->getTextureType());
+
+				// Set gamma now too
+				if (dt->isHardwareGammaToBeUsed())
+				{
+					__SetSamplerState(stage, D3DSAMP_SRGBTEXTURE, TRUE);
+				}
+				else
+				{
+					__SetSamplerState(stage, D3DSAMP_SRGBTEXTURE, FALSE);
+				}
 			}
 		}
 		else
