@@ -294,6 +294,11 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 					"You must supply a mesh file name", 
 					"OGRE Exporter");
 			}
+			// fix any omission of '.mesh'
+			if (!Ogre::StringUtil::endsWith(meshFileName, ".mesh"))
+			{
+				meshFileName += ".mesh";
+			}
 			param = prop.GetParameters().GetItem( L"mergeSubmeshes" );
 			bool mergeSubmeshes = param.GetValue();
 			param = prop.GetParameters().GetItem( L"exportChildren" );
@@ -410,6 +415,12 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 						"OGRE Exporter");
 				}
 
+				// fix any omission of '.skeleton'
+				if (!Ogre::StringUtil::endsWith(skeletonFileName, ".skeleton"))
+				{
+					skeletonFileName += ".skeleton";
+				}
+
 				// Truncate the skeleton filename to just the name (no path)
 				Ogre::String skelName = skeletonFileName;
 				int pos = skeletonFileName.find_last_of("\\");
@@ -454,6 +465,11 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			{
 				param = prop.GetParameters().GetItem( L"targetMaterialFileName" );
 				Ogre::String materialFileName = XSItoOgre(XSI::CString(param.GetValue()));
+				// fix any omission of '.material'
+				if (!Ogre::StringUtil::endsWith(materialFileName, ".material"))
+				{
+					materialFileName += ".material";
+				}
 				
 				Ogre::XsiMaterialExporter matExporter;
 				try 
@@ -883,6 +899,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
     // On open dialog
     if ( eventID == PPGEventContext::siOnInit )
 	{
+		CString theObjectName;
         // Pre-populate object with currently selected item(s)
 		Selection sel(app.GetSelection());
 		if (sel.GetCount() > 0)
@@ -890,9 +907,14 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			CString val;
 			for (int i = 0; i < sel.GetCount(); ++i)
 			{
-				val += SIObject(sel[i]).GetName();
+				CString thisName = SIObject(sel[i]).GetName();
+				val += thisName;
+				theObjectName += thisName;
 				if (i < sel.GetCount() - 1)
+				{
 					val += L", ";
+					theObjectName += L"_";
+				}
 			}
 			prop.PutParameterValue(L"objectName", val);
 		}
@@ -903,6 +925,20 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 		}
         // Make the selection read-only
 		objectNameParam.PutCapabilityFlag( siReadOnly, true );
+
+		// Default mesh name
+		if (prop.GetParameterValue(L"targetMeshFileName") == L"")
+		{
+			// default name
+			prop.PutParameterValue(L"targetMeshFileName", theObjectName + L".mesh");
+		}
+
+		// Default material name
+		if (prop.GetParameterValue(L"targetMaterialFileName") == L"")
+		{
+			// default name
+			prop.PutParameterValue(L"targetMaterialFileName", theObjectName + L".material");
+		}
 
 		// default the frame rate to that selected in animation panel
 		prop.PutParameterValue(L"fps", CTime().GetFrameRate());
@@ -924,6 +960,12 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			param.PutCapabilityFlag(siReadOnly, false);
 			param = prop.GetParameters().GetItem(L"targetSkeletonFileName");
 			param.PutCapabilityFlag(siReadOnly, false);
+
+			if (prop.GetParameterValue(L"targetSkeletonFileName") == L"")
+			{
+				// default name
+				prop.PutParameterValue(L"targetSkeletonFileName", theObjectName + L".skeleton");
+			}
 			hasSkel = true;
 		}
 		// value of param is a griddata object
@@ -1023,23 +1065,26 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
         // Check paramName against parameter names, perform custom onChanged event
 		if (paramName == L"targetMeshFileName")
 		{
-			// Default skeleton name if blank
+			// Default skeleton & material name 
 			Ogre::String meshName = XSItoOgre(XSI::CString(changed.GetValue()));
-			if (hasSkel && Ogre::StringUtil::endsWith(meshName, "mesh") && 
-				prop.GetParameterValue(L"targetSkeletonFileName") == L"")
+			if (hasSkel)
 			{
-				Ogre::String skelName = meshName.substr(0, meshName.size() - 4) + "skeleton";
+				Ogre::String skelName = meshName;
+				if (Ogre::StringUtil::endsWith(skelName, ".mesh"))
+				{
+					skelName = skelName.substr(0, skelName.size() - 5) + ".skeleton";
+				}
 				CString xsiSkelName = OgretoXSI(skelName);
 				prop.PutParameterValue(L"targetSkeletonFileName", xsiSkelName);
 			}
-			if (Ogre::StringUtil::endsWith(meshName, "mesh") && 
-				prop.GetParameterValue(L"targetMaterialFileName") == L"")
+			// default material script name 
+			Ogre::String matName = meshName;
+			if (Ogre::StringUtil::endsWith(matName, ".mesh"))
 			{
-				// default material script name if blank
-				Ogre::String matName = meshName.substr(0, meshName.size() - 4) + "material";
-				CString xsiMatName = OgretoXSI(matName);
-				prop.PutParameterValue(L"targetMaterialFileName", xsiMatName);
+				matName = matName.substr(0, matName.size() - 5) + ".material";
 			}
+			CString xsiMatName = OgretoXSI(matName);
+			prop.PutParameterValue(L"targetMaterialFileName", xsiMatName);
 
 			
 		}
