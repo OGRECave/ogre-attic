@@ -1026,10 +1026,9 @@ namespace Ogre
 		assert(mpD3D);
 
 
-		if (srcUsage & D3DUSAGE_RENDERTARGET)
-			srcUsage |= D3DUSAGE_QUERY_SRGBWRITE;
-		else
-			srcUsage |= D3DUSAGE_QUERY_SRGBREAD;
+		// Always check 'read' capability here
+		// We will check 'write' capability only in the context of a render target
+		srcUsage |= D3DUSAGE_QUERY_SRGBREAD;
 
 		// Check for sRGB support
 		HRESULT hr;

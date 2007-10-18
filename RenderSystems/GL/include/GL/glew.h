@@ -3816,6 +3816,18 @@ typedef void (GLAPIENTRY * PFNGLPOINTPARAMETERFVEXTPROC) (GLenum pname, GLfloat 
 #define GLEW_EXT_texture_lod_bias GLEW_GET_VAR(__GLEW_EXT_texture_lod_bias)
 
 #endif /* GL_EXT_texture_lod_bias */
+/* ------------------------------------------------------------------------- */
+
+/* ------------------------ GL_EXT_framebuffer_sRGB ------------------------ */
+#ifndef GL_EXT_framebuffer_sRGB
+#define GL_EXT_framebuffer_sRGB 1
+
+#define GL_FRAMEBUFFER_SRGB_EXT           0x8DB9
+#define GL_FRAMEBUFFER_SRGB_CAPABLE_EXT      0x8DBA
+
+#endif /* GL_EXT_framebuffer_sRGB */
+/* ------------------------------------------------------------------------- */
+
 
 // End SJS Additions
 

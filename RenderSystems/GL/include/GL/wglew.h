@@ -739,6 +739,19 @@ typedef BOOL (WINAPI * PFNWGLWAITFORSBCOMLPROC) (HDC hdc, INT64 target_sbc, INT6
 
 /* ------------------------------------------------------------------------- */
 
+// Added for OGRE by SJS
+/* ------------------------ WGL_EXT_framebuffer_sRGB ----------------------- */
+
+#ifndef WGL_EXT_framebuffer_sRGB
+#define WGL_EXT_framebuffer_sRGB 1
+
+#define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT 0x20A9
+
+#endif /* WGL_EXT_framebuffer_sRGB */
+
+/* ------------------------------------------------------------------------- */
+// End SJS
+
 #ifdef GLEW_MX
 #define WGLEW_EXPORT
 #else

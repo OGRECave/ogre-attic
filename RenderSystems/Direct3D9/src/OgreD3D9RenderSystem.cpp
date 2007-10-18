@@ -175,6 +175,7 @@ namespace Ogre
 		ConfigOption optAA;
 		ConfigOption optFPUMode;
 		ConfigOption optNVPerfHUD;
+		ConfigOption optSRGB;
 
 		driverList = this->getDirect3DDrivers();
 
@@ -230,6 +231,14 @@ namespace Ogre
 		optNVPerfHUD.possibleValues.push_back( "Yes" );
 		optNVPerfHUD.possibleValues.push_back( "No" );
 
+
+		// SRGB on auto window
+		optSRGB.name = "sRGB Gamma Conversion";
+		optSRGB.possibleValues.push_back("Yes");
+		optSRGB.possibleValues.push_back("No");
+		optSRGB.currentValue = "No";
+		optSRGB.immutable = false;
+
 		mOptions[optDevice.name] = optDevice;
 		mOptions[optVideoMode.name] = optVideoMode;
 		mOptions[optFullScreen.name] = optFullScreen;
@@ -237,6 +246,7 @@ namespace Ogre
 		mOptions[optAA.name] = optAA;
 		mOptions[optFPUMode.name] = optFPUMode;
 		mOptions[optNVPerfHUD.name] = optNVPerfHUD;
+		mOptions[optSRGB.name] = optSRGB;
 
 		refreshD3DSettings();
 
@@ -548,12 +558,22 @@ namespace Ogre
 			if( !videoMode )
 				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't find requested video mode.", "D3D9RenderSystem::initialise" );
 
+			// sRGB window option
+			bool hwGamma = false;
+			opt = mOptions.find( "sRGB Gamma Conversion" );
+			if( opt == mOptions.end() )
+				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't find sRGB option!", "D3D9RenderSystem::initialise" );
+			hwGamma = opt->second.currentValue == "Yes";
+
+			
+
 			NameValuePairList miscParams;
 			miscParams["colourDepth"] = StringConverter::toString(videoMode->getColourDepth());
 			miscParams["FSAA"] = StringConverter::toString(mFSAAType);
 			miscParams["FSAAQuality"] = StringConverter::toString(mFSAAQuality);
 			miscParams["vsync"] = StringConverter::toString(mVSync);
 			miscParams["useNVPerfHUD"] = StringConverter::toString(mUseNVPerfHUD);
+			miscParams["gamma"] = StringConverter::toString(hwGamma);
 
 			autoWindow = this->createRenderWindow( windowTitle, width, height, 
 				fullScreen, &miscParams );
@@ -2542,6 +2562,9 @@ namespace Ogre
 
 			if( FAILED( hr = mpD3DDevice->SetViewport( &d3dvp ) ) )
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set viewport.", "D3D9RenderSystem::_setViewport" );
+
+			// Set sRGB write mode
+			__SetRenderState(D3DRS_SRGBWRITEENABLE, target->isHardwareGammaEnabled());
 
 			vp->_clearUpdatedFlag();
 		}

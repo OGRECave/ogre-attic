@@ -158,6 +158,11 @@ namespace Ogre
 			opt = miscParams->find("useNVPerfHUD");
 			if(opt != miscParams->end())
 				mUseNVPerfHUD = StringConverter::parseBool(opt->second);
+			// sRGB?
+			opt = miscParams->find("gamma");
+			if(opt != miscParams->end())
+				mHwGamma = StringConverter::parseBool(opt->second);
+
 			 
 		}
 
@@ -457,6 +462,22 @@ namespace Ogre
 
 		md3dpp.MultiSampleType = mFSAAType;
 		md3dpp.MultiSampleQuality = (mFSAAQuality == 0) ? 0 : mFSAAQuality;
+
+		// Check sRGB
+		if (mHwGamma)
+		{
+			/* hmm, this never succeeds even when device does support??
+			if(FAILED(pD3D->CheckDeviceFormat(mDriver->getAdapterNumber(),
+				devType, md3dpp.BackBufferFormat, D3DUSAGE_QUERY_SRGBWRITE, 
+				D3DRTYPE_SURFACE, md3dpp.BackBufferFormat )))
+			{
+				// disable - not supported
+				mHwGamma = false;
+			}
+			*/
+
+		}
+
 
 		if (mIsSwapChain)
 		{
