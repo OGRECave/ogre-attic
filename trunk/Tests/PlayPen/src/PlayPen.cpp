@@ -1575,22 +1575,26 @@ protected:
 
         Entity* pEnt;
 
-        RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "Refraction", 512, 512 );
+		TexturePtr rttTex = TextureManager::getSingleton().createManual("Refraction", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+			512, 512, 1, 0, PF_R8G8B8, TU_RENDERTARGET);
         {
-            Viewport *v = rttTex->addViewport( mCamera );
+            Viewport *v = rttTex->getBuffer()->getRenderTarget()->addViewport( mCamera );
             MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName("Refraction");
             v->setOverlaysEnabled(false);
-            rttTex->addListener(&mRefractionListener);
+            rttTex->getBuffer()->getRenderTarget()->addListener(&mRefractionListener);
         }
 
-        rttTex = mRoot->getRenderSystem()->createRenderTexture( "Reflection", 512, 512 );
+		rttTex = TextureManager::getSingleton().createManual("Reflection", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+			512, 512, 1, 0, PF_R8G8B8, TU_RENDERTARGET);
         {
-            Viewport *v = rttTex->addViewport( mCamera );
+            Viewport *v = rttTex->getBuffer()->getRenderTarget()->addViewport( mCamera );
             MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName("Reflection");
             v->setOverlaysEnabled(false);
-            rttTex->addListener(&mReflectionListener);
+            rttTex->getBuffer()->getRenderTarget()->addListener(&mReflectionListener);
         }
         // Define a floor plane mesh
         Plane p;
@@ -1850,7 +1854,7 @@ protected:
 
 
 
-        Entity *ent = mSceneMgr->createEntity("robot", "test.mesh");
+        Entity *ent = mSceneMgr->createEntity("robot", "robot.mesh");
         // Uncomment the below to test software skinning
         //ent->setMaterialName("Examples/Rocky");
         // Add entity to the scene node
@@ -3727,7 +3731,9 @@ protected:
 		// Attach both the plane entity, and the plane definition
 		planeNode->attachObject(planeEnt);
 
-		RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "RttTex", 512, 512, TEX_TYPE_2D, PF_R8G8B8 );
+		TexturePtr rttTex = TextureManager::getSingleton().createManual("RttTex", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+			512, 512, 1, 0, PF_R8G8B8, TU_RENDERTARGET);
 		{
 			reflectCam = mSceneMgr->createCamera("ReflectCam");
 			reflectCam->setNearClipDistance(mCamera->getNearClipDistance());
@@ -3736,7 +3742,7 @@ protected:
 				(Real)mWindow->getViewport(0)->getActualWidth() / 
 				(Real)mWindow->getViewport(0)->getActualHeight());
 
-			Viewport *v = rttTex->addViewport( reflectCam );
+			Viewport *v = rttTex->getBuffer()->getRenderTarget()->addViewport( reflectCam );
 			v->setClearEveryFrame( true );
 			v->setBackgroundColour( ColourValue::Black );
 
@@ -6238,7 +6244,7 @@ protected:
 		//testSpotlightViewProj(true);
 		//test16Textures();
 		//testProjectSphere();
-		//testLightScissoring(false);
+		//testLightScissoring(true);
 		//testLightClipPlanes(false);
 		//testManualIlluminationStage(SHADOWTYPE_STENCIL_ADDITIVE);
 		//testTimeCreateDestroyObject();
