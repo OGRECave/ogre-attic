@@ -337,6 +337,15 @@ namespace Ogre {
         */
         virtual bool isPrimary(void) const;
 
+		/** Indicates whether on rendering, linear colour space is converted to 
+			sRGB gamma colour space. This is the exact opposite conversion of
+			what is indicated by Texture::isHardwareGammaEnabled, and can only
+			be enabled on creation of the render target. For render windows, it's
+			enabled through the 'gamma' creation misc parameter. For textures, 
+			it is enabled through the hwGamma parameter to the create call.
+		*/
+		virtual bool isHardwareGammaEnabled() const { return mHwGamma; }
+
 
         /** RenderSystem specific interface for a RenderTarget;
             this should be subclassed by RenderSystems.
@@ -378,6 +387,8 @@ namespace Ogre {
 
         bool mActive;
         bool mAutoUpdate;
+		// Hardware sRGB gamma conversion done on write?
+		bool mHwGamma;
 
         void updateStats(void);
 

@@ -368,39 +368,15 @@ namespace Ogre
 		Description: Enable the use of nVidia NVPerfHUD
 		Values: true, false
 		Default: false
+		**
+		Key: "gamma" 
+		Description: Enable hardware conversion from linear colour space to gamma
+			colour space on rendering to the window.
+		Values: true, false
+		Default: false
 		*/
 		virtual RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
 			bool fullScreen, const NameValuePairList *miscParams = 0) = 0;
-
-		/** Creates and registers a render texture object.
-		@param name 
-		The name for the new render texture. Note that names must be unique.
-		@param width
-		The requested width for the render texture. See Remarks for more info.
-		@param height
-		The requested width for the render texture. See Remarks for more info.
-		@param texType
-		The type of texture; defaults to TEX_TYPE_2D
-		@param internalFormat
-		The internal format of the texture; defaults to PF_X8R8G8B8
-		@param miscParams This parameter is ignored.
-		@returns
-		On succes, a pointer to a new platform-dependernt, RenderTexture-derived
-		class is returned. On failiure, NULL is returned.
-		@remarks
-		Because a render texture is basically a wrapper around a texture object,
-		the width and height parameters of this method just hint the preferred
-		size for the texture. Depending on the hardware driver or the underlying
-		API, these values might change when the texture is created. The same applies
-		to the internalFormat parameter.
-		@deprecated
-		This method is deprecated, and exists only for backward compatibility. You can create
-		arbitrary rendertextures with the TextureManager::createManual call with usage
-		TU_RENDERTARGET.
-		*/
-		RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height,
-			TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8, 
-			const NameValuePairList *miscParams = 0 ); 
 
 		/**	Create a MultiRenderTarget, which is a render target that renders to multiple RenderTextures
 		at once. Surfaces can be bound and unbound at will.

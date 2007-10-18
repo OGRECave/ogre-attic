@@ -3072,6 +3072,20 @@ GL_RGB_SCALE : GL_ALPHA_SCALE, 1);
 
 		// Bind frame buffer object
 		mRTTManager->bind(target);
+
+		// Enable / disable sRGB states
+		if (target->isHardwareGammaEnabled())
+		{
+			glEnable(GL_FRAMEBUFFER_SRGB_EXT);
+			
+			// Note: could test GL_FRAMEBUFFER_SRGB_CAPABLE_EXT here before
+			// enabling, but GL spec says incapable surfaces ignore the setting
+			// anyway. We test the capability to enable isHardwareGammaEnabled.
+		}
+		else
+		{
+			glDisable(GL_FRAMEBUFFER_SRGB_EXT);
+		}
 	}
 	//---------------------------------------------------------------------
 	void GLRenderSystem::_unregisterContext(GLContext *context)

@@ -94,6 +94,7 @@ namespace Ogre {
 		int fsaa = 0;
 		String border;
 		bool outerSize = false;
+		bool hwGamma = false;
 
 		if(miscParams)
 		{
@@ -118,6 +119,9 @@ namespace Ogre {
 
 			if ((opt = miscParams->find("FSAA")) != end)
 				fsaa = StringConverter::parseUnsignedInt(opt->second);
+
+			if ((opt = miscParams->find("gamma")) != end)
+				hwGamma = StringConverter::parseBool(opt->second);
 
 			if ((opt = miscParams->find("externalWindowHandle")) != end)
 			{
@@ -274,15 +278,41 @@ namespace Ogre {
 
 		if (!mIsExternalGLControl)
 		{
-			if (!mGLSupport.selectPixelFormat(mHDC, mColourDepth, fsaa))
+			int testFsaa = fsaa;
+			bool testHwGamma = hwGamma;
+			bool formatOk = mGLSupport.selectPixelFormat(mHDC, mColourDepth, testFsaa, testHwGamma);
+			if (!formatOk && (fsaa > 0 || hwGamma))
 			{
-				if (fsaa == 0)
+				if (fsaa > 0 && (fsaa > 0))
+				{
+					// try without FSAA
+					testFsaa = 0;
+					formatOk = mGLSupport.selectPixelFormat(mHDC, mColourDepth, testFsaa, testHwGamma);
+				}
+
+				if (!formatOk && hwGamma)
+				{
+					// try without sRGB
+					testHwGamma = false;
+					testFsaa = fsaa;
+					formatOk = mGLSupport.selectPixelFormat(mHDC, mColourDepth, testFsaa, testHwGamma);
+				}
+
+				if (!formatOk && hwGamma && (fsaa > 0))
+				{
+					// try without both
+					testHwGamma = false;
+					testFsaa = 0;
+					formatOk = mGLSupport.selectPixelFormat(mHDC, mColourDepth, testFsaa, testHwGamma);
+				}
+
+				if (!formatOk)
 					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "selectPixelFormat failed", "Win32Window::create");
 
-				LogManager::getSingleton().logMessage(LML_NORMAL, "FSAA level not supported, falling back");
-				if (!mGLSupport.selectPixelFormat(mHDC, mColourDepth, 0))
-					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "selectPixelFormat failed", "Win32Window::create");
 			}
+			// record what gamma option we used in the end
+			// this will control enabling of sRGB state flags when used
+			mHwGamma = testHwGamma;
 		}
 		if (!mIsExternalGLContext)
 		{

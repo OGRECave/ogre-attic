@@ -149,21 +149,6 @@ namespace Ogre {
 				mCurrentCapabilities = capabilities;
 				mUseCustomCapabilities = true;
 		}
-	//---------------------------------------------------------------------
-	RenderTexture * RenderSystem::createRenderTexture( const String & name, 
-		unsigned int width, unsigned int height,
-		TextureType texType, PixelFormat internalFormat, const NameValuePairList *miscParams )
-	{
-		/// Create a new 2D texture, and return surface to render to
-        TexturePtr mTexture = TextureManager::getSingleton().createManual( name, 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 
-			width, height, 0, internalFormat, TU_RENDERTARGET );
-            
-        // Ensure texture loaded and internal resources created
-        mTexture->load();
-
-        return mTexture->getBuffer()->getRenderTarget();
-	}
     //---------------------------------------------------------------------------------------------
     void RenderSystem::destroyRenderWindow(const String& name)
     {

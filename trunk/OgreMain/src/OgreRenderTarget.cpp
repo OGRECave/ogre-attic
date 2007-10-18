@@ -42,7 +42,8 @@ namespace Ogre {
     RenderTarget::RenderTarget()
 		:mPriority(OGRE_DEFAULT_RT_GROUP),
 		mActive(true),
-		mAutoUpdate(true)
+		mAutoUpdate(true),
+		mHwGamma(false)
     {
         mTimer = Root::getSingleton().getTimer();
         resetStatistics();
