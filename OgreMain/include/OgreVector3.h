@@ -620,7 +620,7 @@ namespace Ogre
 
 			Real f = dotProduct(dest) / lenProduct;
 
-			f = Math::Clamp(f, -1.0f, 1.0f);
+			f = Math::Clamp(f, (Real)-1.0, (Real)1.0);
 			return Math::ACos(f);
 
 		}
