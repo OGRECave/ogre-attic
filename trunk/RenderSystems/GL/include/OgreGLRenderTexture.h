@@ -47,7 +47,7 @@ namespace Ogre {
     class _OgrePrivate GLRenderTexture: public RenderTexture
     {
     public:
-        GLRenderTexture(const String &name, const GLSurfaceDesc &target);
+        GLRenderTexture(const String &name, const GLSurfaceDesc &target, bool writeGamma);
         virtual ~GLRenderTexture();
         
         bool requiresTextureFlipping() const { return true; }
@@ -62,7 +62,7 @@ namespace Ogre {
         
         /** Create a texture rendertarget object
         */
-        virtual RenderTexture *createRenderTexture(const String &name, const GLSurfaceDesc &target) = 0;
+        virtual RenderTexture *createRenderTexture(const String &name, const GLSurfaceDesc &target, bool writeGamma) = 0;
         
          /** Check if a certain format is usable as rendertexture format
         */
@@ -93,7 +93,7 @@ namespace Ogre {
     class _OgrePrivate GLCopyingRenderTexture: public GLRenderTexture
     {
     public:
-        GLCopyingRenderTexture(GLCopyingRTTManager *manager, const String &name, const GLSurfaceDesc &target);
+        GLCopyingRenderTexture(GLCopyingRTTManager *manager, const String &name, const GLSurfaceDesc &target, bool writeGamma);
         
         virtual void getCustomAttribute(const String& name, void* pData);
     };
@@ -109,7 +109,7 @@ namespace Ogre {
         
         /** @copydoc GLRTTManager::createRenderTexture
         */
-        virtual RenderTexture *createRenderTexture(const String &name, const GLSurfaceDesc &target);
+        virtual RenderTexture *createRenderTexture(const String &name, const GLSurfaceDesc &target, bool writeGamma);
         
          /** @copydoc GLRTTManager::checkFormat
         */

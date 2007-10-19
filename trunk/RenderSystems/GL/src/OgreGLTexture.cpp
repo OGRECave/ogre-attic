@@ -353,7 +353,7 @@ namespace Ogre {
 			for(size_t mip=0; mip<=getNumMipmaps(); mip++)
 			{
                 GLHardwarePixelBuffer *buf = new GLTextureBuffer(mName, getGLTextureTarget(), mTextureID, face, mip,
-						static_cast<HardwareBuffer::Usage>(mUsage), doSoftware && mip==0);
+						static_cast<HardwareBuffer::Usage>(mUsage), doSoftware && mip==0, mHwGamma);
 				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(buf));
                 
                 /// Check for error

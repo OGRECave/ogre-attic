@@ -39,8 +39,8 @@ namespace Ogre {
 
 //-----------------------------------------------------------------------------    
     GLFBORenderTexture::GLFBORenderTexture(GLFBOManager *manager, const String &name,
-        const GLSurfaceDesc &target):
-        GLRenderTexture(name, target),
+        const GLSurfaceDesc &target, bool writeGamma):
+        GLRenderTexture(name, target, writeGamma),
         mFB(manager)
     {
         // Bind target to surface 0 and initialise
@@ -399,9 +399,10 @@ static const size_t depthBits[] =
         *stencilFormat = stencilFormats[props.modes[bestmode].stencil];
     }
 
-    GLFBORenderTexture *GLFBOManager::createRenderTexture(const String &name, const GLSurfaceDesc &target)
+    GLFBORenderTexture *GLFBOManager::createRenderTexture(const String &name, 
+		const GLSurfaceDesc &target, bool writeGamma)
     {
-        GLFBORenderTexture *retval = new GLFBORenderTexture(this, name, target);
+        GLFBORenderTexture *retval = new GLFBORenderTexture(this, name, target, writeGamma);
         return retval;
     }
 	MultiRenderTarget *GLFBOManager::createMultiRenderTarget(const String & name)
