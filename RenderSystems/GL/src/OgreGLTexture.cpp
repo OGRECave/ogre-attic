@@ -142,10 +142,7 @@ namespace Ogre {
 		size_t width = mWidth;
 		size_t height = mHeight;
 		size_t depth = mDepth;
-#if 0
-        /** Luckily, this hack seems not to be needed; empty compressed textures can very well be created the 
-            conventional way with glTexImageXD.
-        */
+
 		if(PixelUtil::isCompressed(mFormat))
 		{
 			// Compressed formats
@@ -191,7 +188,6 @@ namespace Ogre {
 			delete [] tmpdata;
 		}
 		else
-#endif
 		{
 			// Run through this process to pregenerate mipmap piramid
 			for(size_t mip=0; mip<=mNumMipmaps; mip++)
