@@ -45,7 +45,7 @@ namespace Ogre {
     class _OgrePrivate GLFBORenderTexture: public GLRenderTexture
     {
     public:
-        GLFBORenderTexture(GLFBOManager *manager, const String &name, const GLSurfaceDesc &target);
+        GLFBORenderTexture(GLFBOManager *manager, const String &name, const GLSurfaceDesc &target, bool writeGamma);
 
         virtual void getCustomAttribute(const String& name, void* pData);
     protected:
@@ -75,7 +75,7 @@ namespace Ogre {
         
         /** Create a texture rendertarget object
         */
-        virtual GLFBORenderTexture *createRenderTexture(const String &name, const GLSurfaceDesc &target);
+        virtual GLFBORenderTexture *createRenderTexture(const String &name, const GLSurfaceDesc &target, bool writeGamma);
 
 		/** Create a multi render target 
 		*/

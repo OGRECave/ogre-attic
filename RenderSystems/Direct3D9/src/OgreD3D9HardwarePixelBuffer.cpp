@@ -58,7 +58,8 @@ D3D9HardwarePixelBuffer::~D3D9HardwarePixelBuffer()
 	destroyRenderTextures();
 }
 //-----------------------------------------------------------------------------  
-void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *surface, bool update)
+void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *surface, 
+								   bool update, bool writeGamma)
 {
 	mpDev = dev;
 	mSurface = surface;
@@ -77,10 +78,11 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *sur
 	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 
 	if(mUsage & TU_RENDERTARGET)
-		createRenderTextures(update);
+		createRenderTextures(update, writeGamma);
 }
 //-----------------------------------------------------------------------------
-void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volume, bool update)
+void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volume, 
+								   bool update, bool writeGamma)
 {
 	mpDev = dev;
 	mVolume = volume;
@@ -99,7 +101,7 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volu
 	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 
 	if(mUsage & TU_RENDERTARGET)
-		createRenderTextures(update);
+		createRenderTextures(update, writeGamma);
 }
 //-----------------------------------------------------------------------------  
 // Util functions to convert a D3D locked box to a pixel box
@@ -598,7 +600,7 @@ RenderTexture *D3D9HardwarePixelBuffer::getRenderTarget(size_t zoffset)
     return mSliceTRT[zoffset];
 }
 //-----------------------------------------------------------------------------    
-void D3D9HardwarePixelBuffer::createRenderTextures(bool update)
+void D3D9HardwarePixelBuffer::createRenderTextures(bool update, bool writeGamma)
 {
     if (update)
     {
@@ -626,7 +628,7 @@ void D3D9HardwarePixelBuffer::createRenderTextures(bool update)
         String name;
 		name = "rtt/"+Ogre::StringConverter::toString((size_t)mSurface);
 		
-        RenderTexture *trt = new D3D9RenderTexture(name, this);
+        RenderTexture *trt = new D3D9RenderTexture(name, this, writeGamma);
         mSliceTRT.push_back(trt);
         Root::getSingleton().getRenderSystem()->attachRenderTarget(*trt);
     }

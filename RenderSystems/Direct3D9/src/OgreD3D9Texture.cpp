@@ -56,7 +56,8 @@ namespace Ogre
         mpTex(NULL),
         mD3DPool(D3DPOOL_MANAGED),
 		mDynamicTextures(false),
-		mHwGammaSupported(false)
+		mHwGammaReadSupported(false),
+		mHwGammaWriteSupported(false)
 	{
         _initDevice();
 	}
@@ -580,7 +581,9 @@ namespace Ogre
 		// Check sRGB support
 		if (mHwGamma)
 		{
-			mHwGammaSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_TEXTURE, d3dPF);
+			mHwGammaReadSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_TEXTURE, d3dPF, false);
+			if (mUsage & TU_RENDERTARGET)
+				mHwGammaWriteSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_TEXTURE, d3dPF, true);
 		}
 		// check if mip maps are supported on hardware
 		mMipmapsHardwareGenerated = false;
@@ -682,7 +685,9 @@ namespace Ogre
 		// Check sRGB support
 		if (mHwGamma)
 		{
-			mHwGammaSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_CUBETEXTURE, d3dPF);
+			mHwGammaReadSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_CUBETEXTURE, d3dPF, false);
+			if (mUsage & TU_RENDERTARGET)
+				mHwGammaWriteSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_CUBETEXTURE, d3dPF, true);
 		}
 		// check if mip map cube textures are supported
 		mMipmapsHardwareGenerated = false;
@@ -783,7 +788,9 @@ namespace Ogre
 		// Check sRGB support
 		if (mHwGamma)
 		{
-			mHwGammaSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF);
+			mHwGammaReadSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF, false);
+			if (mUsage & TU_RENDERTARGET)
+				mHwGammaWriteSupported = _canUseHardwareGammaCorrection(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF, true);
 		}
 		// check if mip map volume textures are supported
 		mMipmapsHardwareGenerated = false;
@@ -1019,7 +1026,8 @@ namespace Ogre
 			return false;
 	}
 	/****************************************************************************************/
-	bool D3D9Texture::_canUseHardwareGammaCorrection(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat)
+	bool D3D9Texture::_canUseHardwareGammaCorrection(DWORD srcUsage, 
+		D3DRESOURCETYPE srcType, D3DFORMAT srcFormat, bool forwriting)
 	{
 		// those MUST be initialized !!!
 		assert(mpDev);
@@ -1028,7 +1036,10 @@ namespace Ogre
 
 		// Always check 'read' capability here
 		// We will check 'write' capability only in the context of a render target
-		srcUsage |= D3DUSAGE_QUERY_SRGBREAD;
+		if (forwriting)
+			srcUsage |= D3DUSAGE_QUERY_SRGBWRITE;
+		else
+			srcUsage |= D3DUSAGE_QUERY_SRGBREAD;
 
 		// Check for sRGB support
 		HRESULT hr;
@@ -1149,7 +1160,7 @@ namespace Ogre
 				// this is safe because the texture keeps a reference as well
 				surface->Release();
 
-				GETLEVEL(0, mip)->bind(mpDev, surface, updateOldList);
+				GETLEVEL(0, mip)->bind(mpDev, surface, updateOldList, mHwGammaWriteSupported);
 			}
 			break;
 		case TEX_TYPE_CUBE_MAP:
@@ -1166,7 +1177,7 @@ namespace Ogre
 					// this is safe because the texture keeps a reference as well
 					surface->Release();
 					
-					GETLEVEL(face, mip)->bind(mpDev, surface, updateOldList);
+					GETLEVEL(face, mip)->bind(mpDev, surface, updateOldList, mHwGammaWriteSupported);
 				}
 			}
 			break;
@@ -1182,7 +1193,7 @@ namespace Ogre
 				// this is safe because the texture keeps a reference as well
 				volume->Release();
 						
-				GETLEVEL(0, mip)->bind(mpDev, volume, updateOldList);
+				GETLEVEL(0, mip)->bind(mpDev, volume, updateOldList, mHwGammaWriteSupported);
 			}
 			break;
 		};

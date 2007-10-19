@@ -75,8 +75,10 @@ namespace Ogre {
 		typedef std::vector<HardwarePixelBufferSharedPtr> SurfaceList;
 		SurfaceList						mSurfaceList;
 	
-		/// Is hardware gamma supported?
-		bool mHwGammaSupported;
+		/// Is hardware gamma supported (read)?
+		bool mHwGammaReadSupported;
+		/// Is hardware gamma supported (write)?
+		bool mHwGammaWriteSupported;
 
         /// Initialise the device and get formats
         void _initDevice(void);
@@ -112,7 +114,7 @@ namespace Ogre {
 		/// internal method, return true if the device/texture combination can auto gen. mip maps
 		bool _canAutoGenMipmaps(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat);
 		/// internal method, return true if the device/texture combination can use hardware gamma
-		bool _canUseHardwareGammaCorrection(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat);
+		bool _canUseHardwareGammaCorrection(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat, bool forwriting);
 		
 		/// internal method, the cube map face name for the spec. face index
 		String _getCubeFaceName(unsigned char face) const
@@ -156,7 +158,7 @@ namespace Ogre {
 			as a sampler state, and we don't want to change the original requested
 			hardware gamma flag (e.g. serialisation) we need another indicator.
 		*/
-		bool isHardwareGammaToBeUsed() const { return mHwGamma && mHwGammaSupported; }
+		bool isHardwareGammaReadToBeUsed() const { return mHwGamma && mHwGammaReadSupported; }
 		
 		
 
@@ -257,10 +259,11 @@ namespace Ogre {
     class D3D9RenderTexture : public RenderTexture
     {
     public:
-		D3D9RenderTexture(const String &name, D3D9HardwarePixelBuffer *buffer):
+		D3D9RenderTexture(const String &name, D3D9HardwarePixelBuffer *buffer, bool writeGamma):
 			RenderTexture(buffer, 0)
 		{ 
 			mName = name;
+			mHwGamma = writeGamma;
 		}
         ~D3D9RenderTexture() {}
 

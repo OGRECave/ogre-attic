@@ -200,7 +200,9 @@ void GLHardwarePixelBuffer::bindToFramebuffer(GLenum attachment, size_t zoffset)
         "GLHardwarePixelBuffer::bindToFramebuffer");
 }
 //********* GLTextureBuffer
-GLTextureBuffer::GLTextureBuffer(const String &baseName, GLenum target, GLuint id, GLint face, GLint level, Usage usage, bool crappyCard):
+GLTextureBuffer::GLTextureBuffer(const String &baseName, GLenum target, GLuint id, 
+								 GLint face, GLint level, Usage usage, bool crappyCard, 
+								 bool writeGamma):
 	GLHardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, usage),
 	mTarget(target), mTextureID(id), mFace(face), mLevel(level), mSoftwareMipmap(crappyCard)
 {
@@ -274,7 +276,7 @@ GLTextureBuffer::GLTextureBuffer(const String &baseName, GLenum target, GLuint i
             GLSurfaceDesc target;
             target.buffer = this;
             target.zoffset = zoffset;
-            RenderTexture *trt = GLRTTManager::getSingleton().createRenderTexture(name, target);
+            RenderTexture *trt = GLRTTManager::getSingleton().createRenderTexture(name, target, writeGamma);
             mSliceTRT.push_back(trt);
             Root::getSingleton().getRenderSystem()->attachRenderTarget(*mSliceTRT[zoffset]);
         }
@@ -781,7 +783,7 @@ void GLTextureBuffer::blitFromMemory(const PixelBox &src_orig, const Image::Box 
         glTexImage2D(target, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     /// GL texture buffer
-    GLTextureBuffer tex(StringUtil::BLANK, target, id, 0, 0, (Usage)(TU_AUTOMIPMAP|HBU_STATIC_WRITE_ONLY), false);
+    GLTextureBuffer tex(StringUtil::BLANK, target, id, 0, 0, (Usage)(TU_AUTOMIPMAP|HBU_STATIC_WRITE_ONLY), false, false);
     
     /// Upload data to 0,0,0 in temporary texture
     PixelBox tempTarget(src.getWidth(), src.getHeight(), src.getDepth(), src.format, src.data);
