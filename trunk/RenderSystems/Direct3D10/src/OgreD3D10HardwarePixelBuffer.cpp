@@ -224,6 +224,7 @@ RECT toD3DRECT(const Box &lockBox)
 	return prect;
 }
 // Convert Ogre integer Box to D3D box
+/*
 D3DBOX toD3DBOX(const Box &lockBox)
 {
 	D3DBOX pbox;
@@ -258,6 +259,7 @@ D3DBOX toD3DBOXExtent(const PixelBox &lockBox)
 	pbox.Back = lockBox.getDepth();
 	return pbox;
 }
+*/
 //-----------------------------------------------------------------------------  
 PixelBox D3D10HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOptions options)
 {

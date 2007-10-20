@@ -96,7 +96,7 @@ namespace Ogre {
         // Populate compile flags
         DWORD compileFlags = 0;
 		// Support ps_1_x by compiling as ps_2_0 automatically
-		compileFlags |= D3DXSHADER_ENABLE_BACKWARDS_COMPATIBILITY;
+		compileFlags |= D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY;
 
         if (mColumnMajorMatrices)
             compileFlags |= D3D10_SHADER_PACK_MATRIX_COLUMN_MAJOR;
