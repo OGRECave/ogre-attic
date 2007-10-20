@@ -3008,14 +3008,14 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
     //---------------------------------------------------------------------
     Real D3D10RenderSystem::getHorizontalTexelOffset(void)
     {
-        // D3D considers the origin to be in the center of a pixel
-        return -0.5f;
+        // D3D10 is now like GL
+		return 0.0f;
     }
     //---------------------------------------------------------------------
     Real D3D10RenderSystem::getVerticalTexelOffset(void)
     {
-        // D3D considers the origin to be in the center of a pixel
-        return -0.5f;
+        // D3D10 is now like GL
+		return 0.0f;
     }
     //---------------------------------------------------------------------
     void D3D10RenderSystem::_applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane, 
