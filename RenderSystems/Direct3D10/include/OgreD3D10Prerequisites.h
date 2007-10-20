@@ -46,8 +46,6 @@ Torus Knot Software Ltd.
 #include <d3d10.h>
 #include <d3dx10.h>
 #include <dxerr.h>
-// only for D3DXSHADER_ENABLE_BACKWARDS_COMPATIBILITY
-#include <d3dx9shader.h>
 #include "OgreMemoryMacros.h"
 
 
