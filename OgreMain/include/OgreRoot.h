@@ -93,7 +93,7 @@ namespace Ogre
 		ResourceBackgroundQueue* mResourceBackgroundQueue;
 		ShadowTextureManager* mShadowTextureManager;
 		RenderSystemCapabilitiesManager* mRenderSystemCapabilitiesManager;
-		ScriptCompilerManager *mCompilerManager;
+		//ScriptCompilerManager *mCompilerManager;
 
         Timer* mTimer;
         RenderWindow* mAutoWindow;
