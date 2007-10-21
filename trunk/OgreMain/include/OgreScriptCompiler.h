@@ -30,335 +30,154 @@ Torus Knot Software Ltd.
 #ifndef __SCRIPTCOMPILER_H_
 #define __SCRIPTCOMPILER_H_
 
-#include "OgreScriptParser.h"
-#include "OgreScriptLoader.h"
-#include "OgreDataStream.h"
-#include "OgreTextureUnitState.h"
-#include "OgreHighLevelGpuProgram.h"
-#include "OgreCompositionPass.h"
+#include "OgreSharedPtr.h"
 
-namespace Ogre{
+namespace Ogre
+{
+	/** These enums hold the types of the concrete parsed nodes */
+	enum ConcreteNodeType
+	{
+		CNT_VARIABLE,
+		CNT_VARIABLE_ASSIGN,
+		CNT_WORD,
+		CNT_IMPORT,
+		CNT_QUOTE,
+		CNT_LBRACE,
+		CNT_RBRACE,
+		CNT_COLON,
+		CNT_NEWLINE
+	};
 
-	/** This class acts as a base class for all compilers of Ogre scripts.
-		Each script target type (e.g. Materials, Particle Systems, etc.) has
-		its own derived compiler.
+	/** The ConcreteNode is the struct that holds an un-conditioned sub-tree of parsed input */
+	struct ConcreteNode;
+	typedef SharedPtr<ConcreteNode> ConcreteNodePtr;
+	typedef std::list<ConcreteNodePtr> ConcreteNodeList;
+	typedef SharedPtr<ConcreteNodeList> ConcreteNodeListPtr;
+	struct ConcreteNode
+	{
+		String token, file;
+		unsigned int line, column;
+		ConcreteNodeType type;
+		ConcreteNodeList children;
+		ConcreteNode *parent;
+	};
 
-		The base class defines a few convenient entry points for the compilation
-		process. It then pre-processes the input before handing the final
-		abstract syntax tree over to the derived class for translation into
-		the target form.
-	*/
-	class ScriptCompiler
+	/** This enum holds the types of the possible abstract nodes */
+	enum AbstractNodeType
+	{
+		ANT_ATOM,
+		ANT_OBJECT,
+		ANT_PROPERTY,
+		ANT_IMPORT,
+		ANT_VARIABLE_SET,
+		ANT_VARIABLE_ACCESS
+	};
+	class AbstractNode;
+	typedef SharedPtr<AbstractNode> AbstractNodePtr;
+	typedef std::vector<AbstractNodePtr> AbstractNodeList;
+	typedef SharedPtr<AbstractNodeList> AbstractNodeListPtr;
+	class AbstractNode
 	{
 	public:
-		// This enum defines values for the standard errors of the compiler
-		enum
-		{
-			CE_UNKNOWNTOKEN,
-			CE_OPENBRACEEXPECTED,
-			CE_VARIABLEEXPECTED,
-			CE_VARIABLEVALUEEXPECTED,
-			CE_UNDEFINEDVARIABLE,
-			CE_OBJECTNAMEEXPECTED,
-			CE_OBJECTTYPEEXPECTED,
-			CE_STRINGEXPECTED,
-			CE_NUMBEREXPECTED,
-			CE_VALUEEXPECTED,
-			CE_INVALIDPROPERTY,
-			CE_INVALIDPROPERTYVALUE,
-			CE_OBJECTALLOCATIONERROR,
-			CE_TRUTHVALUEEXPECTED,
-			CE_BASE_ERRORS_END
-		};
-		/** This struct stores semantic error information. It is information
-			about errors which may occur during the script compilation phase.
-			This is different than a script parsing error (syntax error).
-		*/
-		struct Error
-		{
-			uint32 error;
-			String file;
-			int line, column;
-		};
-		typedef SharedPtr<Error> ErrorPtr;
-		typedef std::list<ErrorPtr> ErrorList;
-		/** This class is the base for all compiler listeners.
-			The base class provides a mechanism for overriding the script importing
-			behavior.
-		*/
-		class Listener
-		{
-		public:
-			virtual ScriptNodeListPtr importFile(const String &name);
-			virtual void preParse(WordIDMap &ids, ObjectIDSet &objs);
-			virtual bool errorRaised(const ErrorPtr &error);
-			virtual bool overrideNode(ScriptNodeList::iterator i, ScriptNodeList::iterator end);
+		String file;
+		unsigned int line, column;
+		AbstractNodeType type;
+	public:
+		virtual AbstractNode *clone() const = 0; 
+	};
 
-			// Material compilation procedures
-			virtual Material *getMaterial(const String &name, const String &group);
-			virtual void preApplyTextureAliases(std::map<String,String> &aliases);
-			virtual GpuProgram *getGpuProgram(const String &name, const String &group, const String &source, GpuProgramType type, const String &syntax);
-			virtual HighLevelGpuProgram *getHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source);
-			virtual void getGpuProgramName(String &name);
+	/** This is an abstract node which cannot be broken down further */
+	class AtomAbstractNode : public AbstractNode
+	{
+	private:
+		mutable bool mIsNumber, mNumberTest;
+		mutable Real mNum;
+	public:
+		String value;
+	public:
+		AtomAbstractNode();
+		AbstractNode *clone() const;
+		bool isNumber() const;
+		Real getNumber() const;
+	};
 
-			/// This provides the compiler with the particle system it wishes to compile into. Override it for custom system allocations.
-			virtual ParticleSystem *getParticleSystem(const String &name, const String &group);
-			virtual void getMaterialName(String &name);
+	/** This specific abstract node represents a script object */
+	class ObjectAbstractNode : public AbstractNode
+	{
+	public:
+		String name, cls;
+		bool abstract;
+		AbstractNodeList children;
+	public:
+		ObjectAbstractNode();
+		AbstractNode *clone() const;
+	};
 
-			/// Override this to customly allocate compositors
-			virtual Compositor *getCompositor(const String &name, const String &group);
+	/** This abstract node represents a script property */
+	class PropertyAbstractNode : public AbstractNode
+	{
+	public:
+		String name;
+		AbstractNodeList values;
+	public:
+		PropertyAbstractNode();
+		AbstractNode *clone() const;
+	};
 
-			// Texture handling
-			/// Override this method for manipulating the names of textures being loaded
-			virtual void getTextures(String *names, int count);
-		};
-	protected: // Variables and scope types
-		// This type stores information about the specific variable
-		typedef std::map<String,String> ScopedVariableMap;
+	/** This abstract node represents an import statement */
+	class ImportAbstractNode : public AbstractNode
+	{
+	public:
+		String target, source;
+	public:
+		ImportAbstractNode();
+		AbstractNode *clone() const;
+	};
 
-		// This is the structure storing a single lexical scoping of variables
-		struct LexicalScope
-		{
-			ScopedVariableMap vars;
-		};
-		typedef Ogre::SharedPtr<LexicalScope> LexicalScopePtr;
-		typedef std::list<LexicalScopePtr> ScopeStack;
-	protected: // Common word id values
-		enum
-		{
-			ID_ON,
-			ID_OFF,
-			ID_TRUE,
-			ID_FALSE,
-			ID_YES,
-			ID_NO
-		};
+	/** This abstract node represents a variable assignment */
+	class VariableAssignAbstractNode : public AbstractNode
+	{
+	public:
+		String name, value;
+	public:
+		VariableAssignAbstractNode();
+		AbstractNode *clone() const;
+	};
+
+	/** This abstract node represents a variable assignment */
+	class VariableAccessAbstractNode : public AbstractNode
+	{
+	public:
+		String name;
+	public:
+		VariableAccessAbstractNode();
+		AbstractNode *clone() const;
+	};
+
+	/** This is a listener for the compiler. The compiler can be customized with
+		this listener. It lets you listen in on events occuring during compilation,
+		hook them, and change the behavior.
+	*/
+	class _OgreExport ScriptCompilerListener
+	{
+	public:
+		ScriptCompilerListener();
+
+		/// Must return the requested material
+		virtual Material *allocateMaterial(const String &name, const String &group);
+	};
+
+	/** This is the main class for the compiler. It calls the parser
+		and processes the CST into an AST and then uses translators
+		to translate the AST into the final resources.
+	*/
+	class _OgreExport ScriptCompiler
+	{
 	public:
 		ScriptCompiler();
 
-		/** This function accepts the script text and the source of the script
-			and then delegates the compilation to the derived compiler.
-
-			@param text This is the source code of the script being compiled
-			@param source This is the source of the script (usually a file or resource name)
-			@param group The resource group the final resources belong to
-		*/
-		bool compile(const String &text, const String &group, const String &source);
-		/** This function takes in a list of ScriptNodePtr objects. Essentially, this
-			is an unprocessed abstract syntax tree, as it would be returned from the
-			parse function. It then processes the nodes and delegates final compilation
-			to the derived compiler.
-
-			@param nodes The abstract syntax tree representing the source code to compile
-			@param group The resource group the final resources belong to
-		*/
-		bool compile(ScriptNodeListPtr nodes, const String &group);
-		/** Accepts a DataStreamPtr which represents the script being compiled.
-		    This stream is delegated to the text-based compilation function.
-
-			@param stream The data stream of the script
-			@param group This is the resource group to compile the script within
-		*/
-		bool compile(DataStreamPtr &stream, const String &group);
-		/** Returns the resource group that the currently compiling script belongs to
-		*/
-		const String &getGroup() const;
-		/** Returns the list of errors from the last script compilation compilation
-		*/
-		const ErrorList &getErrors() const;
-		/** Returns a constant reference to the word id map used by this compiler.
-		@remarks The word id map identifies key words and maps them to integer keys.
-		Some compilers prefer to deal with tokens as integers intead of using strings.
-		This word id map is the mechanism that links string token to integer identifier.
-		*/
-		const WordIDMap &getWordIDs() const;
-		/** This sets the listener for the compiler, which allows for clients
-		    to override compiler behavior while it runs.
-		@param listener The listener implementation to call
-		*/
-		void setListener(Listener *listener);
-	protected: // Operations
-		/// This is the overridable function for base classes to compile the AST
-		virtual bool compileImpl(const ScriptNodeListPtr &nodes);
-		/// This function allows a listener to override a node
-		bool overrideNode(ScriptNodeList::iterator i, ScriptNodeList::iterator end);
-		/** This function descends into the tree and does a replacement of the variables.
-			Variables are replaced with their AST representations, which are fully processed.
-			This means a variable can expand to any valid construct, since inheritance and
-			variable processing occurs on the replacement
-		*/
-		void processVariables(ScriptNodeList &nodes, const ScriptNodeListPtr &top);
-		/** This function handles inheritance expansions.
-		*/
-		void processObjects(ScriptNodeList &nodes, const ScriptNodeListPtr &top);
-		/// This built-in function processes import nodes
-		void processImports(ScriptNodeListPtr &nodes);
-		/** This should be overridden by the given compiler. It is meant to load the given
-			script and turn it into an AST.
-
-			This base version uses the ResourceGroupManager to load the script
-			and uses the parse function to turn it into an un-processed AST.
-			The calling compiler should further process this AST if it uses
-			this base version.
-		*/
-		virtual ScriptNodeListPtr loadImportPath(const String &name);
-		/** This should be overridden by the given compiler. It located the import
-			target within the AST and returns only the tree for that target object.
-		*/
-		ScriptNodeListPtr locateTarget(ScriptNodeList &nodes, const String &target);
-		/** This function is intended to do a search within the given level of the tree
-			for an object of the same name. If the object exists, it should return true, otherwise
-			it returns false.
-		*/
-		bool containsObject(const ScriptNodeList &nodes, const String &name);
-		/** This function is responsible for overlaying the parent's definition on the child.
-			What this means is that properties are copied to front of a child's definition, while
-			parent objects are overlayed on matching child objects.
-		*/
-		void overlayObject(const ScriptNodePtr &source, ScriptNodePtr &dest);
-		/** This function performs a deep copy of the given node and returns this copy
-			to the caller.
-		*/
-		ScriptNodePtr copyNode(const ScriptNodePtr &node);
-		/** This function needs to be overridden in the derived compiler to funnel
-		    preParse calls to its specific listener implementation.
-		*/
-		virtual void preParse();
-		/** This function must be overridden in derived compilers to funnel
-			notifications of errors to specific listener implementations.
-			If this function returns false, so error is added to the compilers error list.
-		*/
-		virtual bool errorRaised(const ErrorPtr &error);
-		// Retrieves the node at the index away from the current iterator, or a null node
-		ScriptNodePtr getNodeAt(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator end, int index) const;
-		// Retrieves an iterator to the next node of the given type
-		ScriptNodeList::iterator findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator end, uint32 type) const;
-		// Retrieves an iterator to the next node of the given type
-		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator end, uint32 type) const;
-		// Retrieves an iterator to the next node of the given type
-		ScriptNodeList::iterator findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator end, const String &token) const;
-		// Retrieves an iterator to the next node of the given type
-		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator end, const String &token) const;
-		// Verifies that the next node is the given type and that it exists
-		bool verifyNextNodeType(ScriptNodeList::const_iterator i, ScriptNodeList::const_iterator end, uint32 type) const;
-		/// Retrieves the truth value from the node and returns it in val. Returns true if successful, false if not.
-		bool getTruthValue(const ScriptNodePtr &node, bool &val) const;
-		/// This registers a new error
-		void addError(uint32 error, const String &file, int line, int col);
-		/// This pushes a new scope onto the stack, copying variables from the higher stack into it
-		void pushScope();
-		/// This pops the top scope off the stack. If there are no scopes on the stack, it does nothing
-		void popScope();
-		/// This searches the current scope for the given variable and returns an iterator to it and true if successful
-		std::pair<bool,String> findVariable(const String &name);
-		/// Sets the value of the variable in the current scope, does nothing if there is no scope
-		void setVariable(const String &name, const String &value);
-	private: // Implementation handlers for node compilation
-		void compileMaterial(const ScriptNodePtr &node);
-		void compileTechnique(const ScriptNodePtr &node);
-		void compilePass(const ScriptNodePtr &node, Technique *technique);
-		void compileTextureUnit(const ScriptNodePtr &node, Pass *pass);
-		void compileGpuProgram(const ScriptNodePtr &node);
-		void compileAsmGpuProgram(const String &name, const ScriptNodePtr &node);
-		void compileHighLevelGpuProgram(const String &name, const String &language, const ScriptNodePtr &node);
-		void compileUnifiedHighLevelGpuProgram(const String &name, const ScriptNodePtr &node);
-		void compileProgramParameters(const ScriptNodePtr &node, const GpuProgramParametersSharedPtr &params);
-		bool getColourValue(ScriptNodeList::iterator i, ScriptNodeList::iterator end, ColourValue &c);
-		bool getBlendFactor(const ScriptNodePtr &node, SceneBlendFactor &sbf);
-		bool getCompareFunction(const ScriptNodePtr &node, CompareFunction &func);
-		bool getTextureAddressingMode(const ScriptNodePtr &node, TextureUnitState::TextureAddressingMode &mode);
-		bool getColourOperation(const ScriptNodePtr &node, Ogre::LayerBlendOperationEx &op);
-		bool getColourOperationSource(const ScriptNodePtr &node, Ogre::LayerBlendSource &source);
-		bool getMatrix4(ScriptNodeList::iterator i, ScriptNodeList::iterator end, Matrix4 &m);
-		bool getInts(ScriptNodeList::iterator i, ScriptNodeList::iterator end, int *vals, int count);
-		bool getFloats(ScriptNodeList::iterator i, ScriptNodeList::iterator end, float *vals, int count);
-
-		void compileParticleSystem(const ScriptNodePtr &node);
-		void compileEmitter(const ScriptNodePtr &node);
-		void compileAffector(const ScriptNodePtr &node);
-		String getParameterValue(ScriptNodeList::iterator i, ScriptNodeList::iterator end);
-
-		void compileCompositor(const ScriptNodePtr &node);
-		void compileCompositionTechnique(const ScriptNodePtr &node);
-		void compileCompositionTarget(const ScriptNodePtr &node, CompositionTechnique *technique);
-		void compileCompositionTargetOutput(const ScriptNodePtr &node, CompositionTechnique *technique);
-		void compileCompositionPass(const ScriptNodePtr &node, CompositionTargetPass *target);
-		void compileCompositionTargetOptions(ScriptNodeList::iterator i, ScriptNodeList::iterator end, CompositionTargetPass *target);
-		bool getStencilOp(const ScriptNodePtr &node, StencilOperation &op);
-	protected:
-		// Compiler context data
-		String mGroup; // The resource group of the resultant resources
-		
-		typedef std::map<String,ScriptNodeListPtr> ImportCacheMap;
-		ImportCacheMap mImports; // The set of imported scripts to avoid circular dependencies
-		typedef std::multimap<String,String> ImportRequestMap;
-		ImportRequestMap mImportRequests; // This holds the target objects for each script to be imported
-
-		// This stores the imports of the scripts, so they are separated and can be treated specially
-		ScriptNodeList mImportTable;
-
-		// The stack used to process our variables
-		ScopeStack mStack;
-
-		// Error information
-		ErrorList mErrors;
-
-		// This is the wordID map sent to the parser
-		WordIDMap mWordIDs;
-
-		// This set stores keywords identifying the start of objects
-		ObjectIDSet mObjectIDs;
-
-		// This is the listener which allows for overriding of compiler behavior
-		Listener *mListener;
-
-		// This stores a pointer to the material which may be compiling
-		Material *mMaterial;
-		// This is a map holding the texture aliases for each material
-		std::map<String,String> mTextureAliases;
-
-		// This stores a pointer to the particle system which may be compiling
-		ParticleSystem *mSystem;
-
-		// This stores a pointer to the compositor which may be compiling
-		Compositor *mCompositor;
+		bool compile(const String &str, const String &source, const String &group);
 	};
-
-	/** This manager is a script loader for the new unified Ogre scripting language.
-	 *  It funnels the new scripts into the new unified compilers, which
-	 *  are managed here by thread-local storage.
-	 */
-	 class ScriptCompilerManager : public ScriptLoader
-	 {
-	 public:
-		 ScriptCompilerManager();
-		 virtual ~ScriptCompilerManager();
-
-		/**
-		@see ScriptLoader
-		*/
-		virtual const StringVector& getScriptPatterns(void) const;
-
-		/**
-		@see ScriptLoader
-		*/
-		virtual void parseScript(DataStreamPtr& stream, const String& groupName);
-
-		/**
-		@see ScriptLoader
-		*/
-		virtual Real getLoadingOrder(void) const;
-	 private:
-		 // This is a thread-local variable holding the compiler
-		 OGRE_THREAD_POINTER(ScriptCompiler, mCompiler);
-
-		 // This is the listener interface used to overload compiler behavior
-		 ScriptCompiler::Listener *mListener;
-
-		 // This vector holds the script patterns handled by this manager
-		 StringVector mScriptPatterns;
-	 };
-
 }
 
 #endif
