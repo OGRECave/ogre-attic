@@ -213,10 +213,10 @@ namespace Ogre {
 	// Matches a word
 	struct word_grammar : public sub_grammar<word_grammar>
 	{
-		typedef boost::spirit::positive<boost::spirit::alternative<boost::spirit::alnum_parser,boost::spirit::difference<boost::spirit::punct_parser,boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::chlit<char>,boost::spirit::chlit<char> >,boost::spirit::chlit<char> >,boost::spirit::chlit<char> > > > > start_t;
+		typedef boost::spirit::positive<boost::spirit::alternative<boost::spirit::alnum_parser,boost::spirit::difference<boost::spirit::punct_parser,boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::chlit<char>,boost::spirit::chlit<char> >,boost::spirit::chlit<char> >,boost::spirit::chlit<char> >,boost::spirit::chlit<char> > > > > start_t;
 
 		word_grammar()
-			:start(+(alnum_p|(punct_p - (ch_p('*')|'$'|'{'|'}'))))
+			:start(+(alnum_p|(punct_p - (ch_p('*')|':'|'$'|'{'|'}'))))
 		{}
 
 		start_t start;
@@ -511,6 +511,45 @@ namespace Ogre {
 					cst->nodes->push_back(node);
 			}
 		};
+		struct colon_action
+		{
+			cst_store *cst;
+			colon_action(cst_store *cst):cst(cst){}
+			template<class IterT>
+			void operator()(IterT first, IterT last) const{
+				ConcreteNodePtr node(new ConcreteNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->type = CNT_COLON;
+				node->parent = cst->current;
+				if(cst->current)
+					cst->current->children.push_back(node);
+				else
+					cst->nodes->push_back(node);
+				cst->current = node.get();
+			}
+		};
+		struct parent_action
+		{
+			cst_store *cst;
+			parent_action(cst_store *cst):cst(cst){}
+			template<class IterT>
+			void operator()(IterT first, IterT last) const{
+				ConcreteNodePtr node(new ConcreteNode());
+				node->file = first.get_position().file;
+				node->line = first.get_position().line;
+				node->column = first.get_position().column;
+				node->token.assign(first, last);
+				node->type = CNT_WORD;
+				node->parent = cst->current;
+				if(cst->current)
+					cst->current->children.push_back(node);
+				else
+					cst->nodes->push_back(node);
+				cst->current = cst->current->parent;
+			}
+		};
 		struct quote_action
 		{
 			cst_store *cst;
@@ -562,12 +601,14 @@ namespace Ogre {
 				node->line = first.get_position().line;
 				node->column = first.get_position().column;
 				node->type = CNT_RBRACE;
+
+				cst->current = cst->current->parent;
 				node->parent = cst->current;
 				if(cst->current)
 					cst->current->children.push_back(node);
 				else
 					cst->nodes->push_back(node);
-				cst->current = cst->current->parent->parent;
+				cst->current = cst->current->parent;
 			}
 		};
 		struct endproperty_action
@@ -586,6 +627,7 @@ namespace Ogre {
 		{
 			definition(object_grammar const& self):object(self.cst), var_assign(self.cst){
 				r = word[object_action(self.cst)] >> +(ws >> ((word[word_action(self.cst)])|(var[variable_action(self.cst)])|(quote[quote_action(self.cst)]))) >>
+					!(ws >> (str_p(":")[colon_action(self.cst)]) >> ws >> (word[parent_action(self.cst)])) >>  
 					((*(ws|nl) >> (str_p("{")[lbrace_action(self.cst)]) >> *(ws|nl) >> *(var_assign|(var[variable_action(self.cst)])|object) >> *(ws|nl) >> (str_p("}")[rbrace_action(self.cst)]))
 					|
 					(!ws >> nl[endproperty_action(self.cst)]));
@@ -652,7 +694,7 @@ namespace Ogre {
 #endif
 
 	/** Begin parse */
-	ConcreteNodeListPtr parse(const String &script, const String &source)
+	_OgreExport ConcreteNodeListPtr parse(const String &script, const String &source)
 	{
 #if OGRE_USE_NEW_COMPILERS
 		cst_store cstore;
@@ -672,7 +714,7 @@ namespace Ogre {
 	/** End parse */
 
 	/** Begin parseChunk */
-	ConcreteNodeListPtr parseChunk(const String &script, const String &source)
+	_OgreExport ConcreteNodeListPtr parseChunk(const String &script, const String &source)
 	{
 #if OGRE_USE_NEW_COMPILERS
 		cst_store cstore;
@@ -692,7 +734,7 @@ namespace Ogre {
 	/** End parseChunk */
 
 	/** Begin parseNumber */
-	bool parseNumber(const String &script, Ogre::Real &num)
+	_OgreExport bool parseNumber(const String &script, Ogre::Real &num)
 	{
 		return boost::spirit::parse(script.c_str(), boost::spirit::real_p[boost::spirit::assign_a(num)]).full;
 	}
