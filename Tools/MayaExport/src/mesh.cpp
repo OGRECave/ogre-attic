@@ -1281,15 +1281,17 @@ namespace OgreMayaExporter
 		// Build tangents
 		if (params.buildTangents)
 		{
+			Ogre::VertexElementSemantic targetSemantic = params.tangentSemantic == TS_TANGENT ? 
+				Ogre::VES_TANGENT : Ogre::VES_TEXTURE_COORDINATES;
 			bool canBuild = true;
 			unsigned short srcTex, destTex;
 			try {
-				canBuild = !pMesh->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, srcTex, destTex);
+				canBuild = !pMesh->suggestTangentVectorBuildParams(targetSemantic, srcTex, destTex);
 			} catch(Ogre::Exception e) {
 				canBuild = false;
 			}
 			if (canBuild)
-				pMesh->buildTangentVectors(Ogre::VES_TANGENT, srcTex, destTex);
+				pMesh->buildTangentVectors(targetSemantic, srcTex, destTex);
 		}
 		// Export the binary mesh
 		Ogre::MeshSerializer serializer;
