@@ -1284,12 +1284,12 @@ namespace OgreMayaExporter
 			bool canBuild = true;
 			unsigned short srcTex, destTex;
 			try {
-				pMesh->suggestTangentVectorBuildParams(srcTex, destTex);
+				canBuild = !pMesh->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, srcTex, destTex);
 			} catch(Ogre::Exception e) {
 				canBuild = false;
 			}
 			if (canBuild)
-				pMesh->buildTangentVectors(srcTex, destTex);
+				pMesh->buildTangentVectors(Ogre::VES_TANGENT, srcTex, destTex);
 		}
 		// Export the binary mesh
 		Ogre::MeshSerializer serializer;
