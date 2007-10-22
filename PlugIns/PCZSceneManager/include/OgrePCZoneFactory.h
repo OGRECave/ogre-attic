@@ -49,7 +49,7 @@ namespace Ogre
     class _OgrePCZPluginExport PCZoneFactory 
     {
 	public:
-		PCZoneFactory(String & typeName);
+		PCZoneFactory(const String & typeName);
 		virtual ~PCZoneFactory();
 		virtual bool supportsPCZoneType(const String& zoneType) = 0;
 		virtual PCZone* createPCZone(PCZSceneManager * pczsm, const String& zoneName) = 0;

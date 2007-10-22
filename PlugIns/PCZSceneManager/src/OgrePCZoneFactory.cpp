@@ -44,7 +44,7 @@ namespace Ogre
 {
 	//-------------------------------------------------------------------------
 	// PCZoneFactory functions
-	PCZoneFactory::PCZoneFactory(String & typeName) : mFactoryTypeName(typeName)
+	PCZoneFactory::PCZoneFactory(const String & typeName) : mFactoryTypeName(typeName)
 	{
 	}
 	PCZoneFactory::~PCZoneFactory()
@@ -52,7 +52,8 @@ namespace Ogre
 	}
 	//-------------------------------------------------------------------------
 	// DefaultZoneFactory functions
-	DefaultZoneFactory::DefaultZoneFactory() : PCZoneFactory(String("ZoneType_Default"))
+	//String defaultString = String("ZoneType_Default"); 
+	DefaultZoneFactory::DefaultZoneFactory() : PCZoneFactory(const String("ZoneType_Default"))
 	{
 	}
 	DefaultZoneFactory::~DefaultZoneFactory()
@@ -91,7 +92,6 @@ namespace Ogre
 
 	void PCZoneFactoryManager::registerPCZoneFactory(PCZoneFactory* factory)
 	{
-		OGRE_LOCK_AUTO_MUTEX
 		String name = factory->getFactoryTypeName();
         mPCZoneFactories[name] = factory;
         LogManager::getSingleton().logMessage("PCZone Factory Type '" + name + "' registered");
