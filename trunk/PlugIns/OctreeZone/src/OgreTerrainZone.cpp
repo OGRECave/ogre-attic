@@ -963,7 +963,9 @@ namespace Ogre
 	//-------------------------------------------------------------------------
 	// TerrainZoneFactory functions
 	//-----------------------------------------------------------------------
-	TerrainZoneFactory::TerrainZoneFactory() : PCZoneFactory(String("ZoneType_Terrain"))
+	//String terrainZoneString = String("ZoneType_Terrain"); 
+
+	TerrainZoneFactory::TerrainZoneFactory() : PCZoneFactory(const String("ZoneType_Terrain"))
 	{
 	}
 	//-----------------------------------------------------------------------
