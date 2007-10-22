@@ -65,6 +65,7 @@ namespace Ogre
 	/** This enum holds the types of the possible abstract nodes */
 	enum AbstractNodeType
 	{
+		ANT_ROOT,
 		ANT_ATOM,
 		ANT_OBJECT,
 		ANT_PROPERTY,
