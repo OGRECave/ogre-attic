@@ -29,6 +29,7 @@ Torus Knot Software Ltd.
 
 #include "OgreStableHeaders.h"
 #include "OgreScriptCompiler.h"
+#include "OgreScriptParser.h"
 
 #if OGRE_USE_NEW_COMPILERS
 #include <boost/spirit.hpp>
@@ -708,7 +709,7 @@ namespace Ogre {
 
 		return cstore.nodes;
 #else
-		return ScriptNodeListPtr();
+		return ConcreteNodeListPtr();
 #endif
 	}
 	/** End parse */
@@ -728,7 +729,7 @@ namespace Ogre {
 
 		return cstore.nodes;
 #else
-		return ScriptNodeListPtr();
+		return ConcreteNodeListPtr();
 #endif
 	}
 	/** End parseChunk */
@@ -736,7 +737,11 @@ namespace Ogre {
 	/** Begin parseNumber */
 	_OgreExport bool parseNumber(const String &script, Ogre::Real &num)
 	{
+#if OGRE_USE_NEW_COMPILERS
 		return boost::spirit::parse(script.c_str(), boost::spirit::real_p[boost::spirit::assign_a(num)]).full;
+#else
+		return false;
+#endif
 	}
 	/** End parseNumber */
 
