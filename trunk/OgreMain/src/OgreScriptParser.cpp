@@ -29,7 +29,6 @@ Torus Knot Software Ltd.
 
 #include "OgreStableHeaders.h"
 #include "OgreScriptCompiler.h"
-#include "OgreScriptParser.h"
 
 #if OGRE_USE_NEW_COMPILERS
 #include <boost/spirit.hpp>
