@@ -281,7 +281,7 @@ namespace Ogre {
 			int testFsaa = fsaa;
 			bool testHwGamma = hwGamma;
 			bool formatOk = mGLSupport.selectPixelFormat(mHDC, mColourDepth, testFsaa, testHwGamma);
-			if (!formatOk && (fsaa > 0 || hwGamma))
+			if (!formatOk)
 			{
 				if (fsaa > 0 && (fsaa > 0))
 				{
@@ -307,7 +307,8 @@ namespace Ogre {
 				}
 
 				if (!formatOk)
-					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "selectPixelFormat failed", "Win32Window::create");
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"selectPixelFormat failed", "Win32Window::create");
 
 			}
 			// record what gamma option we used in the end
@@ -318,7 +319,8 @@ namespace Ogre {
 		{
 			mGlrc = wglCreateContext(mHDC);
 			if (!mGlrc)
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglCreateContext", "Win32Window::create");
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"wglCreateContext failed: " + translateWGLError(), "Win32Window::create");
 		}
 		if (!wglMakeCurrent(mHDC, mGlrc))
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglMakeCurrent", "Win32Window::create");

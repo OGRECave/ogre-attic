@@ -58,28 +58,6 @@ namespace Ogre {
 		wglMakeCurrent(NULL, NULL);
 	}
 
-	String translateError()
-	{
-
-		int winError = GetLastError();
-		char* errDesc;
-		int i;
-
-		errDesc = new char[255];
-		// Try windows errors first
-		i = FormatMessage(
-			FORMAT_MESSAGE_FROM_SYSTEM |
-			FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL,
-			winError,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-			(LPTSTR) errDesc,
-			255,
-			NULL
-			);
-
-		return String(errDesc);
-	}
 	GLContext* Win32Context::clone() const
 	{
 		// Create new context based on own HDC
@@ -97,7 +75,7 @@ namespace Ogre {
 		// Share lists with old context
 	    if (!wglShareLists(mGlrc, newCtx))
 		{
-			String errorMsg = translateError();
+			String errorMsg = translateWGLError();
 			wglDeleteContext(newCtx);
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, String("wglShareLists() failed: ") + errorMsg, "Win32Context::clone");
 		}
