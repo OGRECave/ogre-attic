@@ -36,7 +36,6 @@ Torus Knot Software Ltd.
 #include "OgreString.h"
 #include "OgreSceneManagerEnumerator.h"
 #include "OgreResourceGroupManager.h"
-#include "OgreScriptCompiler.h"
 
 #include <exception>
 
