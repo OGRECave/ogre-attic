@@ -162,6 +162,8 @@ namespace Ogre {
 		virtual float getLightNumber(size_t index) const;
 		virtual const ColourValue& getLightDiffuseColour(size_t index) const;
 		virtual const ColourValue& getLightSpecularColour(size_t index) const;
+		virtual const ColourValue& getLightDiffuseColourWithPower(size_t index) const;
+		virtual const ColourValue& getLightSpecularColourWithPower(size_t index) const;
 		virtual const Vector3& getLightPosition(size_t index) const;
 		virtual Vector4 getLightAs4DVector(size_t index) const;
 		virtual const Vector3& getLightDirection(size_t index) const;

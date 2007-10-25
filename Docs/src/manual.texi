@@ -2118,12 +2118,20 @@ The position of a given light in view space (ie when the camera is at (0,0,0)). 
 The direction of a given light in view space (ie when the camera is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  DEPRECATED, except for spotlights - for directional lights we recommend that you use light_position_view_space instead since that returns a generic 4D vector.
 @item light_power
 The 'power' scaling for a given light, useful in HDR rendering. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light).
+@item light_diffuse_colour_power_scaled
+As light_diffuse_colour, except the RGB channels of the passed colour have been pre-scaled by the light's power scaling as given by light_power.
+@item light_specular_colour_power_scaled
+As light_specular_colour, except the RGB channels of the passed colour have been pre-scaled by the light's power scaling as given by light_power.
 @item light_number
 When rendering, there is generally a list of lights available for use by all of the passes for a given object, and those lights may or may not be referenced in one or more passes. Sometimes it can be useful to know where in that overall list a given light light (as seen from a pass) is. For example if you use iterate once_per_light, the pass always sees the light as index 0, but in each iteration the actual light referenced is different. This binding lets you pass through the actual index of the light in that overall list. You just need to give it a parameter of the pass-relative light number and it will map it to the overall list index.
 @item light_diffuse_colour_array
 As light_diffuse_colour, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
 @item light_specular_colour_array
 As light_specular_colour, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_diffuse_colour_power_scaled_array
+As light_diffuse_colour_power_scaled, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_specular_colour_power_scaled_array
+As light_specular_colour_power_scaled, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
 @item light_attenuation_array
 As light_attenuation, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
 @item spotlight_params_array
@@ -2165,7 +2173,7 @@ The derived ambient light colour, with 'r', 'g', 'b' components filled with prod
 The derived scene colour, with 'r', 'g' and 'b' components filled with sum of derived_ambient_light_colour and surface_emissive_colour, respectively, and 'a' component filled with surface diffuse alpha component.
 
 @item derived_light_diffuse_colour
-The derived light diffuse colour, with 'r', 'g' and 'b' components filled with product of surface_diffuse_colour and light_diffuse_colour, respectively, and 'a' component filled with surface diffuse alpha component. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light).
+The derived light diffuse colour, with 'r', 'g' and 'b' components filled with product of surface_diffuse_colour, light_diffuse_colour and light_power, respectively, and 'a' component filled with surface diffuse alpha component. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light).
 @item derived_light_specular_colour
 The derived light specular colour, with 'r', 'g' and 'b' components filled with product of surface_specular_colour and light_specular_colour, respectively, and 'a' component filled with surface specular alpha component. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light).
 @item derived_light_diffuse_colour_array

@@ -380,10 +380,18 @@ namespace Ogre {
 			ACT_LIGHT_DISTANCE_OBJECT_SPACE,
 			/** Light power level, a single scalar as set in Light::setPowerScale  (index determined by setAutoConstant call) */
 			ACT_LIGHT_POWER_SCALE,
+			/// Light diffuse colour pre-scaled by Light::setPowerScale (index determined by setAutoConstant call)
+			ACT_LIGHT_DIFFUSE_COLOUR_POWER_SCALED,
+			/// Light specular colour pre-scaled by Light::setPowerScale (index determined by setAutoConstant call)
+			ACT_LIGHT_SPECULAR_COLOUR_POWER_SCALED,
 			/// Array of light diffuse colours (count set by extra param)
 			ACT_LIGHT_DIFFUSE_COLOUR_ARRAY,
 			/// Array of light specular colours (count set by extra param)
 			ACT_LIGHT_SPECULAR_COLOUR_ARRAY,
+			/// Array of light diffuse colours scaled by light power (count set by extra param)
+			ACT_LIGHT_DIFFUSE_COLOUR_POWER_SCALED_ARRAY,
+			/// Array of light specular colours scaled by light power (count set by extra param)
+			ACT_LIGHT_SPECULAR_COLOUR_POWER_SCALED_ARRAY,
 			/// Array of light attenuation parameters, Vector4(range, constant, linear, quadric) (count set by extra param)
 			ACT_LIGHT_ATTENUATION_ARRAY,
 			/// Array of light positions in world space (count set by extra param)
@@ -427,8 +435,8 @@ namespace Ogre {
             ACT_DERIVED_SCENE_COLOUR,
 
             /** The derived light diffuse colour (index determined by setAutoConstant call),
-                with 'r', 'g' and 'b' components filled with product of surface diffuse colour
-                and light diffuse colour, respectively, and 'a' component filled with surface
+                with 'r', 'g' and 'b' components filled with product of surface diffuse colour,
+				light power scale and light diffuse colour, respectively, and 'a' component filled with surface
                 diffuse alpha component.
             */
             ACT_DERIVED_LIGHT_DIFFUSE_COLOUR,

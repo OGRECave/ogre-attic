@@ -109,8 +109,12 @@ namespace Ogre
 		AutoConstantDefinition(ACT_LIGHT_DIRECTION_VIEW_SPACE,         "light_direction_view_space",   4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_DISTANCE_OBJECT_SPACE,   "light_distance_object_space",  1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_POWER_SCALE,   		  "light_power",  1, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR_POWER_SCALED, "light_diffuse_colour_power_scaled",         4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR_POWER_SCALED, "light_specular_colour_power_scaled",        4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR_ARRAY,          "light_diffuse_colour_array",         4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR_ARRAY,         "light_specular_colour_array",        4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR_POWER_SCALED_ARRAY, "light_diffuse_colour_power_scaled_array",         4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR_POWER_SCALED_ARRAY, "light_specular_colour_power_scaled_array",        4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_ATTENUATION_ARRAY,             "light_attenuation_array",            4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_POSITION_ARRAY,                "light_position_array",               4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_POSITION_OBJECT_SPACE_ARRAY,   "light_position_object_space_array",  4, ET_REAL, ACDT_INT),
@@ -1387,6 +1391,12 @@ namespace Ogre
             case ACT_LIGHT_POWER_SCALE:
 				_writeRawConstant(i->physicalIndex, source->getLightPowerScale(i->data));
 				break;
+			case ACT_LIGHT_DIFFUSE_COLOUR_POWER_SCALED:
+				_writeRawConstant(i->physicalIndex, source->getLightDiffuseColourWithPower(i->data), i->elementCount);
+				break;
+			case ACT_LIGHT_SPECULAR_COLOUR_POWER_SCALED:
+				_writeRawConstant(i->physicalIndex, source->getLightSpecularColourWithPower(i->data), i->elementCount);
+				break;
 			case ACT_LIGHT_NUMBER:
 				_writeRawConstant(i->physicalIndex, source->getLightNumber(i->data));
 				break;
@@ -1406,6 +1416,17 @@ namespace Ogre
 				for (size_t l = 0; l < i->data; ++l)
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
 						source->getLightSpecularColour(l), i->elementCount);
+				break;
+			case ACT_LIGHT_DIFFUSE_COLOUR_POWER_SCALED_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+					source->getLightDiffuseColourWithPower(l), i->elementCount);
+				break;
+
+			case ACT_LIGHT_SPECULAR_COLOUR_POWER_SCALED_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+					source->getLightSpecularColourWithPower(l), i->elementCount);
 				break;
 
 			case ACT_LIGHT_POSITION_ARRAY:
@@ -1497,7 +1518,7 @@ namespace Ogre
 				}
             case ACT_DERIVED_LIGHT_DIFFUSE_COLOUR:
                 _writeRawConstant(i->physicalIndex,
-                    source->getLightDiffuseColour(i->data) * source->getSurfaceDiffuseColour(),
+                    source->getLightDiffuseColourWithPower(i->data) * source->getSurfaceDiffuseColour(),
                     i->elementCount);
                 break;
             case ACT_DERIVED_LIGHT_SPECULAR_COLOUR:
@@ -1509,7 +1530,7 @@ namespace Ogre
 				for (size_t l = 0; l < i->data; ++l)
                 {
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
-                        source->getLightDiffuseColour(i->data) * source->getSurfaceDiffuseColour(),
+                        source->getLightDiffuseColourWithPower(i->data) * source->getSurfaceDiffuseColour(),
                         i->elementCount);
                 }
                 break;

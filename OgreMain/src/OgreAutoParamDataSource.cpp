@@ -165,6 +165,30 @@ namespace Ogre {
 		return getLight(index).getSpecularColour();
 	}
 	//-----------------------------------------------------------------------------
+	const ColourValue& AutoParamDataSource::getLightDiffuseColourWithPower(size_t index) const
+	{
+		const Light& l = getLight(index);
+		ColourValue scaled(l.getDiffuseColour());
+		Real power = l.getPowerScale();
+		// scale, but not alpha
+		scaled.r *= power;
+		scaled.g *= power;
+		scaled.b *= power;
+		return scaled;
+	}
+	//-----------------------------------------------------------------------------
+	const ColourValue& AutoParamDataSource::getLightSpecularColourWithPower(size_t index) const
+	{
+		const Light& l = getLight(index);
+		ColourValue scaled(l.getSpecularColour());
+		Real power = l.getPowerScale();
+		// scale, but not alpha
+		scaled.r *= power;
+		scaled.g *= power;
+		scaled.b *= power;
+		return scaled;
+	}
+	//-----------------------------------------------------------------------------
 	const Vector3& AutoParamDataSource::getLightPosition(size_t index) const
 	{
 		return getLight(index).getDerivedPosition();
