@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -26,53 +26,56 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef __D3D10HARDWAREINDEXBUFFER_H__
-#define __D3D10HARDWAREINDEXBUFFER_H__
+#ifndef __D3D10HARDWAREBUFFER_H__
+#define __D3D10HARDWAREBUFFER_H__
 
 #include "OgreD3D10Prerequisites.h"
-#include "OgreHardwareIndexBuffer.h"
-#include "OgreD3D10HardwareBuffer.h"
+#include "OgreHardwareBuffer.h"
 
 namespace Ogre { 
 
 
-    class D3D10HardwareIndexBuffer : public HardwareIndexBuffer
-    {
-    protected:
-        D3D10HardwareBuffer* mBufferImpl;
-		// have to implement these, but do nothing as overridden lock/unlock
-		void* lockImpl(size_t offset, size_t length, LockOptions options) {return 0;}
-		void unlockImpl(void) {}
+	/** Base implementation of a D3D10 buffer, dealing with all the common
+		aspects.
+	*/
+	class D3D10HardwareBuffer : public HardwareBuffer
+	{
+	public:
+		enum BufferType
+		{
+			VERTEX_BUFFER,
+			INDEX_BUFFER
+		};
+	protected:
+		ID3D10Buffer* mlpD3DBuffer;
+		D3D10HardwareBuffer* mpTempStagingBuffer;
+		bool mStagingUploadNeeded;
+		BufferType mBufferType;
+		ID3D10Device* mDev;
+		/** See HardwareBuffer. */
+		void* lockImpl(size_t offset, size_t length, LockOptions options);
+		/** See HardwareBuffer. */
+		void unlockImpl(void);
 
-    public:
-		D3D10HardwareIndexBuffer(IndexType idxType, size_t numIndexes, 
-			HardwareBuffer::Usage usage, ID3D10Device * pDev, bool useSystemMem, bool useShadowBuffer);
-        ~D3D10HardwareIndexBuffer();
-
-		// override all data-gathering methods
-		void* lock(size_t offset, size_t length, LockOptions options);
-		void unlock(void);
+	public:
+		D3D10HardwareBuffer(BufferType btype, size_t sizeBytes, HardwareBuffer::Usage usage, 
+			ID3D10Device* pDev, bool useSystemMem, bool useShadowBuffer);
+		~D3D10HardwareBuffer();
+		/** See HardwareBuffer. */
 		void readData(size_t offset, size_t length, void* pDest);
+		/** See HardwareBuffer. */
 		void writeData(size_t offset, size_t length, const void* pSource,
 			bool discardWholeBuffer = false);
-
+		/** See HardwareBuffer. We perform a hardware copy here. */
 		void copyData(HardwareBuffer& srcBuffer, size_t srcOffset, 
 			size_t dstOffset, size_t length, bool discardWholeBuffer = false);
-		bool isLocked(void) const;
 
-		/// For dealing with lost devices - release the resource if in the default pool
-		bool releaseIfDefaultPool(void);
-		/// For dealing with lost devices - recreate the resource if in the default pool
-		bool recreateIfDefaultPool(ID3D10Device * pDev);
-
-		/// Get the D3D-specific index buffer
-		ID3D10Buffer * getD3DIndexBuffer(void) const { return mBufferImpl->getD3DBuffer(); }
+		/// Get the D3D-specific buffer
+		ID3D10Buffer* getD3DBuffer(void) { return mlpD3DBuffer; }
 
 
 
-
-
-    };
+	};
 
 
 }

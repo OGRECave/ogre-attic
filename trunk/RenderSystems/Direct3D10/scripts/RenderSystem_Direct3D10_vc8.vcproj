@@ -67,7 +67,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="OgreMain_d.lib dxguid.lib  d3d10.lib d3dx10d.lib  dxgi.lib "
+				AdditionalDependencies="OgreMain_d.lib dxguid.lib d3d10.lib d3dx10d.lib dxgi.lib dxerr.lib"
 				OutputFile="$(OutDir)/RenderSystem_Direct3D10_d.dll"
 				Version=""
 				LinkIncremental="2"
@@ -259,7 +259,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="d3d10.lib d3dx10.lib dxerr.lib dxguid.lib dxgi.lib"
+				AdditionalDependencies="d3d10.lib d3dx10.lib dxerr.lib dxguid.lib dxgi.lib dxerr.lib"
 				OutputFile="$(OutDir)\$(ProjectName)Static.lib"
 			/>
 			<Tool
@@ -330,7 +330,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="d3d10.lib d3dx10d.lib dxerr.lib dxguid.lib dxgi.lib"
+				AdditionalDependencies="d3d10.lib d3dx10d.lib dxerr.lib dxguid.lib dxgi.lib dxerr.lib"
 				OutputFile="$(OutDir)\$(ProjectName)Static_d.lib"
 			/>
 			<Tool
@@ -376,6 +376,10 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreD3D10GpuProgramManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreD3D10HardwareBuffer.cpp"
 				>
 			</File>
 			<File
@@ -465,6 +469,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D10GpuProgramManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D10HardwareBuffer.h"
 				>
 			</File>
 			<File

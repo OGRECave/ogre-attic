@@ -2454,7 +2454,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 			  mpD3DDevice->IASetVertexBuffers(
                 static_cast<UINT>(source),
 				1,
-                (ID3D10Buffer *const *)d3d9buf->getD3D10VertexBuffer(),
+                (ID3D10Buffer *const *)d3d9buf->getD3DVertexBuffer(),
                 strides, // stride
 				offsets // no stream offset, this is handled in _render instead
                 );
