@@ -39,136 +39,60 @@ namespace Ogre {
         bool useSystemMemory, bool useShadowBuffer)
         : HardwareVertexBuffer(vertexSize, numVertices, usage, useSystemMemory, useShadowBuffer)
     {
-/*        // Create the vertex buffer
-#if OGRE_D3D_MANAGE_BUFFERS
-		mD3DPool = useSystemMemory? D3DPOOL_SYSTEMMEM : 
-			// If not system mem, use managed pool UNLESS buffer is discardable
-			// if discardable, keeping the software backing is expensive
-			(usage & HardwareBuffer::HBU_DISCARDABLE)? D3DPOOL_DEFAULT : D3DPOOL_MANAGED;
-#else
-		mD3DPool = useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT;
-#endif
-        HRESULT hr = pDev->CreateVertexBuffer(
-            static_cast<UINT>(mSizeInBytes), 
-            D3D10Mappings::get(usage), 
-            0, // No FVF here, thankyou
-			mD3DPool,
-            &mlpD3DBuffer,
-            NULL);
-        if (FAILED(hr))
-        {
-			String msg = DXGetErrorDescription9(hr);
-            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"Cannot create D3D10 vertex buffer: " + msg, 
-                "D3D10HardwareVertexBuffer::D3D10HardwareVertexBuffer");
-        }
-*/
-		D3D10_BUFFER_DESC bd;
-		bd.Usage = D3D10Mappings::get(usage);
-		bd.ByteWidth = (UINT)mSizeInBytes;
-		bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
-		bd.CPUAccessFlags =D3D10_CPU_ACCESS_WRITE;
-	/*	
-		if(!(usage & HBU_WRITE_ONLY 
-			|| usage & HBU_STATIC_WRITE_ONLY 
-			|| usage & HBU_DYNAMIC_WRITE_ONLY
-			|| usage & HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE ))
-		{
-			bd.CPUAccessFlags =D3D10_CPU_ACCESS_READ ;
-		}
-*/
-		bd.MiscFlags = 0;
-		HRESULT hr = pDev->CreateBuffer( &bd, 0, &mlpD3DBuffer );
-		if( FAILED(hr) )
-		{
-		String msg ;//= DXGetErrorDescription9(hr);
-            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"Cannot create D3D10 vertex buffer: " + msg, 
-                "D3D10HardwareVertexBuffer::D3D10HardwareVertexBuffer");
-       }
+		// everything is done via internal generalisation
+		mBufferImpl = new D3D10HardwareBuffer(D3D10HardwareBuffer::VERTEX_BUFFER, 
+			mSizeInBytes, mUsage, pDev, useSystemMemory, useShadowBuffer);
 
     }
 	//---------------------------------------------------------------------
     D3D10HardwareVertexBuffer::~D3D10HardwareVertexBuffer()
     {
-        SAFE_RELEASE(mlpD3DBuffer);
+        delete mBufferImpl;
     }
 	//---------------------------------------------------------------------
-    void* D3D10HardwareVertexBuffer::lockImpl(size_t offset, 
-        size_t length, LockOptions options)
-    {
-        char* pBuf;
-    /*    HRESULT hr = mlpD3DBuffer->Lock(
-            static_cast<UINT>(offset), 
-            static_cast<UINT>(length), 
-            &pBuf,
-            D3D10Mappings::get(options, mUsage));
+	void* D3D10HardwareVertexBuffer::lock(size_t offset, size_t length, LockOptions options)
+	{
+		return mBufferImpl->lock(offset, length, options);
+	}
+	//---------------------------------------------------------------------
+	void D3D10HardwareVertexBuffer::unlock(void)
+	{
+		mBufferImpl->unlock();
+	}
+	//---------------------------------------------------------------------
+	void D3D10HardwareVertexBuffer::readData(size_t offset, size_t length, void* pDest)
+	{
+		mBufferImpl->readData(offset, length, pDest);
+	}
+	//---------------------------------------------------------------------
+	void D3D10HardwareVertexBuffer::writeData(size_t offset, size_t length, const void* pSource,
+		bool discardWholeBuffer)
+	{
+		mBufferImpl->writeData(offset, length, pSource, discardWholeBuffer);
+	}
+	//---------------------------------------------------------------------
+	void D3D10HardwareVertexBuffer::copyData(HardwareBuffer& srcBuffer, size_t srcOffset, 
+		size_t dstOffset, size_t length, bool discardWholeBuffer)
+	{
+		D3D10HardwareVertexBuffer& d3dBuf = static_cast<D3D10HardwareVertexBuffer&>(srcBuffer);
 
-        if (FAILED(hr))
-        {
-			String msg = DXGetErrorDescription9(hr);
-            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"Cannot lock D3D10 vertex buffer: " + msg, 
-                "D3D10HardwareVertexBuffer::lock");
-        }
-*/
-		// TODO deal with locking modes not supported by dx10 because of initial usage
-		// use temporary staging buffer
-		HRESULT hr = mlpD3DBuffer->Map(
-            D3D10Mappings::get(options, mUsage),
-			0,
-			(void**)&pBuf
-			);
-		
-        if (FAILED(hr))
-        {
-			String msg ;//= DXGetErrorDescription9(hr);
-            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"Cannot lock D3D10 vertex buffer: " + msg, 
-                "D3D10HardwareVertexBuffer::lock");
-        }
-		pBuf+=offset;
-
-        return pBuf;
-    }
+		mBufferImpl->copyData(*(d3dBuf.mBufferImpl), srcOffset, dstOffset, length, discardWholeBuffer);
+	}
 	//---------------------------------------------------------------------
-	void D3D10HardwareVertexBuffer::unlockImpl(void)
-    {
-        mlpD3DBuffer->Unmap();
-    }
-	//---------------------------------------------------------------------
-    void D3D10HardwareVertexBuffer::readData(size_t offset, size_t length, 
-        void* pDest)
-    {
-        // There is no functional interface in D3D, just do via manual 
-        // lock, copy & unlock
-        void* pSrc = this->lock(offset, length, HardwareBuffer::HBL_READ_ONLY);
-        memcpy(pDest, pSrc, length);
-        this->unlock();
-
-    }
-	//---------------------------------------------------------------------
-    void D3D10HardwareVertexBuffer::writeData(size_t offset, size_t length, 
-            const void* pSource,
-			bool discardWholeBuffer)
-    {
-        // There is no functional interface in D3D, just do via manual 
-        // lock, copy & unlock
-        void* pDst = this->lock(offset, length, 
-            discardWholeBuffer ? HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
-        memcpy(pDst, pSource, length);
-        this->unlock();
-    }
+	bool D3D10HardwareVertexBuffer::isLocked(void) const
+	{
+		return mBufferImpl->isLocked();
+	}
 	//---------------------------------------------------------------------
 	bool D3D10HardwareVertexBuffer::releaseIfDefaultPool(void)
 	{
-	/*	if (mD3DPool == D3DPOOL_DEFAULT)
+/*		if (mD3DPool == D3DPOOL_DEFAULT)
 		{
 			SAFE_RELEASE(mlpD3DBuffer);
 			return true;
 		}
 		return false;
-		*/
+*/
 		return true;
 	}
 	//---------------------------------------------------------------------
@@ -176,20 +100,24 @@ namespace Ogre {
 	{
 	/*	if (mD3DPool == D3DPOOL_DEFAULT)
 		{
-			HRESULT hr = pDev->CreateVertexBuffer(
-				static_cast<UINT>(mSizeInBytes), 
-				D3D10Mappings::get(mUsage), 
-				0, // No FVF here, thankyou
+			// Create the Index buffer
+			HRESULT hr = pDev->CreateIndexBuffer(
+				static_cast<UINT>(mSizeInBytes),
+				D3D10Mappings::get(mUsage),
+				D3D10Mappings::get(mIndexType),
 				mD3DPool,
 				&mlpD3DBuffer,
-				NULL);
+				NULL
+				);
+
 			if (FAILED(hr))
 			{
 				String msg = DXGetErrorDescription9(hr);
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"Cannot restore D3D10 vertex buffer: " + msg, 
-					"D3D10HardwareVertexBuffer::recreateIfDefaultPool");
+					"Cannot create D3D10 Index buffer: " + msg, 
+					"D3D10HardwareVertexBuffer::D3D10HardwareVertexBuffer");
 			}
+
 			return true;
 		}
 		return false;
@@ -197,4 +125,6 @@ namespace Ogre {
 		return true;
 	}
 	//---------------------------------------------------------------------
+
 }
+

@@ -31,39 +31,42 @@ Torus Knot Software Ltd.
 
 #include "OgreD3D10Prerequisites.h"
 #include "OgreHardwareVertexBuffer.h"
-#include <d3d10.h>
-#include <d3dx10.h>
-#include <dxerr.h>
-
+#include "OgreD3D10HardwareBuffer.h"
 
 namespace Ogre {
 
     /// Specialisation of HardwareVertexBuffer for D3D10
     class D3D10HardwareVertexBuffer : public HardwareVertexBuffer 
     {
-    protected:
-        ID3D10Buffer * mlpD3DBuffer;
-//		D3DPOOL mD3DPool;
-        /** See HardwareBuffer. */
-        void* lockImpl(size_t offset, size_t length, LockOptions options);
-        /** See HardwareBuffer. */
-		void unlockImpl(void);
-    public:
+	protected:
+		D3D10HardwareBuffer* mBufferImpl;
+		// have to implement these, but do nothing as overridden lock/unlock
+		void* lockImpl(size_t offset, size_t length, LockOptions options) {return 0;}
+		void unlockImpl(void) {}
+
+	public:
 		D3D10HardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
-            HardwareBuffer::Usage usage, ID3D10Device * pDev, bool useSystemMem, bool useShadowBuffer);
-        ~D3D10HardwareVertexBuffer();
-        /** See HardwareBuffer. */
-        void readData(size_t offset, size_t length, void* pDest);
-        /** See HardwareBuffer. */
-        void writeData(size_t offset, size_t length, const void* pSource,
-				bool discardWholeBuffer = false);
+			HardwareBuffer::Usage usage, ID3D10Device * pDev, bool useSystemMem, bool useShadowBuffer);
+		~D3D10HardwareVertexBuffer();
+
+		// override all data-gathering methods
+		void* lock(size_t offset, size_t length, LockOptions options);
+		void unlock(void);
+		void readData(size_t offset, size_t length, void* pDest);
+		void writeData(size_t offset, size_t length, const void* pSource,
+			bool discardWholeBuffer = false);
+
+		void copyData(HardwareBuffer& srcBuffer, size_t srcOffset, 
+			size_t dstOffset, size_t length, bool discardWholeBuffer = false);
+		bool isLocked(void) const;
+
 		/// For dealing with lost devices - release the resource if in the default pool
 		bool releaseIfDefaultPool(void);
 		/// For dealing with lost devices - recreate the resource if in the default pool
 		bool recreateIfDefaultPool(ID3D10Device * pDev);
 
-        /// Get D3D10-specific vertex buffer
-        ID3D10Buffer * getD3D10VertexBuffer(void) const { return mlpD3DBuffer; }
+		/// Get the D3D-specific vertex buffer
+		ID3D10Buffer * getD3DVertexBuffer(void) const { return mBufferImpl->getD3DBuffer(); }
 
 
     };

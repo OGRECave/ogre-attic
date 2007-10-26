@@ -53,25 +53,6 @@ namespace Ogre {
 		bool useShadowBuffer)
     {
 		assert (numVerts > 0);
-#if OGRE_D3D_MANAGE_BUFFERS
-        // Override shadow buffer setting; managed buffers are automatically
-        // backed by system memory
-        // Don't override shadow buffer if discardable, since then we use
-        // unmanaged buffers for speed (avoids write-through overhead)
-        if (useShadowBuffer && !(usage & HardwareBuffer::HBU_DISCARDABLE))
-        {
-            useShadowBuffer = false;
-            // Also drop any WRITE_ONLY so we can read direct
-            if (usage == HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY)
-            {
-                usage = HardwareBuffer::HBU_DYNAMIC;
-            }
-            else if (usage == HardwareBuffer::HBU_STATIC_WRITE_ONLY)
-            {
-                usage = HardwareBuffer::HBU_STATIC;
-            }
-        }
-#endif
 		D3D10HardwareVertexBuffer* vbuf = new D3D10HardwareVertexBuffer(
 			vertexSize, numVerts, usage, mlpD3DDevice, false, useShadowBuffer);
 		{
