@@ -32,112 +32,22 @@ Torus Knot Software Ltd.
 
 #include "OgrePrerequisites.h"
 #include "OgreSharedPtr.h"
+#include "OgreScriptCompiler.h"
+#include "OgreScriptLexer.h"
 
 namespace Ogre {
 
-	struct ScriptNode;
-	typedef SharedPtr<ScriptNode> ScriptNodePtr;
-
-	/** A list of nodes is the base structure of the AST */
-	typedef std::list<ScriptNodePtr> ScriptNodeList;
-	typedef SharedPtr<ScriptNodeList> ScriptNodeListPtr;
-
-	/** This is the basic unit of the Abstract Syntax Tree.
-		It holds information about the token that is parsed,
-		as well as extra information for error handling.
-	*/
-	struct ScriptNode
+	class _OgreExport ScriptParser
 	{
-		String token, file;
-		uint32 type, wordID;
-		int line, column;
-		Real data;
-		bool isProperty, isObject;
-		ScriptNodeList children;
-		ScriptNode *parent;
-	};
-
-	/** This enum contains identifiers for the possible parsing errors */
-	enum ParseError
-	{
-		PE_RESERVED,
-		PE_OPENBRACEEXPECTED,
-		PE_CLOSEBRACEEXPECTED,
-		PE_IMPORTPATHEXPECTED,
-		PE_IMPORTTARGETEXPECTED,
-		PE_ENDQUOTEEXPECTED,
-		PE_FROMEXPECTED,
-		PE_PARENTOBJECTEXPECTED,
-		PE_VARIABLEEXPECTED,
-		PE_VARIABLEVALUEEXPECTED,
-		PE_UNKNOWN
-	};
-
-	/** This enum contains type IDs for identified built-in types */
-	enum
-	{
-		SNT_VARIABLE,
-		SNT_VARIABLE_ASSIGN,
-		SNT_WORD,
-		SNT_NUMBER,
-		SNT_IMPORT,
-		SNT_QUOTE,
-		SNT_LBRACE,
-		SNT_RBRACE,
-		SNT_COLON,
-		SNT_NEWLINE,
-		SNT_END_TYPES
-	};
-
-	/** This exception type stores information about a parsing error.
-		It identified where in the file the error occurs and may
-		include additional information about the nature of the error.
-	*/
-	class ParseErrorException : public std::exception
-	{
-	private:
-		String mFile;
-		mutable String mErrorStr;
-		int mLine, mColumn;
-		ParseError mError;
 	public:
-		ParseErrorException(const Ogre::String &file, int line, int column, ParseError err);
-		~ParseErrorException() throw() {}
-		
-		const char *what() const throw();
-		const Ogre::String &getFile() const;
-		int getLine() const;
-		ParseError getError() const;
+		ScriptParser();
+
+		ConcreteNodeListPtr parse(const ScriptTokenListPtr &tokens);
 	private:
-		// Converts the error code to a string
-		String getErrorString() const;
+		ScriptToken *getToken(ScriptTokenList::iterator i, ScriptTokenList::iterator end, int offset);
+		ScriptTokenList::iterator skipNewlines(ScriptTokenList::iterator i, ScriptTokenList::iterator end);
 	};
-
-	/// This is the wordID map sent into the parser to identify word tokens
-	typedef std::map<String,unsigned int> WordIDMap;
-
-	/// This set defines what tokens are considered type identifiers indicating the start of object definitions
-	typedef std::set<String> ObjectIDSet;
-
-	/** This is the free parse function. It takes the input and parses it into
-		an AST, returning it in a ScriptNodeListPtr. If there is a parse error
-		then it will throw a ParseErrorException.
-
-		@param script This is the code for the script file
-		@param source This is the source of the code for the script, for instance the file
-		@param ids This map identifies word tokens as integer ids
-	*/
-	ScriptNodeListPtr parse(const String &script, const String &source, const WordIDMap &ids = WordIDMap(), const ObjectIDSet &objs = ObjectIDSet());
-
-	/** This free parse function parses a chunk. A chunk is basically a list
-		of values, either variables, strings, or numbers. If a parser error
-		occurs, a ParseErrorException is thrown.
-
-		@param script This is the code for the script chunk
-		@param source This is the source for the script, like a file
-		@param ids This is a map which identifies tokens as integer ids
-	*/
-	ScriptNodeListPtr parseChunk(const String &script, const String &source, const WordIDMap &ids = WordIDMap());
+	
 }
 
 #endif
