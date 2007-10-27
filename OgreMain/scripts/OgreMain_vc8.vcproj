@@ -951,6 +951,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreScriptLexer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreScriptParser.cpp"
 				>
 			</File>
@@ -1781,6 +1785,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreScriptCompiler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreScriptLexer.h"
 				>
 			</File>
 			<File

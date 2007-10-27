@@ -44,8 +44,7 @@ namespace Ogre
 		CNT_QUOTE,
 		CNT_LBRACE,
 		CNT_RBRACE,
-		CNT_COLON,
-		CNT_NEWLINE
+		CNT_COLON
 	};
 
 	/** The ConcreteNode is the struct that holds an un-conditioned sub-tree of parsed input */
@@ -56,7 +55,7 @@ namespace Ogre
 	struct ConcreteNode
 	{
 		String token, file;
-		unsigned int line, column;
+		unsigned int line;
 		ConcreteNodeType type;
 		ConcreteNodeList children;
 		ConcreteNode *parent;
@@ -65,7 +64,7 @@ namespace Ogre
 	/** This enum holds the types of the possible abstract nodes */
 	enum AbstractNodeType
 	{
-		ANT_ROOT,
+		ANT_UNKNOWN,
 		ANT_ATOM,
 		ANT_OBJECT,
 		ANT_PROPERTY,
@@ -77,13 +76,16 @@ namespace Ogre
 	typedef SharedPtr<AbstractNode> AbstractNodePtr;
 	typedef std::vector<AbstractNodePtr> AbstractNodeList;
 	typedef SharedPtr<AbstractNodeList> AbstractNodeListPtr;
+
 	class AbstractNode
 	{
 	public:
 		String file;
-		unsigned int line, column;
+		unsigned int line;
 		AbstractNodeType type;
+		AbstractNode *parent;
 	public:
+		AbstractNode(AbstractNode *ptr);
 		virtual AbstractNode *clone() const = 0; 
 	};
 
@@ -95,22 +97,26 @@ namespace Ogre
 		mutable Real mNum;
 	public:
 		String value;
+		uint32 id;
 	public:
-		AtomAbstractNode();
+		AtomAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
 		bool isNumber() const;
 		Real getNumber() const;
+	private:
+		void parseNumber() const;
 	};
 
 	/** This specific abstract node represents a script object */
 	class ObjectAbstractNode : public AbstractNode
 	{
 	public:
-		String name, cls;
+		String name, cls, base;
+		uint32 id;
 		bool abstract;
 		AbstractNodeList children;
 	public:
-		ObjectAbstractNode();
+		ObjectAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
 	};
 
@@ -119,9 +125,10 @@ namespace Ogre
 	{
 	public:
 		String name;
+		uint32 id;
 		AbstractNodeList values;
 	public:
-		PropertyAbstractNode();
+		PropertyAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
 	};
 
@@ -141,7 +148,7 @@ namespace Ogre
 	public:
 		String name, value;
 	public:
-		VariableAssignAbstractNode();
+		VariableAssignAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
 	};
 
@@ -151,7 +158,7 @@ namespace Ogre
 	public:
 		String name;
 	public:
-		VariableAccessAbstractNode();
+		VariableAccessAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
 	};
 
@@ -174,10 +181,64 @@ namespace Ogre
 	*/
 	class _OgreExport ScriptCompiler
 	{
+	public: // Externally accessible types
+		typedef std::map<String,uint32> IdMap;
+
+		// The container for errors
+		struct Error
+		{
+			String file;
+			int line;
+			uint32 code;
+		};
+		typedef SharedPtr<Error> ErrorPtr;
+		typedef std::list<ErrorPtr> ErrorList;
+
+		// These are the built-in error codes
+		enum{
+			CE_STRINGEXPECTED,
+			CE_NUMBEREXPECTED,
+			CE_FEWERPARAMETERSEXPECTED,
+			CE_VARIABLEEXPECTED
+		};
 	public:
 		ScriptCompiler();
 
+		/// Takes in a string of script code and compiles it into resources
+		/**
+		 * @param str The script code
+		 * @param source The source of the script code (e.g. a script file)
+		 * @param group The resource group to place the compiled resources into
+		 */
 		bool compile(const String &str, const String &source, const String &group);
+		/// Compiles resources from the given concrete node list
+		bool compile(const ConcreteNodeListPtr &nodes, const String &group);
+		/// Adds the given error to the compiler's list of errors
+		void addError(uint32 code, const String &file, int line);
+	private: // Tree processing
+		AbstractNodeListPtr convertToAST(const ConcreteNodeListPtr &nodes);
+	private:
+		// Resource group
+		String mGroup;
+		// The word -> id conversion table
+		IdMap mIds;
+
+		// Error list
+		ErrorList mErrors;
+	private: // Internal helper classes and processors
+		class AbstractTreeBuilder
+		{
+		private:
+			AbstractNodeListPtr mNodes;
+			AbstractNode *mCurrent;
+			ScriptCompiler *mCompiler;
+		public:
+			AbstractTreeBuilder(ScriptCompiler *compiler);
+			const AbstractNodeListPtr &getResult() const;
+			void visit(ConcreteNode *node);
+			static void visit(AbstractTreeBuilder *visitor, const ConcreteNodeList &nodes);
+		};
+		friend class AbstractTreeBuilder;
 	};
 }
 

@@ -45,10 +45,9 @@ namespace Ogre {
 		TID_LBRACKET = 0, // {
 		TID_RBRACKET, // }
 		TID_COLON, // :
-		TID_IMPORT, // import
 		TID_VARIABLE, // $...
 		TID_WORD, // *
-		TID_QUOTE, // "*" or '*'
+		TID_QUOTE, // "*"
 		TID_NEWLINE, // \n
 		TID_UNKNOWN,
 		TID_END
@@ -60,14 +59,14 @@ namespace Ogre {
 	struct ScriptToken
 	{
 		/// This is the lexeme for this token
-		String lexeme;
+		String lexeme, file;
 		/// This is the id associated with the lexeme, which comes from a lexeme-token id mapping
 		uint32 type;
 		/// This holds the line number of the input stream where the token was found.
 		uint32 line;
 	};
 	typedef SharedPtr<ScriptToken> ScriptTokenPtr;
-	typedef std::list<ScriptTokenPtr> ScriptTokenList;
+	typedef std::vector<ScriptTokenPtr> ScriptTokenList;
 	typedef SharedPtr<ScriptTokenList> ScriptTokenListPtr;
 
 	class _OgreExport ScriptLexer
@@ -75,33 +74,12 @@ namespace Ogre {
 	public:
 		ScriptLexer();
 
-		/** Sets the given lexeme to be assigned the given token id value */
-		void setTokenId(const String &lexeme, uint32 id);
-		/** Removes the lexeme to id mapping */
-		void removeTokenId(const String &lexeme);
-		/** Clears all lexeme to id mappings */
-		void clearTokenIds();
-
-		/** Sets whether repeated newlines are tokenized, or ignored */
-		void setIgnoreRepeatedNewlines(bool b);
-		/** Returns whether repeated newlines are tokenized or ignored */
-		bool getIgnoreRepeatedNewlines() const;
-
 		/** Tokenizes the given input and returns the list of tokens found */
-		ScriptTokenListPtr tokenize(const String &source);
-		/** Tokenizes the string read from the given DataStream */
-		ScriptTokenListPtr tokenize(DataStreamPtr stream);
+		ScriptTokenListPtr tokenize(const String &str, const String &source);
 	private: // Private utility operations
-		void setToken(const String &lexeme, uint32 line, ScriptTokenListPtr &tokens);
+		void setToken(const String &lexeme, uint32 line, const String &source, ScriptTokenList *tokens);
 		bool isWhitespace(Ogre::String::value_type c) const;
 		bool isNewline(Ogre::String::value_type c) const;
-	private:
-		// This flag sets whether repeated newlines are ignored or stored
-		bool mIgnoreRepeatedNewlines;
-		// This maps lexemes to specific user ids.
-		typedef std::map<String,uint32> UserTokenMap;
-		// This map supercedes the built-in token ids and allows you assign your own ids to specific lexemes.
-		UserTokenMap mUserTokens;
 	};
 
 }
