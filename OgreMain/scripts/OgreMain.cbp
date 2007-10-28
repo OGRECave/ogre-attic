@@ -255,6 +255,7 @@
 		<Unit filename="..\include\OgreSceneNode.h" />
 		<Unit filename="..\include\OgreSceneQuery.h" />
 		<Unit filename="..\include\OgreScriptCompiler.h" />
+		<Unit filename="..\include\OgreScriptLexer.h" />
 		<Unit filename="..\include\OgreScriptLoader.h" />
 		<Unit filename="..\include\OgreScriptParser.h" />
 		<Unit filename="..\include\OgreSearchOps.h" />
@@ -451,6 +452,7 @@
 		<Unit filename="..\src\OgreRotationSpline.cpp" />
 		<Unit filename="..\src\OgreSIMDHelper.h" />
 		<Unit filename="..\src\OgreScriptCompiler.cpp" />
+		<Unit filename="..\src\OgreScriptLexer.cpp" />
 		<Unit filename="..\src\OgreScriptParser.cpp" />
 		<Unit filename="..\src\OgreSceneManager.cpp" />
 		<Unit filename="..\src\OgreSceneManagerEnumerator.cpp" />

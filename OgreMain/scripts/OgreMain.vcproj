@@ -729,6 +729,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreScriptCompiler.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreScriptLexer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreScriptParser.cpp">
 			</File>
 			<File
@@ -1355,6 +1358,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreScriptCompiler.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreScriptLexer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreScriptLoader.h">
