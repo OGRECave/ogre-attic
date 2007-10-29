@@ -289,7 +289,7 @@ namespace Ogre
             @param
                 autoCreateWindow If true, a rendering window will
                 automatically be created (saving a call to
-                RenderSystem::createRenderWindow). The window will be
+                Root::createRenderWindow). The window will be
                 created based on the options currently set on the render
                 system.
             @returns
@@ -563,7 +563,7 @@ namespace Ogre
         */
         RenderWindow* getAutoCreatedWindow(void);
 
-        /** @copydoc RenderSystem::createRenderWindow
+        /** @copydoc RenderSystem::_createRenderWindow
         */
 		RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
 			bool fullScreen, const NameValuePairList *miscParams = 0) ;

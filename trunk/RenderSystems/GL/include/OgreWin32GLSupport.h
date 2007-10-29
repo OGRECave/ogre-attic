@@ -28,7 +28,7 @@ namespace Ogre
 
 		virtual RenderWindow* createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle = "OGRE Render Window");
 
-		/// @copydoc RenderSystem::createRenderWindow
+		/// @copydoc RenderSystem::_createRenderWindow
 		virtual RenderWindow* newWindow(const String &name, unsigned int width, unsigned int height, 
 			bool fullScreen, const NameValuePairList *miscParams = 0);
 

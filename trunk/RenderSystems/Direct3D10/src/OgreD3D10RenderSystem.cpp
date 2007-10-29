@@ -488,7 +488,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		return mOptions;
 	}
 	//---------------------------------------------------------------------
-	RenderWindow* D3D10RenderSystem::initialise( bool autoCreateWindow, const String& windowTitle )
+	RenderWindow* D3D10RenderSystem::_initialise( bool autoCreateWindow, const String& windowTitle )
 	{
 		RenderWindow* autoWindow = NULL;
 		LogManager::getSingleton().logMessage( "D3D10 : Subsystem Initialising" );
@@ -588,7 +588,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 			miscParams["useNVPerfHUD"] = StringConverter::toString(mUseNVPerfHUD);
 			miscParams["gamma"] = StringConverter::toString(hwGamma);
 
-			autoWindow = this->createRenderWindow( windowTitle, width, height, 
+			autoWindow = this->_createRenderWindow( windowTitle, width, height, 
 				fullScreen, &miscParams );
 
             // If we have 16bit depth buffer enable w-buffering.
@@ -608,7 +608,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		LogManager::getSingleton().logMessage("***************************************");
 
 		// call superclass method
-		RenderSystem::initialise( autoCreateWindow );
+		RenderSystem::_initialise( autoCreateWindow );
 
 
 		return autoWindow;
@@ -645,7 +645,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		SAFE_DELETE( mGpuProgramManager );
 	}
 	//---------------------------------------------------------------------
-	RenderWindow* D3D10RenderSystem::createRenderWindow(const String &name, 
+	RenderWindow* D3D10RenderSystem::_createRenderWindow(const String &name, 
 		unsigned int width, unsigned int height, bool fullScreen,
 		const NameValuePairList *miscParams)
 	{
@@ -656,18 +656,18 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		{
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
 				"Cannot create secondary windows when the primary is full screen",
-				"D3D10RenderSystem::createRenderWindow");
+				"D3D10RenderSystem::_createRenderWindow");
 		}
 		if (mPrimaryWindow && fullScreen)
 		{
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
 				"Cannot create full screen secondary windows",
-				"D3D10RenderSystem::createRenderWindow");
+				"D3D10RenderSystem::_createRenderWindow");
 		}
 		
 		// Log a message
 		std::stringstream ss;
-		ss << "D3D10RenderSystem::createRenderWindow \"" << name << "\", " <<
+		ss << "D3D10RenderSystem::_createRenderWindow \"" << name << "\", " <<
 			width << "x" << height << " ";
 		if(fullScreen)
 			ss << "fullscreen ";
@@ -692,7 +692,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		{
 			msg = "A render target of the same name '" + name + "' already "
 				"exists.  You cannot create a new window with this name.";
-			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, msg, "D3D10RenderSystem::createRenderWindow" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, msg, "D3D10RenderSystem::_createRenderWindow" );
 		}
 
 		RenderWindow* win = new D3D10RenderWindow(mhInstance, mActiveD3DDriver, 

@@ -192,7 +192,7 @@ namespace Ogre
 		@param
 		autoCreateWindow If true, creates a render window
 		automatically, based on settings chosen so far. This saves
-		an extra call to RenderSystem::createRenderWindow
+		an extra call to _createRenderWindow
 		for the main render window.
 		@par
 		If an application has more specific window requirements,
@@ -201,7 +201,7 @@ namespace Ogre
 		@returns
 		A pointer to the automatically created window, if requested, otherwise null.
 		*/
-		virtual RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
+		virtual RenderWindow* _initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
 
 
 		/** Query the real capabilities of the GPU and driver in the RenderSystem*/
@@ -375,7 +375,7 @@ namespace Ogre
 		Values: true, false
 		Default: false
 		*/
-		virtual RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
+		virtual RenderWindow* _createRenderWindow(const String &name, unsigned int width, unsigned int height, 
 			bool fullScreen, const NameValuePairList *miscParams = 0) = 0;
 
 		/**	Create a MultiRenderTarget, which is a render target that renders to multiple RenderTextures

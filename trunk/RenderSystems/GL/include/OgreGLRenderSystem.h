@@ -163,7 +163,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
+        RenderWindow* _initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
         /** See
           RenderSystem
          */
@@ -194,8 +194,8 @@ namespace Ogre {
          */
         void setLightingEnabled(bool enabled);
         
-		/// @copydoc RenderSystem::createRenderWindow
-		RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
+		/// @copydoc RenderSystem::_createRenderWindow
+		RenderWindow* _createRenderWindow(const String &name, unsigned int width, unsigned int height, 
 			bool fullScreen, const NameValuePairList *miscParams = 0);
 
 		/// @copydoc RenderSystem::createMultiRenderTarget
