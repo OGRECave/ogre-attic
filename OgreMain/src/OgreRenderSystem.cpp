@@ -123,7 +123,7 @@ namespace Ogre {
 		}
     }
     //-----------------------------------------------------------------------
-    RenderWindow* RenderSystem::initialise(bool autoCreateWindow, const String& windowTitle)
+    RenderWindow* RenderSystem::_initialise(bool autoCreateWindow, const String& windowTitle)
     {
         // Have I been registered by call to Root::setRenderSystem?
 		/** Don't do this anymore, just allow via Root

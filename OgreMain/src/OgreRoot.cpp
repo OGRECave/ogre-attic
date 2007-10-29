@@ -541,7 +541,7 @@ namespace Ogre {
 
 
 		PlatformInformation::log(LogManager::getSingleton().getDefaultLog());
-		mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow, windowTitle);
+		mAutoWindow =  mActiveRenderer->_initialise(autoCreateWindow, windowTitle);
 
 
         if (autoCreateWindow && !mFirstTimePostWindowInit)
@@ -967,7 +967,7 @@ namespace Ogre {
             "system has been selected.", "Root::createRenderWindow");
         }
         RenderWindow* ret;
-        ret = mActiveRenderer->createRenderWindow(name, width, height, fullScreen, miscParams);
+        ret = mActiveRenderer->_createRenderWindow(name, width, height, fullScreen, miscParams);
 
         // Initialisation for classes dependent on first window created
         if(!mFirstTimePostWindowInit)

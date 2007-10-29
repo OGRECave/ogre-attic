@@ -161,13 +161,5 @@ namespace Ogre
         friend class Root;
     };
 
-    /** Defines the interface a DLL implemeting a platform-specific version must implement.
-        @remarks
-            Any library (.dll, .so) wishing to implement a platform-specific version of this
-            dialog must export the symbol 'createRenderWindow' with the signature
-            void createPlatformRenderWindow(RenderWindow** ppDlg)
-    */
-    typedef void (*DLL_CREATERENDERWINDOW)(RenderWindow** ppWindow);
-
 } // Namespace
 #endif

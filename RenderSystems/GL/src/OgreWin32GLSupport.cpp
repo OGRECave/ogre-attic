@@ -254,7 +254,7 @@ namespace Ogre {
 			bool hwGamma = (opt->second.currentValue == "Yes");
 			winOptions["gamma"] = StringConverter::toString(hwGamma);
 
-            return renderSystem->createRenderWindow(windowTitle, w, h, fullscreen, &winOptions);
+            return renderSystem->_createRenderWindow(windowTitle, w, h, fullscreen, &winOptions);
         }
         else
         {

@@ -186,13 +186,15 @@ namespace Ogre {
 		return mGLSupport->validateConfig();
 	}
 
-	RenderWindow* GLRenderSystem::initialise(bool autoCreateWindow, const String& windowTitle)
+	RenderWindow* GLRenderSystem::_initialise(bool autoCreateWindow, const String& windowTitle)
 	{
 		mGLSupport->start();
 
 		RenderWindow* autoWindow = mGLSupport->createWindow(autoCreateWindow, this, windowTitle);
 
 		_setCullingMode( mCullingMode );
+
+		RenderSystem::_initialise(autoCreateWindow, windowTitle);
 
 		return autoWindow;
 	}
@@ -748,7 +750,7 @@ namespace Ogre {
 	void GLRenderSystem::reinitialise(void)
 	{
 		this->shutdown();
-		this->initialise(true);
+		this->_initialise(true);
 	}
 
 	void GLRenderSystem::shutdown(void)
@@ -814,7 +816,7 @@ namespace Ogre {
 		}
 	}
 
-	RenderWindow* GLRenderSystem::createRenderWindow(const String &name, 
+	RenderWindow* GLRenderSystem::_createRenderWindow(const String &name, 
 		unsigned int width, unsigned int height, bool fullScreen,
 		const NameValuePairList *miscParams)
 	{
@@ -823,11 +825,11 @@ namespace Ogre {
 			OGRE_EXCEPT(
 				Exception::ERR_INVALIDPARAMS, 
 				"Window with name '" + name + "' already exists",
-				"GLRenderSystem::createRenderWindow" );
+				"GLRenderSystem::_createRenderWindow" );
 		}
 		// Log a message
 		std::stringstream ss;
-		ss << "GLRenderSystem::createRenderWindow \"" << name << "\", " <<
+		ss << "GLRenderSystem::_createRenderWindow \"" << name << "\", " <<
 			width << "x" << height << " ";
 		if(fullScreen)
 			ss << "fullscreen ";

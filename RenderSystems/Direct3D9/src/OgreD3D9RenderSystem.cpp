@@ -487,7 +487,7 @@ namespace Ogre
 		return mOptions;
 	}
 	//---------------------------------------------------------------------
-	RenderWindow* D3D9RenderSystem::initialise( bool autoCreateWindow, const String& windowTitle )
+	RenderWindow* D3D9RenderSystem::_initialise( bool autoCreateWindow, const String& windowTitle )
 	{
 		RenderWindow* autoWindow = NULL;
 		LogManager::getSingleton().logMessage( "D3D9 : Subsystem Initialising" );
@@ -575,7 +575,7 @@ namespace Ogre
 			miscParams["useNVPerfHUD"] = StringConverter::toString(mUseNVPerfHUD);
 			miscParams["gamma"] = StringConverter::toString(hwGamma);
 
-			autoWindow = this->createRenderWindow( windowTitle, width, height, 
+			autoWindow = this->_createRenderWindow( windowTitle, width, height, 
 				fullScreen, &miscParams );
 
 			// If we have 16bit depth buffer enable w-buffering.
@@ -595,7 +595,7 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("***************************************");
 
 		// call superclass method
-		RenderSystem::initialise( autoCreateWindow );
+		RenderSystem::_initialise( autoCreateWindow );
 
 
 		return autoWindow;
@@ -614,7 +614,7 @@ namespace Ogre
 	{
 		LogManager::getSingleton().logMessage( "D3D9 : Reinitialising" );
 		this->shutdown();
-		this->initialise( true );
+		this->_initialise( true );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::shutdown()
@@ -632,7 +632,7 @@ namespace Ogre
 		SAFE_DELETE( mGpuProgramManager );
 	}
 	//---------------------------------------------------------------------
-	RenderWindow* D3D9RenderSystem::createRenderWindow(const String &name, 
+	RenderWindow* D3D9RenderSystem::_createRenderWindow(const String &name, 
 		unsigned int width, unsigned int height, bool fullScreen,
 		const NameValuePairList *miscParams)
 	{
@@ -643,18 +643,18 @@ namespace Ogre
 		{
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
 				"Cannot create secondary windows when the primary is full screen",
-				"D3D9RenderSystem::createRenderWindow");
+				"D3D9RenderSystem::_createRenderWindow");
 		}
 		if (mPrimaryWindow && fullScreen)
 		{
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
 				"Cannot create full screen secondary windows",
-				"D3D9RenderSystem::createRenderWindow");
+				"D3D9RenderSystem::_createRenderWindow");
 		}
 
 		// Log a message
 		std::stringstream ss;
-		ss << "D3D9RenderSystem::createRenderWindow \"" << name << "\", " <<
+		ss << "D3D9RenderSystem::_createRenderWindow \"" << name << "\", " <<
 			width << "x" << height << " ";
 		if(fullScreen)
 			ss << "fullscreen ";
@@ -679,7 +679,7 @@ namespace Ogre
 		{
 			msg = "A render target of the same name '" + name + "' already "
 				"exists.  You cannot create a new window with this name.";
-			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, msg, "D3D9RenderSystem::createRenderWindow" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, msg, "D3D9RenderSystem::_createRenderWindow" );
 		}
 
 		RenderWindow* win = new D3D9RenderWindow(mhInstance, mActiveD3DDriver, 
