@@ -3061,13 +3061,6 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 					mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
 				}
 
-				// Use manual lights if present, and not using vertex programs that don't use fixed pipeline
-				if (manualLightList && 
-					pass->getLightingEnabled() && passSurfaceAndLightParams)
-				{
-					mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
-				}
-	
 				// optional light scissoring
 				ClipResult scissored = CLIPPED_NONE;
 				ClipResult clipped = CLIPPED_NONE;
