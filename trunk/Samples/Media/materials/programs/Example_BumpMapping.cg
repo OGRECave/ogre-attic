@@ -206,17 +206,17 @@ void specular_fp( float2 uv			: TEXCOORD0,
 			  uniform float4 lightSpecular,
 			  uniform sampler2D   normalMap : register(s0)) 
 {
-	// retrieve normalised light vector, expand from range-compressed
-	float3 lightVec = expand(normalize(TSlightDir).xyz);
+	// retrieve normalised light vector
+	float3 lightVec = normalize(TSlightDir);
 
 	// retrieve half angle and normalise
-	float3 halfAngle = expand(normalize(TShalfAngle).xyz);
+	float3 halfAngle = normalize(TShalfAngle);
 
 	// get bump map vector, again expand from range-compressed
 	float3 bumpVec = expand(tex2D(normalMap, uv).xyz);
 
 	// Pre-raise the specular exponent to the eight power
-	float specFactor = pow(saturate(dot(bumpVec, halfAngle)), 2);
+	float specFactor = pow(saturate(dot(bumpVec, halfAngle)), 4);
 	
 
 	// Calculate dot product for diffuse
