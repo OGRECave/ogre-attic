@@ -114,7 +114,35 @@ namespace Ogre
 		node->abstract = abstract;
 		for(AbstractNodeList::const_iterator i = children.begin(); i != children.end(); ++i)
 			node->children.push_back(AbstractNodePtr((*i)->clone()));
+		node->mEnv = mEnv;
 		return node;
+	}
+
+	void ObjectAbstractNode::addVariable(const Ogre::String &name)
+	{
+		mEnv.insert(std::make_pair(name, ""));
+	}
+
+	void ObjectAbstractNode::setVariable(const Ogre::String &name, const Ogre::String &value)
+	{
+		mEnv[name] = value;
+	}
+
+	String ObjectAbstractNode::getVariable(const String &name) const
+	{
+		std::map<String,String>::const_iterator i = mEnv.find(name);
+		if(i != mEnv.end())
+			return i->second;
+
+		ObjectAbstractNode *parent = (ObjectAbstractNode*)this->parent;
+		while(parent)
+		{
+			i = parent->mEnv.find(name);
+			if(i != mEnv.end())
+				return i->second;
+			parent = (ObjectAbstractNode*)parent->parent;
+		}
+		return "";
 	}
 
 	// PropertyAbstractNode
@@ -155,24 +183,6 @@ namespace Ogre
 		return node;
 	}
 
-	// VariableAssignAbstractNode
-	VariableAssignAbstractNode::VariableAssignAbstractNode(AbstractNode *ptr)
-		:AbstractNode(ptr)
-	{
-		type = ANT_VARIABLE_SET;
-	}
-
-	AbstractNode *VariableAssignAbstractNode::clone() const
-	{
-		VariableAssignAbstractNode *node = new VariableAssignAbstractNode(parent);
-		node->file = file;
-		node->line = line;
-		node->type = type;
-		node->name = name;
-		node->value = value;
-		return node;
-	}
-
 	// VariableAccessAbstractNode
 	VariableAccessAbstractNode::VariableAccessAbstractNode(AbstractNode *ptr)
 		:AbstractNode(ptr)
@@ -193,6 +203,11 @@ namespace Ogre
 	// ScriptCompilerListener
 	ScriptCompilerListener::ScriptCompilerListener()
 	{
+	}
+
+	ConcreteNodeListPtr ScriptCompilerListener::importFile(const String &name)
+	{
+		return ConcreteNodeListPtr();
 	}
 
 	Material *ScriptCompilerListener::allocateMaterial(const String &name, const String &group)
@@ -221,8 +236,15 @@ namespace Ogre
 		// Clear the past errors
 		mErrors.clear();
 
+		// Clear the environment
+		mEnv.clear();
+
 		// Convert our nodes to an AST
 		AbstractNodeListPtr ast = convertToAST(nodes);
+		// Processes the imports for this script
+		processImports(ast);
+		// Process object inheritance
+		processObjects(*ast.get(), ast);
 		return true;
 	}
 
@@ -235,11 +257,242 @@ namespace Ogre
 		mErrors.push_back(err);
 	}
 
+	void ScriptCompiler::setListener(ScriptCompilerListener *listener)
+	{
+		mListener = listener;
+	}
+
 	AbstractNodeListPtr ScriptCompiler::convertToAST(const Ogre::ConcreteNodeListPtr &nodes)
 	{
 		AbstractTreeBuilder builder(this);
 		AbstractTreeBuilder::visit(&builder, *nodes.get());
 		return builder.getResult();
+	}
+
+	void ScriptCompiler::processImports(Ogre::AbstractNodeListPtr &nodes)
+	{
+		// We only need to iterate over the top-level of nodes
+		AbstractNodeList::iterator i = nodes->begin(), last = nodes->end();
+		while(i != nodes->end())
+		{
+			// We move to the next node here and save the current one.
+			// If any replacement happens, then we are still assured that
+			// i points to the node *after* the replaced nodes, no matter
+			// how many insertions and deletions may happen
+			AbstractNodeList::iterator cur = i++;
+			if((*cur)->type == ANT_IMPORT)
+			{
+				ImportAbstractNode *import = (ImportAbstractNode*)(*cur).get();
+				// Only process if the file's contents haven't been loaded
+				if(mImports.find(import->source) == mImports.end())
+				{
+					// Load the script
+					AbstractNodeListPtr importedNodes = loadImportPath(import->source);
+					if(!importedNodes.isNull() && !importedNodes->empty())
+					{
+						processImports(importedNodes);
+						processObjects(*importedNodes.get(), importedNodes);
+					}
+					if(!importedNodes.isNull() && !importedNodes->empty())
+						mImports.insert(std::make_pair(import->source, importedNodes));
+				}
+
+				// Handle the target request now
+				// If it is a '*' import we remove all previous requests and just use the '*'
+				// Otherwise, ensure '*' isn't already registered and register our request
+				if(import->target == "*")
+				{
+					mImportRequests.erase(mImportRequests.lower_bound(import->source),
+						mImportRequests.upper_bound(import->source));
+					mImportRequests.insert(std::make_pair(import->source, "*"));
+				}
+				else
+				{
+					ImportRequestMap::iterator iter = mImportRequests.lower_bound(import->source),
+						end = mImportRequests.upper_bound(import->source);
+					if(iter == end || iter->second != "*")
+					{
+						mImportRequests.insert(std::make_pair(import->source, import->target));
+					}
+				}
+			}
+		}
+
+		// All import nodes are removed
+		// We have cached the code blocks from all the imported scripts
+		// We can process all import requests now
+		for(ImportCacheMap::iterator i = mImports.begin(); i != mImports.end(); ++i)
+		{
+			ImportRequestMap::iterator j = mImportRequests.lower_bound(i->first),
+				end = mImportRequests.upper_bound(i->first);
+			if(j != end)
+			{
+				if(j->second == "*")
+				{
+					// Insert the entire AST into the import table
+					mImportTable.insert(mImportTable.begin(), i->second->begin(), i->second->end());
+					continue; // Skip ahead to the next file
+				}
+				else
+				{
+					for(; j != end; ++j)
+					{
+						// Locate this target and insert it into the import table
+						AbstractNodeListPtr newNodes = locateTarget(*(i->second.get()), j->second);
+						if(!newNodes.isNull() && !newNodes->empty())
+							mImportTable.insert(mImportTable.begin(), newNodes->begin(), newNodes->end());
+					}
+				}
+			}
+		}
+	}
+
+	AbstractNodeListPtr ScriptCompiler::loadImportPath(const Ogre::String &name)
+	{
+		AbstractNodeListPtr retval;
+		ConcreteNodeListPtr nodes;
+
+		if(mListener)
+			nodes = mListener->importFile(name);
+
+		if(nodes.isNull() && ResourceGroupManager::getSingletonPtr())
+		{
+			DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(name, mGroup);
+			if(!stream.isNull())
+			{
+				ScriptLexer lexer;
+				ScriptTokenListPtr tokens = lexer.tokenize(stream->getAsString(), name);
+				ScriptParser parser;
+				nodes = parser.parse(tokens);
+			}
+		}
+
+		if(!nodes.isNull())
+			retval = convertToAST(nodes);
+
+		return retval;
+	}
+
+	AbstractNodeListPtr ScriptCompiler::locateTarget(Ogre::AbstractNodeList &nodes, const Ogre::String &target)
+	{
+		AbstractNodeList::iterator iter = nodes.end();
+	
+		// Search for a top-level object node
+		for(AbstractNodeList::iterator i = nodes.begin(); i != nodes.end(); ++i)
+		{
+			if((*i)->type == ANT_OBJECT)
+			{
+				ObjectAbstractNode *impl = (ObjectAbstractNode*)(*i).get();
+				if(impl->name == target)
+					iter = i;
+			}
+		}
+
+		AbstractNodeListPtr newNodes(new AbstractNodeList());
+		if(iter != nodes.end())
+		{
+			newNodes->push_back(*iter);
+		}
+		return newNodes;
+	}
+
+	void ScriptCompiler::processObjects(Ogre::AbstractNodeList &nodes, const Ogre::AbstractNodeListPtr &top)
+	{
+		for(AbstractNodeList::iterator i = nodes.begin(); i != nodes.end(); ++i)
+		{
+			if((*i)->type == ANT_OBJECT)
+			{
+				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
+
+				// Check if it is inheriting anything
+				if(!obj->base.empty())
+				{
+					// Check the top level first, then check the import table
+					AbstractNodeListPtr newNodes = locateTarget(*top.get(), obj->base);
+					if(newNodes->empty())
+						newNodes = locateTarget(mImportTable, obj->base);
+
+					if(!newNodes->empty())
+					{
+						for(AbstractNodeList::iterator j = newNodes->begin(); j != newNodes->end(); ++j)
+							overlayObject(*j, obj);
+					}
+				}
+
+				// Recurse into children
+				processObjects(obj->children, top);
+			}
+		}
+	}
+
+	void ScriptCompiler::overlayObject(const AbstractNodePtr &source, ObjectAbstractNode *dest)
+	{
+		if(source->type == ANT_OBJECT)
+		{
+			ObjectAbstractNode *src = (ObjectAbstractNode*)source.get();
+			
+			// Queue up all transfers
+			std::list<AbstractNodePtr> queue;
+			queue.insert(queue.begin(), src->children.begin(), src->children.end());
+
+			// Index each source node type
+			std::map<String,int> srcIndexMap;
+
+			std::list<AbstractNodePtr>::iterator i = queue.begin();
+			while(i != queue.end())
+			{
+				// Move forward and store current position
+				std::list<AbstractNodePtr>::iterator cur = i;
+				i++;
+
+				// Only process if it is an object
+				if((*cur)->type == ANT_OBJECT)
+				{
+					ObjectAbstractNode *srcObj = (ObjectAbstractNode*)(*cur).get();
+					srcIndexMap[srcObj->cls]++;
+					int srcIndex = srcIndexMap[srcObj->cls];
+
+					// Search through destination for an object of this type at this index
+					AbstractNodeList::iterator dst_iter = dest->children.end();
+					int dstIndex = 0;
+					for(AbstractNodeList::iterator j = dest->children.begin(); j != dest->children.end(); ++j)
+					{
+						if((*j)->type == ANT_OBJECT)
+						{
+							ObjectAbstractNode *dstObj = (ObjectAbstractNode*)(*j).get();
+							if(dstObj->cls == srcObj->cls)
+							{
+								// Found the right object, so store our searched results
+								dstIndex++;
+								dst_iter = j;
+								if(dstIndex == srcIndex)
+									break; // Break if we've reached our goals of the n-th object of the source type
+							}
+						}
+					}
+
+					if(srcIndex == dstIndex && dst_iter != dest->children.end())
+					{
+						// Overlay the source on the destination node
+						overlayObject(*cur, (ObjectAbstractNode*)(*dst_iter).get());
+						// Remove the node from the source queue
+						queue.erase(cur);
+					}
+					else if(dst_iter != dest->children.end())
+					{
+						// This means we found nodes of the right type, but not enough. Copy our after the one we did find.
+						AbstractNodeList::iterator next = dst_iter;
+						next++;
+						dest->children.insert(next, AbstractNodePtr(srcObj->clone()));
+						// Remove the node from the source queue
+						queue.erase(cur);
+					}
+				}
+			}
+
+			// Insert the remainder into the front of the destination
+			dest->children.insert(dest->children.begin(), queue.begin(), queue.end());
+		}
 	}
 
 	// AbstractTreeeBuilder
@@ -302,17 +555,21 @@ namespace Ogre
 				goto fail;
 			}
 
-			VariableAssignAbstractNode *impl = new VariableAssignAbstractNode(mCurrent);
-			impl->line = node->line;
-			impl->file = node->file;
-			
-			ConcreteNodeList::iterator iter = node->children.begin();
-			impl->name = (*iter)->token;
+			ConcreteNodeList::iterator i = node->children.begin();
+			String name = (*i)->token;
 
-			iter++;
-			impl->value = (*iter)->token;
+			++i;
+			String value = (*i)->token;
 
-			asn = AbstractNodePtr(impl);
+			if(mCurrent && mCurrent->type == ANT_OBJECT)
+			{
+				ObjectAbstractNode *ptr = (ObjectAbstractNode*)mCurrent;
+				ptr->setVariable(name, value);
+			}
+			else
+			{
+				mCompiler->mEnv.insert(std::make_pair(name, value));
+			}
 		}
 		// variable = $*, no children
 		else if(node->type == CNT_VARIABLE)
