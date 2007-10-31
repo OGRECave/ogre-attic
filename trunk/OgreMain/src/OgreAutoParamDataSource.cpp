@@ -165,7 +165,7 @@ namespace Ogre {
 		return getLight(index).getSpecularColour();
 	}
 	//-----------------------------------------------------------------------------
-	const ColourValue& AutoParamDataSource::getLightDiffuseColourWithPower(size_t index) const
+	const ColourValue AutoParamDataSource::getLightDiffuseColourWithPower(size_t index) const
 	{
 		const Light& l = getLight(index);
 		ColourValue scaled(l.getDiffuseColour());
@@ -177,7 +177,7 @@ namespace Ogre {
 		return scaled;
 	}
 	//-----------------------------------------------------------------------------
-	const ColourValue& AutoParamDataSource::getLightSpecularColourWithPower(size_t index) const
+	const ColourValue AutoParamDataSource::getLightSpecularColourWithPower(size_t index) const
 	{
 		const Light& l = getLight(index);
 		ColourValue scaled(l.getSpecularColour());
