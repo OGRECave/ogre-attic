@@ -110,6 +110,8 @@ namespace Ogre
 	/** This specific abstract node represents a script object */
 	class ObjectAbstractNode : public AbstractNode
 	{
+	private:
+		std::map<String,String> mEnv;
 	public:
 		String name, cls, base;
 		uint32 id;
@@ -118,6 +120,10 @@ namespace Ogre
 	public:
 		ObjectAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
+
+		void addVariable(const String &name);
+		void setVariable(const String &name, const String &value);
+		String getVariable(const String &name) const;
 	};
 
 	/** This abstract node represents a script property */
@@ -143,16 +149,6 @@ namespace Ogre
 	};
 
 	/** This abstract node represents a variable assignment */
-	class VariableAssignAbstractNode : public AbstractNode
-	{
-	public:
-		String name, value;
-	public:
-		VariableAssignAbstractNode(AbstractNode *ptr);
-		AbstractNode *clone() const;
-	};
-
-	/** This abstract node represents a variable assignment */
 	class VariableAccessAbstractNode : public AbstractNode
 	{
 	public:
@@ -171,6 +167,8 @@ namespace Ogre
 	public:
 		ScriptCompilerListener();
 
+		/// Returns the concrete node list from the given file
+		virtual ConcreteNodeListPtr importFile(const String &name);
 		/// Must return the requested material
 		virtual Material *allocateMaterial(const String &name, const String &group);
 	};
@@ -215,16 +213,42 @@ namespace Ogre
 		bool compile(const ConcreteNodeListPtr &nodes, const String &group);
 		/// Adds the given error to the compiler's list of errors
 		void addError(uint32 code, const String &file, int line);
+		/// Sets the listener used by the compiler
+		void setListener(ScriptCompilerListener *listener);
 	private: // Tree processing
 		AbstractNodeListPtr convertToAST(const ConcreteNodeListPtr &nodes);
+		/// This built-in function processes import nodes
+		void processImports(AbstractNodeListPtr &nodes);
+		/// Loads the requested script and converts it to an AST
+		AbstractNodeListPtr loadImportPath(const String &name);
+		/// Returns the abstract nodes from the given tree which represent the target
+		AbstractNodeListPtr locateTarget(AbstractNodeList &nodes, const String &target);
+		/// Handles object inheritance and variable expansion
+		void processObjects(AbstractNodeList &nodes, const AbstractNodeListPtr &top);
+		/// This function overlays the given object on the destination object following inheritance rules
+		void overlayObject(const AbstractNodePtr &source, ObjectAbstractNode *dest);
 	private:
 		// Resource group
 		String mGroup;
 		// The word -> id conversion table
 		IdMap mIds;
+		// This is an environment map
+		typedef std::map<String,String> Environment;
+		Environment mEnv;
+
+		typedef std::map<String,AbstractNodeListPtr> ImportCacheMap;
+		ImportCacheMap mImports; // The set of imported scripts to avoid circular dependencies
+		typedef std::multimap<String,String> ImportRequestMap;
+		ImportRequestMap mImportRequests; // This holds the target objects for each script to be imported
+
+		// This stores the imports of the scripts, so they are separated and can be treated specially
+		AbstractNodeList mImportTable;
 
 		// Error list
 		ErrorList mErrors;
+
+		// The listener
+		ScriptCompilerListener *mListener;
 	private: // Internal helper classes and processors
 		class AbstractTreeBuilder
 		{
