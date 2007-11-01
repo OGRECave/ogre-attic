@@ -152,9 +152,9 @@ namespace Ogre {
 			bool onlyShadowCasters);
 
         /** Creates a specialized BspSceneNode */
-        SceneNode * createSceneNode ( void );
+        SceneNode * createSceneNodeImpl ( void );
         /** Creates a specialized BspSceneNode */
-        SceneNode * createSceneNode ( const String &name );
+        SceneNode * createSceneNodeImpl ( const String &name );
 
         /** Internal method for tagging BspNodes with objects which intersect them. */
         void _notifyObjectMoved(const MovableObject* mov, const Vector3& pos);

@@ -316,14 +316,6 @@ const String& OctreeSceneManager::getTypeName(void) const
 
 void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
 {
-    delete mSceneRoot; //get rid of old root.
-
-    // -- Changes by Steve
-    // Don't do it this way, it will add it to the mSceneNodes which we don't want
-    //mSceneRoot = createSceneNode( "SceneRoot" );
-    mSceneRoot = new OctreeNode( this, "SceneRoot" );
-	mSceneRoot->_notifyRootNode();
-    // -- End changes by Steve
 
     if ( mOctree != 0 )
         delete mOctree;
@@ -362,13 +354,6 @@ void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
 
 OctreeSceneManager::~OctreeSceneManager()
 {
-    // -- Changed by Steve
-    // Don't do this here, SceneManager will do it
-    /*
-    if( mSceneRoot )
-    delete mSceneRoot;
-    */ 
-    // --End Changes by Steve
 
     if ( mOctree )
 	{
@@ -541,26 +526,14 @@ void OctreeSceneManager::_addOctreeNode( OctreeNode * n, Octree *octant, int dep
 }
 
 
-SceneNode * OctreeSceneManager::createSceneNode( void )
+SceneNode * OctreeSceneManager::createSceneNodeImpl( void )
 {
-    OctreeNode * on = new OctreeNode( this );
-    mSceneNodes[ on->getName() ] = on;
-    return on;
+    return new OctreeNode( this );
 }
 
-SceneNode * OctreeSceneManager::createSceneNode( const String &name )
+SceneNode * OctreeSceneManager::createSceneNodeImpl( const String &name )
 {
-    // Check name not used
-    if (mSceneNodes.find(name) != mSceneNodes.end())
-    {
-        OGRE_EXCEPT(
-            Exception::ERR_DUPLICATE_ITEM,
-            "A scene node with the name " + name + " already exists",
-            "OctreeSceneManager::createSceneNode" );
-    }
-    OctreeNode * on = new OctreeNode( this, name );
-    mSceneNodes[ on->getName() ] = on;
-    return on;
+    return new OctreeNode( this, name );
 }
 
 void OctreeSceneManager::_updateSceneGraph( Camera * cam )

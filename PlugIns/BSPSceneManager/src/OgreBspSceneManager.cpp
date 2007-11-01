@@ -609,18 +609,14 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    SceneNode * BspSceneManager::createSceneNode( void )
+    SceneNode * BspSceneManager::createSceneNodeImpl( void )
     {
-        BspSceneNode * sn = new BspSceneNode( this );
-        mSceneNodes[ sn->getName() ] = sn;
-        return sn;
+        return new BspSceneNode( this );
     }
     //-----------------------------------------------------------------------
-    SceneNode * BspSceneManager::createSceneNode( const String &name )
+    SceneNode * BspSceneManager::createSceneNodeImpl( const String &name )
     {
-        BspSceneNode * sn = new BspSceneNode( this, name );
-        mSceneNodes[ sn->getName() ] = sn;
-        return sn;
+        return new BspSceneNode( this, name );
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::_notifyObjectMoved(const MovableObject* mov, 

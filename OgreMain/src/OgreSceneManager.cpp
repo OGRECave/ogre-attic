@@ -87,6 +87,7 @@ SceneManager::SceneManager(const String& name) :
 mName(name),
 mRenderQueue(0),
 mCurrentViewport(0),
+mSceneRoot(0),
 mSkyPlaneEntity(0),
 mSkyBoxObj(0),
 mSkyPlaneNode(0),
@@ -142,9 +143,6 @@ mFindVisibleObjects(true),
 mSuppressRenderStateChanges(false),
 mSuppressShadows(false)
 {
-    // Root scene node
-    mSceneRoot = new SceneNode(this, "root node");
-	mSceneRoot->_notifyRootNode();
 
     // init sky
     for (size_t i = 0; i < 5; ++i)
@@ -686,8 +684,8 @@ void SceneManager::clearScene(void)
 	destroyAllMovableObjects();
 
 	// Clear root node of all children
-	mSceneRoot->removeAllChildren();
-	mSceneRoot->detachAllObjects();
+	getRootSceneNode()->removeAllChildren();
+	getRootSceneNode()->detachAllObjects();
 
 	// Delete all SceneNodes, except root that is
 	for (SceneNodeList::iterator i = mSceneNodes.begin();
@@ -713,9 +711,18 @@ void SceneManager::clearScene(void)
 
 }
 //-----------------------------------------------------------------------
+SceneNode* SceneManager::createSceneNodeImpl(void)
+{
+    return new SceneNode(this);
+}
+//-----------------------------------------------------------------------
+SceneNode* SceneManager::createSceneNodeImpl(const String& name)
+{
+    return new SceneNode(this, name);
+}//-----------------------------------------------------------------------
 SceneNode* SceneManager::createSceneNode(void)
 {
-    SceneNode* sn = new SceneNode(this);
+    SceneNode* sn = createSceneNodeImpl();
     assert(mSceneNodes.find(sn->getName()) == mSceneNodes.end());
     mSceneNodes[sn->getName()] = sn;
     return sn;
@@ -732,7 +739,7 @@ SceneNode* SceneManager::createSceneNode(const String& name)
             "SceneManager::createSceneNode" );
     }
 
-    SceneNode* sn = new SceneNode(this, name);
+    SceneNode* sn = createSceneNodeImpl(name);
     mSceneNodes[sn->getName()] = sn;
     return sn;
 }
@@ -785,8 +792,15 @@ void SceneManager::destroySceneNode(SceneNode* sn)
 
 }
 //-----------------------------------------------------------------------
-SceneNode* SceneManager::getRootSceneNode(void) const
+SceneNode* SceneManager::getRootSceneNode(void)
 {
+	if (!mSceneRoot)
+	{
+		// Create root scene node
+		mSceneRoot = createSceneNodeImpl("Ogre/SceneRoot");
+		mSceneRoot->_notifyRootNode();
+	}
+
     return mSceneRoot;
 }
 //-----------------------------------------------------------------------
@@ -1868,7 +1882,7 @@ void SceneManager::_updateSceneGraph(Camera* cam)
     // In this implementation, just update from the root
     // Smarter SceneManager subclasses may choose to update only
     //   certain scene graph branches
-    mSceneRoot->_update(true, false);
+    getRootSceneNode()->_update(true, false);
 
 
 }
@@ -1877,7 +1891,7 @@ void SceneManager::_findVisibleObjects(
 	Camera* cam, VisibleObjectsBoundsInfo* visibleBounds, bool onlyShadowCasters)
 {
     // Tell nodes to find, cascade down all nodes
-    mSceneRoot->_findVisibleObjects(cam, getRenderQueue(), visibleBounds, true, 
+    getRootSceneNode()->_findVisibleObjects(cam, getRenderQueue(), visibleBounds, true, 
         mDisplayNodes, onlyShadowCasters);
 
 }
