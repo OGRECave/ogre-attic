@@ -89,9 +89,6 @@ namespace Ogre
     void PCZSceneManager::init( const String &defaultZoneTypeName,
 								const String &filename)
     {
-        //get rid of old scene root.
-        if ( mSceneRoot != 0 )
-            delete mSceneRoot; 
 
 		// delete ALL portals
 		Portal * p;
@@ -113,16 +110,12 @@ namespace Ogre
 
         mFrameCount = 0;
 
-        // create a new scene root
-        mSceneRoot = new PCZSceneNode( this, "SceneRoot" );
-	    mSceneRoot->_notifyRootNode();
-
 		mDefaultZoneTypeName = defaultZoneTypeName;
 		mDefaultZoneFileName = filename;
 
         // create a new default zone
 		mZoneFactoryManager = PCZoneFactoryManager::getSingletonPtr();
-		mDefaultZone = createZoneFromFile(mDefaultZoneTypeName, "Default_Zone", (PCZSceneNode*)mSceneRoot, mDefaultZoneFileName);
+		mDefaultZone = createZoneFromFile(mDefaultZoneTypeName, "Default_Zone", (PCZSceneNode*)getRootSceneNode(), mDefaultZoneFileName);
     }
 
 	// Create a portal instance
@@ -334,8 +327,8 @@ namespace Ogre
 		destroyAllMovableObjects();
 
 		// Clear root node of all children
-		mSceneRoot->removeAllChildren();
-		mSceneRoot->detachAllObjects();
+		getRootSceneNode()->removeAllChildren();
+		getRootSceneNode()->detachAllObjects();
 
 		// Delete all SceneNodes, except root that is
 		for (SceneNodeList::iterator i = mSceneNodes.begin();
@@ -581,7 +574,7 @@ namespace Ogre
 		    return;
 
 		// Skip if the node is the sceneroot node 
-		if (pczsn == mSceneRoot)
+		if (pczsn == getRootSceneNode())
 			return;
 
 		// clear all references to visiting zones

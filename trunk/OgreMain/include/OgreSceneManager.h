@@ -317,6 +317,12 @@ namespace Ogre {
 		};
 
     protected:
+
+        /// Subclasses can override this to ensure their specialised SceneNode is used.
+        virtual SceneNode* createSceneNodeImpl(void);
+        /// Subclasses can override this to ensure their specialised SceneNode is used.
+        virtual SceneNode* createSceneNodeImpl(const String& name);
+
 		/// Instance name
 		String mName;
 
@@ -1133,7 +1139,7 @@ namespace Ogre {
                 However, in all cases there is only ever one root node of
                 the hierarchy, and this method returns a pointer to it.
         */
-        virtual SceneNode* getRootSceneNode(void) const;
+        virtual SceneNode* getRootSceneNode(void);
 
         /** Retrieves a named SceneNode from the scene graph.
         @remarks
