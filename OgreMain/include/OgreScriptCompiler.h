@@ -74,7 +74,7 @@ namespace Ogre
 	};
 	class AbstractNode;
 	typedef SharedPtr<AbstractNode> AbstractNodePtr;
-	typedef std::vector<AbstractNodePtr> AbstractNodeList;
+	typedef std::list<AbstractNodePtr> AbstractNodeList;
 	typedef SharedPtr<AbstractNodeList> AbstractNodeListPtr;
 
 	class AbstractNode
@@ -123,7 +123,7 @@ namespace Ogre
 
 		void addVariable(const String &name);
 		void setVariable(const String &name, const String &value);
-		String getVariable(const String &name) const;
+		std::pair<bool,String> getVariable(const String &name) const;
 	};
 
 	/** This abstract node represents a script property */
@@ -197,7 +197,8 @@ namespace Ogre
 			CE_STRINGEXPECTED,
 			CE_NUMBEREXPECTED,
 			CE_FEWERPARAMETERSEXPECTED,
-			CE_VARIABLEEXPECTED
+			CE_VARIABLEEXPECTED,
+			CE_UNDEFINEDVARIABLE
 		};
 	public:
 		ScriptCompiler();
@@ -222,9 +223,11 @@ namespace Ogre
 		/// Loads the requested script and converts it to an AST
 		AbstractNodeListPtr loadImportPath(const String &name);
 		/// Returns the abstract nodes from the given tree which represent the target
-		AbstractNodeListPtr locateTarget(AbstractNodeList &nodes, const String &target);
+		AbstractNodeListPtr locateTarget(AbstractNodeList *nodes, const String &target);
 		/// Handles object inheritance and variable expansion
-		void processObjects(AbstractNodeList &nodes, const AbstractNodeListPtr &top);
+		void processObjects(AbstractNodeList *nodes, const AbstractNodeListPtr &top);
+		/// Handles processing the variables
+		void processVariables(AbstractNodeList *nodes);
 		/// This function overlays the given object on the destination object following inheritance rules
 		void overlayObject(const AbstractNodePtr &source, ObjectAbstractNode *dest);
 	private:
