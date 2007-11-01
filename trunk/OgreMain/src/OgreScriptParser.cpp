@@ -398,6 +398,55 @@ namespace Ogre
 		return nodes;
 	}
 
+	ConcreteNodeListPtr ScriptParser::parseChunk(const ScriptTokenListPtr &tokens)
+	{
+		ConcreteNodeListPtr nodes(new ConcreteNodeList());
+
+		ConcreteNodePtr node;
+		ScriptToken *token = 0;
+		for(ScriptTokenList::const_iterator i = tokens->begin(); i != tokens->end(); ++i)
+		{
+			token = (*i).get();
+
+			switch(token->type)
+			{
+			case TID_VARIABLE:
+				node = ConcreteNodePtr(new ConcreteNode());
+				node->file = token->file;
+				node->line = token->line;
+				node->parent = 0;
+				node->token = token->lexeme;
+				node->type = CNT_VARIABLE;
+				break;
+			case TID_WORD:
+				node = ConcreteNodePtr(new ConcreteNode());
+				node->file = token->file;
+				node->line = token->line;
+				node->parent = 0;
+				node->token = token->lexeme;
+				node->type = CNT_WORD;
+				break;
+			case TID_QUOTE:
+				node = ConcreteNodePtr(new ConcreteNode());
+				node->file = token->file;
+				node->line = token->line;
+				node->parent = 0;
+				node->token = token->lexeme.substr(1, token->lexeme.size() - 2);
+				node->type = CNT_QUOTE;
+			default:
+				OGRE_EXCEPT(Exception::ERR_INVALID_STATE, 
+					Ogre::String("unexpected token") + token->lexeme + " at line " + 
+						Ogre::StringConverter::toString(token->line),
+					"ScriptParser::parseChunk");
+			}
+
+			if(!node.isNull())
+				nodes->push_back(node);
+		}
+
+		return nodes;
+	}
+
 	ScriptToken *ScriptParser::getToken(ScriptTokenList::iterator i, ScriptTokenList::iterator end, int offset)
 	{
 		ScriptToken *token = 0;

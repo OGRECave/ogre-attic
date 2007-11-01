@@ -43,6 +43,7 @@ namespace Ogre {
 		ScriptParser();
 
 		ConcreteNodeListPtr parse(const ScriptTokenListPtr &tokens);
+		ConcreteNodeListPtr parseChunk(const ScriptTokenListPtr &tokens);
 	private:
 		ScriptToken *getToken(ScriptTokenList::iterator i, ScriptTokenList::iterator end, int offset);
 		ScriptTokenList::iterator skipNewlines(ScriptTokenList::iterator i, ScriptTokenList::iterator end);

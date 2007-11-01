@@ -128,21 +128,21 @@ namespace Ogre
 		mEnv[name] = value;
 	}
 
-	String ObjectAbstractNode::getVariable(const String &name) const
+	std::pair<bool,String> ObjectAbstractNode::getVariable(const String &name) const
 	{
 		std::map<String,String>::const_iterator i = mEnv.find(name);
 		if(i != mEnv.end())
-			return i->second;
+			return std::make_pair(true, i->second);
 
 		ObjectAbstractNode *parent = (ObjectAbstractNode*)this->parent;
 		while(parent)
 		{
 			i = parent->mEnv.find(name);
 			if(i != mEnv.end())
-				return i->second;
+				return std::make_pair(true, i->second);
 			parent = (ObjectAbstractNode*)parent->parent;
 		}
-		return "";
+		return std::make_pair(false, "");
 	}
 
 	// PropertyAbstractNode
@@ -244,7 +244,9 @@ namespace Ogre
 		// Processes the imports for this script
 		processImports(ast);
 		// Process object inheritance
-		processObjects(*ast.get(), ast);
+		processObjects(ast.get(), ast);
+		// Process variable expansion
+		processVariables(ast.get());
 		return true;
 	}
 
@@ -291,7 +293,7 @@ namespace Ogre
 					if(!importedNodes.isNull() && !importedNodes->empty())
 					{
 						processImports(importedNodes);
-						processObjects(*importedNodes.get(), importedNodes);
+						processObjects(importedNodes.get(), importedNodes);
 					}
 					if(!importedNodes.isNull() && !importedNodes->empty())
 						mImports.insert(std::make_pair(import->source, importedNodes));
@@ -338,7 +340,7 @@ namespace Ogre
 					for(; j != end; ++j)
 					{
 						// Locate this target and insert it into the import table
-						AbstractNodeListPtr newNodes = locateTarget(*(i->second.get()), j->second);
+						AbstractNodeListPtr newNodes = locateTarget(i->second.get(), j->second);
 						if(!newNodes.isNull() && !newNodes->empty())
 							mImportTable.insert(mImportTable.begin(), newNodes->begin(), newNodes->end());
 					}
@@ -373,12 +375,12 @@ namespace Ogre
 		return retval;
 	}
 
-	AbstractNodeListPtr ScriptCompiler::locateTarget(Ogre::AbstractNodeList &nodes, const Ogre::String &target)
+	AbstractNodeListPtr ScriptCompiler::locateTarget(AbstractNodeList *nodes, const Ogre::String &target)
 	{
-		AbstractNodeList::iterator iter = nodes.end();
+		AbstractNodeList::iterator iter = nodes->end();
 	
 		// Search for a top-level object node
-		for(AbstractNodeList::iterator i = nodes.begin(); i != nodes.end(); ++i)
+		for(AbstractNodeList::iterator i = nodes->begin(); i != nodes->end(); ++i)
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
@@ -389,16 +391,16 @@ namespace Ogre
 		}
 
 		AbstractNodeListPtr newNodes(new AbstractNodeList());
-		if(iter != nodes.end())
+		if(iter != nodes->end())
 		{
 			newNodes->push_back(*iter);
 		}
 		return newNodes;
 	}
 
-	void ScriptCompiler::processObjects(Ogre::AbstractNodeList &nodes, const Ogre::AbstractNodeListPtr &top)
+	void ScriptCompiler::processObjects(Ogre::AbstractNodeList *nodes, const Ogre::AbstractNodeListPtr &top)
 	{
-		for(AbstractNodeList::iterator i = nodes.begin(); i != nodes.end(); ++i)
+		for(AbstractNodeList::iterator i = nodes->begin(); i != nodes->end(); ++i)
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
@@ -408,9 +410,9 @@ namespace Ogre
 				if(!obj->base.empty())
 				{
 					// Check the top level first, then check the import table
-					AbstractNodeListPtr newNodes = locateTarget(*top.get(), obj->base);
+					AbstractNodeListPtr newNodes = locateTarget(top.get(), obj->base);
 					if(newNodes->empty())
-						newNodes = locateTarget(mImportTable, obj->base);
+						newNodes = locateTarget(&mImportTable, obj->base);
 
 					if(!newNodes->empty())
 					{
@@ -420,7 +422,7 @@ namespace Ogre
 				}
 
 				// Recurse into children
-				processObjects(obj->children, top);
+				processObjects(&obj->children, top);
 			}
 		}
 	}
@@ -483,7 +485,10 @@ namespace Ogre
 						// This means we found nodes of the right type, but not enough. Copy our after the one we did find.
 						AbstractNodeList::iterator next = dst_iter;
 						next++;
-						dest->children.insert(next, AbstractNodePtr(srcObj->clone()));
+
+						AbstractNodePtr newNode = AbstractNodePtr(srcObj->clone());
+						newNode->parent = dest;
+						dest->children.insert(next, newNode);
 						// Remove the node from the source queue
 						queue.erase(cur);
 					}
@@ -491,7 +496,93 @@ namespace Ogre
 			}
 
 			// Insert the remainder into the front of the destination
-			dest->children.insert(dest->children.begin(), queue.begin(), queue.end());
+			AbstractNodeList::iterator k = dest->children.begin();
+			for(std::list<AbstractNodePtr>::iterator j = queue.begin(); j != queue.end(); ++j)
+			{
+				AbstractNodePtr newNode((*j)->clone());
+				newNode->parent = dest;
+				dest->children.insert(k, newNode);
+			}
+		}
+	}
+
+	void ScriptCompiler::processVariables(Ogre::AbstractNodeList *nodes)
+	{
+		AbstractNodeList::iterator i = nodes->begin();
+		while(i != nodes->end())
+		{
+			AbstractNodeList::iterator cur = i;
+			++i;
+
+			if((*cur)->type == ANT_OBJECT)
+			{
+				// Only process if this object is not abstract
+				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*cur).get();
+				if(!obj->abstract)
+					processVariables(&obj->children);
+			}
+			else if((*cur)->type == ANT_PROPERTY)
+			{
+				PropertyAbstractNode *prop = (PropertyAbstractNode*)(*cur).get();
+				processVariables(&prop->values);
+			}
+			else if((*cur)->type == ANT_VARIABLE_ACCESS)
+			{
+				VariableAccessAbstractNode *var = (VariableAccessAbstractNode*)(*cur).get();
+
+				// Look up the enclosing scope
+				ObjectAbstractNode *scope = 0;
+				AbstractNode *temp = var->parent;
+				while(temp)
+				{
+					if(temp->type == ANT_OBJECT)
+					{
+						scope = (ObjectAbstractNode*)temp;
+						break;
+					}
+					temp = temp->parent;
+				}
+
+				// Look up the variable in the environment
+				std::pair<bool,String> varAccess;
+				if(scope)
+					varAccess = scope->getVariable(var->name);
+				if(!scope || !varAccess.first)
+				{
+					std::map<String,String>::iterator k = mEnv.find(var->name);
+					varAccess.first = k != mEnv.end();
+					if(varAccess.first)
+						varAccess.second = k->second;
+				}
+
+				if(varAccess.first)
+				{
+					// Found the variable, so process it and insert it into the tree
+					ScriptLexer lexer;
+					ScriptTokenListPtr tokens = lexer.tokenize(varAccess.second, var->file);
+					ScriptParser parser;
+					ConcreteNodeListPtr cst = parser.parseChunk(tokens);
+					AbstractNodeListPtr ast = convertToAST(cst);
+
+					// Set up ownership for these nodes
+					for(AbstractNodeList::iterator j = ast->begin(); j != ast->end(); ++j)
+						(*j)->parent = var->parent;
+
+					// Recursively handle variable accesses within the variable expansion
+					processVariables(ast.get());
+
+					// Insert the nodes in place of the variable
+					nodes->insert(cur, ast->begin(), ast->end());
+				}
+				else
+				{
+					// Error
+					addError(CE_UNDEFINEDVARIABLE, var->file, var->line);
+				}
+
+				// Remove the variable node
+				nodes->erase(cur);
+			}
 		}
 	}
 
@@ -691,7 +782,7 @@ namespace Ogre
 			}
 		}
 		// Otherwise, it is a standard atom
-		else if(mCurrent != 0)
+		else
 		{
 			AtomAbstractNode *impl = new AtomAbstractNode(mCurrent);
 			impl->line = node->line;
