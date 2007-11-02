@@ -210,14 +210,25 @@ namespace Ogre
 		return ConcreteNodeListPtr();
 	}
 
-	Material *ScriptCompilerListener::allocateMaterial(const String &name, const String &group)
+	void ScriptCompilerListener::preASTConversion(ConcreteNodeListPtr nodes, ScriptCompiler::IdMap *ids)
 	{
-		return (Material*)MaterialManager::getSingleton().create(name, group).get();
+		
+	}
+
+	std::pair<bool,ScriptCompiler::Translator*> ScriptCompilerListener::preTranslation(const AbstractNodePtr &node)
+	{
+		return std::make_pair(false, (ScriptCompiler::Translator*)0);
+	}
+
+	MaterialPtr ScriptCompilerListener::allocateMaterial(const String &name, const String &group)
+	{
+		return (MaterialPtr)MaterialManager::getSingleton().create(name, group);
 	}
 
 	// ScriptCompiler
 	ScriptCompiler::ScriptCompiler()
 	{
+		initWordMap();
 	}
 
 	bool ScriptCompiler::compile(const String &str, const String &source, const String &group)
@@ -262,6 +273,11 @@ namespace Ogre
 	void ScriptCompiler::setListener(ScriptCompilerListener *listener)
 	{
 		mListener = listener;
+	}
+
+	const String &ScriptCompiler::getResourceGroup() const
+	{
+		return mGroup;
 	}
 
 	AbstractNodeListPtr ScriptCompiler::convertToAST(const Ogre::ConcreteNodeListPtr &nodes)
@@ -519,7 +535,10 @@ namespace Ogre
 				// Only process if this object is not abstract
 				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*cur).get();
 				if(!obj->abstract)
+				{
 					processVariables(&obj->children);
+					processVariables(&obj->values);
+				}
 			}
 			else if((*cur)->type == ANT_PROPERTY)
 			{
@@ -584,6 +603,244 @@ namespace Ogre
 				nodes->erase(cur);
 			}
 		}
+	}
+
+	void ScriptCompiler::initWordMap()
+	{
+		mIds["on"] = ID_ON;
+		mIds["off"] = ID_OFF;
+		mIds["true"] = ID_TRUE;
+		mIds["false"] = ID_FALSE;
+		mIds["yes"] = ID_YES;
+		mIds["no"] = ID_NO;
+
+		// Material ids
+		mIds["material"] = ID_MATERIAL;
+		mIds["vertex_program"] = ID_VERTEX_PROGRAM;
+		mIds["fragment_program"] = ID_FRAGMENT_PROGRAM;
+		mIds["technique"] = ID_TECHNIQUE;
+		mIds["pass"] = ID_PASS;
+		mIds["texture_unit"] = ID_TEXTURE_UNIT;
+		mIds["vertex_program_ref"] = ID_VERTEX_PROGRAM_REF;
+		mIds["fragment_program_ref"] = ID_FRAGMENT_PROGRAM_REF;
+		mIds["shadow_caster_vertex_program_ref"] = ID_SHADOW_CASTER_VERTEX_PROGRAM_REF;
+		mIds["shadow_receiver_vertex_program_ref"] = ID_SHADOW_RECEIVER_VERTEX_PROGRAM_REF;
+		mIds["shadow_receiver_fragment_program_ref"] = ID_SHADOW_RECEIVER_FRAGMENT_PROGRAM_REF;
+
+		mIds["lod_distances"] = ID_LOD_DISTANCES;
+		mIds["receive_shadows"] = ID_RECEIVE_SHADOWS;
+		mIds["transparency_casts_shadows"] = ID_TRANSPARENCY_CASTS_SHADOWS;
+		mIds["set_texture_alias"] = ID_SET_TEXTURE_ALIAS;
+
+		mIds["source"] = ID_SOURCE;
+		mIds["syntax"] = ID_SYNTAX;
+		mIds["default_params"] = ID_DEFAULT_PARAMS;
+		mIds["param_indexed"] = ID_PARAM_INDEXED;
+		mIds["param_named"] = ID_PARAM_NAMED;
+		mIds["param_indexed_auto"] = ID_PARAM_INDEXED_AUTO;
+		mIds["param_named_auto"] = ID_PARAM_NAMED_AUTO;
+
+		mIds["scheme"] = ID_SCHEME;
+		mIds["lod_index"] = ID_LOD_INDEX;
+
+		mIds["ambient"] = ID_AMBIENT;
+		mIds["diffuse"] = ID_DIFFUSE;
+		mIds["specular"] = ID_SPECULAR;
+		mIds["emissive"] = ID_EMISSIVE;
+			mIds["vertex_colour"] = ID_VERTEX_COLOUR;
+		mIds["scene_blend"] = ID_SCENE_BLEND;
+		mIds["colour_blend"] = ID_COLOUR_BLEND;
+			mIds["one"] = ID_ONE;
+			mIds["zero"] = ID_ZERO;
+			mIds["dest_colour"] = ID_DEST_COLOUR;
+			mIds["src_colour"] = ID_SRC_COLOUR;
+			mIds["one_minus_src_colour"] = ID_ONE_MINUS_SRC_COLOUR;
+			mIds["one_minus_dest_colour"] = ID_ONE_MINUS_DEST_COLOUR;
+			mIds["dest_alpha"] = ID_DEST_ALPHA;
+			mIds["src_alpha"] = ID_SRC_ALPHA;
+			mIds["one_minus_dest_alpha"] = ID_ONE_MINUS_DEST_ALPHA;
+			mIds["one_minus_src_alpha"] = ID_ONE_MINUS_SRC_ALPHA;
+		mIds["separate_scene_blend"] = ID_SEPARATE_SCENE_BLEND;
+		mIds["depth_check"] = ID_DEPTH_CHECK;
+		mIds["depth_write"] = ID_DEPTH_WRITE;
+		mIds["depth_func"] = ID_DEPTH_FUNC;
+		mIds["depth_bias"] = ID_DEPTH_BIAS;
+		mIds["iteration_depth_bias"] = ID_ITERATION_DEPTH_BIAS;
+			mIds["always_fail"] = ID_ALWAYS_FAIL;
+			mIds["always_pass"] = ID_ALWAYS_PASS;
+			mIds["less_equal"] = ID_LESS_EQUAL;
+			mIds["less"] = ID_LESS;
+			mIds["equal"] = ID_EQUAL;
+			mIds["not_equal"] = ID_NOT_EQUAL;
+			mIds["greater_equal"] = ID_GREATER_EQUAL;
+			mIds["greater"] = ID_GREATER;
+		mIds["alpha_rejection"] = ID_ALPHA_REJECTION;
+		mIds["light_scissor"] = ID_LIGHT_SCISSOR;
+		mIds["light_clip_planes"] = ID_LIGHT_CLIP_PLANES;
+		mIds["illumination_stage"] = ID_ILLUMINATION_STAGE;
+			mIds["decal"] = ID_DECAL;
+		mIds["cull_hardware"] = ID_CULL_HARDWARE;
+			mIds["clockwise"] = ID_CLOCKWISE;
+			mIds["anticlockwise"] = ID_ANTICLOCKWISE;
+		mIds["cull_software"] = ID_CULL_SOFTWARE;
+			mIds["back"] = ID_BACK;
+			mIds["front"] = ID_FRONT;
+		mIds["normalise_normals"] = ID_NORMALISE_NORMALS;
+		mIds["lighting"] = ID_LIGHTING;
+		mIds["shading"] = ID_SHADING;
+			mIds["flat"] = ID_FLAT;
+			mIds["gouraud"] = ID_GOURAUD;
+			mIds["phong"] = ID_PHONG;
+		mIds["polygon_mode"] = ID_POLYGON_MODE;
+		mIds["polygon_mode_overrideable"] = ID_POLYGON_MODE_OVERRIDEABLE;
+		mIds["fog_override"] = ID_FOG_OVERRIDE;
+			mIds["none"] = ID_NONE;
+			mIds["linear"] = ID_LINEAR;
+			mIds["exp"] = ID_EXP;
+			mIds["exp2"] = ID_EXP2;
+		mIds["colour_write"] = ID_COLOUR_WRITE;
+		mIds["max_lights"] = ID_MAX_LIGHTS;
+		mIds["start_light"] = ID_START_LIGHT;
+		mIds["iteration"] = ID_ITERATION;
+			mIds["once"] = ID_ONCE;
+			mIds["once_per_light"] = ID_ONCE_PER_LIGHT;
+			mIds["per_n_lights"] = ID_PER_N_LIGHTS;
+			mIds["per_light"] = ID_PER_LIGHT;
+			mIds["point"] = ID_POINT;
+			mIds["spot"] = ID_SPOT;
+			mIds["directional"] = ID_DIRECTIONAL;
+		mIds["point_size"] = ID_POINT_SIZE;
+		mIds["point_sprites"] = ID_POINT_SPRITES;
+		mIds["point_size_min"] = ID_POINT_SIZE_MIN;
+		mIds["point_size_max"] = ID_POINT_SIZE_MAX;
+
+		mIds["texture_alias"] = ID_TEXTURE_ALIAS;
+		mIds["texture"] = ID_TEXTURE;
+			mIds["1d"] = ID_1D;
+			mIds["2d"] = ID_2D;
+			mIds["3d"] = ID_3D;
+			mIds["cubic"] = ID_CUBIC;
+			mIds["unlimited"] = ID_UNLIMITED;
+			mIds["alpha"] = ID_ALPHA;
+		mIds["anim_texture"] = ID_ANIM_TEXTURE;
+		mIds["cubic_texture"] = ID_CUBIC_TEXTURE;
+			mIds["separateUV"] = ID_SEPARATE_UV;
+			mIds["combinedUVW"] = ID_COMBINED_UVW;
+		mIds["tex_coord_set"] = ID_TEX_COORD_SET;
+		mIds["tex_address_mode"] = ID_TEX_ADDRESS_MODE;
+			mIds["wrap"] = ID_WRAP;
+			mIds["clamp"] = ID_CLAMP;
+			mIds["mirror"] = ID_MIRROR;
+			mIds["border"] = ID_BORDER;
+		mIds["filtering"] = ID_FILTERING;
+			mIds["bilinear"] = ID_BILINEAR;
+			mIds["trilinear"] = ID_TRILINEAR;
+			mIds["anisotropic"] = ID_ANISOTROPIC;
+		mIds["max_anisotropy"] = ID_MAX_ANISOTROPY;
+		mIds["mipmap_bias"] = ID_MIPMAP_BIAS;
+		mIds["colour_op"] = ID_COLOUR_OP;
+			mIds["replace"] = ID_REPLACE;
+			mIds["add"] = ID_ADD;
+			mIds["modulate"] = ID_MODULATE;
+			mIds["alpha_blend"] = ID_ALPHA_BLEND;
+		mIds["colour_op_ex"] = ID_COLOUR_OP_EX;
+			mIds["source1"] = ID_SOURCE1;
+			mIds["source2"] = ID_SOURCE2;
+			mIds["modulate"] = ID_MODULATE;
+			mIds["modulate_x2"] = ID_MODULATE_X2;
+			mIds["modulate_x4"] = ID_MODULATE_X4;
+			mIds["add_signed"] = ID_ADD_SIGNED;
+			mIds["add_smooth"] = ID_ADD_SMOOTH;
+			mIds["blend_diffuse_alpha"] = ID_BLEND_DIFFUSE_ALPHA;
+			mIds["blend_texture_alpha"] = ID_BLEND_TEXTURE_ALPHA;
+			mIds["blend_current_alpha"] = ID_BLEND_CURRENT_ALPHA;
+			mIds["blend_manual"] = ID_BLEND_MANUAL;
+			mIds["dotproduct"] = ID_DOT_PRODUCT;
+			mIds["blend_diffuse_colour"] = ID_BLEND_DIFFUSE_COLOUR;
+			mIds["src_current"] = ID_SRC_CURRENT;
+			mIds["src_texture"] = ID_SRC_TEXTURE;
+			mIds["src_diffuse"] = ID_SRC_DIFFUSE;
+			mIds["src_specular"] = ID_SRC_SPECULAR;
+			mIds["src_manual"] = ID_SRC_MANUAL;
+		mIds["colour_op_multipass_fallback"] = ID_COLOUR_OP_MULTIPASS_FALLBACK;
+		mIds["alpha_op_ex"] = ID_ALPHA_OP_EX;
+		mIds["env_map"] = ID_ENV_MAP;
+			mIds["spherical"] = ID_SPHERICAL;
+			mIds["planar"] = ID_PLANAR;
+			mIds["cubic_reflection"] = ID_CUBIC_REFLECTION;
+			mIds["cubic_normal"] = ID_CUBIC_NORMAL;
+		mIds["scroll"] = ID_SCROLL;
+		mIds["scroll_anim"] = ID_SCROLL_ANIM;
+		mIds["rotate"] = ID_ROTATE;
+		mIds["rotate_anim"] = ID_ROTATE_ANIM;
+		mIds["scale"] = ID_SCALE;
+		mIds["wave_xform"] = ID_WAVE_XFORM;
+			mIds["scroll_x"] = ID_SCROLL_X;
+			mIds["scroll_y"] = ID_SCROLL_Y;
+			mIds["scale_x"] = ID_SCALE_X;
+			mIds["scale_y"] = ID_SCALE_Y;
+			mIds["sine"] = ID_SINE;
+			mIds["triangle"] = ID_TRIANGLE;
+			mIds["sawtooth"] = ID_SAWTOOTH;
+			mIds["square"] = ID_SQUARE;
+			mIds["inverse_sawtooth"] = ID_INVERSE_SAWTOOTH;
+		mIds["transform"] = ID_TRANSFORM;
+		mIds["binding_type"] = ID_BINDING_TYPE;
+			mIds["vertex"] = ID_VERTEX;
+			mIds["fragment"] = ID_FRAGMENT;
+		mIds["content_type"] = ID_CONTENT_TYPE;
+			mIds["named"] = ID_NAMED;
+			mIds["shadow"] = ID_SHADOW;
+
+		// Particle system
+		mIds["particle_system"] = ID_PARTICLE_SYSTEM;
+		mIds["emitter"] = ID_EMITTER;
+		mIds["affector"] = ID_AFFECTOR;
+
+		// Compositor
+		mIds["compositor"] = ID_COMPOSITOR;
+		mIds["target"] = ID_TARGET;
+		mIds["target_output"] = ID_TARGET_OUTPUT;
+
+		mIds["input"] = ID_INPUT;
+			mIds["none"] = ID_NONE;
+			mIds["previous"] = ID_PREVIOUS;
+			mIds["target_width"] = ID_TARGET_WIDTH;
+			mIds["target_height"] = ID_TARGET_HEIGHT;
+		mIds["only_initial"] = ID_ONLY_INITIAL;
+		mIds["visibility_mask"] = ID_VISIBILITY_MASK;
+		mIds["lod_bias"] = ID_LOD_BIAS;
+		mIds["material_scheme"] = ID_MATERIAL_SCHEME;
+
+		mIds["clear"] = ID_CLEAR;
+		mIds["stencil"] = ID_STENCIL;
+		mIds["render_scene"] = ID_RENDER_SCENE;
+		mIds["render_quad"] = ID_RENDER_QUAD;
+		mIds["identifier"] = ID_IDENTIFIER;
+		mIds["first_render_queue"] = ID_FIRST_RENDER_QUEUE;
+		mIds["last_render_queue"] = ID_LAST_RENDER_QUEUE;
+
+		mIds["buffers"] = ID_BUFFERS;
+			mIds["colour"] = ID_COLOUR;
+			mIds["depth"] = ID_DEPTH;
+		mIds["colour_value"] = ID_COLOUR_VALUE;
+		mIds["depth_value"] = ID_DEPTH_VALUE;
+		mIds["stencil_value"] = ID_STENCIL_VALUE;
+
+		mIds["check"] = ID_CHECK;
+		mIds["comp_func"] = ID_COMP_FUNC;
+		mIds["ref_value"] = ID_REF_VALUE;
+		mIds["mask"] = ID_MASK;
+		mIds["fail_op"] = ID_FAIL_OP;
+			mIds["keep"] = ID_KEEP;
+			mIds["increment"] = ID_INCREMENT;
+			mIds["decrement"] = ID_DECREMENT;
+			mIds["increment_wrap"] = ID_INCREMENT_WRAP;
+			mIds["decrement_wrap"] = ID_DECREMENT_WRAP;
+			mIds["invert"] = ID_INVERT;
+		mIds["depth_fail_op"] = ID_DEPTH_FAIL_OP;
+		mIds["pass_op"] = ID_PASS_OP;
+		mIds["two_sided"] = ID_TWO_SIDED;
 	}
 
 	// AbstractTreeeBuilder
@@ -734,6 +991,30 @@ namespace Ogre
 					++iter;
 				}
 
+				// Everything up until the colon is a "value" of this object
+				while(iter != temp.end() && (*iter)->type != CNT_COLON)
+				{
+					if((*iter)->type == CNT_VARIABLE)
+					{
+						VariableAccessAbstractNode *var = new VariableAccessAbstractNode(impl);
+						var->file = (*iter)->file;
+						var->line = (*iter)->line;
+						var->type = ANT_VARIABLE_ACCESS;
+						var->name = (*iter)->token;
+						impl->values.push_back(AbstractNodePtr(var));
+					}
+					else
+					{
+						AtomAbstractNode *atom = new AtomAbstractNode(impl);
+						atom->file = (*iter)->file;
+						atom->line = (*iter)->line;
+						atom->type = ANT_ATOM;
+						atom->value = (*iter)->token;
+						impl->values.push_back(AbstractNodePtr(atom));
+					}
+					++iter;
+				}
+
 				// Find the base
 				if(iter != temp.end() && (*iter)->type == CNT_COLON)
 				{
@@ -826,5 +1107,144 @@ namespace Ogre
 	{
 		for(ConcreteNodeList::const_iterator i = nodes.begin(); i != nodes.end(); ++i)
 			visitor->visit((*i).get());
+	}
+
+	// Translator
+	ScriptCompiler::Translator::Translator(Ogre::ScriptCompiler *compiler)
+		:mCompiler(compiler)
+	{
+	}
+
+	void ScriptCompiler::Translator::translate(Translator *translator, const AbstractNodePtr &node)
+	{
+		// First check if the compiler listener will override this node
+		bool process = true;
+		if(translator->mCompiler && translator->mCompiler->mListener)
+		{
+			std::pair<bool,ScriptCompiler::Translator*> p = translator->mCompiler->mListener->preTranslation(node);
+			if(p.first && p.second)
+			{
+				// Call the returned translator
+				p.second->process(node);
+				process = false;
+			}
+		}
+
+		// Call the suggested translator
+		// Or ignore the node if no translator is given
+		if(process && translator)
+			translator->process(node);
+	}
+
+	ScriptCompiler *ScriptCompiler::Translator::getCompiler()
+	{
+		return mCompiler;
+	}
+
+	ScriptCompilerListener *ScriptCompiler::Translator::getCompilerListener()
+	{
+		return mCompiler->mListener;
+	}
+
+	bool ScriptCompiler::Translator::getBoolean(const AbstractNodePtr &node, bool *result)
+	{
+		if(node->type != ANT_ATOM)
+		{
+			mCompiler->addError(CE_INVALIDPARAMETERS, node->file, node->line);
+			return false;
+		}
+		AtomAbstractNode *atom = (AtomAbstractNode*)node.get();
+		if(atom->id != 1 || atom->id != 0)
+		{
+			mCompiler->addError(CE_INVALIDPARAMETERS, node->file, node->line);
+			return false;
+		}
+		
+		*result = atom->id == 1 ? true : false;
+		return true;
+	}
+
+	// MaterialTranslator
+	ScriptCompiler::MaterialTranslator::MaterialTranslator(ScriptCompiler *compiler)
+		:Translator(compiler)
+	{
+	}
+
+	void ScriptCompiler::MaterialTranslator::process(const AbstractNodePtr &node)
+	{
+		assert(node->type == ANT_OBJECT);
+
+		ObjectAbstractNode *obj = (ObjectAbstractNode*)node.get();
+		if(obj->name.empty())
+			getCompiler()->addError(CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
+
+		// Create a material with the given name
+		if(getCompilerListener())
+			mMaterial = getCompilerListener()->allocateMaterial(obj->name, getCompiler()->getResourceGroup());
+		else
+			mMaterial = MaterialManager::getSingleton().create(obj->name, getCompiler()->getResourceGroup());
+
+		if(mMaterial.isNull())
+		{
+			getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+			return;
+		}
+
+		mMaterial->removeAllTechniques();
+
+		// Set the properties for the material
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_PROPERTY)
+			{
+				PropertyAbstractNode *prop = (PropertyAbstractNode*)(*i).get();
+				switch(prop->id)
+				{
+				case ID_LOD_DISTANCES:
+					{
+						Material::LodDistanceList lods;
+						for(AbstractNodeList::iterator j = prop->values.begin(); j != prop->values.end(); ++j)
+						{
+							if((*j)->type == ANT_ATOM && ((AtomAbstractNode*)(*j).get())->isNumber())
+								lods.push_back(((AtomAbstractNode*)(*j).get())->getNumber());
+							else
+								getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+						}
+						mMaterial->setLodLevels(lods);
+					}
+					break;
+				case ID_RECEIVE_SHADOWS:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = true;
+						if(getBoolean(prop->values.front(), &val))
+							mMaterial->setReceiveShadows(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->values.front()->file, prop->values.front()->line);
+					}
+					break;
+				case ID_TRANSPARENCY_CASTS_SHADOWS:
+					break;
+				case ID_SET_TEXTURE_ALIAS:
+					break;
+				}
+			}
+			else if((*i)->type == ANT_OBJECT)
+			{
+				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
+				if(obj->id == ID_TECHNIQUE)
+				{
+					// Compile the technique
+				}
+			}
+		}
 	}
 }
