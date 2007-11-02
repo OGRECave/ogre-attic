@@ -182,6 +182,8 @@ namespace Ogre
         AutoConstantDefinition(ACT_PACKED_TEXTURE_SIZE,         "packed_texture_size",            4, ET_REAL, ACDT_INT),
     };
 
+    bool GpuNamedConstants::msGenerateAllConstantDefinitionArrayEntries = false;
+
 	//---------------------------------------------------------------------
 	void GpuNamedConstants::generateConstantDefinitionArrayEntries(
 		const String& paramName, const GpuConstantDefinition& baseDef)
@@ -193,11 +195,12 @@ namespace Ogre
 
 		// Add parameters for array accessors
 		// [0] will refer to the same location, [1+] will increment
-		// only populate others individually up to 16 array slots so as not to get out of hand
+		// only populate others individually up to 16 array slots so as not to get out of hand,
+        // unless the system has been explicitly configured to allow all the parameters to be added
 
 		// paramName[0] version will always exist 
 		size_t maxArrayIndex = 1;
-		if (baseDef.arraySize <= 16)
+		if (baseDef.arraySize <= 16 || msGenerateAllConstantDefinitionArrayEntries)
 			maxArrayIndex = baseDef.arraySize;
 
 		for (size_t i = 0; i < maxArrayIndex; i++)
@@ -210,7 +213,18 @@ namespace Ogre
 		// note no increment of buffer sizes since this is shared with main array def
 
 	}
-    
+
+    //---------------------------------------------------------------------
+    bool GpuNamedConstants::getGenerateAllConstantDefinitionArrayEntries()
+    {
+        return msGenerateAllConstantDefinitionArrayEntries;
+    }
+
+    //---------------------------------------------------------------------
+    void GpuNamedConstants::setGenerateAllConstantDefinitionArrayEntries(bool generateAll)
+    {
+        msGenerateAllConstantDefinitionArrayEntries = generateAll;
+    }    
 
     //-----------------------------------------------------------------------------
     GpuProgram::GpuProgram(ResourceManager* creator, const String& name, ResourceHandle handle,

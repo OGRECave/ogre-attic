@@ -164,6 +164,25 @@ namespace Ogre {
 		void generateConstantDefinitionArrayEntries(const String& paramName, 
 			const GpuConstantDefinition& baseDef);
 
+        /// Indicates whether all array entries will be generated and added to the definitions map
+        static bool getGenerateAllConstantDefinitionArrayEntries();
+
+        /** Sets whether all array entries will be generated and added to the definitions map.
+		@remarks
+			Usually, array entries can only be individually indexed if they're up to 16 entries long,
+			to save memory - arrays larger than that can be set but only via the bulk setting
+			methods. This option allows you to choose to individually index every array entry. 
+		*/
+        static void setGenerateAllConstantDefinitionArrayEntries(bool generateAll);
+
+    protected:
+        /** Indicates whether all array entries will be generated and added to the definitions map
+        @remarks
+            Normally, the number of array entries added to the definitions map is capped at 16
+            to save memory. Setting this value to <code>true</code> allows all of the entries
+            to be generated and added to the map.
+        */
+        static bool msGenerateAllConstantDefinitionArrayEntries;
 	};
 
 	/** Structure recording the use of a physical buffer by a logical parameter
