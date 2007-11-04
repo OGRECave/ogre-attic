@@ -70,6 +70,8 @@ GLXWindow::GLXWindow(Display *display) :
 //-------------------------------------------------------------------------------------------------//
 GLXWindow::~GLXWindow() 
 {
+	destroy();
+
 	if (mDelVisualInfo && mVisualInfo)
 		XFree(mVisualInfo);
 
@@ -79,30 +81,6 @@ GLXWindow::~GLXWindow()
 	if(mDelWindow && mWindow)
 		XDestroyWindow(mDisplay, mWindow);
 
-#ifndef NO_XRANDR
-	if(mIsFullScreen) 
-	{
-		// Restore original video mode.
-		Window rootWindow = DefaultRootWindow(mDisplay);
-		XRRScreenConfiguration *config;
-
-		// Get current screen info
-		config = XRRGetScreenInfo(mDisplay, rootWindow);
-		if(config) 
-		{
-			Rotation current_rotation;
-			XRRConfigCurrentConfiguration (config, &current_rotation);
-			//std::cerr << "Restore mode " << mOldMode << std::endl;
-			LogManager::getSingleton().logMessage("GLXWindow::~GLXWindow -- Leaving full screen mode");
-			XRRSetScreenConfig(mDisplay, config, rootWindow, mOldMode, current_rotation, CurrentTime);
-			XRRFreeScreenConfigInfo(config);
-		} 
-		else 
-		{
-			LogManager::getSingleton().logMessage("GLXWindow::~GLXWindow -- Could not switch from full screen mode: XRRGetScreenInfo failed");
-		}
-	}
-#endif
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -408,6 +386,32 @@ void GLXWindow::destroy(void)
 	if(mDelWindow && mWindow)
 		XDestroyWindow(mDisplay, mWindow);
 
+
+#ifndef NO_XRANDR
+	if(mIsFullScreen) 
+	{
+		// Restore original video mode.
+		Window rootWindow = DefaultRootWindow(mDisplay);
+		XRRScreenConfiguration *config;
+
+		// Get current screen info
+		config = XRRGetScreenInfo(mDisplay, rootWindow);
+		if(config) 
+		{
+			Rotation current_rotation;
+			XRRConfigCurrentConfiguration (config, &current_rotation);
+			//std::cerr << "Restore mode " << mOldMode << std::endl;
+			LogManager::getSingleton().logMessage("GLXWindow::~GLXWindow -- Leaving full screen mode");
+			XRRSetScreenConfig(mDisplay, config, rootWindow, mOldMode, current_rotation, CurrentTime);
+			XRRFreeScreenConfigInfo(config);
+		} 
+		else 
+		{
+			LogManager::getSingleton().logMessage("GLXWindow::~GLXWindow -- Could not switch from full screen mode: XRRGetScreenInfo failed");
+		}
+	}
+#endif
+	
 	mContext = 0;
 	mWindow = 0;
 	mGlxContext = 0;
