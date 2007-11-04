@@ -31,6 +31,8 @@ Torus Knot Software Ltd.
 #define __SCRIPTCOMPILER_H_
 
 #include "OgreSharedPtr.h"
+#include "OgreMaterial.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre
 {

@@ -34,6 +34,8 @@ Torus Knot Software Ltd.
 #include "OgreStdHeaders.h"
 #include "OgreSharedPtr.h"
 #include "OgreDataStream.h"
+#include "OgreStringConverter.h"
+
 
 namespace Ogre {
 
