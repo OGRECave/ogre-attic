@@ -119,7 +119,7 @@ int main(int numargs, char** args)
     }
     if(glCaps)
     {
-        serializer.writeScript(glCaps, glCaps->getDeviceNameGL(), "rcapsdump_gl.rendercaps");
+        serializer.writeScript(glCaps, glCaps->getDeviceName(), "rcapsdump_gl.rendercaps");
     }
     
     delete root;
@@ -136,7 +136,7 @@ int main(int numargs, char** args)
     }
     if(d3d9Caps)
     {
-        serializer.writeScript(d3d9Caps, d3d9Caps->getDeviceNameD3D9(), "rcapsdump_d3d9.rendercaps");
+        serializer.writeScript(d3d9Caps, d3d9Caps->getDeviceName(), "rcapsdump_d3d9.rendercaps");
     }
 
     delete root;

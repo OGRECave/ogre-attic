@@ -132,7 +132,7 @@ RenderWindow* GLXGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
 			winOptions["FSAA"] = opt->second.currentValue;
         }
 
-		return renderSystem->createRenderWindow(windowTitle, w, h, fullscreen, &winOptions);
+		return renderSystem->_createRenderWindow(windowTitle, w, h, fullscreen, &winOptions);
 	} else {
 		// XXX What is the else?
 		return NULL;
