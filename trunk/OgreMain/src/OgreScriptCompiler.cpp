@@ -33,6 +33,10 @@ Torus Knot Software Ltd.
 #include "OgreScriptParser.h"
 #include "OgreLogManager.h"
 #include "OgreMaterialManager.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
+#include "OgreGpuProgramManager.h"
+#include "OgreHighLevelGpuProgramManager.h"
 
 namespace Ogre
 {
@@ -223,6 +227,18 @@ namespace Ogre
 	MaterialPtr ScriptCompilerListener::allocateMaterial(const String &name, const String &group)
 	{
 		return (MaterialPtr)MaterialManager::getSingleton().create(name, group);
+	}
+
+	void ScriptCompilerListener::preApplyTextureAliases(AliasTextureNamePairList *aliases)
+	{
+	}
+
+	void ScriptCompilerListener::getTextureNames(Ogre::String *names, int count)
+	{
+	}
+
+	void ScriptCompilerListener::getGpuProgramName(String *name)
+	{
 	}
 
 	// ScriptCompiler
@@ -1146,6 +1162,20 @@ namespace Ogre
 		return mCompiler->mListener;
 	}
 
+	AbstractNodeList::const_iterator ScriptCompiler::Translator::getNodeAt(const AbstractNodeList &nodes, int index)
+	{
+		AbstractNodeList::const_iterator i = nodes.begin();
+		int n = 0;
+		while(i != nodes.end())
+		{
+			if(n == index)
+				return i;
+			++i;
+			++n;
+		}
+		return nodes.end();
+	}
+
 	bool ScriptCompiler::Translator::getBoolean(const AbstractNodePtr &node, bool *result)
 	{
 		if(node->type != ANT_ATOM)
@@ -1161,6 +1191,168 @@ namespace Ogre
 		}
 		
 		*result = atom->id == 1 ? true : false;
+		return true;
+	}
+
+	bool ScriptCompiler::Translator::getString(const AbstractNodePtr &node, String *result)
+	{
+		if(node->type != ANT_ATOM)
+		{
+			mCompiler->addError(CE_INVALIDPARAMETERS, node->file, node->line);
+			return false;
+		}
+		AtomAbstractNode *atom = (AtomAbstractNode*)node.get();		
+		*result = atom->value;
+		return true;
+	}
+
+	bool ScriptCompiler::Translator::getNumber(const Ogre::AbstractNodePtr &node, Ogre::Real *result)
+	{
+		if(node->type != ANT_ATOM)
+		{
+			mCompiler->addError(CE_INVALIDPARAMETERS, node->file, node->line);
+			return false;
+		}
+		AtomAbstractNode *atom = (AtomAbstractNode*)node.get();
+		if(!atom->isNumber())
+		{
+			mCompiler->addError(CE_INVALIDPARAMETERS, node->file, node->line);
+			return false;
+		}
+		*result = atom->getNumber();
+		return true;
+	}
+
+	bool ScriptCompiler::Translator::getColour(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColourValue *result)
+	{
+		Real vals[4];
+		memset(vals, 0, sizeof(Real)*4);
+
+		int n = 0;
+		while(i != end && n < 4)
+		{
+			if((*i)->type == ANT_ATOM && ((AtomAbstractNode*)(*i).get())->isNumber())
+			{
+				vals[n] = ((AtomAbstractNode*)(*i).get())->getNumber();
+			}
+			else
+			{
+				return false;
+			}
+			++n;
+			++i;
+		}
+
+		result->r = vals[0];
+		result->g = vals[1];
+		result->b = vals[2];
+		result->a = vals[3];
+		return true;
+	}
+
+	bool ScriptCompiler::Translator::getSceneBlendFactor(const Ogre::AbstractNodePtr &node, Ogre::SceneBlendFactor *sbf)
+	{
+		if(node->type != ANT_ATOM)
+		{
+			mCompiler->addError(CE_INVALIDPARAMETERS, node->file, node->line);
+			return false;
+		}
+		AtomAbstractNode *atom = (AtomAbstractNode*)node.get();
+		switch(atom->id)
+		{
+		case ID_ONE:
+			*sbf = SBF_ONE;
+			break;
+		case ID_ZERO:
+			*sbf = SBF_ZERO;
+			break;
+		case ID_DEST_COLOUR:
+			*sbf = SBF_DEST_COLOUR;
+			break;
+		case ID_DEST_ALPHA:
+			*sbf = SBF_DEST_ALPHA;
+			break;
+		case ID_SRC_ALPHA:
+			*sbf = SBF_SOURCE_ALPHA;
+			break;
+		case ID_SRC_COLOUR:
+			*sbf = SBF_SOURCE_COLOUR;
+			break;
+		case ID_ONE_MINUS_DEST_COLOUR:
+			*sbf = SBF_ONE_MINUS_DEST_COLOUR;
+			break;
+		case ID_ONE_MINUS_SRC_COLOUR:
+			*sbf = SBF_ONE_MINUS_SOURCE_COLOUR;
+			break;
+		case ID_ONE_MINUS_DEST_ALPHA:
+			*sbf = SBF_ONE_MINUS_DEST_ALPHA;
+			break;
+		case ID_ONE_MINUS_SRC_ALPHA:
+			*sbf = SBF_ONE_MINUS_SOURCE_ALPHA;
+			break;
+		default:
+			return false;
+		}
+		return true;
+	}
+
+	bool ScriptCompiler::Translator::getCompareFunction(const AbstractNodePtr &node, CompareFunction *func)
+	{
+		if(node->type != ANT_ATOM)
+		{
+			mCompiler->addError(CE_INVALIDPARAMETERS, node->file, node->line);
+			return false;
+		}
+		AtomAbstractNode *atom = (AtomAbstractNode*)node.get();
+		switch(atom->id)
+		{
+		case ID_ALWAYS_FAIL:
+			*func = CMPF_ALWAYS_FAIL;
+			break;
+		case ID_ALWAYS_PASS:
+			*func = CMPF_ALWAYS_PASS;
+			break;
+		case ID_LESS:
+			*func = CMPF_LESS;
+			break;
+		case ID_LESS_EQUAL:
+			*func = CMPF_LESS_EQUAL;
+			break;
+		case ID_EQUAL:
+			*func = CMPF_EQUAL;
+			break;
+		case ID_NOT_EQUAL:
+			*func = CMPF_NOT_EQUAL;
+			break;
+		case ID_GREATER_EQUAL:
+			*func = CMPF_GREATER_EQUAL;
+			break;
+		case ID_GREATER:
+			*func = CMPF_GREATER;
+			break;
+		default:
+			return false;
+		}
+		return true;
+	}
+
+	bool ScriptCompiler::Translator::getMatrix4(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, Matrix4 *m)
+	{
+		int n = 0;
+		while(i != end && n < 16)
+		{
+			if(i != end)
+			{
+				if((*i)->type == ANT_ATOM && ((AtomAbstractNode*)(*i).get())->isNumber())
+					(*m)[n%4][n/4] = ((AtomAbstractNode*)(*i).get())->getNumber();
+				else
+					return false;
+			}
+			else
+			{
+				return false;
+			}
+		}
 		return true;
 	}
 
@@ -1228,12 +1420,45 @@ namespace Ogre
 						if(getBoolean(prop->values.front(), &val))
 							mMaterial->setReceiveShadows(val);
 						else
-							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->values.front()->file, prop->values.front()->line);
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
 					}
 					break;
 				case ID_TRANSPARENCY_CASTS_SHADOWS:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = true;
+						if(getBoolean(prop->values.front(), &val))
+							mMaterial->setTransparencyCastsShadows(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
 					break;
 				case ID_SET_TEXTURE_ALIAS:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 3)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+						String name, value;
+						if(getString(*i0, &name) && getString(*i1, &value))
+							mTextureAliases.insert(std::make_pair(name, value));
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
 					break;
 				}
 			}
@@ -1243,8 +1468,2533 @@ namespace Ogre
 				if(obj->id == ID_TECHNIQUE)
 				{
 					// Compile the technique
+					Technique *tec = mMaterial->createTechnique();
+					TechniqueTranslator translator(getCompiler(), tec);
+					Translator::translate(&translator, *i);
 				}
 			}
 		}
+
+		// Apply the texture aliases
+		if(getCompilerListener())
+			getCompilerListener()->preApplyTextureAliases(&mTextureAliases);
+		mMaterial->applyTextureAliases(mTextureAliases);
+	}
+
+	// TechniqueTranslator
+	ScriptCompiler::TechniqueTranslator::TechniqueTranslator(ScriptCompiler *compiler, Technique *technique)
+		:Translator(compiler), mTechnique(technique)
+	{
+	}
+
+	void ScriptCompiler::TechniqueTranslator::process(const Ogre::AbstractNodePtr &node)
+	{
+		ObjectAbstractNode *obj = (ObjectAbstractNode*)node.get();
+
+		// Get the name of the technique
+		if(!obj->name.empty())
+			mTechnique->setName(obj->name);
+
+		// Set the properties for the material
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_PROPERTY)
+			{
+				PropertyAbstractNode *prop = (PropertyAbstractNode*)(*i).get();
+				switch(prop->id)
+				{
+				case ID_SCHEME:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 3)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+						String scheme;
+						if(getString(*i0, &scheme))
+							mTechnique->setSchemeName(scheme);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_LOD_INDEX:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 3)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+						Real val;
+						if(getNumber(*i0, &val))
+							mTechnique->setLodIndex(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				}
+			}
+			else if((*i)->type == ANT_OBJECT)
+			{
+				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
+				if(obj->id == ID_PASS)
+				{
+					// Create a pass and compile it
+					Pass *pass = mTechnique->createPass();
+
+				}
+			}
+		}
+	}
+
+	// PassTranslator
+	ScriptCompiler::PassTranslator::PassTranslator(Ogre::ScriptCompiler *compiler, Ogre::Pass *pass)
+		:Translator(compiler), mPass(pass)
+	{
+	}
+
+	void ScriptCompiler::PassTranslator::process(const AbstractNodePtr &node)
+	{
+		ObjectAbstractNode *obj = (ObjectAbstractNode*)node.get();
+
+		// Get the name of the technique
+		if(!obj->name.empty())
+			mPass->setName(obj->name);
+
+		// Set the properties for the material
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_PROPERTY)
+			{
+				PropertyAbstractNode *prop = (PropertyAbstractNode*)(*i).get();
+				switch(prop->id)
+				{
+				case ID_AMBIENT:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 4)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						ColourValue val;
+						if(getColour(prop->values.begin(), prop->values.end(), &val))
+							mPass->setAmbient(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_DIFFUSE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 4)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						ColourValue val;
+						if(getColour(prop->values.begin(), prop->values.end(), &val))
+							mPass->setDiffuse(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_SPECULAR:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 4)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						ColourValue val;
+						if(getColour(prop->values.begin(), prop->values.end(), &val))
+							mPass->setSpecular(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_EMISSIVE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 4)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						ColourValue val;
+						if(getColour(prop->values.begin(), prop->values.end(), &val))
+							mPass->setSelfIllumination(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_SCENE_BLEND:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 2)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() == 1)
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_ADD:
+								mPass->setSceneBlending(SBT_ADD);
+								break;
+							case ID_MODULATE:
+								mPass->setSceneBlending(SBT_MODULATE);
+								break;
+							case ID_COLOUR_BLEND:
+								mPass->setSceneBlending(SBT_TRANSPARENT_COLOUR);
+								break;
+							case ID_ALPHA_BLEND:
+								mPass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+						SceneBlendFactor sbf0, sbf1;
+						if(getSceneBlendFactor(*i0, &sbf0) && getSceneBlendFactor(*i1, &sbf1))
+						{
+							mPass->setSceneBlending(sbf0, sbf1);
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}				
+					}
+					break;
+				case ID_SEPARATE_SCENE_BLEND:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() == 3)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 4)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() == 2)
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+						if((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
+							SceneBlendType sbt0, sbt1;
+							switch(atom0->id)
+							{
+							case ID_ADD:
+								sbt0 = SBT_ADD;
+								break;
+							case ID_MODULATE:
+								sbt0 = SBT_MODULATE;
+								break;
+							case ID_COLOUR_BLEND:
+								sbt0 = SBT_TRANSPARENT_COLOUR;
+								break;
+							case ID_ALPHA_BLEND:
+								sbt0 = SBT_TRANSPARENT_ALPHA;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								continue;
+							}
+							
+							switch(atom1->id)
+							{
+							case ID_ADD:
+								sbt1 = SBT_ADD;
+								break;
+							case ID_MODULATE:
+								sbt1 = SBT_MODULATE;
+								break;
+							case ID_COLOUR_BLEND:
+								sbt1 = SBT_TRANSPARENT_COLOUR;
+								break;
+							case ID_ALPHA_BLEND:
+								sbt1 = SBT_TRANSPARENT_ALPHA;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								continue;
+							}
+
+							mPass->setSeparateSceneBlending(sbt0, sbt1);
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1),
+							i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3);
+						if((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM && (*i2)->type == ANT_ATOM && (*i3)->type == ANT_ATOM)
+						{
+							SceneBlendFactor sbf0, sbf1, sbf2, sbf3;
+							if(getSceneBlendFactor(*i0, &sbf0) && getSceneBlendFactor(*i1, &sbf1) && getSceneBlendFactor(*i2, &sbf2) && 
+								getSceneBlendFactor(*i3, &sbf3))
+							{
+								mPass->setSeparateSceneBlending(sbf0, sbf1, sbf2, sbf3);
+							}
+							else
+							{
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_DEPTH_CHECK:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = true;
+						if(getBoolean(prop->values.front(), &val))
+							mPass->setDepthCheckEnabled(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_DEPTH_WRITE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = true;
+						if(getBoolean(prop->values.front(), &val))
+							mPass->setDepthWriteEnabled(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_DEPTH_BIAS:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 2)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+						float val0, val1 = 0.0f;
+						if(getNumber(*i0, &val0))
+						{
+							if(i1 != prop->values.end())
+								getNumber(*i1, &val1);
+							mPass->setDepthBias(val0, val1);
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_DEPTH_FUNC:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						CompareFunction func;
+						if(getCompareFunction(prop->values.front(), &func))
+							mPass->setDepthFunction(func);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_ITERATION_DEPTH_BIAS:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						float val = 0.0f;
+						if(getNumber(prop->values.front(), &val))
+							mPass->setIterationDepthBias(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_ALPHA_REJECTION:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 2)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+						CompareFunction func;
+						float val = 0.0f;
+						if(getCompareFunction(*i0, &func) && getNumber(*i1, &val))
+							mPass->setAlphaRejectSettings(func, val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_LIGHT_SCISSOR:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = false;
+						if(getBoolean(prop->values.front(), &val))
+							mPass->setLightScissoringEnabled(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_LIGHT_CLIP_PLANES:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = false;
+						if(getBoolean(prop->values.front(), &val))
+							mPass->setLightClipPlanesEnabled(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_ILLUMINATION_STAGE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_AMBIENT:
+								mPass->setIlluminationStage(IS_AMBIENT);
+								break;
+							case ID_PER_LIGHT:
+								mPass->setIlluminationStage(IS_PER_LIGHT);
+								break;
+							case ID_DECAL:
+								mPass->setIlluminationStage(IS_DECAL);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_CULL_HARDWARE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_CLOCKWISE:
+								mPass->setCullingMode(CULL_CLOCKWISE);
+								break;
+							case ID_ANTICLOCKWISE:
+								mPass->setCullingMode(CULL_ANTICLOCKWISE);
+								break;
+							case ID_NONE:
+								mPass->setCullingMode(CULL_NONE);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_CULL_SOFTWARE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_FRONT:
+								mPass->setManualCullingMode(MANUAL_CULL_FRONT);
+								break;
+							case ID_BACK:
+								mPass->setManualCullingMode(MANUAL_CULL_BACK);
+								break;
+							case ID_NONE:
+								mPass->setManualCullingMode(MANUAL_CULL_NONE);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_NORMALISE_NORMALS:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = false;
+						if(getBoolean(prop->values.front(), &val))
+							mPass->setNormaliseNormals(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_LIGHTING:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = false;
+						if(getBoolean(prop->values.front(), &val))
+							mPass->setLightingEnabled(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_SHADING:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_FLAT:
+								mPass->setShadingMode(SO_FLAT);
+								break;
+							case ID_GOURAUD:
+								mPass->setShadingMode(SO_GOURAUD);
+								break;
+							case ID_PHONG:
+								mPass->setShadingMode(SO_PHONG);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_POLYGON_MODE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_SOLID:
+								mPass->setPolygonMode(PM_SOLID);
+								break;
+							case ID_POINTS:
+								mPass->setPolygonMode(PM_POINTS);
+								break;
+							case ID_WIREFRAME:
+								mPass->setPolygonMode(PM_WIREFRAME);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_POLYGON_MODE_OVERRIDEABLE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = false;
+						if(getBoolean(prop->values.front(), &val))
+							mPass->setPolygonModeOverrideable(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_FOG_OVERRIDE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 6)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2),
+							i3 = getNodeAt(prop->values, 3), i4 = getNodeAt(prop->values, 4), i5 = getNodeAt(prop->values, 5);
+						bool val = false;
+						if(getBoolean(prop->values.front(), &val))
+						{
+							FogMode mode = FOG_NONE;
+							ColourValue clr = ColourValue::White;
+							Real dens = 0.001, start = 0.0f, end = 1.0f;
+
+							if(i1 != prop->values.end())
+							{
+								if((*i1)->type == ANT_ATOM)
+								{
+									AtomAbstractNode *atom = (AtomAbstractNode*)(*i1).get();
+									switch(atom->id)
+									{
+									case ID_NONE:
+										mode = FOG_NONE;
+										break;
+									case ID_LINEAR:
+										mode = FOG_LINEAR;
+										break;
+									case ID_EXP:
+										mode = FOG_EXP;
+										break;
+									case ID_EXP2:
+										mode = FOG_EXP2;
+										break;
+									default:
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+										continue;
+									}
+								}
+								else
+								{
+									getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									continue;
+								}
+							}
+
+							if(i2 != prop->values.end())
+							{
+								if(!getColour(i2, prop->values.end(), &clr))
+								{
+									getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									continue;
+								}
+							}
+
+							if(i3 != prop->values.end())
+							{
+								if(!getNumber(*i3, &dens))
+								{
+									getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									continue;
+								}
+							}
+
+							if(i4 != prop->values.end())
+							{
+								if(!getNumber(*i4, &start))
+								{
+									getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									continue;
+								}
+							}
+
+							if(i5 != prop->values.end())
+							{
+								if(!getNumber(*i5, &end))
+								{
+									getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									continue;
+								}
+							}
+
+							mPass->setFog(val, mode, clr, dens, start, end);
+						}
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_COLOUR_WRITE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = false;
+						if(getBoolean(prop->values.front(), &val))
+							mPass->setColourWriteEnabled(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_MAX_LIGHTS:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						Real val = 0.0f;
+						if(getNumber(prop->values.front(), &val))
+							mPass->setMaxSimultaneousLights(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_START_LIGHT:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						Real val = 0.0f;
+						if(getNumber(prop->values.front(), &val))
+							mPass->setStartLight(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_ITERATION:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+						if((*i0)->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)(*i0).get();
+							if(atom->id == ID_ONCE)
+							{
+								mPass->setIteratePerLight(false);
+							}
+							else if(atom->id == ID_ONCE_PER_LIGHT)
+							{
+								AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+								if(i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
+								{
+									atom = (AtomAbstractNode*)(*i1).get();
+									switch(atom->id)
+									{
+									case ID_POINT:
+										mPass->setIteratePerLight(true);
+										break;
+									case ID_DIRECTIONAL:
+										mPass->setIteratePerLight(true, true, Light::LT_DIRECTIONAL);
+										break;
+									case ID_SPOT:
+										mPass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
+										break;
+									default:
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									}
+								}
+								else
+								{
+									mPass->setIteratePerLight(true, false);
+								}
+
+							}
+							else if(atom->isNumber())
+							{
+								mPass->setPassIterationCount(atom->getNumber());
+
+								AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+								if(i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
+								{
+									atom = (AtomAbstractNode*)(*i1).get();
+									if(atom->id == ID_PER_LIGHT)
+									{
+										AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
+										if(i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
+										{
+											atom = (AtomAbstractNode*)(*i2).get();
+											switch(atom->id)
+											{
+											case ID_POINT:
+												mPass->setIteratePerLight(true);
+												break;
+											case ID_DIRECTIONAL:
+												mPass->setIteratePerLight(true, true, Light::LT_DIRECTIONAL);
+												break;
+											case ID_SPOT:
+												mPass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
+												break;
+											default:
+												getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+											}
+										}
+										else
+										{
+											mPass->setIteratePerLight(true, false);
+										}
+									}
+									else if(ID_PER_N_LIGHTS)
+									{
+										AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
+										if(i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
+										{
+											atom = (AtomAbstractNode*)(*i2).get();
+											if(atom->isNumber())
+											{
+												mPass->setLightCountPerIteration(atom->getNumber());
+												
+												AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
+												if(i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
+												{
+													atom = (AtomAbstractNode*)(*i2).get();
+													switch(atom->id)
+													{
+													case ID_POINT:
+														mPass->setIteratePerLight(true);
+														break;
+													case ID_DIRECTIONAL:
+														mPass->setIteratePerLight(true, true, Light::LT_DIRECTIONAL);
+														break;
+													case ID_SPOT:
+														mPass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
+														break;
+													default:
+														getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+													}
+												}
+												else
+												{
+													mPass->setIteratePerLight(true, false);
+												}
+											}
+											else
+											{
+												getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+											}
+										}
+										else
+										{
+											getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+										}
+									}
+								}
+							}
+							else
+							{
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_POINT_SIZE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						Real val = 0.0f;
+						if(getNumber(prop->values.front(), &val))
+							mPass->setPointSize(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_POINT_SPRITES:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = false;
+						if(getBoolean(prop->values.front(), &val))
+							mPass->setPointSpritesEnabled(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_POINT_SIZE_ATTENUATION:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 4)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						bool val = false;
+						if(getBoolean(prop->values.front(), &val))
+						{
+							if(val)
+							{
+								AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2), 
+									i3 = getNodeAt(prop->values, 3);
+								Real constant = 0.0f, linear = 1.0f, quadratic = 0.0f;
+
+								if(i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
+								{
+									AtomAbstractNode *atom = (AtomAbstractNode*)(*i1).get();
+									if(atom->isNumber())
+										constant = atom->getNumber();
+									else
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+								else
+								{
+									getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+								}
+
+								if(i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
+								{
+									AtomAbstractNode *atom = (AtomAbstractNode*)(*i2).get();
+									if(atom->isNumber())
+										linear = atom->getNumber();
+									else
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+								else
+								{
+									getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+								}
+
+								if(i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
+								{
+									AtomAbstractNode *atom = (AtomAbstractNode*)(*i3).get();
+									if(atom->isNumber())
+										quadratic = atom->getNumber();
+									else
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+								else
+								{
+									getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+								}
+
+								mPass->setPointAttenuation(true, constant, linear, quadratic);
+							}
+							else
+							{
+								mPass->setPointAttenuation(false);
+							}
+						}
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_POINT_SIZE_MIN:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						Real val = 0.0f;
+						if(getNumber(prop->values.front(), &val))
+							mPass->setPointMinSize(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_POINT_SIZE_MAX:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						Real val = 0.0f;
+						if(getNumber(prop->values.front(), &val))
+							mPass->setPointMaxSize(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				}
+			}
+			else if((*i)->type == ANT_OBJECT)
+			{
+				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
+				switch(obj->id)
+				{
+				case ID_TEXTURE_UNIT:
+					{
+						TextureUnitState *unit = mPass->createTextureUnitState();
+						TextureUnitTranslator translator(getCompiler(), unit);
+						translate(&translator, *i);
+					}
+					break;
+				case ID_VERTEX_PROGRAM_REF:
+					{
+						// This object needs to be named
+						if(!obj->name.empty())
+						{
+							String name = obj->name;
+							if(getCompilerListener())
+								getCompilerListener()->getGpuProgramName(&name);
+
+							GpuProgram *prog = 0;
+							if(mPass->hasVertexProgram() && (mPass->getVertexProgramName() == name || name.empty()))
+							{
+								prog = mPass->getVertexProgram().get();
+							}
+							else
+							{
+								prog = (GpuProgram*)GpuProgramManager::getSingleton().getByName(name).get();
+								if(prog)
+									mPass->setVertexProgram(name);
+							}
+
+							if(prog)
+							{
+								if(prog->isSupported())
+								{
+									GpuProgramParametersSharedPtr params = mPass->getVertexProgramParameters();
+									GpuProgramParametersTranslator translator(getCompiler(), params);
+									translate(&translator, *i);
+								}
+							}
+							else
+							{
+								getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
+						}
+					}
+					break;
+				case ID_FRAGMENT_PROGRAM_REF:
+					{
+						// This object needs to be named
+						if(!obj->name.empty())
+						{
+							String name = obj->name;
+							if(getCompilerListener())
+								getCompilerListener()->getGpuProgramName(&name);
+
+							GpuProgram *prog = 0;
+							if(mPass->hasFragmentProgram() && (mPass->getFragmentProgramName() == name || name.empty()))
+							{
+								prog = mPass->getFragmentProgram().get();
+							}
+							else
+							{
+								prog = (GpuProgram*)GpuProgramManager::getSingleton().getByName(name).get();
+								if(prog)
+									mPass->setFragmentProgram(name);
+							}
+
+							if(prog)
+							{
+								if(prog->isSupported())
+								{
+									GpuProgramParametersSharedPtr params = mPass->getFragmentProgramParameters();
+									GpuProgramParametersTranslator translator(getCompiler(), params);
+									translate(&translator, *i);
+								}
+							}
+							else
+							{
+								getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
+						}
+					}
+					break;
+				case ID_SHADOW_CASTER_VERTEX_PROGRAM_REF:
+					{
+						// This object needs to be named
+						if(!obj->name.empty())
+						{
+							String name = obj->name;
+							if(getCompilerListener())
+								getCompilerListener()->getGpuProgramName(&name);
+
+							GpuProgram *prog = 0;
+							if(mPass->hasShadowCasterVertexProgram() && (mPass->getShadowCasterVertexProgramName() == name || name.empty()))
+							{
+								prog = mPass->getShadowCasterVertexProgram().get();
+							}
+							else
+							{
+								prog = (GpuProgram*)GpuProgramManager::getSingleton().getByName(name).get();
+								if(prog)
+									mPass->setShadowCasterVertexProgram(name);
+							}
+
+							if(prog)
+							{
+								if(prog->isSupported())
+								{
+									GpuProgramParametersSharedPtr params = mPass->getShadowCasterVertexProgramParameters();
+									GpuProgramParametersTranslator translator(getCompiler(), params);
+									translate(&translator, *i);
+								}
+							}
+							else
+							{
+								getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
+						}
+					}
+					break;
+				case ID_SHADOW_RECEIVER_VERTEX_PROGRAM_REF:
+					{
+						// This object needs to be named
+						if(!obj->name.empty())
+						{
+							String name = obj->name;
+							if(getCompilerListener())
+								getCompilerListener()->getGpuProgramName(&name);
+
+							GpuProgram *prog = 0;
+							if(mPass->hasShadowReceiverVertexProgram() && (mPass->getShadowCasterVertexProgramName() == name || name.empty()))
+							{
+								prog = mPass->getShadowCasterVertexProgram().get();
+							}
+							else
+							{
+								prog = (GpuProgram*)GpuProgramManager::getSingleton().getByName(name).get();
+								if(prog)
+									mPass->setShadowReceiverVertexProgram(name);
+							}
+
+							if(prog)
+							{
+								if(prog->isSupported())
+								{
+									GpuProgramParametersSharedPtr params = mPass->getShadowReceiverVertexProgramParameters();
+									GpuProgramParametersTranslator translator(getCompiler(), params);
+									translate(&translator, *i);
+								}
+							}
+							else
+							{
+								getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
+						}
+					}
+					break;
+				case ID_SHADOW_RECEIVER_FRAGMENT_PROGRAM_REF:
+					{
+						// This object needs to be named
+						if(!obj->name.empty())
+						{
+							String name = obj->name;
+							if(getCompilerListener())
+								getCompilerListener()->getGpuProgramName(&name);
+
+							GpuProgram *prog = 0;
+							if(mPass->hasShadowReceiverFragmentProgram() && (mPass->getShadowReceiverFragmentProgramName() == name || name.empty()))
+							{
+								prog = mPass->getShadowReceiverFragmentProgram().get();
+							}
+							else
+							{
+								prog = (GpuProgram*)GpuProgramManager::getSingleton().getByName(name).get();
+								if(prog)
+									mPass->setShadowReceiverFragmentProgram(name);
+							}
+
+							if(prog)
+							{
+								if(prog->isSupported())
+								{
+									GpuProgramParametersSharedPtr params = mPass->getShadowReceiverFragmentProgramParameters();
+									GpuProgramParametersTranslator translator(getCompiler(), params);
+									translate(&translator, *i);
+								}
+							}
+							else
+							{
+								getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
+						}
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	ScriptCompiler::TextureUnitTranslator::TextureUnitTranslator(ScriptCompiler *compiler, TextureUnitState *unit)
+		:Translator(compiler), mUnit(unit)
+	{
+	}
+
+	void ScriptCompiler::TextureUnitTranslator::process(const Ogre::AbstractNodePtr &node)
+	{
+		ObjectAbstractNode *obj = (ObjectAbstractNode*)node.get();
+
+		// Get the name of the technique
+		if(!obj->name.empty())
+			mUnit->setName(obj->name);
+
+		// Set the properties for the material
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_PROPERTY)
+			{
+				PropertyAbstractNode *prop = (PropertyAbstractNode*)(*i).get();
+				switch(prop->id)
+				{
+				case ID_TEXTURE_ALIAS:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						String val;
+						if(getString(prop->values.front(), &val))
+							mUnit->setTextureNameAlias(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_TEXTURE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 5)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator j = prop->values.begin();
+						String val;
+						if(getString(*j, &val))
+						{
+							TextureType texType = TEX_TYPE_2D;
+							bool isAlpha = false;
+							PixelFormat format = PF_UNKNOWN;
+							int mipmaps = MIP_DEFAULT;
+
+							++j;
+							while(j != prop->values.end())
+							{
+								if((*j)->type == ANT_ATOM)
+								{
+									AtomAbstractNode *atom = (AtomAbstractNode*)(*j).get();
+									switch(atom->id)
+									{
+									case ID_1D:
+										texType = TEX_TYPE_1D;
+										break;
+									case ID_2D:
+										texType = TEX_TYPE_2D;
+										break;
+									case ID_3D:
+										texType = TEX_TYPE_3D;
+										break;
+									case ID_CUBIC:
+										texType = TEX_TYPE_CUBE_MAP;
+										break;
+									case ID_UNLIMITED:
+										mipmaps = MIP_UNLIMITED;
+										break;
+									case ID_ALPHA:
+										isAlpha = true;
+										break;
+									default:
+										if(atom->isNumber())
+											mipmaps = atom->getNumber();
+										else
+											format = PixelUtil::getFormatFromName(atom->value, true);
+									}
+								}
+								else
+								{
+									getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+								++j;
+							}
+
+							if(getCompilerListener())
+								getCompilerListener()->getTextureNames(&val, 1);
+
+							mUnit->setTextureName(val, texType);
+							mUnit->setDesiredFormat(format);
+							mUnit->setIsAlpha(isAlpha);
+							mUnit->setNumMipmaps(mipmaps);
+						}
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_ANIM_TEXTURE:
+					if(prop->values.size() < 3)
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+						if((*i1)->type == ANT_ATOM && ((AtomAbstractNode*)(*i1).get())->isNumber())
+						{
+							// Short form
+							AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i2 = getNodeAt(prop->values, 2);
+							if((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM)
+							{
+								AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get(),
+									*atom2 = (AtomAbstractNode*)(*i2).get();
+								if(atom1->isNumber() && atom2->isNumber())
+								{
+									mUnit->setAnimatedTextureName(atom0->value, atom1->getNumber(), atom2->getNumber());
+								}
+								else
+								{
+									getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+								}
+							}
+							else
+							{
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							// Long form has n number of frames
+							AbstractNodeList::const_iterator in = getNodeAt(prop->values, prop->values.size() - 1);
+							if((*in)->type == ANT_ATOM && ((AtomAbstractNode*)(*in).get())->isNumber())
+							{
+								Real duration = ((AtomAbstractNode*)(*in).get())->getNumber();
+								String *names = new String[prop->values.size() - 2];
+								int n = 0;
+
+								AbstractNodeList::iterator j = prop->values.begin();
+								while(j != in)
+								{
+									if((*j)->type == ANT_ATOM)
+										names[n++] = ((AtomAbstractNode*)(*j).get())->value;
+									else
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									++j;
+								}
+
+								if(getCompilerListener())
+									getCompilerListener()->getTextureNames(names, prop->values.size() - 2);
+								mUnit->setAnimatedTextureName(names, prop->values.size() - 2, duration);
+							}
+							else
+							{
+								getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+							}
+						}
+					}
+					break;
+				case ID_CUBIC_TEXTURE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() == 2)
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
+							i1 = getNodeAt(prop->values, 1);
+						if((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM)
+						{	
+							AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
+							mUnit->setCubicTextureName(atom0->value, atom1->id == ID_COMBINED_UVW);
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					else if(prop->values.size() == 7)
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
+							i1 = getNodeAt(prop->values, 1),
+							i2 = getNodeAt(prop->values, 2),
+							i3 = getNodeAt(prop->values, 3),
+							i4 = getNodeAt(prop->values, 4),
+							i5 = getNodeAt(prop->values, 5),
+							i6 = getNodeAt(prop->values, 6);
+						if((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM && (*i2)->type == ANT_ATOM && (*i3)->type == ANT_ATOM &&
+							(*i4)->type == ANT_ATOM && (*i5)->type == ANT_ATOM && (*i6)->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get(),
+								*atom2 = (AtomAbstractNode*)(*i2).get(), *atom3 = (AtomAbstractNode*)(*i3).get(),
+								*atom4 = (AtomAbstractNode*)(*i4).get(), *atom5 = (AtomAbstractNode*)(*i5).get(),
+								*atom6 = (AtomAbstractNode*)(*i6).get();
+							String names[6];
+							names[0] = atom0->value;
+							names[1] = atom1->value;
+							names[2] = atom2->value;
+							names[3] = atom3->value;
+							names[4] = atom4->value;
+							names[5] = atom5->value;
+							mUnit->setCubicTextureName(names, atom6->id == ID_COMBINED_UVW);
+						}
+
+					}
+					else
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					break;
+				case ID_TEX_COORD_SET:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						Real val = 0.0f;
+						if(getNumber(prop->values.front(), &val))
+							mUnit->setTextureCoordSet(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_TEX_ADDRESS_MODE:
+					{
+						if(prop->values.empty())
+						{
+							getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+						}
+						else
+						{
+							AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2);
+							TextureUnitState::UVWAddressingMode mode;
+							
+							if(i0 != prop->values.end() && (*i0)->type == ANT_ATOM)
+							{
+								AtomAbstractNode *atom = (AtomAbstractNode*)(*i0).get();
+								switch(atom->id)
+								{
+								case ID_WRAP:
+									mode.u = TextureUnitState::TAM_WRAP;
+									break;
+								case ID_CLAMP:
+									mode.u = TextureUnitState::TAM_CLAMP;
+									break;
+								case ID_MIRROR:
+									mode.u = TextureUnitState::TAM_MIRROR;
+									break;
+								case ID_BORDER:
+									mode.u = TextureUnitState::TAM_BORDER;
+									break;
+								default:
+									getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+							}
+							
+							if(i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
+							{
+								AtomAbstractNode *atom = (AtomAbstractNode*)(*i1).get();
+								switch(atom->id)
+								{
+								case ID_WRAP:
+									mode.u = TextureUnitState::TAM_WRAP;
+									break;
+								case ID_CLAMP:
+									mode.u = TextureUnitState::TAM_CLAMP;
+									break;
+								case ID_MIRROR:
+									mode.u = TextureUnitState::TAM_MIRROR;
+									break;
+								case ID_BORDER:
+									mode.u = TextureUnitState::TAM_BORDER;
+									break;
+								default:
+									getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+							}
+
+							if(i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
+							{
+								AtomAbstractNode *atom = (AtomAbstractNode*)(*i2).get();
+								switch(atom->id)
+								{
+								case ID_WRAP:
+									mode.u = TextureUnitState::TAM_WRAP;
+									break;
+								case ID_CLAMP:
+									mode.u = TextureUnitState::TAM_CLAMP;
+									break;
+								case ID_MIRROR:
+									mode.u = TextureUnitState::TAM_MIRROR;
+									break;
+								case ID_BORDER:
+									mode.u = TextureUnitState::TAM_BORDER;
+									break;
+								default:
+									getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+							}
+
+							mUnit->setTextureAddressingMode(mode);
+						}
+					}
+					break;
+				case ID_TEX_BORDER_COLOUR:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						ColourValue val;
+						if(getColour(prop->values.begin(), prop->values.end(), &val))
+							mUnit->setTextureBorderColour(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_FILTERING:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() == 1)
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_NONE:
+								mUnit->setTextureFiltering(TFO_NONE);
+								break;
+							case ID_BILINEAR:
+								mUnit->setTextureFiltering(TFO_BILINEAR);
+								break;
+							case ID_TRILINEAR:
+								mUnit->setTextureFiltering(TFO_TRILINEAR);
+								break;
+							case ID_ANISOTROPIC:
+								mUnit->setTextureFiltering(TFO_ANISOTROPIC);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					else if(prop->values.size() == 3)
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
+							i1 = getNodeAt(prop->values, 1),
+							i2 = getNodeAt(prop->values, 2);
+						if((*i0)->type == ANT_ATOM &&
+							(*i1)->type == ANT_ATOM &&
+							(*i2)->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(),
+								*atom1 = (AtomAbstractNode*)(*i1).get(),
+								*atom2 = (AtomAbstractNode*)(*i2).get();
+							FilterOptions tmin, tmax, tmip;
+							switch(atom0->id)
+							{
+							case ID_NONE:
+								tmin = FO_NONE;
+								break;
+							case ID_POINT:
+								tmin = FO_POINT;
+								break;
+							case ID_LINEAR:
+								tmin = FO_LINEAR;
+								break;
+							case ID_ANISOTROPIC:
+								tmin = FO_ANISOTROPIC;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							switch(atom1->id)
+							{
+							case ID_NONE:
+								tmax = FO_NONE;
+								break;
+							case ID_POINT:
+								tmax = FO_POINT;
+								break;
+							case ID_LINEAR:
+								tmax = FO_LINEAR;
+								break;
+							case ID_ANISOTROPIC:
+								tmax = FO_ANISOTROPIC;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							switch(atom2->id)
+							{
+							case ID_NONE:
+								tmip = FO_NONE;
+								break;
+							case ID_POINT:
+								tmip = FO_POINT;
+								break;
+							case ID_LINEAR:
+								tmip = FO_LINEAR;
+								break;
+							case ID_ANISOTROPIC:
+								tmip = FO_ANISOTROPIC;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							mUnit->setTextureFiltering(tmin, tmax, tmip);
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					else
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					break;
+				case ID_MAX_ANISOTROPY:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						Real val = 0.0f;
+						if(getNumber(prop->values.front(), &val))
+							mUnit->setTextureAnisotropy(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_MIPMAP_BIAS:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						Real val = 0.0f;
+						if(getNumber(prop->values.front(), &val))
+							mUnit->setTextureMipmapBias(val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_COLOUR_OP:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_REPLACE:
+								mUnit->setColourOperation(LBO_REPLACE);
+								break;
+							case ID_ADD:
+								mUnit->setColourOperation(LBO_ADD);
+								break;
+							case ID_MODULATE:
+								mUnit->setColourOperation(LBO_MODULATE);
+								break;
+							case ID_ALPHA_BLEND:
+								mUnit->setColourOperation(LBO_ALPHA_BLEND);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_COLOUR_OP_EX:
+					if(prop->values.size() < 3)
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 6)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
+							i1 = getNodeAt(prop->values, 1),
+							i2 = getNodeAt(prop->values, 2);
+						if((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM && (*i2)->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(),
+								*atom1 = (AtomAbstractNode*)(*i1).get(),
+								*atom2 = (AtomAbstractNode*)(*i2).get();
+							LayerBlendOperationEx op = LBX_ADD;
+							LayerBlendSource source1 = LBS_CURRENT, source2 = LBS_TEXTURE;
+							ColourValue arg1, arg2;
+							Real manualBlend = 0.0f;
+
+							switch(atom0->id)
+							{
+							case ID_SOURCE1:
+								op = LBX_SOURCE1;
+								break;
+							case ID_SOURCE2:
+								op = LBX_SOURCE2;
+								break;
+							case ID_MODULATE:
+								op = LBX_MODULATE;
+								break;
+							case ID_MODULATE_X2:
+								op = LBX_MODULATE_X2;
+								break;
+							case ID_MODULATE_X4:
+								op = LBX_MODULATE_X4;
+								break;
+							case ID_ADD:
+								op = LBX_ADD;
+								break;
+							case ID_ADD_SIGNED:
+								op = LBX_ADD_SIGNED;
+								break;
+							case ID_ADD_SMOOTH:
+								op = LBX_ADD_SMOOTH;
+								break;
+							case ID_SUBTRACT:
+								op = LBX_SUBTRACT;
+								break;
+							case ID_BLEND_DIFFUSE_ALPHA:
+								op = LBX_BLEND_DIFFUSE_ALPHA;
+								break;
+							case ID_BLEND_TEXTURE_ALPHA:
+								op = LBX_BLEND_TEXTURE_ALPHA;
+								break;
+							case ID_BLEND_CURRENT_ALPHA:
+								op = LBX_BLEND_CURRENT_ALPHA;
+								break;
+							case ID_BLEND_MANUAL:
+								op = LBX_BLEND_MANUAL;
+								break;
+							case ID_DOT_PRODUCT:
+								op = LBX_DOTPRODUCT;
+								break;
+							case ID_BLEND_DIFFUSE_COLOUR:
+								op = LBX_BLEND_DIFFUSE_COLOUR;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							switch(atom1->id)
+							{
+							case ID_SRC_CURRENT:
+								source1 = LBS_CURRENT;
+								break;
+							case ID_SRC_TEXTURE:
+								source1 = LBS_TEXTURE;
+								break;
+							case ID_SRC_DIFFUSE:
+								source1 = LBS_DIFFUSE;
+								break;
+							case ID_SRC_SPECULAR:
+								source1 = LBS_SPECULAR;
+								break;
+							case ID_SRC_MANUAL:
+								source1 = LBS_MANUAL;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							switch(atom2->id)
+							{
+							case ID_SRC_CURRENT:
+								source2 = LBS_CURRENT;
+								break;
+							case ID_SRC_TEXTURE:
+								source2 = LBS_TEXTURE;
+								break;
+							case ID_SRC_DIFFUSE:
+								source2 = LBS_DIFFUSE;
+								break;
+							case ID_SRC_SPECULAR:
+								source2 = LBS_SPECULAR;
+								break;
+							case ID_SRC_MANUAL:
+								source2 = LBS_MANUAL;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							if(op == LBX_BLEND_MANUAL)
+							{
+								AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
+								if(i3 != prop->values.end())
+								{
+									if((*i3)->type == ANT_ATOM && ((AtomAbstractNode*)(*i3).get())->isNumber())
+										manualBlend = ((AtomAbstractNode*)(*i3).get())->getNumber();
+									else
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+								else
+								{
+									getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+								}
+							}
+
+							AbstractNodeList::const_iterator j = getNodeAt(prop->values, 3);
+							if(op == LBX_BLEND_MANUAL)
+								++j;
+							if(source1 == LBS_MANUAL)
+							{
+								if(j != prop->values.end())
+								{
+									if(!getColour(j, prop->values.end(), &arg1))
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+								else
+								{
+									getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+								}
+							}
+							if(source2 == LBS_MANUAL)
+							{
+								if(j != prop->values.end())
+								{
+									if(!getColour(j, prop->values.end(), &arg2))
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+								else
+								{
+									getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+								}
+							}
+
+							mUnit->setColourOperationEx(op, source1, source2, arg1, arg2, manualBlend);
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_COLOUR_OP_MULTIPASS_FALLBACK:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 2)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+						SceneBlendFactor sbf0, sbf1;
+						if(getSceneBlendFactor(*i0, &sbf0) && getSceneBlendFactor(*i1, &sbf1))
+							mUnit->setColourOpMultipassFallback(sbf0, sbf1);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_ALPHA_OP_EX:
+					if(prop->values.size() < 3)
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 6)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
+							i1 = getNodeAt(prop->values, 1),
+							i2 = getNodeAt(prop->values, 2);
+						if((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM && (*i2)->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(),
+								*atom1 = (AtomAbstractNode*)(*i1).get(),
+								*atom2 = (AtomAbstractNode*)(*i2).get();
+							LayerBlendOperationEx op = LBX_ADD;
+							LayerBlendSource source1 = LBS_CURRENT, source2 = LBS_TEXTURE;
+							Real arg1, arg2;
+							Real manualBlend = 0.0f;
+
+							switch(atom0->id)
+							{
+							case ID_SOURCE1:
+								op = LBX_SOURCE1;
+								break;
+							case ID_SOURCE2:
+								op = LBX_SOURCE2;
+								break;
+							case ID_MODULATE:
+								op = LBX_MODULATE;
+								break;
+							case ID_MODULATE_X2:
+								op = LBX_MODULATE_X2;
+								break;
+							case ID_MODULATE_X4:
+								op = LBX_MODULATE_X4;
+								break;
+							case ID_ADD:
+								op = LBX_ADD;
+								break;
+							case ID_ADD_SIGNED:
+								op = LBX_ADD_SIGNED;
+								break;
+							case ID_ADD_SMOOTH:
+								op = LBX_ADD_SMOOTH;
+								break;
+							case ID_SUBTRACT:
+								op = LBX_SUBTRACT;
+								break;
+							case ID_BLEND_DIFFUSE_ALPHA:
+								op = LBX_BLEND_DIFFUSE_ALPHA;
+								break;
+							case ID_BLEND_TEXTURE_ALPHA:
+								op = LBX_BLEND_TEXTURE_ALPHA;
+								break;
+							case ID_BLEND_CURRENT_ALPHA:
+								op = LBX_BLEND_CURRENT_ALPHA;
+								break;
+							case ID_BLEND_MANUAL:
+								op = LBX_BLEND_MANUAL;
+								break;
+							case ID_DOT_PRODUCT:
+								op = LBX_DOTPRODUCT;
+								break;
+							case ID_BLEND_DIFFUSE_COLOUR:
+								op = LBX_BLEND_DIFFUSE_COLOUR;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							switch(atom1->id)
+							{
+							case ID_SRC_CURRENT:
+								source1 = LBS_CURRENT;
+								break;
+							case ID_SRC_TEXTURE:
+								source1 = LBS_TEXTURE;
+								break;
+							case ID_SRC_DIFFUSE:
+								source1 = LBS_DIFFUSE;
+								break;
+							case ID_SRC_SPECULAR:
+								source1 = LBS_SPECULAR;
+								break;
+							case ID_SRC_MANUAL:
+								source1 = LBS_MANUAL;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							switch(atom2->id)
+							{
+							case ID_SRC_CURRENT:
+								source2 = LBS_CURRENT;
+								break;
+							case ID_SRC_TEXTURE:
+								source2 = LBS_TEXTURE;
+								break;
+							case ID_SRC_DIFFUSE:
+								source2 = LBS_DIFFUSE;
+								break;
+							case ID_SRC_SPECULAR:
+								source2 = LBS_SPECULAR;
+								break;
+							case ID_SRC_MANUAL:
+								source2 = LBS_MANUAL;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							if(op == LBX_BLEND_MANUAL)
+							{
+								AbstractNodeList::const_iterator i3 = getNodeAt(prop->values, 3);
+								if(i3 != prop->values.end())
+								{
+									if((*i3)->type == ANT_ATOM && ((AtomAbstractNode*)(*i3).get())->isNumber())
+										manualBlend = ((AtomAbstractNode*)(*i3).get())->getNumber();
+									else
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+								else
+								{
+									getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+								}
+							}
+
+							AbstractNodeList::const_iterator j = getNodeAt(prop->values, 3);
+							if(op == LBX_BLEND_MANUAL)
+								++j;
+							if(source1 == LBS_MANUAL)
+							{
+								if(j != prop->values.end())
+								{
+									if(!getNumber(*j, &arg1))
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									else
+										++j;
+								}
+								else
+								{
+									getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+								}
+							}
+							if(source2 == LBS_MANUAL)
+							{
+								if(j != prop->values.end())
+								{
+									if(!getNumber(*j, &arg2))
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+								}
+								else
+								{
+									getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+								}
+							}
+
+							mUnit->setAlphaOperation(op, source1, source2, arg1, arg2, manualBlend);
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_ENV_MAP:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_OFF:
+								mUnit->setEnvironmentMap(false);
+								break;
+							case ID_SPHERICAL:
+								mUnit->setEnvironmentMap(true, TextureUnitState::ENV_CURVED);
+								break;
+							case ID_PLANAR:
+								mUnit->setEnvironmentMap(true, TextureUnitState::ENV_PLANAR);
+								break;
+							case ID_CUBIC_REFLECTION:
+								mUnit->setEnvironmentMap(true, TextureUnitState::ENV_REFLECTION);
+								break;
+							case ID_CUBIC_NORMAL:
+								mUnit->setEnvironmentMap(true, TextureUnitState::ENV_NORMAL);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_SCROLL:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 2)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+						Real x, y;
+						if(getNumber(*i0, &x) && getNumber(*i1, &y))
+							mUnit->setTextureScroll(x, y);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_SCROLL_ANIM:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 2)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+						Real x, y;
+						if(getNumber(*i0, &x) && getNumber(*i1, &y))
+							mUnit->setScrollAnimation(x, y);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_ROTATE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						Real angle;
+						if(getNumber(prop->values.front(), &angle))
+							mUnit->setTextureRotate(Degree(angle));
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_ROTATE_ANIM:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						Real angle;
+						if(getNumber(prop->values.front(), &angle))
+							mUnit->setRotateAnimation(angle);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_SCALE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 2)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
+						Real x, y;
+						if(getNumber(*i0, &x) && getNumber(*i1, &y))
+							mUnit->setTextureScale(x, y);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_WAVE_XFORM:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 6)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1),
+							i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3),
+							i4 = getNodeAt(prop->values, 4), i5 = getNodeAt(prop->values, 5);
+						if((*i0)->type == ANT_ATOM && (*i1)->type == ANT_ATOM && (*i2)->type == ANT_ATOM &&
+							(*i3)->type == ANT_ATOM && (*i4)->type == ANT_ATOM && (*i5)->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get();
+							TextureUnitState::TextureTransformType type;
+							WaveformType wave;
+							Real base = 0.0f, freq = 0.0f, phase = 0.0f, amp = 0.0f;
+
+							switch(atom0->id)
+							{
+							case ID_SCROLL_X:
+								type = TextureUnitState::TT_TRANSLATE_U;
+								break;
+							case ID_SCROLL_Y:
+								type = TextureUnitState::TT_TRANSLATE_V;
+								break;
+							case ID_SCALE_X:
+								type = TextureUnitState::TT_SCALE_U;
+								break;
+							case ID_SCALE_Y:
+								type = TextureUnitState::TT_SCALE_V;
+								break;
+							case ID_ROTATE:
+								type = TextureUnitState::TT_ROTATE;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							switch(atom1->id)
+							{
+							case ID_SINE:
+								wave = WFT_SINE;
+								break;
+							case ID_TRIANGLE:
+								wave = WFT_TRIANGLE;
+								break;
+							case ID_SQUARE:
+								wave = WFT_SQUARE;
+								break;
+							case ID_SAWTOOTH:
+								wave = WFT_SAWTOOTH;
+								break;
+							case ID_INVERSE_SAWTOOTH:
+								wave = WFT_INVERSE_SAWTOOTH;
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							if(!getNumber(*i2, &base) || !getNumber(*i3, &freq) || !getNumber(*i4, &phase) || !getNumber(*i5, &amp))
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+
+							mUnit->setTransformAnimation(type, wave, base, freq, phase, amp);
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_TRANSFORM:
+					{
+						Matrix4 m;
+						if(getMatrix4(prop->values.begin(), prop->values.end(), &m))
+							mUnit->setTextureTransform(m);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_BINDING_TYPE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_VERTEX:
+								mUnit->setBindingType(TextureUnitState::BT_VERTEX);
+								break;
+							case ID_FRAGMENT:
+								mUnit->setBindingType(TextureUnitState::BT_FRAGMENT);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				case ID_CONTENT_TYPE:
+					if(prop->values.empty())
+					{
+						getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 1)
+					{
+						getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						if(prop->values.front()->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+							switch(atom->id)
+							{
+							case ID_NAMED:
+								mUnit->setContentType(TextureUnitState::CONTENT_NAMED);
+								break;
+							case ID_SHADOW:
+								mUnit->setContentType(TextureUnitState::CONTENT_SHADOW);
+								break;
+							default:
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+					break;
+				}
+			}
+			else if((*i)->type == ANT_OBJECT)
+			{
+			}
+		}
+	}
+
+	ScriptCompiler::GpuProgramParametersTranslator::GpuProgramParametersTranslator(Ogre::ScriptCompiler *compiler, const Ogre::GpuProgramParametersSharedPtr &params)
+		:Translator(compiler), mParams(params)
+	{
+	}
+
+	void ScriptCompiler::GpuProgramParametersTranslator::process(const AbstractNodePtr &node)
+	{
+
 	}
 }
