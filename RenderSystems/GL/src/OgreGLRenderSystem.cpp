@@ -1568,7 +1568,7 @@ namespace Ogre {
     String GLRenderSystem::getErrorDescription(long errCode) const
     {
         const GLubyte *errString = gluErrorString (errCode);
-        return String((const char*) errString);
+		return (errString != 0) ? String((const char*) errString) : StringUtil::BLANK;
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::setLightingEnabled(bool enabled)

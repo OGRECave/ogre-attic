@@ -68,39 +68,6 @@ namespace Ogre {
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
 
-#ifdef  OGRE_DEBUG_MODE
-
-#ifndef GL_ERROR_EXCEPT
-
-#define OGRE_GL_GETERROR(ERROR_MSG) {const GLubyte *errString; \
-    GLenum errCode = glGetError(); \
-    if (errCode != GL_NO_ERROR) {  \
-    errString = gluErrorString (errCode);  \
-    LogManager::getSingleton().logMessage  ("[GL] :" + Ogre::String(ERROR_MSG) +  \
-    " : " + Ogre::String( (const char*) errString)); \
-        } \
-    }
-
-#else //GL_ERROR_EXCEPT
-
-#define OGRE_GL_GETERROR(ERROR_MSG) {const GLubyte *errString; \
-    GLenum errCode = glGetError(); \
-    if (errCode != GL_NO_ERROR) {  \
-    errString = gluErrorString (errCode);  \
-    OGRE_EXCEPT (Exception::ERR_INTERNAL_ERROR,  \
-    Ogre::String(ERROR_MSG) +  \
-    " : " + Ogre::String( (const char*) errString), String("")); \
-        } \
-    }
-
-#endif //GL_ERROR_EXCEPT
-
-#else //OGRE_DEBUG_MODE
-
-#define OGRE_GL_GETERROR()
-
-#endif //OGRE_DEBUG_MODE
-
 #if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
 #	ifdef OGRE_GLPLUGIN_EXPORTS
 #		define _OgreGLExport __declspec(dllexport)
