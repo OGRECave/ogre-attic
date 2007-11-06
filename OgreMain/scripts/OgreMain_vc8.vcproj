@@ -68,7 +68,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib zziplibd.lib zlibd.lib freetype230_D.lib freeimaged.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib"
+				AdditionalDependencies="kernel32.lib user32.lib zziplibd.lib zlibd.lib freetype235_D.lib freeimaged.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib"
 				OutputFile="$(OutDir)/OgreMain_d.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -167,7 +167,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zlib.lib freetype230.lib freeimage.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib"
+				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zlib.lib freetype235.lib freeimage.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="1"
@@ -263,7 +263,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="zziplibd.lib freetype230_D.lib freeimaged.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib zlibd.lib "
+				AdditionalDependencies="zziplibd.lib freetype235_D.lib freeimaged.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib zlibd.lib "
 				OutputFile="$(OutDir)\$(ProjectName)Static_d.lib"
 				AdditionalLibraryDirectories="..\..\lib;..\..\Dependencies\lib\Debug"
 			/>
@@ -341,7 +341,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="zziplib.lib freetype230.lib freeimage.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib zlib.lib"
+				AdditionalDependencies="zziplib.lib freetype235.lib freeimage.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib zlib.lib"
 				OutputFile="$(OutDir)\$(ProjectName)Static.lib"
 				AdditionalLibraryDirectories="..\..\lib;..\..\Dependencies\lib\Release"
 			/>

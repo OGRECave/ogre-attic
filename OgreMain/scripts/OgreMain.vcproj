@@ -41,7 +41,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib zziplibd.lib zlibd.lib freetype230_D.lib FreeImaged.lib"
+				AdditionalDependencies="kernel32.lib user32.lib zziplibd.lib zlibd.lib freetype235_D.lib FreeImaged.lib"
 				OutputFile="$(OutDir)/$(ProjectName)_d.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -115,7 +115,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zlib.lib freetype230.lib FreeImage.lib"
+				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zlib.lib freetype235.lib FreeImage.lib"
 				Version="0.99"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
