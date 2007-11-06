@@ -329,8 +329,11 @@ namespace Ogre {
         nested within this to ensure that containers are displayed behind contained
         items. This method is used internally to notify the element of a change in
         final zorder which is used to render the element.
+		@return Return the next zordering number availble. For single elements, this
+		is simply newZOrder + 1, but for containers, they increment it once for each
+		child (more if those children are also containers).
         */
-        virtual void _notifyZOrder(ushort newZOrder);
+        virtual ushort _notifyZOrder(ushort newZOrder);
 
         /** Internal method to notify the element when it's world transform
          of parent overlay has changed.

@@ -102,7 +102,7 @@ namespace Ogre {
         virtual void _update(void);
 
         /** Overridden from OverlayElement. */
-        virtual void _notifyZOrder(ushort newZOrder);
+        virtual ushort _notifyZOrder(ushort newZOrder);
 
         /** Overridden from OverlayElement. */
         virtual void _notifyViewport();

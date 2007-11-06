@@ -64,6 +64,19 @@ namespace Ogre {
         return mName;
     }
     //---------------------------------------------------------------------
+    void Overlay::assignZOrders()
+	{
+		ushort zorder = mZOrder * 100;
+
+        // Notify attached 2D elements
+        OverlayContainerList::iterator i, iend;
+        iend = m2DElements.end();
+        for (i = m2DElements.begin(); i != iend; ++i)
+        {
+            zorder = (*i)->_notifyZOrder(zorder);
+        }
+	}
+    //---------------------------------------------------------------------
     void Overlay::setZOrder(ushort zorder)
     {
         // Limit to 650 since this is multiplied by 100 to pad out for containers
@@ -71,14 +84,7 @@ namespace Ogre {
 
         mZOrder = zorder;
 
-        // Notify attached 2D elements
-        OverlayContainerList::iterator i, iend;
-        iend = m2DElements.end();
-        for (i = m2DElements.begin(); i != iend; ++i)
-        {
-            (*i)->_notifyZOrder(zorder * 100);
-        }
-
+		assignZOrders();
     }
     //---------------------------------------------------------------------
     ushort Overlay::getZOrder(void) const
@@ -121,9 +127,8 @@ namespace Ogre {
         m2DElements.push_back(cont);
         // Notify parent
         cont->_notifyParent(0, this);
-        // Set Z order, scaled to separate overlays
-        // NB max 100 container levels per overlay, should be plenty
-        cont->_notifyZOrder(mZOrder * 100);
+
+		assignZOrders();
 
         Matrix4 xform;
         _getWorldTransforms(&xform);
@@ -134,6 +139,7 @@ namespace Ogre {
     void Overlay::remove2D(OverlayContainer* cont)
     {
         m2DElements.remove(cont);
+		assignZOrders();
     }
     //---------------------------------------------------------------------
     void Overlay::add3D(SceneNode* node)

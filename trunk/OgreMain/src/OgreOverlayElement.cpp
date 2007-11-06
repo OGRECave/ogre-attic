@@ -549,9 +549,10 @@ namespace Ogre {
         clippingRegion = mClippingRegion;
     }
     //---------------------------------------------------------------------
-    void OverlayElement::_notifyZOrder(ushort newZOrder)
+    ushort OverlayElement::_notifyZOrder(ushort newZOrder)
     {
         mZOrder = newZOrder;
+		return mZOrder + 1;
     }
 
     //---------------------------------------------------------------------
