@@ -50,6 +50,8 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
+	bool FileSystemArchive::ms_IgnoreHidden = true;
+
     //-----------------------------------------------------------------------
     FileSystemArchive::FileSystemArchive(const String& name, const String& archType )
         : Archive(name, archType)
@@ -110,6 +112,7 @@ namespace Ogre {
         while (lHandle != -1 && res != -1)
         {
             if ((dirs == ((tagData.attrib & _A_SUBDIR) != 0)) &&
+				( !ms_IgnoreHidden || (tagData.attrib & _A_HIDDEN) == 0 ) &&
                 (!dirs || !is_reserved_dir (tagData.name)))
             {
                 if (simpleList)
@@ -158,6 +161,7 @@ namespace Ogre {
             while (lHandle != -1 && res != -1)
             {
                 if ((tagData.attrib & _A_SUBDIR) &&
+					( !ms_IgnoreHidden || (tagData.attrib & _A_HIDDEN) == 0 ) &&
                     !is_reserved_dir (tagData.name))
                 {
                     // recurse

@@ -87,6 +87,21 @@ namespace Ogre {
         /// @copydoc Archive::exists
         bool exists(const String& filename);
 
+		/// Set whether filesystem enumeration will include hidden files or not.
+		/// This should be called prior to declaring and/or initializing filesystem
+		/// resource locations. The default is true (ignore hidden files).
+		static void setIgnoreHidden(bool ignore)
+		{
+			ms_IgnoreHidden = ignore;
+		}
+
+		/// Get whether hidden files are ignored during filesystem enumeration.
+		static bool getIgnoreHidden()
+		{
+			return ms_IgnoreHidden;
+		}
+
+		static bool ms_IgnoreHidden;
     };
 
     /** Specialisation of ArchiveFactory for FileSystem files. */
