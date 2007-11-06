@@ -94,6 +94,8 @@ namespace Ogre {
         void updateTransform(void) const;
 		/** Internal method for initialising an overlay */
 		void initialise(void);
+		/** Internal method for updating container elements' Z-ordering */
+		void assignZOrders(void);
 
     public:
         /// Constructor: do not call direct, use OverlayManager::create

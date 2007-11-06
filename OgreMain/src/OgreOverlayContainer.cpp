@@ -233,17 +233,21 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void OverlayContainer::_notifyZOrder(ushort newZOrder)
+    ushort OverlayContainer::_notifyZOrder(ushort newZOrder)
     {
         OverlayElement::_notifyZOrder(newZOrder);
+		// One for us
+		newZOrder++; 
 
         // Update children
         ChildIterator it = getChildIterator();
         while (it.hasMoreElements())
         {
-            // Give children ZOrder 1 higher than this
-            it.getNext()->_notifyZOrder(newZOrder + 1);
+            // Children "consume" ZOrder values, so keep track of them
+            newZOrder = it.getNext()->_notifyZOrder(newZOrder);
         }
+
+		return newZOrder;
     }
     //---------------------------------------------------------------------
     void OverlayContainer::_notifyWorldTransforms(const Matrix4& xform)
