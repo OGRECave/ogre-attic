@@ -393,13 +393,13 @@ global proc formatOgreExporterUI()
 	{
 		text -edit -enable $buildTangents TangentSemanticLabel;
 		radioButton -edit -enable $buildTangents TangentSemanticTexCoord;
-	//	radioButton -edit -enable $buildTangents TangentSemanticTangent;
+		radioButton -edit -enable $buildTangents TangentSemanticTangent;
 	}
 	else
 	{
 		text -edit -enable false TangentSemanticLabel;
 		radioButton -edit -enable false TangentSemanticTexCoord;
-	//	radioButton -edit -enable false TangentSemanticTangent;
+		radioButton -edit -enable false TangentSemanticTangent;
 	}
 	
 	// --- Material Export
@@ -800,7 +800,7 @@ global proc defineOgreExporterUIView()
 					
 					radioCollection TangentSemanticCollection;
 					radioButton -label "TEXCOORD" -enable true -select TangentSemanticTexCoord;
-					radioButton -label "TANGENT" -enable false TangentSemanticTangent;
+					radioButton -label "TANGENT" -enable true TangentSemanticTangent;
 					
 					
 

@@ -564,17 +564,17 @@ namespace Ogre {
 		for (NodeTrackList::const_iterator i = mNodeTrackList.begin();
 			i != mNodeTrackList.end(); ++i)
 		{
-			newAnim->mNodeTrackList[i->second->getHandle()] = i->second->_clone(newAnim);
+			i->second->_clone(newAnim);
 		}
 		for (NumericTrackList::const_iterator i = mNumericTrackList.begin();
 			i != mNumericTrackList.end(); ++i)
 		{
-			newAnim->mNumericTrackList[i->second->getHandle()] = i->second->_clone(newAnim);
+			i->second->_clone(newAnim);
 		}
 		for (VertexTrackList::const_iterator i = mVertexTrackList.begin();
 			i != mVertexTrackList.end(); ++i)
 		{
-			newAnim->mVertexTrackList[i->second->getHandle()] = i->second->_clone(newAnim);
+			i->second->_clone(newAnim);
 		}
 
         newAnim->_keyFrameListChanged();

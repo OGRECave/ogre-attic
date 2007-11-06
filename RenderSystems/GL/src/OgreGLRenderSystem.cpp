@@ -1754,54 +1754,54 @@ namespace Ogre {
 		mColourWrite[3] = alpha;
 	}
 	//-----------------------------------------------------------------------------
-	String GLRenderSystem::getErrorDescription(long errCode) const
-	{
-		const GLubyte *errString = gluErrorString (errCode);
-		return String((const char*) errString);
-	}
-	//-----------------------------------------------------------------------------
-	void GLRenderSystem::setLightingEnabled(bool enabled)
-	{
-		if (enabled) 
-		{      
-			glEnable(GL_LIGHTING);
-		} 
-		else 
-		{
-			glDisable(GL_LIGHTING);
-		}
-	}
-	//-----------------------------------------------------------------------------
-	void GLRenderSystem::_setFog(FogMode mode, const ColourValue& colour, Real density, Real start, Real end)
-	{
+    String GLRenderSystem::getErrorDescription(long errCode) const
+    {
+        const GLubyte *errString = gluErrorString (errCode);
+		return (errString != 0) ? String((const char*) errString) : StringUtil::BLANK;
+    }
+    //-----------------------------------------------------------------------------
+    void GLRenderSystem::setLightingEnabled(bool enabled)
+    {
+        if (enabled) 
+        {      
+            glEnable(GL_LIGHTING);
+        } 
+        else 
+        {
+            glDisable(GL_LIGHTING);
+        }
+    }
+    //-----------------------------------------------------------------------------
+    void GLRenderSystem::_setFog(FogMode mode, const ColourValue& colour, Real density, Real start, Real end)
+    {
 
-		GLint fogMode;
-		switch (mode)
-		{
-		case FOG_EXP:
-			fogMode = GL_EXP;
-			break;
-		case FOG_EXP2:
-			fogMode = GL_EXP2;
-			break;
-		case FOG_LINEAR:
-			fogMode = GL_LINEAR;
-			break;
-		default:
-			// Give up on it
-			glDisable(GL_FOG);
-			return;
-		}
+        GLint fogMode;
+        switch (mode)
+        {
+        case FOG_EXP:
+            fogMode = GL_EXP;
+            break;
+        case FOG_EXP2:
+            fogMode = GL_EXP2;
+            break;
+        case FOG_LINEAR:
+            fogMode = GL_LINEAR;
+            break;
+        default:
+            // Give up on it
+            glDisable(GL_FOG);
+            return;
+        }
 
-		glEnable(GL_FOG);
-		glFogi(GL_FOG_MODE, fogMode);
-		GLfloat fogColor[4] = {colour.r, colour.g, colour.b, colour.a};
-		glFogfv(GL_FOG_COLOR, fogColor);
-		glFogf(GL_FOG_DENSITY, density);
-		glFogf(GL_FOG_START, start);
-		glFogf(GL_FOG_END, end);
-		// XXX Hint here?
-	}
+        glEnable(GL_FOG);
+        glFogi(GL_FOG_MODE, fogMode);
+        GLfloat fogColor[4] = {colour.r, colour.g, colour.b, colour.a};
+        glFogfv(GL_FOG_COLOR, fogColor);
+        glFogf(GL_FOG_DENSITY, density);
+        glFogf(GL_FOG_START, start);
+        glFogf(GL_FOG_END, end);
+        // XXX Hint here?
+    }
 
 	VertexElementType GLRenderSystem::getColourVertexElementType(void) const
 	{
