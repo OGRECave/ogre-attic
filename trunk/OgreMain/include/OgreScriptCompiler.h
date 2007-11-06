@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 #define __SCRIPTCOMPILER_H_
 
 #include "OgreSharedPtr.h"
+#include "OgreMaterial.h"
 #include "OgreHighLevelGpuProgram.h"
 
 namespace Ogre
@@ -289,12 +290,17 @@ namespace Ogre
 			bool getSceneBlendFactor(const AbstractNodePtr &node, SceneBlendFactor *sbf);
 			bool getCompareFunction(const AbstractNodePtr &node, CompareFunction *func);
 			bool getMatrix4(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, Matrix4 *m);
+			bool getInts(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, int *vals, int count);
+			bool getFloats(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, float *vals, int count);
 		public:
 			Translator(ScriptCompiler *compiler);
-			/// This is the process function which is called on each node visited in the translation process
-			virtual void process(const AbstractNodePtr &node) = 0;
 			/// This static translation function requests a translation on the given node
 			static void translate(Translator *translator, const AbstractNodePtr &node);
+		protected:
+			/// This function is called to process each object node
+			virtual void processObject(ObjectAbstractNode*) = 0;
+			/// This function is called to process each property node
+			virtual void processProperty(PropertyAbstractNode*) = 0;
 		};
 		friend class Translater;
 		class MaterialTranslator : public Translator
@@ -304,7 +310,8 @@ namespace Ogre
 			Ogre::AliasTextureNamePairList mTextureAliases;
 		public:
 			MaterialTranslator(ScriptCompiler *compiler);
-			void process(const AbstractNodePtr &node);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
 		};
 		class TechniqueTranslator : public Translator
 		{
@@ -312,7 +319,8 @@ namespace Ogre
 			Technique *mTechnique;
 		public:
 			TechniqueTranslator(ScriptCompiler *compiler, Technique *technique);
-			void process(const AbstractNodePtr &node);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
 		};
 		class PassTranslator : public Translator
 		{
@@ -320,7 +328,8 @@ namespace Ogre
 			Pass *mPass;
 		public:
 			PassTranslator(ScriptCompiler *compiler, Pass *pass);
-			void process(const AbstractNodePtr &node);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
 		};
 		class TextureUnitTranslator : public Translator
 		{
@@ -328,7 +337,8 @@ namespace Ogre
 			TextureUnitState *mUnit;
 		public:
 			TextureUnitTranslator(ScriptCompiler *compiler, TextureUnitState *unit);
-			void process(const AbstractNodePtr &node);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
 		};
 		class GpuProgramTranslator : public Translator
 		{
@@ -336,7 +346,8 @@ namespace Ogre
 			GpuProgramPtr mProg;
 		public:
 			GpuProgramTranslator(ScriptCompiler *compiler);
-			void process(const AbstractNodePtr &node);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
 		};
 		class HighLevelGpuProgramTranslator : public Translator
 		{
@@ -344,15 +355,27 @@ namespace Ogre
 			HighLevelGpuProgramPtr mProg;
 		public:
 			HighLevelGpuProgramTranslator(ScriptCompiler *compiler);
-			void process(const AbstractNodePtr &node);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
+		};
+		class UnifiedGpuProgramTranslator : public Translator
+		{
+		private:
+			HighLevelGpuProgramPtr mProg;
+		public:
+			UnifiedGpuProgramTranslator(ScriptCompiler *compiler);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
 		};
 		class GpuProgramParametersTranslator : public Translator
 		{
 		private:
 			GpuProgramParametersSharedPtr mParams;
+			int mAnimParametricsCount;
 		public:
 			GpuProgramParametersTranslator(ScriptCompiler *compiler, const GpuProgramParametersSharedPtr &params);
-			void process(const AbstractNodePtr &node);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
 		};
 	};
 
@@ -370,7 +393,11 @@ namespace Ogre
 		/// Allows for responding to and overriding behavior before a CST is translated into an AST
 		virtual void preASTConversion(ConcreteNodeListPtr nodes, ScriptCompiler::IdMap *ids);
 		/// Allows for overriding the translation of the given node into the concrete resource.
-		virtual std::pair<bool,ScriptCompiler::Translator*> preTranslation(const AbstractNodePtr &node);
+		virtual std::pair<bool,ScriptCompiler::Translator*> preObjectTranslation(ObjectAbstractNode *obj);
+		/// Allows for overriding the translation of the given node into the concrete resource.
+		virtual std::pair<bool,ScriptCompiler::Translator*> prePropertyTranslation(PropertyAbstractNode *prop);
+		/// Called when an error occurred
+		virtual void error(const ScriptCompiler::ErrorPtr &err);
 
 		/// Must return the requested material
 		virtual MaterialPtr allocateMaterial(const String &name, const String &group);
@@ -380,6 +407,10 @@ namespace Ogre
 		virtual void getTextureNames(String *names, int count = 0);
 		/// Called before a gpu program name is used
 		virtual void getGpuProgramName(String *name);
+		/// Called to return the requested GpuProgram
+		virtual GpuProgramPtr allocateGpuProgram(const String &name, const String &group, const String &source, GpuProgramType type, const String &syntax);
+		/// Called to return a HighLevelGpuProgram
+		virtual HighLevelGpuProgramPtr allocateHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source);
 	};
 
 	/// This enum defines the integer ids for keywords this compiler handles
