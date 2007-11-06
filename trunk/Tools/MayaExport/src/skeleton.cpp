@@ -296,7 +296,7 @@ namespace OgreMayaExporter
 	MStatus Skeleton::loadClip(MString clipName,float start,float stop,float rate,ParamList& params)
 	{
 		MStatus stat;
-		int i,j,k;
+		int i,j;
 		MString msg;
 		std::vector<float> times;
 		// if skeleton has no joints we can't load the clip

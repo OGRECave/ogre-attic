@@ -45,7 +45,11 @@ namespace Ogre
 		glErr = glGetError();
 		while (glErr != GL_NO_ERROR)
         {
-			msg += "\n" + String((char*)gluErrorString(glErr)); 
+			const char* glerrStr = (const char*)gluErrorString(glErr);
+			if (glerrStr)
+			{
+				msg += String(glerrStr);
+			}
 			glErr = glGetError();
 			errorsFound = true;
         }

@@ -2062,7 +2062,7 @@ namespace Ogre
 		{
 			tss = D3DTSS_COLORARG2;
 			manualD3D = D3DXCOLOR( bm.colourArg2.r, bm.colourArg2.g, bm.colourArg2.b, bm.colourArg2.a );
-			mManualBlendColours[stage][1] = bm.colourArg1;
+			mManualBlendColours[stage][1] = bm.colourArg2;
 		}
 		else if( bm.blendType == LBT_ALPHA )
 		{
