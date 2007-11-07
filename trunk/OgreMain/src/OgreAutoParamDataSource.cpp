@@ -449,6 +449,11 @@ namespace Ogre {
 	{
 		mAmbientLight = ambient;
 	}
+	//---------------------------------------------------------------------
+	float AutoParamDataSource::getLightCount() const
+	{
+		return static_cast<float>(mCurrentLightList->size());
+	}
     //-----------------------------------------------------------------------------
 	const ColourValue& AutoParamDataSource::getAmbientLightColour(void) const
 	{
