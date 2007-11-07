@@ -130,6 +130,7 @@ namespace Ogre {
 
 		typedef std::list<Listener*> ListenerList;
 		ListenerList mListenerList;
+		OGRE_MUTEX(mListenerListMutex)
 
 		/** Protected unnamed constructor to prevent default construction. 
 		*/
