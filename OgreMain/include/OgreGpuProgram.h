@@ -365,6 +365,10 @@ namespace Ogre {
             ACT_SURFACE_SHININESS,
 
 
+			/// The number of active light sources (better than gl_MaxLights)
+			ACT_LIGHT_COUNT,
+
+
 			/// The ambient light colour set in the scene
 			ACT_AMBIENT_LIGHT_COLOUR, 
 

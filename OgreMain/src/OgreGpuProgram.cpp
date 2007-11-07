@@ -96,6 +96,8 @@ namespace Ogre
         AutoConstantDefinition(ACT_SURFACE_EMISSIVE_COLOUR,         "surface_emissive_colour",          4, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_SURFACE_SHININESS,               "surface_shininess",                1, ET_REAL, ACDT_NONE),
 
+        AutoConstantDefinition(ACT_LIGHT_COUNT,                   "light_count",                  1, ET_REAL, ACDT_NONE),
+
         AutoConstantDefinition(ACT_AMBIENT_LIGHT_COLOUR,          "ambient_light_colour",         4, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR,          "light_diffuse_colour",         4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR,         "light_specular_colour",        4, ET_REAL, ACDT_INT),
@@ -1348,6 +1350,9 @@ namespace Ogre
         {
             switch(i->paramType)
             {
+            case ACT_LIGHT_COUNT:
+                _writeRawConstant(i->physicalIndex, source->getLightCount());
+                break;
             case ACT_LIGHT_DIFFUSE_COLOUR:
                 _writeRawConstant(i->physicalIndex, source->getLightDiffuseColour(i->data), i->elementCount);
                 break;
