@@ -85,7 +85,8 @@ namespace Ogre
 							temp->token = (*i)->lexeme;
 						node->children.push_back(temp);
 
-						// The next token is the source
+						// The second-next token is the source
+						++i;
 						++i;
 						if(i == end || ((*i)->type != TID_WORD && (*i)->type != TID_QUOTE))
 							OGRE_EXCEPT(Exception::ERR_INVALID_STATE, 

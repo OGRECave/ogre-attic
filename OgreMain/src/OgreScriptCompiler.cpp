@@ -96,6 +96,7 @@ namespace Ogre
 		{
 			mNum = StringConverter::parseReal(value);
 			mNumberTest = true;
+			mIsNumber = true;
 		}
 	}
 
@@ -117,7 +118,17 @@ namespace Ogre
 		node->id = id;
 		node->abstract = abstract;
 		for(AbstractNodeList::const_iterator i = children.begin(); i != children.end(); ++i)
-			node->children.push_back(AbstractNodePtr((*i)->clone()));
+		{
+			AbstractNodePtr newNode = AbstractNodePtr((*i)->clone());
+			newNode->parent = node;
+			node->children.push_back(newNode);
+		}
+		for(AbstractNodeList::const_iterator i = values.begin(); i != values.end(); ++i)
+		{
+			AbstractNodePtr newNode = AbstractNodePtr((*i)->clone());
+			newNode->parent = node;
+			node->values.push_back(newNode);
+		}
 		node->mEnv = mEnv;
 		return node;
 	}
@@ -149,6 +160,11 @@ namespace Ogre
 		return std::make_pair(false, "");
 	}
 
+	const std::map<String,String> &ObjectAbstractNode::getVariables() const
+	{
+		return mEnv;
+	}
+
 	// PropertyAbstractNode
 	PropertyAbstractNode::PropertyAbstractNode(AbstractNode *ptr)
 		:AbstractNode(ptr)
@@ -165,7 +181,11 @@ namespace Ogre
 		node->name = name;
 		node->id = id;
 		for(AbstractNodeList::const_iterator i = values.begin(); i != values.end(); ++i)
-			node->values.push_back(AbstractNodePtr((*i)->clone()));
+		{
+			AbstractNodePtr newNode = AbstractNodePtr((*i)->clone());
+			newNode->parent = node;
+			node->values.push_back(newNode);
+		}
 		return node;
 	}
 
@@ -233,7 +253,7 @@ namespace Ogre
 	{
 	}
 
-	MaterialPtr ScriptCompilerListener::allocateMaterial(const String &name, const String &group)
+	MaterialPtr ScriptCompilerListener::createMaterial(const String &name, const String &group)
 	{
 		return (MaterialPtr)MaterialManager::getSingleton().create(name, group);
 	}
@@ -250,13 +270,13 @@ namespace Ogre
 	{
 	}
 
-	GpuProgramPtr ScriptCompilerListener::allocateGpuProgram(const String &name, const String &group, const String &source, GpuProgramType type, const String &syntax)
+	GpuProgramPtr ScriptCompilerListener::createGpuProgram(const String &name, const String &group, const String &source, GpuProgramType type, const String &syntax)
 	{
 		GpuProgramPtr prog = (GpuProgramPtr)GpuProgramManager::getSingleton().createProgram(name, group, source, type, syntax);
 		return prog;
 	}
 
-	HighLevelGpuProgramPtr ScriptCompilerListener::allocateHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source)
+	HighLevelGpuProgramPtr ScriptCompilerListener::createHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source)
 	{
 		HighLevelGpuProgramPtr prog = (HighLevelGpuProgramPtr)HighLevelGpuProgramManager::getSingleton().createProgram(name, group, language, type);
 		prog->setSourceFile(source);
@@ -265,6 +285,7 @@ namespace Ogre
 
 	// ScriptCompiler
 	ScriptCompiler::ScriptCompiler()
+		:mListener(0)
 	{
 		initWordMap();
 	}
@@ -548,6 +569,14 @@ namespace Ogre
 		if(source->type == ANT_OBJECT)
 		{
 			ObjectAbstractNode *src = (ObjectAbstractNode*)source.get();
+
+			// Overlay the environment of one on top the other first
+			for(std::map<String,String>::const_iterator i = src->getVariables().begin(); i != src->getVariables().end(); ++i)
+			{
+				std::pair<bool,String> var = dest->getVariable(i->first);
+				if(!var.first)
+					dest->setVariable(i->first, i->second);
+			}
 			
 			// Queue up all transfers
 			std::list<AbstractNodePtr> queue;
@@ -1092,7 +1121,7 @@ namespace Ogre
 				}
 
 				// Everything up until the colon is a "value" of this object
-				while(iter != temp.end() && ((*iter)->type != CNT_COLON || (*iter)->type != CNT_LBRACE))
+				while(iter != temp.end() && (*iter)->type != CNT_COLON && (*iter)->type != CNT_LBRACE)
 				{
 					if((*iter)->type == CNT_VARIABLE)
 					{
@@ -1217,9 +1246,13 @@ namespace Ogre
 
 	void ScriptCompiler::Translator::translate(Translator *translator, const AbstractNodePtr &node)
 	{
+		// If it an abstract object it is completely skipped
+		if(node->type == ANT_OBJECT && ((ObjectAbstractNode*)node.get())->abstract)
+			return;
+
 		// First check if the compiler listener will override this node
 		bool process = true;
-		if(translator->mCompiler && translator->mCompiler->mListener)
+		if(translator && translator->mCompiler && translator->mCompiler->mListener)
 		{
 			std::pair<bool,ScriptCompiler::Translator*> p;
 			if(node->type == ANT_OBJECT)
@@ -1282,7 +1315,7 @@ namespace Ogre
 			return false;
 		}
 		AtomAbstractNode *atom = (AtomAbstractNode*)node.get();
-		if(atom->id != 1 || atom->id != 0)
+		if(atom->id != 1 && atom->id != 0)
 		{
 			mCompiler->addError(CE_INVALIDPARAMETERS, node->file, node->line);
 			return false;
@@ -1517,7 +1550,7 @@ namespace Ogre
 
 		// Create a material with the given name
 		if(getCompilerListener())
-			mMaterial = getCompilerListener()->allocateMaterial(obj->name, getCompiler()->getResourceGroup());
+			mMaterial = getCompilerListener()->createMaterial(obj->name, getCompiler()->getResourceGroup());
 		else
 			mMaterial = MaterialManager::getSingleton().create(obj->name, getCompiler()->getResourceGroup());
 
@@ -4215,7 +4248,7 @@ namespace Ogre
 		// Allocate the program
 		GpuProgramPtr prog;
 		if(getCompilerListener())
-			prog = getCompilerListener()->allocateGpuProgram(obj->name, getCompiler()->getResourceGroup(), source, obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM, syntax); 
+			prog = getCompilerListener()->createGpuProgram(obj->name, getCompiler()->getResourceGroup(), source, obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM, syntax); 
 		else
 			prog = GpuProgramManager::getSingleton().createProgram(obj->name, getCompiler()->getResourceGroup(), source, obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM, syntax);
 
@@ -4233,7 +4266,7 @@ namespace Ogre
 			prog->setParameter(i->first, i->second);
 
 		// Set up default parameters
-		if(!params.isNull())
+		if(prog->isSupported() && !params.isNull())
 		{
 			GpuProgramParametersSharedPtr ptr = prog->getDefaultParameters();
 			GpuProgramParametersTranslator translator(getCompiler(), ptr);
@@ -4300,7 +4333,7 @@ namespace Ogre
 		// Allocate the program
 		HighLevelGpuProgramPtr prog;
 		if(getCompilerListener())
-			prog = getCompilerListener()->allocateHighLevelGpuProgram(obj->name, getCompiler()->getResourceGroup(), language, obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM, source); 
+			prog = getCompilerListener()->createHighLevelGpuProgram(obj->name, getCompiler()->getResourceGroup(), language, obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM, source); 
 		else
 		{
 			prog = HighLevelGpuProgramManager::getSingleton().createProgram(obj->name, getCompiler()->getResourceGroup(), language, obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM);
@@ -4321,7 +4354,7 @@ namespace Ogre
 			prog->setParameter(i->first, i->second);
 
 		// Set up default parameters
-		if(!params.isNull())
+		if(prog->isSupported() && !params.isNull())
 		{
 			GpuProgramParametersSharedPtr ptr = prog->getDefaultParameters();
 			GpuProgramParametersTranslator translator(getCompiler(), ptr);
@@ -4378,7 +4411,7 @@ namespace Ogre
 		// Allocate the program
 		HighLevelGpuProgramPtr prog;
 		if(getCompilerListener())
-			prog = getCompilerListener()->allocateHighLevelGpuProgram(obj->name, getCompiler()->getResourceGroup(), "unified", obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM, source); 
+			prog = getCompilerListener()->createHighLevelGpuProgram(obj->name, getCompiler()->getResourceGroup(), "unified", obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM, source); 
 		else
 		{
 			prog = HighLevelGpuProgramManager::getSingleton().createProgram(obj->name, getCompiler()->getResourceGroup(), "unified", obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM);
@@ -4399,7 +4432,7 @@ namespace Ogre
 			prog->setParameter(i->first, i->second);
 
 		// Set up default parameters
-		if(!params.isNull())
+		if(prog->isSupported() && !params.isNull())
 		{
 			GpuProgramParametersSharedPtr ptr = prog->getDefaultParameters();
 			GpuProgramParametersTranslator translator(getCompiler(), ptr);
@@ -4573,7 +4606,7 @@ namespace Ogre
 
 				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
 					i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2);
-				if((*i0)->type != ANT_ATOM || (*i1)->type != ANT_ATOM || (*i2)->type != ANT_ATOM)
+				if((*i0)->type != ANT_ATOM || (*i1)->type != ANT_ATOM)
 				{
 					getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
 					return;

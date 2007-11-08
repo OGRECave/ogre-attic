@@ -79,7 +79,7 @@ namespace Ogre
 	typedef std::list<AbstractNodePtr> AbstractNodeList;
 	typedef SharedPtr<AbstractNodeList> AbstractNodeListPtr;
 
-	class AbstractNode
+	class _OgreExport AbstractNode
 	{
 	public:
 		String file;
@@ -92,7 +92,7 @@ namespace Ogre
 	};
 
 	/** This is an abstract node which cannot be broken down further */
-	class AtomAbstractNode : public AbstractNode
+	class _OgreExport AtomAbstractNode : public AbstractNode
 	{
 	private:
 		mutable bool mIsNumber, mNumberTest;
@@ -110,7 +110,7 @@ namespace Ogre
 	};
 
 	/** This specific abstract node represents a script object */
-	class ObjectAbstractNode : public AbstractNode
+	class _OgreExport ObjectAbstractNode : public AbstractNode
 	{
 	private:
 		std::map<String,String> mEnv;
@@ -127,10 +127,11 @@ namespace Ogre
 		void addVariable(const String &name);
 		void setVariable(const String &name, const String &value);
 		std::pair<bool,String> getVariable(const String &name) const;
+		const std::map<String,String> &getVariables() const;
 	};
 
 	/** This abstract node represents a script property */
-	class PropertyAbstractNode : public AbstractNode
+	class _OgreExport PropertyAbstractNode : public AbstractNode
 	{
 	public:
 		String name;
@@ -142,7 +143,7 @@ namespace Ogre
 	};
 
 	/** This abstract node represents an import statement */
-	class ImportAbstractNode : public AbstractNode
+	class _OgreExport ImportAbstractNode : public AbstractNode
 	{
 	public:
 		String target, source;
@@ -152,7 +153,7 @@ namespace Ogre
 	};
 
 	/** This abstract node represents a variable assignment */
-	class VariableAccessAbstractNode : public AbstractNode
+	class _OgreExport VariableAccessAbstractNode : public AbstractNode
 	{
 	public:
 		String name;
@@ -400,7 +401,7 @@ namespace Ogre
 		virtual void error(const ScriptCompiler::ErrorPtr &err);
 
 		/// Must return the requested material
-		virtual MaterialPtr allocateMaterial(const String &name, const String &group);
+		virtual MaterialPtr createMaterial(const String &name, const String &group);
 		/// Called before texture aliases are applied to a material
 		virtual void preApplyTextureAliases(Ogre::AliasTextureNamePairList *aliases);
 		/// Called before texture names are used
@@ -408,9 +409,9 @@ namespace Ogre
 		/// Called before a gpu program name is used
 		virtual void getGpuProgramName(String *name);
 		/// Called to return the requested GpuProgram
-		virtual GpuProgramPtr allocateGpuProgram(const String &name, const String &group, const String &source, GpuProgramType type, const String &syntax);
+		virtual GpuProgramPtr createGpuProgram(const String &name, const String &group, const String &source, GpuProgramType type, const String &syntax);
 		/// Called to return a HighLevelGpuProgram
-		virtual HighLevelGpuProgramPtr allocateHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source);
+		virtual HighLevelGpuProgramPtr createHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source);
 	};
 
 	/// This enum defines the integer ids for keywords this compiler handles
