@@ -51,7 +51,7 @@ namespace Ogre{
 #endif
 
 		String lexeme;
-		uint32 line = 0, state = READY, lastQuote = 0;
+		uint32 line = 1, state = READY, lastQuote = 0;
 		ScriptTokenListPtr tokens(new ScriptTokenList());
 
 		// Iterate over the input
