@@ -2585,14 +2585,13 @@ namespace Ogre
 			{
 				getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
 			}
-			else if(prop->values.size() > 6)
+			else if(prop->values.size() > 8)
 			{
 				getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
 			}
 			else
 			{
-				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2),
-					i3 = getNodeAt(prop->values, 3), i4 = getNodeAt(prop->values, 4), i5 = getNodeAt(prop->values, 5);
+				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2);
 				bool val = false;
 				if(getBoolean(prop->values.front(), &val))
 				{
@@ -2640,31 +2639,34 @@ namespace Ogre
 						}
 					}
 
-					if(i3 != prop->values.end())
+					if(i2 != prop->values.end())
 					{
-						if(!getNumber(*i3, &dens))
+						if(!getNumber(*i2, &dens))
 						{
 							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
 							return;
 						}
+						++i2;
 					}
 
-					if(i4 != prop->values.end())
+					if(i2 != prop->values.end())
 					{
-						if(!getNumber(*i4, &start))
+						if(!getNumber(*i2, &start))
 						{
 							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
 							return;
 						}
+						++i2;
 					}
 
-					if(i5 != prop->values.end())
+					if(i2 != prop->values.end())
 					{
-						if(!getNumber(*i5, &end))
+						if(!getNumber(*i2, &end))
 						{
 							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
 							return;
 						}
+						++i2;
 					}
 
 					mPass->setFog(val, mode, clr, dens, start, end);
