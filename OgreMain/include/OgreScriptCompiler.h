@@ -343,8 +343,6 @@ namespace Ogre
 		};
 		class GpuProgramTranslator : public Translator
 		{
-		private:
-			GpuProgramPtr mProg;
 		public:
 			GpuProgramTranslator(ScriptCompiler *compiler);
 			void processObject(ObjectAbstractNode*);
@@ -352,8 +350,6 @@ namespace Ogre
 		};
 		class HighLevelGpuProgramTranslator : public Translator
 		{
-		private:
-			HighLevelGpuProgramPtr mProg;
 		public:
 			HighLevelGpuProgramTranslator(ScriptCompiler *compiler);
 			void processObject(ObjectAbstractNode*);
@@ -361,8 +357,6 @@ namespace Ogre
 		};
 		class UnifiedGpuProgramTranslator : public Translator
 		{
-		private:
-			HighLevelGpuProgramPtr mProg;
 		public:
 			UnifiedGpuProgramTranslator(ScriptCompiler *compiler);
 			void processObject(ObjectAbstractNode*);
@@ -375,6 +369,33 @@ namespace Ogre
 			int mAnimParametricsCount;
 		public:
 			GpuProgramParametersTranslator(ScriptCompiler *compiler, const GpuProgramParametersSharedPtr &params);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
+		};
+		class ParticleSystemTranslator : public Translator
+		{
+		private:
+			Ogre::ParticleSystem *mSystem;
+		public:
+			ParticleSystemTranslator(ScriptCompiler *compiler);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
+		};
+		class ParticleEmitterTranslator : public Translator
+		{
+		private:
+			Ogre::ParticleEmitter *mEmitter;
+		public:
+			ParticleEmitterTranslator(ScriptCompiler *compiler, ParticleEmitter *emitter);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
+		};
+		class ParticleAffectorTranslator : public Translator
+		{
+		private:
+			Ogre::ParticleAffector *mAffector;
+		public:
+			ParticleAffectorTranslator(ScriptCompiler *compiler, ParticleAffector *affector);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -412,6 +433,11 @@ namespace Ogre
 		virtual GpuProgramPtr createGpuProgram(const String &name, const String &group, const String &source, GpuProgramType type, const String &syntax);
 		/// Called to return a HighLevelGpuProgram
 		virtual HighLevelGpuProgramPtr createHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source);
+
+		/// Returns the requested particle system template
+		virtual ParticleSystem *createParticleSystem(const String &name, const String &group);
+		/// Processes the name of the material
+		virtual void getMaterialName(String *name);
 	};
 
 	/// This enum defines the integer ids for keywords this compiler handles

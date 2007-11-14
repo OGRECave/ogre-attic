@@ -37,6 +37,8 @@ Torus Knot Software Ltd.
 #include "OgrePass.h"
 #include "OgreGpuProgramManager.h"
 #include "OgreHighLevelGpuProgramManager.h"
+#include "OgreParticleSystemManager.h"
+#include "OgreParticleSystemRenderer.h"
 
 namespace Ogre
 {
@@ -4726,5 +4728,171 @@ namespace Ogre
 			}
 			break;
 		}
+	}
+
+	// ParticleSystemTranslator
+	ScriptCompiler::ParticleSystemTranslator::ParticleSystemTranslator(Ogre::ScriptCompiler *compiler)
+		:Translator(compiler), mSystem(0)
+	{
+	}
+
+	void ScriptCompiler::ParticleSystemTranslator::processObject(ObjectAbstractNode *obj)
+	{
+		// Find the name
+		if(obj->name.empty())
+		{
+			getCompiler()->addError(CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
+			return;
+		}
+
+		// Allocate the particle system
+		if(getCompilerListener())
+			mSystem = getCompilerListener()->createParticleSystem(obj->name, getCompiler()->getResourceGroup());
+		else
+			mSystem = ParticleSystemManager::getSingleton().createTemplate(obj->name, getCompiler()->getResourceGroup());
+
+		if(!mSystem)
+		{
+			getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+			return;
+		}
+
+		mSystem->removeAllEmitters();
+		mSystem->removeAllAffectors();
+
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_OBJECT)
+			{
+				obj = (ObjectAbstractNode*)(*i).get();
+				switch(obj->id)
+				{
+				case ID_EMITTER:
+					{
+						// The name of this emitter is the type
+						if(obj->name.empty())
+						{
+							getCompiler()->addError(CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
+							continue;
+						}
+						ParticleEmitter *emitter = mSystem->addEmitter(obj->name);
+						ScriptCompiler::ParticleEmitterTranslator translator(getCompiler(), emitter);
+						Translator::translate(&translator, *i);
+					}
+					break;
+				case ID_AFFECTOR:
+					{
+						// The name of this emitter is the type
+						if(obj->name.empty())
+						{
+							getCompiler()->addError(CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
+							continue;
+						}
+						ParticleAffector *affector = mSystem->addAffector(obj->name);
+						ScriptCompiler::ParticleAffectorTranslator translator(getCompiler(), affector);
+						Translator::translate(&translator, *i);
+					}
+					break;
+				default:
+					Translator::translate((ScriptCompiler::Translator*)0, *i);
+				}
+			}
+			else if((*i)->type == ANT_PROPERTY)
+			{
+				Translator::translate(this, *i);
+			}
+		}
+	}
+
+	void ScriptCompiler::ParticleSystemTranslator::processProperty(PropertyAbstractNode *prop)
+	{
+		switch(prop->id)
+		{
+		case ID_MATERIAL:
+			if(prop->values.empty())
+			{
+				getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+				return;
+			}
+			else
+			{
+				if(prop->values.front()->type == ANT_ATOM)
+				{
+					String name = ((AtomAbstractNode*)prop->values.front().get())->value;
+					if(getCompilerListener())
+						getCompilerListener()->getMaterialName(&name);
+					if(!mSystem->setParameter("material", name))
+					{
+						if(mSystem->getRenderer())
+						{
+							if(!mSystem->getRenderer()->setParameter("material", name))
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+					}
+				}
+			}
+			break;
+		default:
+			if(prop->values.empty())
+			{
+				getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+				return;
+			}
+			else
+			{
+				String name = prop->name, value;
+
+				// Glob the values together
+				for(AbstractNodeList::iterator i = prop->values.begin(); i != prop->values.end(); ++i)
+				{
+					if((*i)->type == ANT_ATOM)
+					{
+						if(value.empty())
+							value = ((AtomAbstractNode*)(*i).get())->value;
+						else
+							value = value + " " + ((AtomAbstractNode*)(*i).get())->value;
+					}
+					else
+					{
+						getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						return;
+					}
+				}
+
+				if(!mSystem->setParameter(name, value))
+				{
+					if(mSystem->getRenderer())
+					{
+						if(!mSystem->getRenderer()->setParameter(name, value))
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+				}
+			}
+			break;
+		}
+	}
+
+	ScriptCompiler::ParticleEmitterTranslator::ParticleEmitterTranslator(Ogre::ScriptCompiler *compiler, Ogre::ParticleEmitter *emitter)
+		:Translator(compiler), mEmitter(emitter)
+	{
+	}
+
+	void ScriptCompiler::ParticleEmitterTranslator::processObject(Ogre::ObjectAbstractNode *obj)
+	{
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_OBJECT)
+			{
+				Translator::translate((Translator*)0, *i);
+			}
+			else if((*i)->type == ANT_PROPERTY)
+			{
+				Translator::translate(this, *i);
+			}
+		}
+	}
+
+	void ScriptCompiler::ParticleEmitterTranslator::processProperty(Ogre::PropertyAbstractNode *prop)
+	{
 	}
 }
