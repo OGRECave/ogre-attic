@@ -285,6 +285,16 @@ namespace Ogre
 		return prog;
 	}
 
+	ParticleSystem *ScriptCompilerListener::createParticleSystem(const String &name, const String &group)
+	{
+		ParticleSystem *system = (ParticleSystem*)ParticleSystemManager::getSingleton().createTemplate(name, group);
+		return system;
+	}
+
+	void ScriptCompilerListener::getMaterialName(Ogre::String *name)
+	{
+	}
+
 	// ScriptCompiler
 	ScriptCompiler::ScriptCompiler()
 		:mListener(0)
@@ -4872,6 +4882,7 @@ namespace Ogre
 		}
 	}
 
+	// ParticleEmitterTranslator
 	ScriptCompiler::ParticleEmitterTranslator::ParticleEmitterTranslator(Ogre::ScriptCompiler *compiler, Ogre::ParticleEmitter *emitter)
 		:Translator(compiler), mEmitter(emitter)
 	{
@@ -4893,6 +4904,31 @@ namespace Ogre
 	}
 
 	void ScriptCompiler::ParticleEmitterTranslator::processProperty(Ogre::PropertyAbstractNode *prop)
+	{
+	}
+
+	// ParticleAffectorTranslator
+	ScriptCompiler::ParticleAffectorTranslator::ParticleAffectorTranslator(Ogre::ScriptCompiler *compiler, Ogre::ParticleAffector *affector)
+		:Translator(compiler), mAffector(affector)
+	{
+	}
+
+	void ScriptCompiler::ParticleAffectorTranslator::processObject(Ogre::ObjectAbstractNode *obj)
+	{
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_OBJECT)
+			{
+				Translator::translate((Translator*)0, *i);
+			}
+			else if((*i)->type == ANT_PROPERTY)
+			{
+				Translator::translate(this, *i);
+			}
+		}
+	}
+
+	void ScriptCompiler::ParticleAffectorTranslator::processProperty(Ogre::PropertyAbstractNode *prop)
 	{
 	}
 }
