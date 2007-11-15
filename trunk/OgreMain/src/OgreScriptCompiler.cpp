@@ -39,6 +39,15 @@ Torus Knot Software Ltd.
 #include "OgreHighLevelGpuProgramManager.h"
 #include "OgreParticleSystemManager.h"
 #include "OgreParticleSystemRenderer.h"
+#include "OgreParticleEmitter.h"
+#include "OgreParticleAffector.h"
+#include "OgreCompositorManager.h"
+#include "OgreCompositionTechnique.h"
+#include "OgreCompositionTargetPass.h"
+#include "OgreCompositionPass.h"
+
+#define OBJ_ERROR(err)	getCompiler()->addError((err), obj->file, obj->line)
+#define PROP_ERROR(err) getCompiler()->addError((err), prop->file, prop->line)
 
 namespace Ogre
 {
@@ -293,6 +302,11 @@ namespace Ogre
 
 	void ScriptCompilerListener::getMaterialName(Ogre::String *name)
 	{
+	}
+
+	CompositorPtr ScriptCompilerListener::createCompositor(const Ogre::String &name, const Ogre::String &group)
+	{
+		return CompositorManager::getSingleton().create(name, group);
 	}
 
 	// ScriptCompiler
@@ -1547,6 +1561,46 @@ namespace Ogre
 			success = false;
 
 		return success;
+	}
+
+	bool ScriptCompiler::Translator::getStencilOp(const Ogre::AbstractNodePtr &node, Ogre::StencilOperation *op)
+	{
+		if(node->type != ANT_ATOM)
+		{
+			mCompiler->addError(CE_INVALIDPARAMETERS, node->file, node->line);
+			return false;
+		}
+		AtomAbstractNode *atom = (AtomAbstractNode*)node.get();
+		switch(atom->id)
+		{
+		case ID_KEEP:
+			*op = SOP_KEEP;
+			break;
+		case ID_ZERO:
+			*op = SOP_ZERO;
+			break;
+		case ID_REPLACE:
+			*op = SOP_REPLACE;
+			break;
+		case ID_INCREMENT:
+			*op = SOP_INCREMENT;
+			break;
+		case ID_DECREMENT:
+			*op = SOP_DECREMENT;
+			break;
+		case ID_INCREMENT_WRAP:
+			*op = SOP_INCREMENT_WRAP;
+			break;
+		case ID_DECREMENT_WRAP:
+			*op = SOP_DECREMENT_WRAP;
+			break;
+		case ID_INVERT:
+			*op = SOP_INVERT;
+			break;
+		default:
+			return false;
+		}
+		return true;
 	}
 
 	// MaterialTranslator
@@ -4786,6 +4840,11 @@ namespace Ogre
 							continue;
 						}
 						ParticleEmitter *emitter = mSystem->addEmitter(obj->name);
+						if(!emitter)
+						{
+							getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+							continue;
+						}
 						ScriptCompiler::ParticleEmitterTranslator translator(getCompiler(), emitter);
 						Translator::translate(&translator, *i);
 					}
@@ -4799,6 +4858,11 @@ namespace Ogre
 							continue;
 						}
 						ParticleAffector *affector = mSystem->addAffector(obj->name);
+						if(!affector)
+						{
+							getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+							continue;
+						}
 						ScriptCompiler::ParticleAffectorTranslator translator(getCompiler(), affector);
 						Translator::translate(&translator, *i);
 					}
@@ -4905,6 +4969,29 @@ namespace Ogre
 
 	void ScriptCompiler::ParticleEmitterTranslator::processProperty(Ogre::PropertyAbstractNode *prop)
 	{
+		String value;
+
+		// Glob the values together
+		for(AbstractNodeList::iterator i = prop->values.begin(); i != prop->values.end(); ++i)
+		{
+			if((*i)->type == ANT_ATOM)
+			{
+				if(value.empty())
+					value = ((AtomAbstractNode*)(*i).get())->value;
+				else
+					value = value + " " + ((AtomAbstractNode*)(*i).get())->value;
+			}
+			else
+			{
+				getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+				return;
+			}
+		}
+
+		if(!mEmitter->setParameter(prop->name, value))
+		{
+			getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+		}
 	}
 
 	// ParticleAffectorTranslator
@@ -4930,5 +5017,744 @@ namespace Ogre
 
 	void ScriptCompiler::ParticleAffectorTranslator::processProperty(Ogre::PropertyAbstractNode *prop)
 	{
+		String value;
+
+		// Glob the values together
+		for(AbstractNodeList::iterator i = prop->values.begin(); i != prop->values.end(); ++i)
+		{
+			if((*i)->type == ANT_ATOM)
+			{
+				if(value.empty())
+					value = ((AtomAbstractNode*)(*i).get())->value;
+				else
+					value = value + " " + ((AtomAbstractNode*)(*i).get())->value;
+			}
+			else
+			{
+				getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+				return;
+			}
+		}
+
+		if(!mAffector->setParameter(prop->name, value))
+		{
+			getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+		}
+	}
+
+	// CompositorTranslator
+	ScriptCompiler::CompositorTranslator::CompositorTranslator(ScriptCompiler *compiler)
+		:Translator(compiler)
+	{
+	}
+
+	void ScriptCompiler::CompositorTranslator::processObject(ObjectAbstractNode *obj)
+	{
+		if(obj->name.empty())
+		{
+			getCompiler()->addError(CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
+			return;
+		}
+
+		// Create the compositor
+		if(getCompilerListener())
+			mCompositor = getCompilerListener()->createCompositor(obj->name, getCompiler()->getResourceGroup());
+		else
+			mCompositor = CompositorManager::getSingleton().create(obj->name, getCompiler()->getResourceGroup());
+
+		if(mCompositor.isNull())
+		{
+			getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+			return;
+		}
+
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_OBJECT)
+			{
+				obj = (ObjectAbstractNode*)(*i).get();
+				switch(obj->id)
+				{
+				case ID_TECHNIQUE:
+					{
+						CompositionTechniqueTranslator translator(getCompiler(), mCompositor->createTechnique());
+						Translator::translate(&translator, *i);
+					}
+					break;
+				default:
+					Translator::translate(0, *i);
+				}
+			}
+			else if((*i)->type == ANT_PROPERTY)
+			{
+				Translator::translate(this, *i);
+			}
+		}
+	}
+
+	void ScriptCompiler::CompositorTranslator::processProperty(PropertyAbstractNode *obj)
+	{
+	}
+
+	// CompositionTechniqueTranslator
+	ScriptCompiler::CompositionTechniqueTranslator::CompositionTechniqueTranslator(ScriptCompiler *compiler, CompositionTechnique *technique)
+		:Translator(compiler), mTechnique(technique)
+	{
+	}
+
+	void ScriptCompiler::CompositionTechniqueTranslator::processObject(ObjectAbstractNode *obj)
+	{
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_OBJECT)
+			{
+				obj = (ObjectAbstractNode*)(*i).get();
+				switch(obj->id)
+				{
+				case ID_TARGET:
+					{
+						CompositionTargetPass *target = mTechnique->createTargetPass();
+						CompositionTargetPassTranslator translator(getCompiler(), target);
+						Translator::translate(&translator, *i);
+					}
+					break;
+				case ID_TARGET_OUTPUT:
+					{
+						CompositionTargetPassTranslator translator(getCompiler(), mTechnique->getOutputTargetPass());
+						Translator::translate(&translator, *i);
+					}
+					break;
+				default:
+					Translator::translate(0, *i);
+				}
+			}
+			else if((*i)->type == ANT_PROPERTY)
+			{
+				Translator::translate(this, *i);
+			}
+		}
+	}
+
+	void ScriptCompiler::CompositionTechniqueTranslator::processProperty(PropertyAbstractNode *prop)
+	{
+		switch(prop->id)
+		{
+		case ID_TEXTURE:
+			if(prop->values.size() < 4)
+			{
+				getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+			}
+			else
+			{
+				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1),
+					i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3);
+				if((*i0)->type == ANT_ATOM || (*i1)->type == ANT_ATOM || (*i2)->type == ANT_ATOM)
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+					return;
+				}
+
+				AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get(), *atom2 = (AtomAbstractNode*)(*i2).get();
+				size_t width = 0, height = 0;
+
+				if(atom1->id == ID_TARGET_WIDTH || atom1->isNumber())
+					width = atom1->id == ID_TARGET_WIDTH ? 0 : atom1->getNumber();
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+					return;
+				}
+
+				if(atom2->id == ID_TARGET_WIDTH || atom2->isNumber())
+					width = atom2->id == ID_TARGET_WIDTH ? 0 : atom2->getNumber();
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+					return;
+				}
+
+				CompositionTechnique::TextureDefinition *def = mTechnique->createTextureDefinition(atom0->value);
+				def->width = width;
+				def->height = height;
+
+				while(i3 != prop->values.end())
+				{
+					if((*i3)->type == ANT_ATOM)
+					{
+						AtomAbstractNode *atom = (AtomAbstractNode*)(*i3).get();
+						PixelFormat format = PixelUtil::getFormatFromName(atom->value, true);
+						def->formatList.push_back(format);
+					}
+				}
+			}
+			break;
+		}
+	}
+
+	// CompositionTargetPassTranslator
+	ScriptCompiler::CompositionTargetPassTranslator::CompositionTargetPassTranslator(ScriptCompiler *compiler, CompositionTargetPass *target)
+		:Translator(compiler), mTarget(target)
+	{
+	}
+
+	void ScriptCompiler::CompositionTargetPassTranslator::processObject(ObjectAbstractNode *obj)
+	{
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_OBJECT)
+			{
+				obj = (ObjectAbstractNode*)(*i).get();
+				switch(obj->id)
+				{
+				case ID_PASS:
+					{
+						CompositionPassTranslator translator(getCompiler(), mTarget->createPass());
+						Translator::translate(&translator, *i);
+					}
+					break;
+				default:
+					Translator::translate(0, *i);
+				}
+			}
+			else if((*i)->type == ANT_PROPERTY)
+			{
+				Translator::translate(this, *i);
+			}
+		}
+	}
+
+	void ScriptCompiler::CompositionTargetPassTranslator::processProperty(PropertyAbstractNode *prop)
+	{
+		switch(prop->id)
+		{
+		case ID_INPUT:
+			if(prop->values.empty())
+			{
+				PROP_ERROR(CE_STRINGEXPECTED);
+				return;
+			}
+			else if (prop->values.size() > 1)
+			{
+				PROP_ERROR(CE_FEWERPARAMETERSEXPECTED);
+				return;
+			}
+			else
+			{
+				if(prop->values.front()->type == ANT_ATOM)
+				{
+					AtomAbstractNode *atom = (AtomAbstractNode*)prop->values.front().get();
+					switch(atom->id)
+					{
+					case ID_NONE:
+						mTarget->setInputMode(CompositionTargetPass::IM_NONE);
+						break;
+					case ID_PREVIOUS:
+						mTarget->setInputMode(CompositionTargetPass::IM_PREVIOUS);
+						break;
+					default:
+						PROP_ERROR(CE_INVALIDPARAMETERS);
+					}
+				}
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+			}
+			break;
+		case ID_ONLY_INITIAL:
+			if(prop->values.empty())
+			{
+				PROP_ERROR(CE_STRINGEXPECTED);
+				return;
+			}
+			else if (prop->values.size() > 1)
+			{
+				PROP_ERROR(CE_FEWERPARAMETERSEXPECTED);
+				return;
+			}
+			else
+			{
+				bool val;
+				if(getBoolean(prop->values.front(), &val))
+				{
+					mTarget->setOnlyInitial(val);
+				}
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+			}
+			break;
+		case ID_VISIBILITY_MASK:
+			if(prop->values.empty())
+			{
+				PROP_ERROR(CE_STRINGEXPECTED);
+				return;
+			}
+			else if (prop->values.size() > 1)
+			{
+				PROP_ERROR(CE_FEWERPARAMETERSEXPECTED);
+				return;
+			}
+			else
+			{
+				Real val;
+				if(getNumber(prop->values.front(), &val))
+				{
+					mTarget->setVisibilityMask(val);
+				}
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+			}
+			break;
+		case ID_LOD_BIAS:
+			if(prop->values.empty())
+			{
+				PROP_ERROR(CE_STRINGEXPECTED);
+				return;
+			}
+			else if (prop->values.size() > 1)
+			{
+				PROP_ERROR(CE_FEWERPARAMETERSEXPECTED);
+				return;
+			}
+			else
+			{
+				Real val;
+				if(getNumber(prop->values.front(), &val))
+				{
+					mTarget->setLodBias(val);
+				}
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+			}
+			break;
+		case ID_MATERIAL_SCHEME:
+			if(prop->values.empty())
+			{
+				PROP_ERROR(CE_STRINGEXPECTED);
+				return;
+			}
+			else if (prop->values.size() > 1)
+			{
+				PROP_ERROR(CE_FEWERPARAMETERSEXPECTED);
+				return;
+			}
+			else
+			{
+				String val;
+				if(getString(prop->values.front(), &val))
+				{
+					mTarget->setMaterialScheme(val);
+				}
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+			}
+			break;
+		}
+	}
+
+	// CompositionPassTranslator
+	ScriptCompiler::CompositionPassTranslator::CompositionPassTranslator(ScriptCompiler *compiler, CompositionPass *pass)
+		:Translator(compiler), mPass(pass)
+	{
+	}
+
+	void ScriptCompiler::CompositionPassTranslator::processObject(ObjectAbstractNode *obj)
+	{
+		// The name is the type of the pass
+		if(obj->name.empty())
+		{
+			OBJ_ERROR(CE_OBJECTNAMEEXPECTED);
+			return;
+		}
+
+		if(obj->name == "clear")
+			mPass->setType(CompositionPass::PT_CLEAR);
+		else if(obj->name == "stencil")
+			mPass->setType(CompositionPass::PT_STENCIL);
+		else if(obj->name == "render_quad")
+			mPass->setType(CompositionPass::PT_RENDERQUAD);
+		else if(obj->name == "render_scene")
+			mPass->setType(CompositionPass::PT_RENDERSCENE);
+		else
+		{
+			OBJ_ERROR(CE_INVALIDPARAMETERS);
+			return;
+		}
+
+		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
+		{
+			if((*i)->type == ANT_OBJECT)
+			{
+				obj = (ObjectAbstractNode*)(*i).get();
+				switch(obj->id)
+				{
+				case ID_CLEAR:
+					for(AbstractNodeList::iterator j = obj->children.begin(); j != obj->children.end(); ++j)
+					{
+						if((*j)->type == ANT_PROPERTY)
+						{
+							PropertyAbstractNode *prop = (PropertyAbstractNode*)(*j).get();
+							switch(prop->id)
+							{
+							case ID_BUFFERS:
+								{
+									uint32 buffers = 0;
+									for(AbstractNodeList::iterator k = prop->values.begin(); k != prop->values.end(); ++k)
+									{
+										if((*k)->type == ANT_ATOM)
+										{
+											switch(((AtomAbstractNode*)(*i).get())->id)
+											{
+											case ID_COLOUR:
+												buffers |= FBT_COLOUR;
+												break;
+											case ID_DEPTH:
+												buffers |= FBT_DEPTH;
+												break;
+											case ID_STENCIL:
+												buffers |= FBT_STENCIL;
+												break;
+											default:
+												PROP_ERROR(CE_INVALIDPARAMETERS);
+											}
+										}
+										else
+											PROP_ERROR(CE_INVALIDPARAMETERS);
+									}
+									mPass->setClearBuffers(buffers);
+								}
+								break;
+							case ID_COLOUR_VALUE:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_NUMBEREXPECTED);
+										continue;
+									}
+									ColourValue val;
+									if(getColour(prop->values.begin(), prop->values.end(), &val))
+										mPass->setClearColour(val);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							case ID_DEPTH_VALUE:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_NUMBEREXPECTED);
+										continue;
+									}
+									Real val;
+									if(getNumber(prop->values.front(), &val))
+										mPass->setClearDepth(val);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							case ID_STENCIL_VALUE:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_NUMBEREXPECTED);
+										continue;
+									}
+									Real val;
+									if(getNumber(prop->values.front(), &val))
+										mPass->setClearStencil(val);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							default:
+								Translator::translate(0, *j);
+							}
+						}
+					}
+					break;
+				case ID_STENCIL:
+					for(AbstractNodeList::iterator j = obj->children.begin(); j != obj->children.end(); ++j)
+					{
+						if((*j)->type == ANT_PROPERTY)
+						{
+							PropertyAbstractNode *prop = (PropertyAbstractNode*)(*j).get();
+							switch(prop->id)
+							{
+							case ID_CHECK:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_STRINGEXPECTED);
+										continue;
+									}
+									bool val;
+									if(getBoolean(prop->values.front(), &val))
+										mPass->setStencilCheck(val);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							case ID_COMP_FUNC:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_STRINGEXPECTED);
+										continue;
+									}
+									CompareFunction func;
+									if(getCompareFunction(prop->values.front(), &func))
+										mPass->setStencilFunc(func);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							case ID_REF_VALUE:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_NUMBEREXPECTED);
+										continue;
+									}
+									Real val;
+									if(getNumber(prop->values.front(), &val))
+										mPass->setStencilRefValue(val);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							case ID_MASK:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_NUMBEREXPECTED);
+										continue;
+									}
+									Real val;
+									if(getNumber(prop->values.front(), &val))
+										mPass->setStencilMask(val);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							case ID_FAIL_OP:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_STRINGEXPECTED);
+										continue;
+									}
+									StencilOperation val;
+									if(getStencilOp(prop->values.front(), &val))
+										mPass->setStencilFailOp(val);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							case ID_DEPTH_FAIL_OP:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_STRINGEXPECTED);
+										continue;
+									}
+									StencilOperation val;
+									if(getStencilOp(prop->values.front(), &val))
+										mPass->setStencilDepthFailOp(val);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							case ID_PASS_OP:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_STRINGEXPECTED);
+										continue;
+									}
+									StencilOperation val;
+									if(getStencilOp(prop->values.front(), &val))
+										mPass->setStencilPassOp(val);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							case ID_TWO_SIDED:
+								{
+									if(prop->values.empty())
+									{
+										PROP_ERROR(CE_STRINGEXPECTED);
+										continue;
+									}
+									bool val;
+									if(getBoolean(prop->values.front(), &val))
+										mPass->setStencilTwoSidedOperation(val);
+									else
+										PROP_ERROR(CE_INVALIDPARAMETERS);
+								}
+								break;
+							default:
+								Translator::translate(0, *j);
+							}
+						}
+					}
+					break;
+				default:
+					Translator::translate(0, *i);
+				}
+			}
+			else if((*i)->type == ANT_PROPERTY)
+			{
+				Translator::translate(this, *i);
+			}
+		}
+	}
+
+	void ScriptCompiler::CompositionPassTranslator::processProperty(PropertyAbstractNode *prop)
+	{
+		switch(prop->id)
+		{
+		case ID_MATERIAL:
+			if(prop->values.empty())
+			{
+				PROP_ERROR(CE_STRINGEXPECTED);
+				return;
+			}
+			else if (prop->values.size() > 1)
+			{
+				PROP_ERROR(CE_FEWERPARAMETERSEXPECTED);
+				return;
+			}
+			else
+			{
+				String val;
+				if(getString(prop->values.front(), &val))
+				{
+					if(getCompilerListener())
+						getCompilerListener()->getMaterialName(&val);
+					mPass->setMaterialName(val);
+				}
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+			}
+			break;
+		case ID_INPUT:
+			if(prop->values.size() < 2)
+			{
+				PROP_ERROR(CE_STRINGEXPECTED);
+				return;
+			}
+			else if (prop->values.size() > 3)
+			{
+				PROP_ERROR(CE_FEWERPARAMETERSEXPECTED);
+				return;
+			}
+			else
+			{
+				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2);
+				Real id;
+				String name;
+				if(getNumber(*i0, &id) && getString(*i1, &name))
+				{
+					Real index = 0;
+					if(i2 != prop->values.end())
+					{
+						if(!getNumber(*i2, &index))
+						{
+							PROP_ERROR(CE_NUMBEREXPECTED);
+							return;
+						}
+					}
+					
+					mPass->setInput(id, name, index);
+				}
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+			}
+			break;
+		case ID_IDENTIFIER:
+			if(prop->values.empty())
+			{
+				PROP_ERROR(CE_STRINGEXPECTED);
+				return;
+			}
+			else if (prop->values.size() > 1)
+			{
+				PROP_ERROR(CE_FEWERPARAMETERSEXPECTED);
+				return;
+			}
+			else
+			{
+				Real val;
+				if(getNumber(prop->values.front(), &val))
+				{
+					mPass->setIdentifier(val);
+				}
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+			}
+			break;
+		case ID_FIRST_RENDER_QUEUE:
+			if(prop->values.empty())
+			{
+				PROP_ERROR(CE_STRINGEXPECTED);
+				return;
+			}
+			else if (prop->values.size() > 1)
+			{
+				PROP_ERROR(CE_FEWERPARAMETERSEXPECTED);
+				return;
+			}
+			else
+			{
+				Real val;
+				if(getNumber(prop->values.front(), &val))
+				{
+					mPass->setFirstRenderQueue(val);
+				}
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+			}
+			break;
+		case ID_LAST_RENDER_QUEUE:
+			if(prop->values.empty())
+			{
+				PROP_ERROR(CE_STRINGEXPECTED);
+				return;
+			}
+			else if (prop->values.size() > 1)
+			{
+				PROP_ERROR(CE_FEWERPARAMETERSEXPECTED);
+				return;
+			}
+			else
+			{
+				Real val;
+				if(getNumber(prop->values.front(), &val))
+				{
+					mPass->setLastRenderQueue(val);
+				}
+				else
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+			}
+			break;
+		}
 	}
 }

@@ -33,6 +33,8 @@ Torus Knot Software Ltd.
 #include "OgreSharedPtr.h"
 #include "OgreMaterial.h"
 #include "OgreHighLevelGpuProgram.h"
+#include "OgreCompositor.h"
+#include "OgreCompositionPass.h"
 
 namespace Ogre
 {
@@ -293,6 +295,7 @@ namespace Ogre
 			bool getMatrix4(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, Matrix4 *m);
 			bool getInts(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, int *vals, int count);
 			bool getFloats(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, float *vals, int count);
+			bool getStencilOp(const AbstractNodePtr &node, StencilOperation *op); 
 		public:
 			Translator(ScriptCompiler *compiler);
 			/// This static translation function requests a translation on the given node
@@ -399,6 +402,42 @@ namespace Ogre
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
+		class CompositorTranslator : public Translator
+		{
+		private:
+			CompositorPtr mCompositor;
+		public:
+			CompositorTranslator(ScriptCompiler *compiler);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
+		};
+		class CompositionTechniqueTranslator : public Translator
+		{
+		private:
+			CompositionTechnique *mTechnique;
+		public:
+			CompositionTechniqueTranslator(ScriptCompiler *compiler, CompositionTechnique *technique);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
+		};
+		class CompositionTargetPassTranslator : public Translator
+		{
+		private:
+			CompositionTargetPass *mTarget;
+		public:
+			CompositionTargetPassTranslator(ScriptCompiler *compiler, CompositionTargetPass *target);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
+		};
+		class CompositionPassTranslator : public Translator
+		{
+		private:
+			CompositionPass *mPass;
+		public:
+			CompositionPassTranslator(ScriptCompiler *compiler, CompositionPass *pass);
+			void processObject(ObjectAbstractNode*);
+			void processProperty(PropertyAbstractNode*);
+		};
 	};
 
 	/** This is a listener for the compiler. The compiler can be customized with
@@ -438,6 +477,10 @@ namespace Ogre
 		virtual ParticleSystem *createParticleSystem(const String &name, const String &group);
 		/// Processes the name of the material
 		virtual void getMaterialName(String *name);
+
+		/// Returns the compositor that is created
+		virtual CompositorPtr createCompositor(const String &name, const String &group);
+		
 	};
 
 	/// This enum defines the integer ids for keywords this compiler handles
