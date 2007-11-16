@@ -1107,7 +1107,7 @@ namespace Ogre
 		{
 			// Grab the last two nodes
 			ConcreteNodePtr temp1, temp2;
-			ConcreteNodeList::const_reverse_iterator riter = node->children.rbegin();
+			ConcreteNodeList::reverse_iterator riter = node->children.rbegin();
 			if(riter != node->children.rend())
 			{
 				temp1 = *riter;
