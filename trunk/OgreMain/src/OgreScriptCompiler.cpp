@@ -358,6 +358,18 @@ namespace Ogre
 						Translator::translate(&translator, *i);
 					}
 					break;
+				case ID_PARTICLE_SYSTEM:
+					{
+						ParticleSystemTranslator translator(this);
+						Translator::translate(&translator, *i);
+					}
+					break;
+				case ID_COMPOSITOR:
+					{
+						CompositorTranslator translator(this);
+						Translator::translate(&translator, *i);
+					}
+					break;
 				case ID_VERTEX_PROGRAM:
 				case ID_FRAGMENT_PROGRAM:
 					{
@@ -5072,7 +5084,7 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
-				obj = (ObjectAbstractNode*)(*i).get();
+				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
 				switch(obj->id)
 				{
 				case ID_TECHNIQUE:
@@ -5108,7 +5120,7 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
-				obj = (ObjectAbstractNode*)(*i).get();
+				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
 				switch(obj->id)
 				{
 				case ID_TARGET:
@@ -5148,7 +5160,7 @@ namespace Ogre
 			{
 				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1),
 					i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3);
-				if((*i0)->type == ANT_ATOM || (*i1)->type == ANT_ATOM || (*i2)->type == ANT_ATOM)
+				if((*i0)->type != ANT_ATOM || (*i1)->type != ANT_ATOM || (*i2)->type != ANT_ATOM)
 				{
 					PROP_ERROR(CE_INVALIDPARAMETERS);
 					return;
@@ -5165,8 +5177,8 @@ namespace Ogre
 					return;
 				}
 
-				if(atom2->id == ID_TARGET_WIDTH || atom2->isNumber())
-					width = atom2->id == ID_TARGET_WIDTH ? 0 : atom2->getNumber();
+				if(atom2->id == ID_TARGET_HEIGHT || atom2->isNumber())
+					height = atom2->id == ID_TARGET_HEIGHT ? 0 : atom2->getNumber();
 				else
 				{
 					PROP_ERROR(CE_INVALIDPARAMETERS);
@@ -5185,6 +5197,7 @@ namespace Ogre
 						PixelFormat format = PixelUtil::getFormatFromName(atom->value, true);
 						def->formatList.push_back(format);
 					}
+					++i3;
 				}
 			}
 			break;
@@ -5199,11 +5212,14 @@ namespace Ogre
 
 	void ScriptCompiler::CompositionTargetPassTranslator::processObject(ObjectAbstractNode *obj)
 	{
+		if(!obj->name.empty())
+			mTarget->setOutputName(obj->name);
+
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
-				obj = (ObjectAbstractNode*)(*i).get();
+				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
 				switch(obj->id)
 				{
 				case ID_PASS:
@@ -5393,7 +5409,7 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
-				obj = (ObjectAbstractNode*)(*i).get();
+				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
 				switch(obj->id)
 				{
 				case ID_CLEAR:
