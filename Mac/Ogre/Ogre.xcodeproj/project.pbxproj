@@ -196,7 +196,6 @@
 		000E1EB70B38D566004EA2DF /* OgreSceneManagerEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1DE70B38D566004EA2DF /* OgreSceneManagerEnumerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		000E1EB80B38D566004EA2DF /* OgreSceneNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1DE80B38D566004EA2DF /* OgreSceneNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		000E1EB90B38D566004EA2DF /* OgreSceneQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1DE90B38D566004EA2DF /* OgreSceneQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		000E1EBA0B38D566004EA2DF /* OgreScriptLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1DEA0B38D566004EA2DF /* OgreScriptLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		000E1EBB0B38D566004EA2DF /* OgreSearchOps.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1DEB0B38D566004EA2DF /* OgreSearchOps.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		000E1EBC0B38D566004EA2DF /* OgreSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1DEC0B38D566004EA2DF /* OgreSerializer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		000E1EBD0B38D566004EA2DF /* OgreShadowCameraSetup.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1DED0B38D566004EA2DF /* OgreShadowCameraSetup.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -569,6 +568,11 @@
 		00DDBBD80B4CEEE100E8E1C9 /* OgreOSXContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB9C0B4CE1C700E8E1C9 /* OgreOSXContext.cpp */; };
 		00DDBBD90B4CEEEF00E8E1C9 /* OgreOSXCarbonContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB790B4CDB7000E8E1C9 /* OgreOSXCarbonContext.cpp */; };
 		00DDBBDA0B4CEEFA00E8E1C9 /* OgreOSXCGLContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00DDBB980B4CE0E500E8E1C9 /* OgreOSXCGLContext.cpp */; };
+		AA06EFE60CEE58080013023A /* OgreScriptCompiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA06EFE30CEE58080013023A /* OgreScriptCompiler.cpp */; };
+		AA06EFE70CEE58080013023A /* OgreScriptLexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA06EFE40CEE58080013023A /* OgreScriptLexer.cpp */; };
+		AA06EFE80CEE58080013023A /* OgreScriptParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA06EFE50CEE58080013023A /* OgreScriptParser.cpp */; };
+		AA06EFEB0CEE58310013023A /* OgreScriptLexer.h in Headers */ = {isa = PBXBuildFile; fileRef = AA06EFE90CEE58310013023A /* OgreScriptLexer.h */; };
+		AA06EFEC0CEE58310013023A /* OgreScriptLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = AA06EFEA0CEE58310013023A /* OgreScriptLoader.h */; };
 		AA123E6F0C53FAB9000009B6 /* OgreGLSLPreprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA123E390C53F7F9000009B6 /* OgreGLSLPreprocessor.cpp */; };
 		AA261E870CA17D99000A3707 /* OgreRenderSystemCapabilitiesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = AA261E850CA17D99000A3707 /* OgreRenderSystemCapabilitiesManager.h */; };
 		AA261E880CA17D9A000A3707 /* OgreRenderSystemCapabilitiesSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = AA261E860CA17D99000A3707 /* OgreRenderSystemCapabilitiesSerializer.h */; };
@@ -576,8 +580,6 @@
 		AA261E8D0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA261E8B0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesSerializer.cpp */; };
 		AA508FB50C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA508FB40C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp */; };
 		AA508FB70C972C9000D6EAD0 /* OgreTangentSpaceCalc.h in Headers */ = {isa = PBXBuildFile; fileRef = AA508FB60C972C8F00D6EAD0 /* OgreTangentSpaceCalc.h */; };
-		AAA8B96B0CC6A4DC001AD86E /* OgreScriptCompiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAA8B9690CC6A4DC001AD86E /* OgreScriptCompiler.cpp */; };
-		AAA8B96C0CC6A4DC001AD86E /* OgreScriptParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAA8B96A0CC6A4DC001AD86E /* OgreScriptParser.cpp */; };
 		AAA8B9700CC6A4FC001AD86E /* OgreScriptCompiler.h in Headers */ = {isa = PBXBuildFile; fileRef = AAA8B96E0CC6A4FC001AD86E /* OgreScriptCompiler.h */; };
 		AAA8B9710CC6A4FC001AD86E /* OgreScriptParser.h in Headers */ = {isa = PBXBuildFile; fileRef = AAA8B96F0CC6A4FC001AD86E /* OgreScriptParser.h */; };
 /* End PBXBuildFile section */
@@ -838,7 +840,6 @@
 		000E1DE70B38D566004EA2DF /* OgreSceneManagerEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreSceneManagerEnumerator.h; path = ../../OgreMain/include/OgreSceneManagerEnumerator.h; sourceTree = SOURCE_ROOT; };
 		000E1DE80B38D566004EA2DF /* OgreSceneNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreSceneNode.h; path = ../../OgreMain/include/OgreSceneNode.h; sourceTree = SOURCE_ROOT; };
 		000E1DE90B38D566004EA2DF /* OgreSceneQuery.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreSceneQuery.h; path = ../../OgreMain/include/OgreSceneQuery.h; sourceTree = SOURCE_ROOT; };
-		000E1DEA0B38D566004EA2DF /* OgreScriptLoader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreScriptLoader.h; path = ../../OgreMain/include/OgreScriptLoader.h; sourceTree = SOURCE_ROOT; };
 		000E1DEB0B38D566004EA2DF /* OgreSearchOps.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreSearchOps.h; path = ../../OgreMain/include/OgreSearchOps.h; sourceTree = SOURCE_ROOT; };
 		000E1DEC0B38D566004EA2DF /* OgreSerializer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreSerializer.h; path = ../../OgreMain/include/OgreSerializer.h; sourceTree = SOURCE_ROOT; };
 		000E1DED0B38D566004EA2DF /* OgreShadowCameraSetup.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreShadowCameraSetup.h; path = ../../OgreMain/include/OgreShadowCameraSetup.h; sourceTree = SOURCE_ROOT; };
@@ -1328,6 +1329,11 @@
 		00DDBB8C0B4CDE9100E8E1C9 /* OgreOSXCGLContext.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreOSXCGLContext.h; path = ../../RenderSystems/GL/include/OSX/OgreOSXCGLContext.h; sourceTree = SOURCE_ROOT; };
 		00DDBB980B4CE0E500E8E1C9 /* OgreOSXCGLContext.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreOSXCGLContext.cpp; path = ../../RenderSystems/GL/src/OSX/OgreOSXCGLContext.cpp; sourceTree = SOURCE_ROOT; };
 		00DDBB9C0B4CE1C700E8E1C9 /* OgreOSXContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OgreOSXContext.cpp; path = ../../RenderSystems/GL/src/OSX/OgreOSXContext.cpp; sourceTree = SOURCE_ROOT; };
+		AA06EFE30CEE58080013023A /* OgreScriptCompiler.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreScriptCompiler.cpp; path = ../../OgreMain/src/OgreScriptCompiler.cpp; sourceTree = SOURCE_ROOT; };
+		AA06EFE40CEE58080013023A /* OgreScriptLexer.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreScriptLexer.cpp; path = ../../OgreMain/src/OgreScriptLexer.cpp; sourceTree = SOURCE_ROOT; };
+		AA06EFE50CEE58080013023A /* OgreScriptParser.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreScriptParser.cpp; path = ../../OgreMain/src/OgreScriptParser.cpp; sourceTree = SOURCE_ROOT; };
+		AA06EFE90CEE58310013023A /* OgreScriptLexer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreScriptLexer.h; path = ../../OgreMain/include/OgreScriptLexer.h; sourceTree = SOURCE_ROOT; };
+		AA06EFEA0CEE58310013023A /* OgreScriptLoader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreScriptLoader.h; path = ../../OgreMain/include/OgreScriptLoader.h; sourceTree = SOURCE_ROOT; };
 		AA123E380C53F7DA000009B6 /* OgreGLSLPreprocessor.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreGLSLPreprocessor.h; path = ../../RenderSystems/GL/src/GLSL/include/OgreGLSLPreprocessor.h; sourceTree = SOURCE_ROOT; };
 		AA123E390C53F7F9000009B6 /* OgreGLSLPreprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreGLSLPreprocessor.cpp; path = ../../RenderSystems/GL/src/GLSL/src/OgreGLSLPreprocessor.cpp; sourceTree = SOURCE_ROOT; };
 		AA261E850CA17D99000A3707 /* OgreRenderSystemCapabilitiesManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreRenderSystemCapabilitiesManager.h; path = ../../OgreMain/include/OgreRenderSystemCapabilitiesManager.h; sourceTree = SOURCE_ROOT; };
@@ -1336,8 +1342,6 @@
 		AA261E8B0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreRenderSystemCapabilitiesSerializer.cpp; path = ../../OgreMain/src/OgreRenderSystemCapabilitiesSerializer.cpp; sourceTree = SOURCE_ROOT; };
 		AA508FB40C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreTangentSpaceCalc.cpp; path = ../../OgreMain/src/OgreTangentSpaceCalc.cpp; sourceTree = SOURCE_ROOT; };
 		AA508FB60C972C8F00D6EAD0 /* OgreTangentSpaceCalc.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreTangentSpaceCalc.h; path = ../../OgreMain/include/OgreTangentSpaceCalc.h; sourceTree = SOURCE_ROOT; };
-		AAA8B9690CC6A4DC001AD86E /* OgreScriptCompiler.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreScriptCompiler.cpp; path = ../../OgreMain/src/OgreScriptCompiler.cpp; sourceTree = SOURCE_ROOT; };
-		AAA8B96A0CC6A4DC001AD86E /* OgreScriptParser.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreScriptParser.cpp; path = ../../OgreMain/src/OgreScriptParser.cpp; sourceTree = SOURCE_ROOT; };
 		AAA8B96E0CC6A4FC001AD86E /* OgreScriptCompiler.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreScriptCompiler.h; path = ../../OgreMain/include/OgreScriptCompiler.h; sourceTree = SOURCE_ROOT; };
 		AAA8B96F0CC6A4FC001AD86E /* OgreScriptParser.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreScriptParser.h; path = ../../OgreMain/include/OgreScriptParser.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -1524,8 +1528,9 @@
 		000E1D4A0B38D531004EA2DF /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				AAA8B9690CC6A4DC001AD86E /* OgreScriptCompiler.cpp */,
-				AAA8B96A0CC6A4DC001AD86E /* OgreScriptParser.cpp */,
+				AA06EFE30CEE58080013023A /* OgreScriptCompiler.cpp */,
+				AA06EFE40CEE58080013023A /* OgreScriptLexer.cpp */,
+				AA06EFE50CEE58080013023A /* OgreScriptParser.cpp */,
 				000E1EF20B38D5AA004EA2DF /* OgreAlignedAllocator.cpp */,
 				000E1EF30B38D5AA004EA2DF /* OgreAnimable.cpp */,
 				000E1EF40B38D5AA004EA2DF /* OgreAnimation.cpp */,
@@ -1708,6 +1713,8 @@
 		000E1D4B0B38D537004EA2DF /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				AA06EFE90CEE58310013023A /* OgreScriptLexer.h */,
+				AA06EFEA0CEE58310013023A /* OgreScriptLoader.h */,
 				AAA8B96E0CC6A4FC001AD86E /* OgreScriptCompiler.h */,
 				AAA8B96F0CC6A4FC001AD86E /* OgreScriptParser.h */,
 				000E1D4C0B38D565004EA2DF /* asm_math.h */,
@@ -1875,7 +1882,6 @@
 				000E1DE70B38D566004EA2DF /* OgreSceneManagerEnumerator.h */,
 				000E1DE80B38D566004EA2DF /* OgreSceneNode.h */,
 				000E1DE90B38D566004EA2DF /* OgreSceneQuery.h */,
-				000E1DEA0B38D566004EA2DF /* OgreScriptLoader.h */,
 				000E1DEB0B38D566004EA2DF /* OgreSearchOps.h */,
 				000E1DEC0B38D566004EA2DF /* OgreSerializer.h */,
 				000E1DED0B38D566004EA2DF /* OgreShadowCameraSetup.h */,
@@ -2464,7 +2470,6 @@
 				000E1EB70B38D566004EA2DF /* OgreSceneManagerEnumerator.h in Headers */,
 				000E1EB80B38D566004EA2DF /* OgreSceneNode.h in Headers */,
 				000E1EB90B38D566004EA2DF /* OgreSceneQuery.h in Headers */,
-				000E1EBA0B38D566004EA2DF /* OgreScriptLoader.h in Headers */,
 				000E1EBB0B38D566004EA2DF /* OgreSearchOps.h in Headers */,
 				000E1EBC0B38D566004EA2DF /* OgreSerializer.h in Headers */,
 				000E1EBD0B38D566004EA2DF /* OgreShadowCameraSetup.h in Headers */,
@@ -2533,6 +2538,8 @@
 				AA261E880CA17D9A000A3707 /* OgreRenderSystemCapabilitiesSerializer.h in Headers */,
 				AAA8B9700CC6A4FC001AD86E /* OgreScriptCompiler.h in Headers */,
 				AAA8B9710CC6A4FC001AD86E /* OgreScriptParser.h in Headers */,
+				AA06EFEB0CEE58310013023A /* OgreScriptLexer.h in Headers */,
+				AA06EFEC0CEE58310013023A /* OgreScriptLoader.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2894,8 +2901,9 @@
 				AA508FB50C972C1B00D6EAD0 /* OgreTangentSpaceCalc.cpp in Sources */,
 				AA261E8C0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesManager.cpp in Sources */,
 				AA261E8D0CA17DC2000A3707 /* OgreRenderSystemCapabilitiesSerializer.cpp in Sources */,
-				AAA8B96B0CC6A4DC001AD86E /* OgreScriptCompiler.cpp in Sources */,
-				AAA8B96C0CC6A4DC001AD86E /* OgreScriptParser.cpp in Sources */,
+				AA06EFE60CEE58080013023A /* OgreScriptCompiler.cpp in Sources */,
+				AA06EFE70CEE58080013023A /* OgreScriptLexer.cpp in Sources */,
+				AA06EFE80CEE58080013023A /* OgreScriptParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
