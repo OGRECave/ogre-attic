@@ -5409,222 +5409,7 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
-				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
-				switch(obj->id)
-				{
-				case ID_CLEAR:
-					for(AbstractNodeList::iterator j = obj->children.begin(); j != obj->children.end(); ++j)
-					{
-						if((*j)->type == ANT_PROPERTY)
-						{
-							PropertyAbstractNode *prop = (PropertyAbstractNode*)(*j).get();
-							switch(prop->id)
-							{
-							case ID_BUFFERS:
-								{
-									uint32 buffers = 0;
-									for(AbstractNodeList::iterator k = prop->values.begin(); k != prop->values.end(); ++k)
-									{
-										if((*k)->type == ANT_ATOM)
-										{
-											switch(((AtomAbstractNode*)(*i).get())->id)
-											{
-											case ID_COLOUR:
-												buffers |= FBT_COLOUR;
-												break;
-											case ID_DEPTH:
-												buffers |= FBT_DEPTH;
-												break;
-											case ID_STENCIL:
-												buffers |= FBT_STENCIL;
-												break;
-											default:
-												PROP_ERROR(CE_INVALIDPARAMETERS);
-											}
-										}
-										else
-											PROP_ERROR(CE_INVALIDPARAMETERS);
-									}
-									mPass->setClearBuffers(buffers);
-								}
-								break;
-							case ID_COLOUR_VALUE:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_NUMBEREXPECTED);
-										continue;
-									}
-									ColourValue val;
-									if(getColour(prop->values.begin(), prop->values.end(), &val))
-										mPass->setClearColour(val);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							case ID_DEPTH_VALUE:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_NUMBEREXPECTED);
-										continue;
-									}
-									Real val;
-									if(getNumber(prop->values.front(), &val))
-										mPass->setClearDepth(val);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							case ID_STENCIL_VALUE:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_NUMBEREXPECTED);
-										continue;
-									}
-									Real val;
-									if(getNumber(prop->values.front(), &val))
-										mPass->setClearStencil(val);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							default:
-								Translator::translate(0, *j);
-							}
-						}
-					}
-					break;
-				case ID_STENCIL:
-					for(AbstractNodeList::iterator j = obj->children.begin(); j != obj->children.end(); ++j)
-					{
-						if((*j)->type == ANT_PROPERTY)
-						{
-							PropertyAbstractNode *prop = (PropertyAbstractNode*)(*j).get();
-							switch(prop->id)
-							{
-							case ID_CHECK:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_STRINGEXPECTED);
-										continue;
-									}
-									bool val;
-									if(getBoolean(prop->values.front(), &val))
-										mPass->setStencilCheck(val);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							case ID_COMP_FUNC:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_STRINGEXPECTED);
-										continue;
-									}
-									CompareFunction func;
-									if(getCompareFunction(prop->values.front(), &func))
-										mPass->setStencilFunc(func);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							case ID_REF_VALUE:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_NUMBEREXPECTED);
-										continue;
-									}
-									Real val;
-									if(getNumber(prop->values.front(), &val))
-										mPass->setStencilRefValue(val);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							case ID_MASK:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_NUMBEREXPECTED);
-										continue;
-									}
-									Real val;
-									if(getNumber(prop->values.front(), &val))
-										mPass->setStencilMask(val);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							case ID_FAIL_OP:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_STRINGEXPECTED);
-										continue;
-									}
-									StencilOperation val;
-									if(getStencilOp(prop->values.front(), &val))
-										mPass->setStencilFailOp(val);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							case ID_DEPTH_FAIL_OP:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_STRINGEXPECTED);
-										continue;
-									}
-									StencilOperation val;
-									if(getStencilOp(prop->values.front(), &val))
-										mPass->setStencilDepthFailOp(val);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							case ID_PASS_OP:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_STRINGEXPECTED);
-										continue;
-									}
-									StencilOperation val;
-									if(getStencilOp(prop->values.front(), &val))
-										mPass->setStencilPassOp(val);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							case ID_TWO_SIDED:
-								{
-									if(prop->values.empty())
-									{
-										PROP_ERROR(CE_STRINGEXPECTED);
-										continue;
-									}
-									bool val;
-									if(getBoolean(prop->values.front(), &val))
-										mPass->setStencilTwoSidedOperation(val);
-									else
-										PROP_ERROR(CE_INVALIDPARAMETERS);
-								}
-								break;
-							default:
-								Translator::translate(0, *j);
-							}
-						}
-					}
-					break;
-				default:
-					Translator::translate(0, *i);
-				}
+				Translator::translate(0, *i);
 			}
 			else if((*i)->type == ANT_PROPERTY)
 			{
@@ -5769,6 +5554,188 @@ namespace Ogre
 				{
 					PROP_ERROR(CE_INVALIDPARAMETERS);
 				}
+			}
+			break;
+		case ID_BUFFERS:
+			{
+				uint32 buffers = 0;
+				for(AbstractNodeList::iterator k = prop->values.begin(); k != prop->values.end(); ++k)
+				{
+					if((*k)->type == ANT_ATOM)
+					{
+						switch(((AtomAbstractNode*)(*k).get())->id)
+						{
+						case ID_COLOUR:
+							buffers |= FBT_COLOUR;
+							break;
+						case ID_DEPTH:
+							buffers |= FBT_DEPTH;
+							break;
+						case ID_STENCIL:
+							buffers |= FBT_STENCIL;
+							break;
+						default:
+							PROP_ERROR(CE_INVALIDPARAMETERS);
+						}
+					}
+					else
+						PROP_ERROR(CE_INVALIDPARAMETERS);
+				}
+				mPass->setClearBuffers(buffers);
+			}
+			break;
+		case ID_COLOUR_VALUE:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_NUMBEREXPECTED);
+					return;
+				}
+				ColourValue val;
+				if(getColour(prop->values.begin(), prop->values.end(), &val))
+					mPass->setClearColour(val);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+			}
+			break;
+		case ID_DEPTH_VALUE:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_NUMBEREXPECTED);
+					return;
+				}
+				Real val;
+				if(getNumber(prop->values.front(), &val))
+					mPass->setClearDepth(val);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+			}
+			break;
+		case ID_STENCIL_VALUE:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_NUMBEREXPECTED);
+					return;
+				}
+				Real val;
+				if(getNumber(prop->values.front(), &val))
+					mPass->setClearStencil(val);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+			}
+			break;
+		case ID_CHECK:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_STRINGEXPECTED);
+					return;
+				}
+				bool val;
+				if(getBoolean(prop->values.front(), &val))
+					mPass->setStencilCheck(val);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+			}
+			break;
+		case ID_COMP_FUNC:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_STRINGEXPECTED);
+					return;
+				}
+				CompareFunction func;
+				if(getCompareFunction(prop->values.front(), &func))
+					mPass->setStencilFunc(func);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+			}
+			break;
+		case ID_REF_VALUE:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_NUMBEREXPECTED);
+					return;
+				}
+				Real val;
+				if(getNumber(prop->values.front(), &val))
+					mPass->setStencilRefValue(val);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+			}
+			break;
+		case ID_MASK:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_NUMBEREXPECTED);
+					return;
+				}
+				Real val;
+				if(getNumber(prop->values.front(), &val))
+					mPass->setStencilMask(val);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+			}
+			break;
+		case ID_FAIL_OP:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_STRINGEXPECTED);
+					return;
+				}
+				StencilOperation val;
+				if(getStencilOp(prop->values.front(), &val))
+					mPass->setStencilFailOp(val);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+			}
+			break;
+		case ID_DEPTH_FAIL_OP:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_STRINGEXPECTED);
+					return;
+				}
+				StencilOperation val;
+				if(getStencilOp(prop->values.front(), &val))
+					mPass->setStencilDepthFailOp(val);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+			}
+			break;
+		case ID_PASS_OP:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_STRINGEXPECTED);
+					return;
+				}
+				StencilOperation val;
+				if(getStencilOp(prop->values.front(), &val))
+					mPass->setStencilPassOp(val);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+			}
+			break;
+		case ID_TWO_SIDED:
+			{
+				if(prop->values.empty())
+				{
+					PROP_ERROR(CE_STRINGEXPECTED);
+					return;
+				}
+				bool val;
+				if(getBoolean(prop->values.front(), &val))
+					mPass->setStencilTwoSidedOperation(val);
+				else
+					PROP_ERROR(CE_INVALIDPARAMETERS);
 			}
 			break;
 		}
