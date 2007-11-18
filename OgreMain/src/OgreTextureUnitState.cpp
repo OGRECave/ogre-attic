@@ -907,7 +907,23 @@ namespace Ogre {
         WaveformType waveType, Real base, Real frequency, Real phase, Real amplitude)
     {
         // Remove existing effect
-        removeEffect(ET_TRANSFORM);
+		// note, only remove for subtype, not entire ET_TRANSFORM
+		// otherwise we won't be able to combine subtypes
+		// Get range of items matching this effect
+		for (EffectMap::iterator i = mEffects.begin(); i != mEffects.end(); ++i)
+		{
+			if (i->second.type == ET_TRANSFORM && i->second.subtype == ttype)
+			{
+				if (i->second.controller)
+				{
+					ControllerManager::getSingleton().destroyController(i->second.controller);
+				}
+				mEffects.erase(i);
+
+				// should only be one, so jump out
+				break;
+			}
+		}
         // Create new effect
         TextureEffect eff;
         eff.type = ET_TRANSFORM;
