@@ -411,7 +411,10 @@ namespace Ogre
 			}
 		}
 
-		return true;
+		// Destroy the context
+		mContext = Any();
+
+		return mErrors.empty();
 	}
 
 	void ScriptCompiler::addError(uint32 code, const Ogre::String &file, int line)
@@ -435,6 +438,16 @@ namespace Ogre
 	const String &ScriptCompiler::getResourceGroup() const
 	{
 		return mGroup;
+	}
+
+	void ScriptCompiler::setContext(const Any &ctx)
+	{
+		mContext = ctx;
+	}
+
+	const Any &ScriptCompiler::getContext() const
+	{
+		return mContext;
 	}
 
 	AbstractNodeListPtr ScriptCompiler::convertToAST(const Ogre::ConcreteNodeListPtr &nodes)
@@ -1639,6 +1652,7 @@ namespace Ogre
 		}
 
 		mMaterial->removeAllTechniques();
+		getCompiler()->setContext(Any(mMaterial.get()));
 
 		// Set the properties for the material
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
@@ -1750,6 +1764,8 @@ namespace Ogre
 
 	void ScriptCompiler::TechniqueTranslator::processObject(ObjectAbstractNode *obj)
 	{
+		getCompiler()->setContext(Any(mTechnique));
+
 		// Get the name of the technique
 		if(!obj->name.empty())
 			mTechnique->setName(obj->name);
@@ -1828,6 +1844,8 @@ namespace Ogre
 
 	void ScriptCompiler::PassTranslator::processObject(ObjectAbstractNode *obj)
 	{
+		getCompiler()->setContext(Any(mPass));
+
 		// Get the name of the technique
 		if(!obj->name.empty())
 			mPass->setName(obj->name);
@@ -3093,6 +3111,8 @@ namespace Ogre
 
 	void ScriptCompiler::TextureUnitTranslator::processObject(ObjectAbstractNode *obj)
 	{
+		getCompiler()->setContext(Any(mUnit));
+
 		// Get the name of the technique
 		if(!obj->name.empty())
 			mUnit->setName(obj->name);
@@ -4339,6 +4359,7 @@ namespace Ogre
 			return;
 		}
 
+		getCompiler()->setContext(Any(prog.get()));
 		prog->_notifyOrigin(obj->file);
 
 		// Set the custom parameters
@@ -4427,6 +4448,7 @@ namespace Ogre
 			return;
 		}
 
+		getCompiler()->setContext(Any(prog.get()));
 		prog->_notifyOrigin(obj->file);
 
 		// Set the custom parameters
@@ -4505,6 +4527,7 @@ namespace Ogre
 			return;
 		}
 
+		getCompiler()->setContext(Any(prog.get()));
 		prog->_notifyOrigin(obj->file);
 
 		// Set the custom parameters
@@ -4835,6 +4858,7 @@ namespace Ogre
 
 		mSystem->removeAllEmitters();
 		mSystem->removeAllAffectors();
+		getCompiler()->setContext(Any(mSystem));
 
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
@@ -4966,6 +4990,8 @@ namespace Ogre
 
 	void ScriptCompiler::ParticleEmitterTranslator::processObject(Ogre::ObjectAbstractNode *obj)
 	{
+		getCompiler()->setContext(Any(mEmitter));
+
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
 			if((*i)->type == ANT_OBJECT)
@@ -5014,6 +5040,8 @@ namespace Ogre
 
 	void ScriptCompiler::ParticleAffectorTranslator::processObject(Ogre::ObjectAbstractNode *obj)
 	{
+		getCompiler()->setContext(Any(mAffector));
+
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
 			if((*i)->type == ANT_OBJECT)
@@ -5080,6 +5108,9 @@ namespace Ogre
 			return;
 		}
 
+		mCompositor->removeAllTechniques();
+		getCompiler()->setContext(Any(mCompositor.get()));
+
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
 			if((*i)->type == ANT_OBJECT)
@@ -5116,6 +5147,8 @@ namespace Ogre
 
 	void ScriptCompiler::CompositionTechniqueTranslator::processObject(ObjectAbstractNode *obj)
 	{
+		getCompiler()->setContext(Any(mTechnique));
+
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
 			if((*i)->type == ANT_OBJECT)
@@ -5212,6 +5245,8 @@ namespace Ogre
 
 	void ScriptCompiler::CompositionTargetPassTranslator::processObject(ObjectAbstractNode *obj)
 	{
+		getCompiler()->setContext(Any(mTarget));
+
 		if(!obj->name.empty())
 			mTarget->setOutputName(obj->name);
 
@@ -5384,6 +5419,8 @@ namespace Ogre
 
 	void ScriptCompiler::CompositionPassTranslator::processObject(ObjectAbstractNode *obj)
 	{
+		getCompiler()->setContext(Any(mPass));
+
 		// The name is the type of the pass
 		if(obj->name.empty())
 		{
