@@ -78,10 +78,10 @@ Portal::Portal(const String & name, const PORTAL_TYPE type)
 Portal::~Portal()
 {
 	if (mCorners)
-		delete mCorners;
+		delete [] mCorners;
 	mCorners = 0;
 	if (mDerivedCorners)
-		delete mDerivedCorners;
+		delete [] mDerivedCorners;
 	mDerivedCorners = 0;
 }
 
