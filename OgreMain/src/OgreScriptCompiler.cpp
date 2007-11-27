@@ -411,9 +411,6 @@ namespace Ogre
 			}
 		}
 
-		// Destroy the context
-		mContext = Any();
-
 		return mErrors.empty();
 	}
 
@@ -438,16 +435,6 @@ namespace Ogre
 	const String &ScriptCompiler::getResourceGroup() const
 	{
 		return mGroup;
-	}
-
-	void ScriptCompiler::setContext(const Any &ctx)
-	{
-		mContext = ctx;
-	}
-
-	const Any &ScriptCompiler::getContext() const
-	{
-		return mContext;
 	}
 
 	AbstractNodeListPtr ScriptCompiler::convertToAST(const Ogre::ConcreteNodeListPtr &nodes)
@@ -1652,7 +1639,7 @@ namespace Ogre
 		}
 
 		mMaterial->removeAllTechniques();
-		getCompiler()->setContext(Any(mMaterial.get()));
+		obj->context = Any(mMaterial.get());
 
 		// Set the properties for the material
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
@@ -1764,7 +1751,7 @@ namespace Ogre
 
 	void ScriptCompiler::TechniqueTranslator::processObject(ObjectAbstractNode *obj)
 	{
-		getCompiler()->setContext(Any(mTechnique));
+		obj->context = Any(mTechnique);
 
 		// Get the name of the technique
 		if(!obj->name.empty())
@@ -1844,7 +1831,7 @@ namespace Ogre
 
 	void ScriptCompiler::PassTranslator::processObject(ObjectAbstractNode *obj)
 	{
-		getCompiler()->setContext(Any(mPass));
+		obj->context = Any(mPass);
 
 		// Get the name of the technique
 		if(!obj->name.empty())
@@ -3111,7 +3098,7 @@ namespace Ogre
 
 	void ScriptCompiler::TextureUnitTranslator::processObject(ObjectAbstractNode *obj)
 	{
-		getCompiler()->setContext(Any(mUnit));
+		obj->context = Any(mUnit);
 
 		// Get the name of the technique
 		if(!obj->name.empty())
@@ -4359,12 +4346,13 @@ namespace Ogre
 			return;
 		}
 
-		getCompiler()->setContext(Any(prog.get()));
 		prog->_notifyOrigin(obj->file);
 
 		// Set the custom parameters
 		for(std::list<std::pair<String,String> >::iterator i = customParameters.begin(); i != customParameters.end(); ++i)
 			prog->setParameter(i->first, i->second);
+
+		obj->context = Any(prog.get());
 
 		// Set up default parameters
 		if(prog->isSupported() && !params.isNull())
@@ -4448,12 +4436,13 @@ namespace Ogre
 			return;
 		}
 
-		getCompiler()->setContext(Any(prog.get()));
 		prog->_notifyOrigin(obj->file);
 
 		// Set the custom parameters
 		for(std::list<std::pair<String,String> >::iterator i = customParameters.begin(); i != customParameters.end(); ++i)
 			prog->setParameter(i->first, i->second);
+
+		obj->context = Any(prog.get());
 
 		// Set up default parameters
 		if(prog->isSupported() && !params.isNull())
@@ -4527,12 +4516,13 @@ namespace Ogre
 			return;
 		}
 
-		getCompiler()->setContext(Any(prog.get()));
 		prog->_notifyOrigin(obj->file);
 
 		// Set the custom parameters
 		for(std::list<std::pair<String,String> >::iterator i = customParameters.begin(); i != customParameters.end(); ++i)
 			prog->setParameter(i->first, i->second);
+
+		obj->context = Any(prog.get());
 
 		// Set up default parameters
 		if(prog->isSupported() && !params.isNull())
@@ -4858,7 +4848,8 @@ namespace Ogre
 
 		mSystem->removeAllEmitters();
 		mSystem->removeAllAffectors();
-		getCompiler()->setContext(Any(mSystem));
+
+		obj->context = Any(mSystem);
 
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
@@ -4990,7 +4981,7 @@ namespace Ogre
 
 	void ScriptCompiler::ParticleEmitterTranslator::processObject(Ogre::ObjectAbstractNode *obj)
 	{
-		getCompiler()->setContext(Any(mEmitter));
+		obj->context = Any(mEmitter);
 
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
@@ -5040,7 +5031,7 @@ namespace Ogre
 
 	void ScriptCompiler::ParticleAffectorTranslator::processObject(Ogre::ObjectAbstractNode *obj)
 	{
-		getCompiler()->setContext(Any(mAffector));
+		obj->context = Any(mAffector);
 
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
@@ -5109,7 +5100,7 @@ namespace Ogre
 		}
 
 		mCompositor->removeAllTechniques();
-		getCompiler()->setContext(Any(mCompositor.get()));
+		obj->context = Any(mCompositor.get());
 
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
@@ -5147,7 +5138,7 @@ namespace Ogre
 
 	void ScriptCompiler::CompositionTechniqueTranslator::processObject(ObjectAbstractNode *obj)
 	{
-		getCompiler()->setContext(Any(mTechnique));
+		obj->context = Any(mTechnique);
 
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
@@ -5217,8 +5208,11 @@ namespace Ogre
 					PROP_ERROR(CE_INVALIDPARAMETERS);
 					return;
 				}
-
-				CompositionTechnique::TextureDefinition *def = mTechnique->createTextureDefinition(atom0->value);
+				
+				String name = atom0->value;
+				if(getCompilerListener())
+					getCompilerListener()->getTextureNames(&name, 1);
+				CompositionTechnique::TextureDefinition *def = mTechnique->createTextureDefinition(name);
 				def->width = width;
 				def->height = height;
 
@@ -5245,10 +5239,15 @@ namespace Ogre
 
 	void ScriptCompiler::CompositionTargetPassTranslator::processObject(ObjectAbstractNode *obj)
 	{
-		getCompiler()->setContext(Any(mTarget));
+		obj->context = Any(mTarget);
 
 		if(!obj->name.empty())
-			mTarget->setOutputName(obj->name);
+		{
+			String name = obj->name;
+			if(getCompilerListener())
+				getCompilerListener()->getTextureNames(&name, 1);
+			mTarget->setOutputName(name);
+		}
 
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
@@ -5419,7 +5418,7 @@ namespace Ogre
 
 	void ScriptCompiler::CompositionPassTranslator::processObject(ObjectAbstractNode *obj)
 	{
-		getCompiler()->setContext(Any(mPass));
+		obj->context = Any(mPass);
 
 		// The name is the type of the pass
 		if(obj->name.empty())
@@ -5513,6 +5512,8 @@ namespace Ogre
 						}
 					}
 					
+					if(getCompilerListener())
+						getCompilerListener()->getTextureNames(&name, 1);
 					mPass->setInput(id, name, index);
 				}
 				else

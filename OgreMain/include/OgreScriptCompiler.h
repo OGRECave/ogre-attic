@@ -89,6 +89,7 @@ namespace Ogre
 		unsigned int line;
 		AbstractNodeType type;
 		AbstractNode *parent;
+		Any context; // A holder for translation context data
 	public:
 		AbstractNode(AbstractNode *ptr);
 		virtual AbstractNode *clone() const = 0; 
@@ -215,10 +216,6 @@ namespace Ogre
 		void setListener(ScriptCompilerListener *listener);
 		/// Returns the resource group currently set for this compiler
 		const String &getResourceGroup() const;
-		/// Sets the compilation context
-		void setContext(const Any &ctx);
-		/// Returns the current compilation context
-		const Any &getContext() const;
 	private: // Tree processing
 		AbstractNodeListPtr convertToAST(const ConcreteNodeListPtr &nodes);
 		/// This built-in function processes import nodes
@@ -257,9 +254,6 @@ namespace Ogre
 
 		// The listener
 		ScriptCompilerListener *mListener;
-
-		// The stored compilation context
-		Any mContext;
 	private: // Internal helper classes and processors
 		class AbstractTreeBuilder
 		{
@@ -290,6 +284,7 @@ namespace Ogre
 		{
 		private:
 			ScriptCompiler *mCompiler;
+			Any mContext;
 		protected:
 			ScriptCompiler *getCompiler();
 			ScriptCompilerListener *getCompilerListener();
