@@ -1,8 +1,0 @@
-Dependencies:
-- IncMerge.exe (www.folkenberg.dk\files\IncMerge.zip)
-- Ogre3D SDK (www.ogre3d.org)
-- Max8 SDK (from your 3DMax install CD)
-
-NB.
-Remember to set the Include and Linking options in the VSproject.
-The Ogre path should also be set in the Copy_...bat files.
