@@ -156,40 +156,47 @@ namespace Ogre {
         BufferLicenseType licenseType, HardwareBufferLicensee* licensee,
         bool copyData)
     {
-		OGRE_LOCK_MUTEX(mTempBuffersMutex)
-        HardwareVertexBufferSharedPtr vbuf;
+		// pre-lock the mVertexBuffers mutex, which would usually get locked in
+		//  makeBufferCopy / createVertexBuffer
+		// this prevents a deadlock in _notifyVertexBufferDestroyed
+		// which locks the same mutexes (via other methods) but in reverse order
+		OGRE_LOCK_MUTEX(mVertexBuffers)
+		{
+			OGRE_LOCK_MUTEX(mTempBuffersMutex)
+			HardwareVertexBufferSharedPtr vbuf;
 
-        // Locate existing buffer copy in temporary vertex buffers
-        FreeTemporaryVertexBufferMap::iterator i = 
-            mFreeTempVertexBufferMap.find(sourceBuffer.get());
-        if (i == mFreeTempVertexBufferMap.end())
-        {
-            // copy buffer, use shadow buffer and make dynamic
-            vbuf = makeBufferCopy(
-                sourceBuffer, 
-                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE, 
-                true);
-        }
-        else
-        {
-            // Allocate existing copy
-            vbuf = i->second;
-            mFreeTempVertexBufferMap.erase(i);
-        }
+			// Locate existing buffer copy in temporary vertex buffers
+			FreeTemporaryVertexBufferMap::iterator i = 
+				mFreeTempVertexBufferMap.find(sourceBuffer.get());
+			if (i == mFreeTempVertexBufferMap.end())
+			{
+				// copy buffer, use shadow buffer and make dynamic
+				vbuf = makeBufferCopy(
+					sourceBuffer, 
+					HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE, 
+					true);
+			}
+			else
+			{
+				// Allocate existing copy
+				vbuf = i->second;
+				mFreeTempVertexBufferMap.erase(i);
+			}
 
-        // Copy data?
-        if (copyData)
-        {
-            vbuf->copyData(*(sourceBuffer.get()), 0, 0, sourceBuffer->getSizeInBytes(), true);
-        }
+			// Copy data?
+			if (copyData)
+			{
+				vbuf->copyData(*(sourceBuffer.get()), 0, 0, sourceBuffer->getSizeInBytes(), true);
+			}
 
-        // Insert copy into licensee list
-        mTempVertexBufferLicenses.insert(
-            TemporaryVertexBufferLicenseMap::value_type(
-                vbuf.get(),
-                VertexBufferLicense(sourceBuffer.get(), licenseType, EXPIRED_DELAY_FRAME_THRESHOLD, vbuf, licensee)));
+			// Insert copy into licensee list
+			mTempVertexBufferLicenses.insert(
+				TemporaryVertexBufferLicenseMap::value_type(
+					vbuf.get(),
+					VertexBufferLicense(sourceBuffer.get(), licenseType, EXPIRED_DELAY_FRAME_THRESHOLD, vbuf, licensee)));
+			return vbuf;
+		}
 
-        return vbuf;
     }
     //-----------------------------------------------------------------------
     void HardwareBufferManager::releaseVertexBufferCopy(

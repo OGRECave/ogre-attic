@@ -153,15 +153,18 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void D3D9HLSLProgram::createLowLevelImpl(void)
     {
-        // Create a low-level program, give it the same name as us
-        mAssemblerProgram = 
-            GpuProgramManager::getSingleton().createProgramFromString(
-                mName, 
-                mGroup,
-                "",// dummy source, since we'll be using microcode
-                mType, 
-                mTarget);
-        static_cast<D3D9GpuProgram*>(mAssemblerProgram.get())->setExternalMicrocode(mpMicroCode);
+		if (!mCompileError)
+		{
+			// Create a low-level program, give it the same name as us
+			mAssemblerProgram = 
+				GpuProgramManager::getSingleton().createProgramFromString(
+					mName, 
+					mGroup,
+					"",// dummy source, since we'll be using microcode
+					mType, 
+					mTarget);
+			static_cast<D3D9GpuProgram*>(mAssemblerProgram.get())->setExternalMicrocode(mpMicroCode);
+		}
 
     }
     //-----------------------------------------------------------------------

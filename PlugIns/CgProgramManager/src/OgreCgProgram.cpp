@@ -143,7 +143,7 @@ namespace Ogre {
     void CgProgram::createLowLevelImpl(void)
     {
 		// ignore any previous error
-		if (mSelectedCgProfile != CG_PROFILE_UNKNOWN)
+		if (mSelectedCgProfile != CG_PROFILE_UNKNOWN && !mCompileError)
 		{
 
 			// Create a low-level program, give it the same name as us

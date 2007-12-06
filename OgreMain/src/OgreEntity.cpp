@@ -51,6 +51,7 @@ Torus Knot Software Ltd.
 #include "OgreAnimation.h"
 #include "OgreAlignedAllocator.h"
 #include "OgreOptimisedUtil.h"
+#include "OgreSceneNode.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -195,7 +196,13 @@ namespace Ogre {
 		}
 
 		reevaluateVertexProcessing();
-
+		
+		// Update of bounds of the parent SceneNode, if Entity already attached
+		// this can happen if Mesh is loaded in background or after reinitialisation
+		if( mParentNode )
+		{
+			getParentSceneNode()->_updateBounds();
+		}
 
 		mInitialised = true;
 		mMeshStateCount = mMesh->getStateCount();

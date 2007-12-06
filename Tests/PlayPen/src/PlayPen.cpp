@@ -1013,16 +1013,12 @@ protected:
 	void testBug()
 	{
 		Entity* e = mSceneMgr->createEntity("2", "knot.mesh");
-		e->setMaterialName("testiterationdepthbias");
+		e->setMaterialName("FreeSst");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 
 		Light* l = mSceneMgr->createLight("3");
 		l->setPosition(100,0,0);
 
-		l = mSceneMgr->createLight("4");
-		l->setPosition(-100,0,0);
-		l = mSceneMgr->createLight("5");
-		l->setPosition(0, 100,0);
 
 	}
 
@@ -5785,6 +5781,87 @@ protected:
 
 	}
 
+	void testLightClipPlanesMoreLights(bool scissortoo)
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.3, 0.25, 0.2, 0));
+		mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_ADDITIVE);
+		mSceneMgr->setShadowTextureCount(3);
+
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 0;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			4500,4500,100,100,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("Examples/GrassFloor");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		Real lightRange = 1000;
+		Real spotWidth = 300;
+
+		int numLights = 8;
+		Real xoff = -numLights * spotWidth * 0.5;
+		
+
+		for (int i = 0; i < numLights; ++i)
+		{
+			Light* l = mSceneMgr->createLight("l" + StringConverter::toString(i));
+			l->setAttenuation(lightRange, 1, 0, 0);
+			/* SPOT LIGHT
+			*/
+			// match spot width to groud
+			Real spotHeight = lightRange * 0.5;
+			SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3((spotWidth+50)*i + xoff,spotHeight,0));
+			l->setType(Light::LT_SPOTLIGHT);
+			Radian spotAngle = Math::ATan(spotWidth / spotHeight) * 2;
+			l->setSpotlightOuterAngle(spotAngle); 
+			l->setSpotlightInnerAngle(spotAngle * 0.75);
+			Vector3 dir(0, -1, 0);
+			dir.normalise();
+			l->setDirection(dir);
+
+			/* END SPOT LIGHT */
+			n->attachObject(l);
+
+			Entity* e = mSceneMgr->createEntity("e" + StringConverter::toString(i), "robot.mesh");
+			SceneNode* en = n->createChildSceneNode(Vector3(0, -200, 0));
+			en->attachObject(e);
+
+
+		}
+
+		// Modify the plane material so that it clips to the light on the second pass, post ambient
+		
+		MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/GrassFloor");
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		String texname = p->getTextureUnitState(0)->getTextureName();
+		p->removeAllTextureUnitStates();
+		p->setIlluminationStage(IS_AMBIENT);
+		p->setDiffuse(ColourValue::Black);
+		p = mat->getTechnique(0)->createPass();
+		p->setIlluminationStage(IS_PER_LIGHT);
+		p->setIteratePerLight(true, false);
+		p->setAmbient(ColourValue::Black);
+		p->setLightClipPlanesEnabled(true);
+		p->setSceneBlending(SBT_ADD);
+		if (scissortoo)
+			p->setLightScissoringEnabled(true);
+		p = mat->getTechnique(0)->createPass();
+		p->setIlluminationStage(IS_DECAL);
+		p->createTextureUnitState(texname);
+		p->setLightingEnabled(false);
+		p->setSceneBlending(SBT_MODULATE);
+		
+
+		mCamera->setPosition(0, 200, 300);
+		mCamera->lookAt(Vector3::ZERO);
+
+
+
+	}
 
 	void testMRT()
 	{
@@ -6142,6 +6219,26 @@ protected:
 
 	}
 
+	void testSRGBtexture(bool enableGamma)
+	{
+		// NOTE: enable flag only turns on SRGB for texture sampling, you may
+		// need to configure the window for the reverse conversion for consistency!
+		MaterialPtr mat = MaterialManager::getSingleton().create("testsrgb", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		TextureUnitState* t = p->createTextureUnitState("ogrelogo.png");
+		t->setHardwareGammaEnabled(enableGamma);
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
 
 	// Just override the mandatory create scene method
     void createScene(void)
@@ -6291,7 +6388,9 @@ protected:
 		//testGLSLTangent();
 		//testBackgroundLoadResourceGroup();
 		//testMRT();
-		testReinitialiseEntityAlteredMesh();
+		//testReinitialiseEntityAlteredMesh();
+		testSRGBtexture(true);
+		//testLightClipPlanesMoreLights(true);
 		
     }
     // Create new frame listener
