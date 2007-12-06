@@ -542,52 +542,81 @@ namespace Ogre {
         }
         vbuf->unlock();
 
-    }
-    //-----------------------------------------------------------------------
-    void TextAreaOverlayElement::setMetricsMode(GuiMetricsMode gmm)
-    {
-        Real vpWidth, vpHeight;
-
+	}
+	//-----------------------------------------------------------------------
+	void TextAreaOverlayElement::setMetricsMode(GuiMetricsMode gmm)
+	{
+		Real vpWidth, vpHeight;
 		vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
-        vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+		vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+
 		mViewportAspectCoef = vpHeight/vpWidth;
 
 		OverlayElement::setMetricsMode(gmm);
-        if (gmm != GMM_RELATIVE)
-        {
-            // Set pixel variables based on viewport multipliers
-            mPixelCharHeight = static_cast<unsigned>(mCharHeight * vpHeight);
-            mPixelSpaceWidth = static_cast<unsigned>(mSpaceWidth * vpHeight);
-        }
-    }
 
-    //-----------------------------------------------------------------------
-    void TextAreaOverlayElement::_update(void)
-    {
-        Real vpWidth, vpHeight;
+		switch (mMetricsMode)
+		{
+		case GMM_PIXELS:
+			// set pixel variables based on viewport multipliers
+			mPixelCharHeight = static_cast<unsigned>(mCharHeight * vpHeight);
+			mPixelSpaceWidth = static_cast<unsigned>(mSpaceWidth * vpHeight);
+			break;
 
-        vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
-        vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+		case GMM_RELATIVE_ASPECT_ADJUSTED:
+			// set pixel variables multiplied by the height constant
+			mPixelCharHeight = static_cast<unsigned>(mCharHeight * 10000.0);
+			mPixelSpaceWidth = static_cast<unsigned>(mSpaceWidth * 10000.0);
+			break;
+
+		default:
+			break;
+		}
+	}
+	//-----------------------------------------------------------------------
+	void TextAreaOverlayElement::_update(void)
+	{
+		Real vpWidth, vpHeight;
+		vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
+		vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+
 		mViewportAspectCoef = vpHeight/vpWidth;
-		
-		if (mMetricsMode != GMM_RELATIVE && 
-            (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
-        {
-            // Recalc character size
 
-            mCharHeight = (Real) mPixelCharHeight / vpHeight;
-            mSpaceWidth = (Real) mPixelSpaceWidth / vpHeight;
-			mGeomPositionsOutOfDate = true;
-        }
-        OverlayElement::_update();
+		// Check size if pixel-based / relative-aspect-adjusted
+		switch (mMetricsMode)
+		{
+		case GMM_PIXELS:
+			if(OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate)
+			{
+				// recalculate character size
+				mCharHeight = (Real) mPixelCharHeight / vpHeight;
+				mSpaceWidth = (Real) mPixelSpaceWidth / vpHeight;
+				mGeomPositionsOutOfDate = true;
+			}
+			break;
+
+		case GMM_RELATIVE_ASPECT_ADJUSTED:
+			if(OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate)
+			{
+				// recalculate character size
+				mCharHeight = (Real) mPixelCharHeight / 10000.0;
+				mSpaceWidth = (Real) mPixelSpaceWidth / 10000.0;
+				mGeomPositionsOutOfDate = true;
+			}
+			break;
+
+		default:
+			break;
+		}
+
+		OverlayElement::_update();
 
 		if (mColoursChanged && mInitialised)
 		{
 			updateColours();
 			mColoursChanged = false;
 		}
-    }
-    //---------------------------------------------------------------------------------------------
+	}
+	//---------------------------------------------------------------------------------------------
     // Char height command object
     //
     String TextAreaOverlayElement::CmdCharHeight::doGet( const void* target ) const

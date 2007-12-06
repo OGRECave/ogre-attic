@@ -230,18 +230,21 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::addListener(Resource::Listener* lis)
 	{
+		OGRE_LOCK_MUTEX(mListenerListMutex)
 		mListenerList.push_back(lis);
 	}
 	//-----------------------------------------------------------------------
 	void Resource::removeListener(Resource::Listener* lis)
 	{
 		// O(n) but not called very often
+		OGRE_LOCK_MUTEX(mListenerListMutex)
 		mListenerList.remove(lis);
 	}
 	//-----------------------------------------------------------------------
 	void Resource::queueFireBackgroundLoadingComplete(void)
 	{
 		ResourceBackgroundQueue& rbq = ResourceBackgroundQueue::getSingleton();
+		OGRE_LOCK_MUTEX(mListenerListMutex)
 		for (ListenerList::iterator i = mListenerList.begin();
 			i != mListenerList.end(); ++i)
 		{
