@@ -534,8 +534,11 @@ namespace Ogre
 	    while ( it != mSceneNodes.end() )
 	    {
 		    pczsn = (PCZSceneNode*)(it->second);
-			// Update a single entry 
-			_updatePCZSceneNode(pczsn); 
+			if (pczsn->isEnabled())
+			{
+				// Update a single entry 
+				_updatePCZSceneNode(pczsn); 
+			}
 			// proceed to next entry in the list
 		    ++it;
 	    }
