@@ -725,9 +725,7 @@ namespace Ogre {
 
         mActiveRenderer->_initRenderTargets();
 
-        // Clear event times
-        for(int i=0; i!=3; ++i)
-            mEventTimes[i].clear();
+		clearEventTimes();
 
         // Infinite loop, until broken out of by frame listeners
         // or break out by calling queueEndRendering()
