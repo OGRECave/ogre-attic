@@ -57,6 +57,7 @@ namespace Ogre
 		mAnchored = false;
 		mAllowedToVisit = true;
 		mLastVisibleFrame = 0;
+		mEnabled = true;
 	}
 	PCZSceneNode::PCZSceneNode( SceneManager* creator, const String& name ) : SceneNode( creator, name )
 	{
@@ -64,6 +65,7 @@ namespace Ogre
 		mAnchored = false;
 		mAllowedToVisit = true;
 		mLastVisibleFrame = 0;
+		mEnabled = true;
 	}
 	PCZSceneNode::~PCZSceneNode()
 	{

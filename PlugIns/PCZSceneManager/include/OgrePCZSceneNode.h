@@ -86,6 +86,8 @@ namespace Ogre
 		void		setZoneData(PCZone * zone, ZoneData * zoneData);
 		ZoneData*	getZoneData(PCZone * zone);
 		void		updateZoneData(void);
+		void		enable(bool yesno) {mEnabled = yesno;}
+		bool		isEnabled(void) {return mEnabled;}
 	protected:
 		PCZone *	mHomeZone;
 		bool		mAnchored;
@@ -94,6 +96,7 @@ namespace Ogre
 		Vector3		mPrevPosition;
 		long		mLastVisibleFrame;
 		ZoneDataMap mZoneData;
+		bool		mEnabled;
 	};
 }
 
