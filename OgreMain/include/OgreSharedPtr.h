@@ -37,11 +37,7 @@ namespace Ogre {
         required. 
     @remarks
         This is a standard shared pointer implementation which uses a reference 
-        count to work out when to delete the object. OGRE does not use this class
-        very often, because it is usually more efficient to make the destruction
-        of objects more intentional (in blocks, say). However in some cases you
-        really cannot tell how many people are using an object, and this approach is
-        worthwhile (e.g. ControllerValue)
+        count to work out when to delete the object. 
 	@par
 		If OGRE_THREAD_SUPPORT is defined to be 1, use of this class is thread-safe.
     */
