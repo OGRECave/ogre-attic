@@ -141,7 +141,11 @@ namespace Ogre
 			// FSAA type
 			opt = miscParams->find("FSAA");
 			if(opt != miscParams->end())
-				mFSAAType = (D3DMULTISAMPLE_TYPE)StringConverter::parseUnsignedInt(opt->second);
+			{
+				mFSAA = StringConverter::parseUnsignedInt(opt->second);
+				mFSAAType = (D3DMULTISAMPLE_TYPE)mFSAA;
+			}
+				
 			// FSAA quality
 			opt = miscParams->find("FSAAQuality");
 			if(opt != miscParams->end())

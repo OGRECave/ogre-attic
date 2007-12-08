@@ -266,6 +266,12 @@ namespace Ogre {
 
 		/// Util method for assigning a local texture name to a MRT attachment
 		String getMRTTexLocalName(const String& baseName, size_t attachment);
+
+		/** Search for options like AA and hardware gamma which we may want to 
+			inherit from the main render target to which we're attached. 
+		*/
+		void deriveTextureRenderTargetOptions(const String& texname,
+			bool *hwGammaWrite, uint *fsaa);
         
         friend class CompositorChain;
     };

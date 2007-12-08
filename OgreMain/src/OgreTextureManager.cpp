@@ -120,7 +120,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     TexturePtr TextureManager::createManual(const String & name, const String& group,
         TextureType texType, uint width, uint height, uint depth, int numMipmaps,
-        PixelFormat format, int usage, ManualResourceLoader* loader, bool hwGamma)
+        PixelFormat format, int usage, ManualResourceLoader* loader, bool hwGamma, uint fsaa)
     {
         TexturePtr ret = create(name, group, true, loader);
         ret->setTextureType(texType);
@@ -132,6 +132,7 @@ namespace Ogre {
         ret->setFormat(format);
         ret->setUsage(usage);
 		ret->setHardwareGammaEnabled(hwGamma);
+		ret->setFSAA(fsaa);
 		ret->createInternalResources();
 		return ret;
     }

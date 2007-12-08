@@ -82,7 +82,7 @@ namespace Ogre {
     public:
         /** Texture constructor */
 		GLTextureBuffer(const String &baseName, GLenum target, GLuint id, GLint face, 
-			GLint level, Usage usage, bool softwareMipmap, bool writeGamma);
+			GLint level, Usage usage, bool softwareMipmap, bool writeGamma, uint fsaa);
         ~GLTextureBuffer();
         
         /// @copydoc GLHardwarePixelBuffer::bindToFramebuffer
@@ -125,7 +125,7 @@ namespace Ogre {
     class _OgrePrivate GLRenderBuffer: public GLHardwarePixelBuffer
 	{
     public:
-        GLRenderBuffer(GLenum format, size_t width, size_t height);
+        GLRenderBuffer(GLenum format, size_t width, size_t height, GLsizei numSamples);
         ~GLRenderBuffer();
         
         /// @copydoc GLHardwarePixelBuffer::bindToFramebuffer

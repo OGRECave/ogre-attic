@@ -382,6 +382,11 @@ static size_t dummyCounter = 0;
         /// Determine width and height
         size_t width = def->width;
         size_t height = def->height;
+		uint fsaa = 0;
+		bool hwGammaWrite = false;
+
+		deriveTextureRenderTargetOptions(def->name, &hwGammaWrite, &fsaa);
+
         if(width == 0)
             width = mChain->getViewport()->getActualWidth();
         if(height == 0)
@@ -423,7 +428,8 @@ static size_t dummyCounter = 0;
 			TexturePtr tex = TextureManager::getSingleton().createManual(
 				"CompositorInstanceTexture"+StringConverter::toString(dummyCounter++), 
 				ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
-				(uint)width, (uint)height, 0, def->formatList[0], TU_RENDERTARGET ); 
+				(uint)width, (uint)height, 0, def->formatList[0], TU_RENDERTARGET, 0,
+				hwGammaWrite, fsaa); 
 
 			rendTarget = tex->getBuffer()->getRenderTarget();
 			mLocalTextures[def->name] = tex;
@@ -452,6 +458,74 @@ static size_t dummyCounter = 0;
         camera->_notifyViewport(oldViewport);
     }
     
+}
+//---------------------------------------------------------------------
+void CompositorInstance::deriveTextureRenderTargetOptions(
+	const String& texname, bool *hwGammaWrite, uint *fsaa)
+{
+	// search for passes on this texture def that either include a render_scene
+	// or use input previous
+	bool renderingScene = false;
+
+	CompositionTechnique::TargetPassIterator it = mTechnique->getTargetPassIterator();
+	while (it.hasMoreElements())
+	{
+		CompositionTargetPass* tp = it.getNext();
+		if (tp->getOutputName() == texname)
+		{
+			if (tp->getInputMode() == CompositionTargetPass::IM_PREVIOUS)
+			{
+				// this may be rendering the scene implicitly
+				// Can't check mPreviousInstance against mChain->_getOriginalSceneCompositor()
+				// at this time, so check the position
+				CompositorChain::InstanceIterator instit = mChain->getCompositors();
+				renderingScene = true;
+				while(instit.hasMoreElements())
+				{
+					CompositorInstance* inst = instit.getNext();
+					if (inst == this)
+						break;
+					else if (inst->getEnabled())
+					{
+						// nope, we have another compositor before us, this will
+						// be doing the AA
+						renderingScene = false;
+					}
+				}
+				if (renderingScene)
+					break;
+			}
+			else
+			{
+				// look for a render_scene pass
+				CompositionTargetPass::PassIterator pit = tp->getPassIterator();
+				while(pit.hasMoreElements())
+				{
+					CompositionPass* pass = pit.getNext();
+					if (pass->getType() == CompositionPass::PT_RENDERSCENE)
+					{
+						renderingScene = true;
+						break;
+					}
+				}
+			}
+
+		}
+	}
+
+	if (renderingScene)
+	{
+		// Ok, inherit settings from target
+		RenderTarget* target = mChain->getViewport()->getTarget();
+		*hwGammaWrite = target->isHardwareGammaEnabled();
+		*fsaa = target->getFSAA();
+	}
+	else
+	{
+		*hwGammaWrite = false;
+		*fsaa = 0;
+	}
+
 }
 //---------------------------------------------------------------------
 String CompositorInstance::getMRTTexLocalName(const String& baseName, size_t attachment)

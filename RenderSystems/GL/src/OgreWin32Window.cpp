@@ -91,7 +91,6 @@ namespace Ogre {
 		HWND parent = 0;
 		String title = name;
 		bool vsync = false;
-		int fsaa = 0;
 		String border;
 		bool outerSize = false;
 		bool hwGamma = false;
@@ -118,7 +117,7 @@ namespace Ogre {
 				vsync = StringConverter::parseBool(opt->second);
 
 			if ((opt = miscParams->find("FSAA")) != end)
-				fsaa = StringConverter::parseUnsignedInt(opt->second);
+				mFSAA = StringConverter::parseUnsignedInt(opt->second);
 
 			if ((opt = miscParams->find("gamma")) != end)
 				hwGamma = StringConverter::parseBool(opt->second);
@@ -278,12 +277,12 @@ namespace Ogre {
 
 		if (!mIsExternalGLControl)
 		{
-			int testFsaa = fsaa;
+			int testFsaa = mFSAA;
 			bool testHwGamma = hwGamma;
 			bool formatOk = mGLSupport.selectPixelFormat(mHDC, mColourDepth, testFsaa, testHwGamma);
 			if (!formatOk)
 			{
-				if (fsaa > 0 && (fsaa > 0))
+				if (mFSAA > 0)
 				{
 					// try without FSAA
 					testFsaa = 0;
@@ -294,11 +293,11 @@ namespace Ogre {
 				{
 					// try without sRGB
 					testHwGamma = false;
-					testFsaa = fsaa;
+					testFsaa = mFSAA;
 					formatOk = mGLSupport.selectPixelFormat(mHDC, mColourDepth, testFsaa, testHwGamma);
 				}
 
-				if (!formatOk && hwGamma && (fsaa > 0))
+				if (!formatOk && hwGamma && (mFSAA > 0))
 				{
 					// try without both
 					testHwGamma = false;
@@ -314,6 +313,7 @@ namespace Ogre {
 			// record what gamma option we used in the end
 			// this will control enabling of sRGB state flags when used
 			mHwGamma = testHwGamma;
+			mFSAA = testFsaa;
 		}
 		if (!mIsExternalGLContext)
 		{

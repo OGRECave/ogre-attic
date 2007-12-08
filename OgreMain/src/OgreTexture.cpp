@@ -50,6 +50,7 @@ namespace Ogre {
 			mMipmapsHardwareGenerated(false),
             mGamma(1.0f),
 			mHwGamma(false),
+			mFSAA(0),
             mTextureType(TEX_TYPE_2D),            
             mFormat(PF_UNKNOWN),
             mUsage(TU_DEFAULT),
