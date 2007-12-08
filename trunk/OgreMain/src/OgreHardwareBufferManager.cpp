@@ -160,7 +160,7 @@ namespace Ogre {
 		//  makeBufferCopy / createVertexBuffer
 		// this prevents a deadlock in _notifyVertexBufferDestroyed
 		// which locks the same mutexes (via other methods) but in reverse order
-		OGRE_LOCK_MUTEX(mVertexBuffers)
+		OGRE_LOCK_MUTEX(mVertexBuffersMutex)
 		{
 			OGRE_LOCK_MUTEX(mTempBuffersMutex)
 			HardwareVertexBufferSharedPtr vbuf;
