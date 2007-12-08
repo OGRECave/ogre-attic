@@ -2329,7 +2329,7 @@ namespace Ogre
 			else
 			{
 				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
-				float val0, val1 = 0.0f;
+				Real val0, val1 = 0.0f;
 				if(getNumber(*i0, &val0))
 				{
 					if(i1 != prop->values.end())
@@ -2371,7 +2371,7 @@ namespace Ogre
 			}
 			else
 			{
-				float val = 0.0f;
+				Real val = 0.0f;
 				if(getNumber(prop->values.front(), &val))
 					mPass->setIterationDepthBias(val);
 				else
@@ -2391,7 +2391,7 @@ namespace Ogre
 			{
 				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
 				CompareFunction func;
-				float val = 0.0f;
+				Real val = 0.0f;
 				if(getCompareFunction(*i0, &func) && getNumber(*i1, &val))
 					mPass->setAlphaRejectSettings(func, val);
 				else
