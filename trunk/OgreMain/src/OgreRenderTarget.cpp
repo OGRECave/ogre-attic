@@ -43,7 +43,8 @@ namespace Ogre {
 		:mPriority(OGRE_DEFAULT_RT_GROUP),
 		mActive(true),
 		mAutoUpdate(true),
-		mHwGamma(false)
+		mHwGamma(false), 
+		mFSAA(0)
     {
         mTimer = Root::getSingleton().getTimer();
         resetStatistics();

@@ -207,11 +207,14 @@ namespace Ogre {
 				to linear space when reading from this texture. Only applicable for 
 				8-bits per channel textures, will be ignored for other types. Has the advantage
 				over pre-applied gamma that the texture precision is maintained.
+			@param fsaa The level of multisampling to use if this is a render target. Ignored
+				if usage does not include TU_RENDERTARGET or if the device does
+				not support it.
         */
         virtual TexturePtr createManual(const String & name, const String& group,
             TextureType texType, uint width, uint height, uint depth, 
 			int num_mips, PixelFormat format, int usage = TU_DEFAULT, ManualResourceLoader* loader = 0,
-			bool hwGammaCorrection = false);
+			bool hwGammaCorrection = false, uint fsaa = 0);
 			
         /** Create a manual texture with a depth of 1 (not loaded from a file).
             @param
@@ -251,14 +254,17 @@ namespace Ogre {
 				 to linear space when reading from this texture. Only applicable for 
 				 8-bits per channel textures, will be ignored for other types. Has the advantage
 				 over pre-applied gamma that the texture precision is maintained.
+			@param fsaa The level of multisampling to use if this is a render target. Ignored
+				if usage does not include TU_RENDERTARGET or if the device does
+				not support it.
         */
         TexturePtr createManual(const String & name, const String& group,
             TextureType texType, uint width, uint height, int num_mips,
             PixelFormat format, int usage = TU_DEFAULT, ManualResourceLoader* loader = 0,
-			bool hwGammaCorrection = false)
+			bool hwGammaCorrection = false, uint fsaa = 0)
 		{
 			return createManual(name, group, texType, width, height, 1, 
-				num_mips, format, usage, loader, hwGammaCorrection);
+				num_mips, format, usage, loader, hwGammaCorrection, fsaa);
 		}
 
         /** Sets preferred bit depth for integer pixel format textures.

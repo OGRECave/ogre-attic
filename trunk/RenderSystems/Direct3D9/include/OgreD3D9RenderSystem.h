@@ -324,6 +324,8 @@ namespace Ogre
 		bool isDeviceLost(void);
 		/** Notify that a device has been lost */
 		void _notifyDeviceLost(void);
+		/// Get the current device
+		LPDIRECT3DDEVICE9 getDevice() const { return mpD3DDevice; }
 
 		/** Check which depthStencil formats can be used with a certain pixel format,
 			and return the best suited.

@@ -38,7 +38,7 @@ namespace Ogre {
 
 	GLFBOMultiRenderTarget::GLFBOMultiRenderTarget(GLFBOManager *manager, const String &name):
 		MultiRenderTarget(name),
-		fbo(manager)
+		fbo(manager, 0 /* TODO: multisampling on MRTs? */)
 	{
 	}
 	GLFBOMultiRenderTarget::~GLFBOMultiRenderTarget()

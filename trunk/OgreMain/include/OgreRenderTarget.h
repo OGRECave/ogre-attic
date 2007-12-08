@@ -346,6 +346,10 @@ namespace Ogre {
 		*/
 		virtual bool isHardwareGammaEnabled() const { return mHwGamma; }
 
+		/** Indicates whether multisampling is performed on rendering and at what level.
+		*/
+		virtual uint getFSAA() const { return mFSAA; }
+
 
         /** RenderSystem specific interface for a RenderTarget;
             this should be subclassed by RenderSystems.
@@ -389,6 +393,8 @@ namespace Ogre {
         bool mAutoUpdate;
 		// Hardware sRGB gamma conversion done on write?
 		bool mHwGamma;
+		// FSAA performed?
+		uint mFSAA;
 
         void updateStats(void);
 

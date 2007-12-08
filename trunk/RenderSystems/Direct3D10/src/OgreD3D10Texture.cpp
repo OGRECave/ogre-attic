@@ -775,6 +775,9 @@ namespace Ogre
 		// they may differ from the source image !!!
 		D3D10_TEXTURE2D_DESC desc;
 		 mpNormTex->GetDesc(&desc);
+
+		 // TODO
+		 // Create AA surface if requested
 		
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, D3D10Mappings::_getPF(desc.Format));
 		
@@ -1396,4 +1399,6 @@ namespace Ogre
 
         RenderTexture::update();
     }
+
+	// TODO - AA surfaces require buffer swap
 }

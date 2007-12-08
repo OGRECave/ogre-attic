@@ -49,7 +49,7 @@ namespace Ogre {
 D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(HardwareBuffer::Usage usage):
 	HardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, usage, false, false),
 	mpDev(0),
-	mSurface(0), mVolume(0), mTempSurface(0), mTempVolume(0),
+	mSurface(0), mFSAASurface(0), mVolume(0), mTempSurface(0), mTempVolume(0),
 	mDoMipmapGen(0), mHWMipmaps(0), mMipTex(0)
 {
 }
@@ -59,10 +59,11 @@ D3D9HardwarePixelBuffer::~D3D9HardwarePixelBuffer()
 }
 //-----------------------------------------------------------------------------  
 void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *surface, 
-								   bool update, bool writeGamma)
+								   bool update, bool writeGamma, uint fsaa, IDirect3DSurface9* fsaaSurface)
 {
 	mpDev = dev;
 	mSurface = surface;
+	mFSAASurface = fsaaSurface;
 	
 	D3DSURFACE_DESC desc;
 	if(mSurface->GetDesc(&desc) != D3D_OK)
@@ -78,7 +79,7 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *sur
 	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 
 	if(mUsage & TU_RENDERTARGET)
-		createRenderTextures(update, writeGamma);
+		createRenderTextures(update, writeGamma, fsaa);
 }
 //-----------------------------------------------------------------------------
 void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volume, 
@@ -101,7 +102,7 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volu
 	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 
 	if(mUsage & TU_RENDERTARGET)
-		createRenderTextures(update, writeGamma);
+		createRenderTextures(update, writeGamma, 0);
 }
 //-----------------------------------------------------------------------------  
 // Util functions to convert a D3D locked box to a pixel box
@@ -600,7 +601,7 @@ RenderTexture *D3D9HardwarePixelBuffer::getRenderTarget(size_t zoffset)
     return mSliceTRT[zoffset];
 }
 //-----------------------------------------------------------------------------    
-void D3D9HardwarePixelBuffer::createRenderTextures(bool update, bool writeGamma)
+void D3D9HardwarePixelBuffer::createRenderTextures(bool update, bool writeGamma, uint fsaa)
 {
     if (update)
     {
@@ -628,7 +629,7 @@ void D3D9HardwarePixelBuffer::createRenderTextures(bool update, bool writeGamma)
         String name;
 		name = "rtt/"+Ogre::StringConverter::toString((size_t)mSurface);
 		
-        RenderTexture *trt = new D3D9RenderTexture(name, this, writeGamma);
+        RenderTexture *trt = new D3D9RenderTexture(name, this, writeGamma, fsaa);
         mSliceTRT.push_back(trt);
         Root::getSingleton().getRenderSystem()->attachRenderTarget(*trt);
     }

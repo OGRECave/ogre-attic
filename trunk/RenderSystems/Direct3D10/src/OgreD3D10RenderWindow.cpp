@@ -144,7 +144,10 @@ namespace Ogre
 			// FSAA type
 			opt = miscParams->find("FSAA");
 			if(opt != miscParams->end())
-				mFSAAType.Count = (UINT)StringConverter::parseUnsignedInt(opt->second);
+			{
+				mFSAA = StringConverter::parseUnsignedInt(opt->second);
+				mFSAAType.Count = (UINT)mFSAA;
+			}
 			// FSAA quality
 			opt = miscParams->find("FSAAQuality");
 			if(opt != miscParams->end())

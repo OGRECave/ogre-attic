@@ -162,7 +162,19 @@ namespace Ogre {
 		*/
 		virtual bool isHardwareGammaEnabled() const { return mHwGamma; }
 
-        /** Returns the height of the texture.
+		/** Set the level of multisample AA to be used if this texture is a 
+			rendertarget.
+		@note This option will be ignored if TU_RENDERTARGET is not part of the
+			usage options on this texture, or if the hardware does not support it. 
+		*/
+		virtual void setFSAA(uint fsaa) { mFSAA = fsaa; }
+
+		/** Get the level of multisample AA to be used if this texture is a 
+		rendertarget.
+		*/
+		virtual uint getFSAA() const { return mFSAA; }
+
+		/** Returns the height of the texture.
         */
         virtual size_t getHeight(void) const { return mHeight; }
 
@@ -353,6 +365,7 @@ namespace Ogre {
 		bool mMipmapsHardwareGenerated;
         float mGamma;
 		bool mHwGamma;
+		uint mFSAA;
 
         TextureType mTextureType;
 		PixelFormat mFormat;
