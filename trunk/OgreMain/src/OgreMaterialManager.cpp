@@ -78,8 +78,10 @@ namespace Ogre {
         // Loading order
         mLoadOrder = 100.0f;
 		// Scripting is supported by this manager
+#if OGRE_USE_NEW_COMPILERS == 0
 		mScriptPatterns.push_back("*.program");
 		mScriptPatterns.push_back("*.material");
+#endif
 		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 
 		// Resource type

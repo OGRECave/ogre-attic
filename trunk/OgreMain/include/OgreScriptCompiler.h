@@ -37,6 +37,14 @@ Torus Knot Software Ltd.
 #include "OgreCompositionPass.h"
 #include "OgreAny.h"
 
+#if OGRE_THREAD_SUPPORT
+// boost::thread_specific_ptr has 'new' in header but delete in lib
+// so if we use our memory manager it reports leaks incorrectly
+#	include "OgreNoMemoryMacros.h"
+#	include <boost/thread/tss.hpp>
+#	include "OgreMemoryMacros.h"
+#endif
+
 namespace Ogre
 {
 	/** These enums hold the types of the concrete parsed nodes */
@@ -718,6 +726,72 @@ namespace Ogre
 			ID_PASS_OP,
 			ID_TWO_SIDED,
 		ID_END_BUILTIN_IDS
+	};
+
+	/** Manages threaded compilation of scripts. This script loader forwards
+		scripts compilations to a specific compiler instance.
+	*/
+	class _OgreExport ScriptCompilerManager : public Singleton<ScriptCompilerManager>, public ScriptLoader
+	{
+	private:
+		OGRE_AUTO_MUTEX
+
+		// A list of patterns loaded by this compiler manager
+		StringVector mScriptPatterns;
+
+		// A pointer to the listener used for compiling scripts
+		ScriptCompilerListener *mListener;
+
+		// A pointer to the specific compiler instance used
+		OGRE_THREAD_POINTER(ScriptCompiler, mScriptCompiler);
+	public:
+		ScriptCompilerManager();
+		virtual ~ScriptCompilerManager();
+
+		/// Sets the listener used for compiler instances
+		void setListener(ScriptCompilerListener *listener);
+		/// Returns the currently set listener used for compiler instances
+		ScriptCompilerListener *getListener();
+
+		/// @copydoc ScriptLoader::getScriptPatterns
+        const StringVector& getScriptPatterns(void) const;
+        /// @copydoc ScriptLoader::parseScript
+        void parseScript(DataStreamPtr& stream, const String& groupName);
+        /// @copydoc ScriptLoader::getLoadingOrder
+        Real getLoadingOrder(void) const;
+
+		/** Override standard Singleton retrieval.
+        @remarks
+        Why do we do this? Well, it's because the Singleton
+        implementation is in a .h file, which means it gets compiled
+        into anybody who includes it. This is needed for the
+        Singleton template to work, but we actually only want it
+        compiled into the implementation of the class based on the
+        Singleton, not all of them. If we don't change this, we get
+        link errors when trying to use the Singleton-based class from
+        an outside dll.
+        @par
+        This method just delegates to the template version anyway,
+        but the implementation stays in this single compilation unit,
+        preventing link errors.
+        */
+        static ScriptCompilerManager& getSingleton(void);
+        /** Override standard Singleton retrieval.
+        @remarks
+        Why do we do this? Well, it's because the Singleton
+        implementation is in a .h file, which means it gets compiled
+        into anybody who includes it. This is needed for the
+        Singleton template to work, but we actually only want it
+        compiled into the implementation of the class based on the
+        Singleton, not all of them. If we don't change this, we get
+        link errors when trying to use the Singleton-based class from
+        an outside dll.
+        @par
+        This method just delegates to the template version anyway,
+        but the implementation stays in this single compilation unit,
+        preventing link errors.
+        */
+        static ScriptCompilerManager* getSingletonPtr(void);
 	};
 }
 

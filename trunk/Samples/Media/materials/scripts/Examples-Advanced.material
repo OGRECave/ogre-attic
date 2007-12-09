@@ -233,6 +233,10 @@ material Examples/BumpMapping/MultiLightSpecular : Examples/BumpMapping/MultiLig
 	// fragment programs, supports coloured lights
 	technique
 	{
+		// Overlay nothing new onto the old ambient pass
+		pass ambient
+		{
+		}
 		// Now do the lighting pass
 		// NB we don't do decal texture here because this is repeated per light
 		pass perlight

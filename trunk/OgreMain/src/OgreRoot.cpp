@@ -87,6 +87,8 @@ Torus Knot Software Ltd.
 #include "OgreExternalTextureSourceManager.h"
 #include "OgreCompositorManager.h"
 
+#include "OgreScriptCompiler.h"
+
 #include "OgreWindowEventUtilities.h"
 
 namespace Ogre {
@@ -211,6 +213,8 @@ namespace Ogre {
 		mExternalTextureSourceManager = new ExternalTextureSourceManager();
         mCompositorManager = new CompositorManager();
 
+		mCompilerManager = new ScriptCompilerManager();
+
         // Auto window
         mAutoWindow = 0;
 
@@ -302,6 +306,8 @@ namespace Ogre {
 
         delete mDynLibManager;
         delete mLogManager;
+
+		delete mCompilerManager;
 
 		mAutoWindow = 0;
 		mFirstTimePostWindowInit = false;

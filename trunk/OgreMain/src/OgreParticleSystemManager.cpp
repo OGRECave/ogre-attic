@@ -57,7 +57,9 @@ namespace Ogre {
     ParticleSystemManager::ParticleSystemManager()
     {
 		OGRE_LOCK_AUTO_MUTEX
+#if OGRE_USE_NEW_COMPILERS == 0
         mScriptPatterns.push_back("*.particle");
+#endif
         ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 		mFactory = new ParticleSystemFactory();
 		Root::getSingleton().addMovableObjectFactory(mFactory);

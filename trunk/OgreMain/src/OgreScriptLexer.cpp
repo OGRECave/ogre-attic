@@ -39,14 +39,14 @@ namespace Ogre{
 	ScriptTokenListPtr ScriptLexer::tokenize(const String &str, const String &source)
 	{
 		// State enums
-		enum{ READY = 0, COMMENT, WORD, QUOTE, VAR };
+		enum{ READY = 0, COMMENT, MULTICOMMENT, WORD, QUOTE, VAR };
 
 		// Set up some constant characters of interest
 #if OGRE_WCHAR_T_STRINGS
-		const wchar_t varopener = L'$', quote = L'\"', slash = L'/', backslash = L'\\', openbrace = L'{', closebrace = L'}', colon = L':';
+		const wchar_t varopener = L'$', quote = L'\"', slash = L'/', backslash = L'\\', openbrace = L'{', closebrace = L'}', colon = L':', star = L'*';
 		wchar_t c = 0, lastc = 0;
 #else
-		const wchar_t varopener = '$', quote = '\"', slash = '/', backslash = '\\', openbrace = '{', closebrace = '}', colon = ':';
+		const wchar_t varopener = '$', quote = '\"', slash = '/', backslash = '\\', openbrace = '{', closebrace = '}', colon = ':', star = '*';
 		char c = 0, lastc = 0;
 #endif
 
@@ -73,6 +73,11 @@ namespace Ogre{
 					lexeme = "";
 					state = COMMENT;
 				}
+				/*else if(c == star && lastc == slash)
+				{
+					lexeme = "";
+					state = MULTICOMMENT;
+				}*/
 				else if(c == quote)
 				{
 					// Clear out the lexeme ready to be filled with quotes!
@@ -99,6 +104,10 @@ namespace Ogre{
 			case COMMENT:
 				// This newline happens to be ignored automatically
 				if(isNewline(c))
+					state = READY;
+				break;
+			case MULTICOMMENT:
+				if(c == slash && lastc == star)
 					state = READY;
 				break;
 			case WORD:
