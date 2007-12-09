@@ -52,11 +52,11 @@ material Ogre/Compositor/DOF_Blur1 : Ogre/Compositor/DOF_Blur0
 		pass
 		{
 		    // use the same pixel shader as DOF_Blur0
-			fragment_program_ref
-			{
+			//fragment_program_ref
+			//{
 			    // override value from copied DOF_Blur0 material
-			    param_named sampleDistance float 0.1
-			}
+			//    param_named sampleDistance float 0.1
+			//}
 		}
 	}
 }

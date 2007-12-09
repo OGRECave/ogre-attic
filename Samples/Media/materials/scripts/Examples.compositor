@@ -232,7 +232,7 @@ compositor Embossed
 }
 
 // SharpenEdges
-compositor Sharpen Edges
+compositor "Sharpen Edges"
 {
     technique
     {
@@ -377,7 +377,7 @@ compositor Tiling
 }
 
 // Old Movie
-compositor Old Movie
+compositor "Old Movie"
 {
     technique
     {
@@ -562,7 +562,7 @@ compositor HDR
 
 
 // Gaussian blur effect
-compositor Gaussian Blur
+compositor "Gaussian Blur"
 {
     technique
     {
@@ -648,7 +648,7 @@ compositor Gaussian Blur
 //}
 
 //Radial blur effect
-compositor Radial Blur
+compositor "Radial Blur"
 {
     technique
     {
@@ -734,7 +734,7 @@ compositor Halftone
 }
 
 //Night Vision effect
-compositor Night Vision
+compositor "Night Vision"
 {
     technique
     {

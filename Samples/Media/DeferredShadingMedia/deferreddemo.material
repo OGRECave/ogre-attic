@@ -88,7 +88,7 @@ material Test13/DeferredAthena: DeferredShading/Material/UntexturedNormalMapped
 			{
 				texture atheneNormalMap.png
 			}
-			fragment_program_ref
+			fragment_program_ref DeferredShading/material/hlsl/nm_notex_ps
 			{
 				param_named specularity float 0.5
 			}
@@ -102,7 +102,7 @@ material Test13/DeferredAthena: DeferredShading/Material/UntexturedNormalMapped
 			{
 				texture atheneNormalMap.png
 			}
-			fragment_program_ref
+			fragment_program_ref DeferredShading/material/glsl/nm_notex_ps
 			{
 				param_named specularity float 0.5
 			}
@@ -144,7 +144,7 @@ material Test13/DeferredOgre/EarRing: DeferredShading/Material/UntexturedPhong
 	{
 		pass main
 		{
-			fragment_program_ref
+			fragment_program_ref DeferredShading/material/hlsl/notex_ps
 			{
 				param_named specularity float 1.5
 				param_named colour float3 0.5 0.5 0
@@ -155,7 +155,7 @@ material Test13/DeferredOgre/EarRing: DeferredShading/Material/UntexturedPhong
 	{
 		pass main
 		{
-			fragment_program_ref
+			fragment_program_ref DeferredShading/material/glsl/notex_ps
 			{
 				param_named specularity float 1.5
 				param_named colour float3 0.5 0.5 0
@@ -169,7 +169,7 @@ material Test13/DeferredOgre/Tusks: DeferredShading/Material/TexturedPhong
 	{
 		pass main
 		{
-			fragment_program_ref
+			fragment_program_ref DeferredShading/material/hlsl/ps
 			{
 				param_named specularity float 0.5
 			}
@@ -183,7 +183,7 @@ material Test13/DeferredOgre/Tusks: DeferredShading/Material/TexturedPhong
 	{
 		pass main
 		{
-			fragment_program_ref
+			fragment_program_ref DeferredShading/material/glsl/ps
 			{
 				param_named specularity float 0.5
 			}
@@ -200,7 +200,7 @@ material Test13/DeferredOgre/Eyes: DeferredShading/Material/TexturedPhong
 	{
 		pass main
 		{
-			fragment_program_ref
+			fragment_program_ref DeferredShading/material/hlsl/ps
 			{
 				param_named specularity float 1.0
 			}
@@ -214,7 +214,7 @@ material Test13/DeferredOgre/Eyes: DeferredShading/Material/TexturedPhong
 	{
 		pass main
 		{
-			fragment_program_ref
+			fragment_program_ref DeferredShading/material/glsl/ps
 			{
 				param_named specularity float 1.0
 			}

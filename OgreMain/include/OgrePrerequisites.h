@@ -335,6 +335,8 @@ namespace Ogre {
     class SceneNode;
     class SceneQuery;
     class SceneQueryListener;
+	class ScriptCompiler;
+	class ScriptCompilerManager;
 	class ScriptLoader;
     class Serializer;
     class ShadowCaster;

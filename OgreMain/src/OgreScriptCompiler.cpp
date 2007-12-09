@@ -2111,7 +2111,7 @@ namespace Ogre
 			{
 				getCompiler()->addError(CE_NUMBEREXPECTED, prop->file, prop->line);
 			}
-			else if(prop->values.size() > 4)
+			else if(prop->values.size() > 5)
 			{
 				getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
 			}
@@ -2122,6 +2122,15 @@ namespace Ogre
 					mPass->setSpecular(val);
 				else
 					getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+
+				if(prop->values.size() == 5)
+				{
+					Real val = 0;
+					if(getNumber(prop->values.back(), &val))
+						mPass->setShininess(val);
+					else
+						getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+				}
 			}
 			break;
 		case ID_EMISSIVE:
@@ -4320,8 +4329,18 @@ namespace Ogre
 				else
 				{
 					String name = prop->name, value;
-					if(!prop->values.empty() && prop->values.front()->type == ANT_ATOM)
-						value = ((AtomAbstractNode*)prop->values.front().get())->value;
+					bool first = true;
+					for(AbstractNodeList::iterator i = prop->values.begin(); i != prop->values.end(); ++i)
+					{
+						if((*i)->type == ANT_ATOM)
+						{
+							if(!first)
+								value += " ";
+							else
+								first = false;
+							value += ((AtomAbstractNode*)(*i).get())->value;
+						}
+					}
 					customParameters.push_back(std::make_pair(name, value));
 				}
 			}
@@ -4407,8 +4426,18 @@ namespace Ogre
 				else
 				{
 					String name = prop->name, value;
-					if(!prop->values.empty() && prop->values.front()->type == ANT_ATOM)
-						value = ((AtomAbstractNode*)prop->values.front().get())->value;
+					bool first = true;
+					for(AbstractNodeList::iterator i = prop->values.begin(); i != prop->values.end(); ++i)
+					{
+						if((*i)->type == ANT_ATOM)
+						{
+							if(!first)
+								value += " ";
+							else
+								first = false;
+							value += ((AtomAbstractNode*)(*i).get())->value;
+						}
+					}
 					customParameters.push_back(std::make_pair(name, value));
 				}
 			}
@@ -4492,8 +4521,18 @@ namespace Ogre
 				else
 				{
 					String name = prop->name, value;
-					if(!prop->values.empty() && prop->values.front()->type == ANT_ATOM)
-						value = ((AtomAbstractNode*)prop->values.front().get())->value;
+					bool first = true;
+					for(AbstractNodeList::iterator i = prop->values.begin(); i != prop->values.end(); ++i)
+					{
+						if((*i)->type == ANT_ATOM)
+						{
+							if(!first)
+								value += " ";
+							else
+								first = false;
+							value += ((AtomAbstractNode*)(*i).get())->value;
+						}
+					}
 					customParameters.push_back(std::make_pair(name, value));
 				}
 			}
@@ -4598,10 +4637,17 @@ namespace Ogre
 						Matrix4 m;
 						if(getMatrix4(k, prop->values.end(), &m))
 						{
-							if(named)
-								mParams->setNamedConstant(name, m);
-							else
-								mParams->setConstant(index, m);
+							try
+							{
+								if(named)
+									mParams->setNamedConstant(name, m);
+								else
+									mParams->setConstant(index, m);
+							}
+							catch(...)
+							{
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
 						}
 						else
 						{
@@ -4654,10 +4700,17 @@ namespace Ogre
 								int *vals = new int[roundedCount];
 								if(getInts(k, prop->values.end(), vals, roundedCount))
 								{
-									if(named)
-										mParams->setNamedConstant(name, vals, count, 1);
-									else
-										mParams->setConstant(index, vals, roundedCount/4);
+									try
+									{
+										if(named)
+											mParams->setNamedConstant(name, vals, count, 1);
+										else
+											mParams->setConstant(index, vals, roundedCount/4);
+									}
+									catch(...)
+									{
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									}
 								}
 								else
 								{
@@ -4670,10 +4723,17 @@ namespace Ogre
 								float *vals = new float[roundedCount];
 								if(getFloats(k, prop->values.end(), vals, roundedCount))
 								{
-									if(named)
-										mParams->setNamedConstant(name, vals, count, 1);
-									else
-										mParams->setConstant(index, vals, roundedCount/4);
+									try
+									{
+										if(named)
+											mParams->setNamedConstant(name, vals, count, 1);
+										else
+											mParams->setConstant(index, vals, roundedCount/4);
+									}
+									catch(...)
+									{
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									}
 								}
 								else
 								{
@@ -4726,18 +4786,32 @@ namespace Ogre
 					{
 					case GpuProgramParameters::ACDT_NONE:
 						// Set the auto constant
-						if(named)
-							mParams->setNamedAutoConstant(name, def->acType);
-						else
-							mParams->setAutoConstant(index, def->acType);
+						try
+						{
+							if(named)
+								mParams->setNamedAutoConstant(name, def->acType);
+							else
+								mParams->setAutoConstant(index, def->acType);
+						}
+						catch(...)
+						{
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
 						break;
 					case GpuProgramParameters::ACDT_INT:
 						if(def->acType == GpuProgramParameters::ACT_ANIMATION_PARAMETRIC)
 						{
-							if(named)
-								mParams->setNamedAutoConstant(name, def->acType, mAnimParametricsCount++);
-							else
-								mParams->setAutoConstant(index, def->acType, mAnimParametricsCount++);
+							try
+							{
+								if(named)
+									mParams->setNamedAutoConstant(name, def->acType, mAnimParametricsCount++);
+								else
+									mParams->setAutoConstant(index, def->acType, mAnimParametricsCount++);
+							}
+							catch(...)
+							{
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
 						}
 						else
 						{
@@ -4751,10 +4825,17 @@ namespace Ogre
 									def->acType == GpuProgramParameters::ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX
 									)
 								{
-									if(named)
-										mParams->setNamedAutoConstant(name, def->acType, 0);
-									else
-										mParams->setAutoConstant(index, def->acType, 0);
+									try
+									{
+										if(named)
+											mParams->setNamedAutoConstant(name, def->acType, 0);
+										else
+											mParams->setAutoConstant(index, def->acType, 0);
+									}
+									catch(...)
+									{
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									}
 								}
 								else
 								{
@@ -4765,10 +4846,17 @@ namespace Ogre
 							{
 								if((*i2)->type == ANT_ATOM && ((AtomAbstractNode*)(*i2).get())->isNumber())
 								{
-									if(named)
-										mParams->setNamedAutoConstant(name, def->acType, (size_t)((AtomAbstractNode*)(*i2).get())->getNumber());
-									else
-										mParams->setAutoConstant(index, def->acType, (size_t)((AtomAbstractNode*)(*i2).get())->getNumber());
+									try
+									{
+										if(named)
+											mParams->setNamedAutoConstant(name, def->acType, (size_t)((AtomAbstractNode*)(*i2).get())->getNumber());
+										else
+											mParams->setAutoConstant(index, def->acType, (size_t)((AtomAbstractNode*)(*i2).get())->getNumber());
+									}
+									catch(...)
+									{
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									}
 								}
 							}
 						}
@@ -4781,10 +4869,17 @@ namespace Ogre
 							if(i2 != prop->values.end() && (*i2)->type == ANT_ATOM && ((AtomAbstractNode*)(*i2).get())->isNumber())
 								f = ((AtomAbstractNode*)(*i2).get())->getNumber();
 							
-							if(named)
-								mParams->setNamedAutoConstantReal(name, def->acType, f);
-							else
-								mParams->setAutoConstantReal(index, def->acType, f);
+							try
+							{
+								if(named)
+									mParams->setNamedAutoConstantReal(name, def->acType, f);
+								else
+									mParams->setAutoConstantReal(index, def->acType, f);
+							}
+							catch(...)
+							{
+								getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
 						}
 						else
 						{
@@ -4792,10 +4887,17 @@ namespace Ogre
 							{
 								if((*i2)->type == ANT_ATOM && ((AtomAbstractNode*)(*i2).get())->isNumber())
 								{
-									if(named)
-										mParams->setNamedAutoConstantReal(name, def->acType, ((AtomAbstractNode*)(*i2).get())->getNumber());
-									else
-										mParams->setAutoConstantReal(index, def->acType, ((AtomAbstractNode*)(*i2).get())->getNumber());
+									try
+									{
+										if(named)
+											mParams->setNamedAutoConstantReal(name, def->acType, ((AtomAbstractNode*)(*i2).get())->getNumber());
+										else
+											mParams->setAutoConstantReal(index, def->acType, ((AtomAbstractNode*)(*i2).get())->getNumber());
+									}
+									catch(...)
+									{
+										getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+									}
 								}
 								else
 								{
@@ -4855,7 +4957,7 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
-				obj = (ObjectAbstractNode*)(*i).get();
+				ObjectAbstractNode *obj = (ObjectAbstractNode*)(*i).get();
 				switch(obj->id)
 				{
 				case ID_EMITTER:
@@ -5778,4 +5880,80 @@ namespace Ogre
 			break;
 		}
 	}
+
+	// ScriptCompilerManager
+	template<> ScriptCompilerManager *Singleton<ScriptCompilerManager>::ms_Singleton = 0;
+	
+	ScriptCompilerManager* ScriptCompilerManager::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+	//-----------------------------------------------------------------------
+    ScriptCompilerManager& ScriptCompilerManager::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
+	//-----------------------------------------------------------------------
+	ScriptCompilerManager::ScriptCompilerManager()
+		:mListener(0)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+        mScriptPatterns.push_back("*.os");
+#if OGRE_USE_NEW_COMPILERS == 1
+		mScriptPatterns.push_back("*.program");
+		mScriptPatterns.push_back("*.material");
+		mScriptPatterns.push_back("*.particle");
+		mScriptPatterns.push_back("*.compositor");
+#endif
+		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
+
+		OGRE_THREAD_POINTER_SET(mScriptCompiler, new ScriptCompiler());
+	}
+	//-----------------------------------------------------------------------
+	ScriptCompilerManager::~ScriptCompilerManager()
+	{
+		OGRE_THREAD_POINTER_DELETE(mScriptCompiler);
+	}
+	//-----------------------------------------------------------------------
+	void ScriptCompilerManager::setListener(ScriptCompilerListener *listener)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+		mListener = listener;
+	}
+	//-----------------------------------------------------------------------
+	ScriptCompilerListener *ScriptCompilerManager::getListener()
+	{
+		return mListener;
+	}
+	//-----------------------------------------------------------------------
+    const StringVector& ScriptCompilerManager::getScriptPatterns(void) const
+    {
+        return mScriptPatterns;
+    }
+    //-----------------------------------------------------------------------
+    Real ScriptCompilerManager::getLoadingOrder(void) const
+    {
+        /// Load relatively early, before most script loaders run
+        return 90.0f;
+    }
+    //-----------------------------------------------------------------------
+    void ScriptCompilerManager::parseScript(DataStreamPtr& stream, const String& groupName)
+    {
+#if OGRE_THREAD_SUPPORT
+		// check we have an instance for this thread (should always have one for main thread)
+		if (!mScriptCompiler.get())
+		{
+			// create a new instance for this thread - will get deleted when
+			// the thread dies
+			mScriptCompiler.reset(new ScriptCompiler());
+		}
+#endif
+		// Set the listener on the compiler before we continue
+		{
+			OGRE_LOCK_AUTO_MUTEX
+			mScriptCompiler->setListener(mListener);
+		}
+        mScriptCompiler->compile(stream->getAsString(), stream->getName(), groupName);
+    }
 }
+

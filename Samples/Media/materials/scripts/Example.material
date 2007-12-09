@@ -602,7 +602,7 @@ material Material__25
 		}
 	}
 }
-material 2 - Default
+material "2 - Default"
 {
 	technique
 	{
@@ -616,7 +616,7 @@ material 2 - Default
 		}
 	}
 }
-material Material #8
+material "Material #8"
 {
 	technique
 	{
@@ -630,7 +630,7 @@ material Material #8
 		}
 	}
 }
-material Material #3
+material "Material #3"
 {
 	technique
 	{
@@ -644,7 +644,7 @@ material Material #3
 		}
 	}
 }
-material Material #9
+material "Material #9"
 {
 	technique
 	{

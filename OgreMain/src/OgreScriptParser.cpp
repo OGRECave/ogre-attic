@@ -329,6 +329,44 @@ namespace Ogre
 
 					node = ConcreteNodePtr();
 				}
+				else if(token->type == TID_RBRACKET)
+				{
+					// Go up one level if we can
+					if(parent)
+						parent = parent->parent;
+
+					// If the parent is currently a { then go up again
+					if(parent && parent->type == CNT_LBRACE && parent->parent)
+						parent = parent->parent;
+
+					node = ConcreteNodePtr(new ConcreteNode());
+					node->token = token->lexeme;
+					node->file = token->file;
+					node->line = token->line;
+					node->type = CNT_RBRACE;
+
+					// Consume all the newlines
+					i = skipNewlines(i, end);
+
+					// Insert the node
+					if(parent)
+					{
+						node->parent = parent;
+						parent->children.push_back(node);
+					}
+					else
+					{
+						node->parent = 0;
+						nodes->push_back(node);
+					}
+
+					// Move up another level
+					if(parent)
+						parent = parent->parent;
+
+					node = ConcreteNodePtr();
+					state = READY;
+				}
 				else if(token->type == TID_VARIABLE)
 				{
 					node = ConcreteNodePtr(new ConcreteNode());
