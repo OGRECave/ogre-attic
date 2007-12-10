@@ -51,6 +51,32 @@ Torus Knot Software Ltd.
 
 namespace Ogre
 {
+	// This function converts a compile error code to a string description
+	static String convertErrorCode(uint32 code)
+	{
+		switch(code)
+		{
+		case ScriptCompiler::CE_STRINGEXPECTED:
+			return "string expected";
+		case ScriptCompiler::CE_NUMBEREXPECTED:
+			return "number expected";
+		case ScriptCompiler::CE_FEWERPARAMETERSEXPECTED:
+			return "fewer parameters expected";
+		case ScriptCompiler::CE_VARIABLEEXPECTED:
+			return "variable expected";
+		case ScriptCompiler::CE_UNDEFINEDVARIABLE:
+			return "undefined variable";
+		case ScriptCompiler::CE_OBJECTNAMEEXPECTED:
+			return "object name expected";
+		case ScriptCompiler::CE_OBJECTALLOCATIONERROR:
+			return "object allocation error";
+		case ScriptCompiler::CE_INVALIDPARAMETERS:
+			return "invalid parameters";
+		default:
+			return "unknown error";
+		}
+	}
+
 	// AbstractNode
 	AbstractNode::AbstractNode(AbstractNode *ptr)
 		:parent(ptr), type(ANT_UNKNOWN), line(0)
@@ -262,6 +288,10 @@ namespace Ogre
 
 	void ScriptCompilerListener::error(const ScriptCompiler::ErrorPtr &err)
 	{
+		Ogre::String msg = "Compiler error: ";
+		msg = msg + convertErrorCode(err->code) + " in " + err->file + " " +
+			Ogre::StringConverter::toString(err->line);
+		Ogre::LogManager::getSingleton().logMessage(msg);
 	}
 
 	MaterialPtr ScriptCompilerListener::createMaterial(const String &name, const String &group)
@@ -422,7 +452,16 @@ namespace Ogre
 		err->line = line;
 
 		if(mListener)
+		{
 			mListener->error(err);
+		}
+		else
+		{
+			Ogre::String msg = "Compiler error: ";
+			msg = msg + convertErrorCode(code) + " in " + file + " " +
+				Ogre::StringConverter::toString(line);
+			Ogre::LogManager::getSingleton().logMessage(msg);
+		}
 
 		mErrors.push_back(err);
 	}
