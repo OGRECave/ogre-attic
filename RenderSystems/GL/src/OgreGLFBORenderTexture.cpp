@@ -439,6 +439,7 @@ static const size_t depthBits[] =
             {
                 retval.buffer = it->second.buffer;
                 retval.zoffset = 0;
+				retval.numSamples = fsaa;
                 // Increase refcount
                 ++it->second.refcount;
             }
