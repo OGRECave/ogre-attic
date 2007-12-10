@@ -97,6 +97,11 @@ namespace Ogre
 			    {
 				    // No current font
 				    // So first valid data should be font name
+					if (StringUtil::startsWith(line, "font "))
+					{
+						// chop off the 'particle_system ' needed by new compilers
+						line = line.substr(5);
+					}
 				    pFont = create(line, groupName);
 					pFont->_notifyOrigin(stream->getName());
 				    // Skip to and over next {
