@@ -123,6 +123,11 @@ namespace Ogre {
                 {
                     // No current system
                     // So first valid data should be a system name
+					if (StringUtil::startsWith(line, "particle_system "))
+					{
+						// chop off the 'particle_system ' needed by new compilers
+						line = line.substr(16);
+					}
                     pSys = createTemplate(line, groupName);
 					pSys->_notifyOrigin(stream->getName());
                     // Skip to and over next {
