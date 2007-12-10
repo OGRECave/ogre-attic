@@ -220,6 +220,11 @@ namespace Ogre {
 					{
 			
 						// So first valid data should be overlay name
+						if (StringUtil::startsWith(line, "overlay "))
+						{
+							// chop off the 'particle_system ' needed by new compilers
+							line = line.substr(8);
+						}
 						pOverlay = create(line);
 						pOverlay->_notifyOrigin(stream->getName());
 						// Skip to and over next {
