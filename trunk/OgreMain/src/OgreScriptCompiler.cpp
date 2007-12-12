@@ -2439,9 +2439,19 @@ namespace Ogre
 			{
 				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1);
 				CompareFunction func;
-				Real val = 0.0f;
-				if(getCompareFunction(*i0, &func) && getNumber(*i1, &val))
-					mPass->setAlphaRejectSettings(func, val);
+				if(getCompareFunction(*i0, &func))
+				{
+					if(i1 != prop->values.end())
+					{
+						Real val = 0.0f;
+						if(getNumber(*i1, &val))
+							mPass->setAlphaRejectSettings(func, val);
+						else
+							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					else
+						mPass->setAlphaRejectFunction(func);
+				}
 				else
 					getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
 			}
