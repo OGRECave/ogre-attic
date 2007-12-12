@@ -122,6 +122,11 @@ namespace Ogre {
 
         /**
         @remarks
+            Enable or disable outputting log messages to the debugger.
+        */
+        void setDebugOutputEnabled(bool debugOutput);
+		/**
+        @remarks
             Sets the level of the log detail.
         */
         void setLogDetail(LoggingLevel ll);
