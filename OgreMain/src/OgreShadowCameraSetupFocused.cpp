@@ -91,7 +91,7 @@ namespace Ogre
 			{
 				*out_view = buildViewMatrix(cam.getDerivedPosition(), 
 					-light.getDerivedDirection(), 
-					camDir);
+					cam.getDerivedUp());
 			}
 
 			// generate projection matrix if requested
@@ -126,7 +126,7 @@ namespace Ogre
 			{
 				*out_view = buildViewMatrix(light.getDerivedPosition(), 
 					lightDir, 
-					camDir);
+					cam.getDerivedUp());
 			}
 
 			// generate projection matrix if requested
@@ -158,7 +158,7 @@ namespace Ogre
 			{
 				*out_view = buildViewMatrix(light.getDerivedPosition(), 
 					light.getDerivedDirection(), 
-					camDir);
+					cam.getDerivedUp());
 			}
 
 			// generate projection matrix if requested
@@ -316,9 +316,10 @@ namespace Ogre
 		// direction into the shadow map plane.
 		Vector3 projectionDir(b_ls - e_ls);
 		projectionDir.y = 0;
-		projectionDir.normalise();
 
-		return projectionDir;
+		// deal with Y-only vectors
+		return Math::RealEqual(projectionDir.length(), 0.0) ? 
+			Vector3::NEGATIVE_UNIT_Z : projectionDir.normalisedCopy();
 	}
 	//-----------------------------------------------------------------------
 	Vector3 FocusedShadowCameraSetup::getNearCameraPoint_ws(const Matrix4& viewMatrix, 
