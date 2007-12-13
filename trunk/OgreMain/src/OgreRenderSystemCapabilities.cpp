@@ -165,6 +165,8 @@ namespace Ogre {
 			" * Multiple Render Targets: "
 			+ StringConverter::toString(mNumMultiRenderTargets));
 		pLog->logMessage(
+			"   - With different bit depths: " + StringConverter::toString(hasCapability(RSC_MRT_DIFFERENT_BIT_DEPTHS), true));
+		pLog->logMessage(
 			" * Point Sprites: "
 			+ StringConverter::toString(hasCapability(RSC_POINT_SPRITES), true));
 		pLog->logMessage(
