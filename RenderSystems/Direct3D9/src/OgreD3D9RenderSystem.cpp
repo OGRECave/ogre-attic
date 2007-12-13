@@ -914,7 +914,7 @@ namespace Ogre
 
 		if(mCaps.PrimitiveMiscCaps & D3DPMISCCAPS_MRTINDEPENDENTBITDEPTHS)
 		{
-			LogManager::getSingleton().logMessage("Multiple render targets with independent bit depths supported");
+			rsc->setCapability(RSC_MRT_DIFFERENT_BIT_DEPTHS);
 		}
 
 		// Point sprites 

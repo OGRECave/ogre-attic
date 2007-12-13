@@ -490,6 +490,7 @@ namespace Ogre {
 				GLint buffers;
 				glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &buffers);
 				rsc->setNumMultiRenderTargets(std::min(buffers, OGRE_MAX_MULTIPLE_RENDER_TARGETS));
+				rsc->setCapability(RSC_MRT_DIFFERENT_BIT_DEPTHS);
 				if(!GLEW_VERSION_2_0)
 				{
 					// Before GL version 2.0, we need to get one of the extensions

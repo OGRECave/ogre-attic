@@ -125,6 +125,8 @@ namespace Ogre
 		RSC_TEXTURE_COMPRESSION_VTC = OGRE_CAPS_VALUE(CAPS_CATEGORY_COMMON_2, 2),
 		/// Supports fixed-function pipeline
 		RSC_FIXED_FUNCTION = OGRE_CAPS_VALUE(CAPS_CATEGORY_COMMON_2, 3),
+		/// Supports MRTs with different bit depths
+		RSC_MRT_DIFFERENT_BIT_DEPTHS = OGRE_CAPS_VALUE(CAPS_CATEGORY_COMMON_2, 4),
 
 		// ***** DirectX specific caps *****
 		/// Is DirectX feature "per stage constants" supported
