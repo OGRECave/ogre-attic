@@ -29,6 +29,10 @@
 ** THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// SJS
+#include "OgreGLSupport.h"
+// SJS
+
 #include <GL/glew.h>
 #if defined(_WIN32)
 #  include <GL/wglew.h>
@@ -36,9 +40,6 @@
 #  include <GL/glxew.h>
 #endif
 
-// SJS
-#include "OgreGLSupport.h"
-// SJS
 /*
  * Define glewGetContext and related helper macros.
  */
@@ -64,8 +65,8 @@
 #  define GLEW_CONTEXT_ARG_DEF_LIST Ogre::GLSupport *glSupport
 #  define WGLEW_CONTEXT_ARG_DEF_INIT Ogre::GLSupport *glSupport
 #  define WGLEW_CONTEXT_ARG_DEF_LIST Ogre::GLSupport *glSupport
-#  define GLXEW_CONTEXT_ARG_DEF_INIT void
-#  define GLXEW_CONTEXT_ARG_DEF_LIST void
+#  define GLXEW_CONTEXT_ARG_DEF_INIT Ogre::GLSupport *glSupport
+#  define GLXEW_CONTEXT_ARG_DEF_LIST Ogre::GLSupport *glSupport
 #endif /* GLEW_MX */
 
 #if defined(__APPLE__)
