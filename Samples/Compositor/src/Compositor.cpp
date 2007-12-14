@@ -523,10 +523,10 @@ void CompositorDemo::createViewports(void)
 		TexturePtr tex = TextureManager::getSingleton().createManual(
 			"HalftoneVolume",
 			"General",
-			Ogre::TEX_TYPE_3D,
+			TEX_TYPE_3D,
 			64,64,64,
 			0,
-			Ogre::PixelFormat::PF_A8
+			PF_A8
 		);
 
 		HardwarePixelBufferSharedPtr ptr = tex->getBuffer(0,0);
@@ -563,10 +563,10 @@ void CompositorDemo::createViewports(void)
 		TexturePtr tex2 = TextureManager::getSingleton().createManual(
 			"DitherTex",
 			"General",
-			Ogre::TEX_TYPE_2D,
+			TEX_TYPE_2D,
 			vp->getActualWidth(),vp->getActualHeight(),1,
 			0,
-			Ogre::PixelFormat::PF_A8
+			PF_A8
 		);
 
 		HardwarePixelBufferSharedPtr ptr2 = tex2->getBuffer(0,0);
