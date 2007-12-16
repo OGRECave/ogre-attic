@@ -2457,8 +2457,8 @@ namespace Ogre {
 		@note
 			Individual objects may also override the vertex program in
 			your default material if their materials include 
-			shadow_caster_vertex_program_ref shadow_receiver_vertex_program_ref
-			entries, so if you use both make sure they are compatible.
+			shadow_caster_vertex_program_ref, shadow_receiver_vertex_program_ref
+			shadow_caster_material entries, so if you use both make sure they are compatible.			
 		@note
 			Only a single pass is allowed in your material, although multiple
 			techniques may be used for hardware fallback.
@@ -2480,7 +2480,7 @@ namespace Ogre {
 			Individual objects may also override the vertex program in
 			your default material if their materials include 
 			shadow_caster_vertex_program_ref shadow_receiver_vertex_program_ref
-			entries, so if you use both make sure they are compatible.
+			shadow_receiver_material entries, so if you use both make sure they are compatible.
 		@note
 			Only a single pass is allowed in your material, although multiple
 			techniques may be used for hardware fallback.

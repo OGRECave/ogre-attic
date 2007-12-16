@@ -434,6 +434,27 @@ namespace Ogre {
 			if((*il)->pass != (*il)->originalPass)
 			    (*il)->pass->_load();
 		}
+
+		if (!mShadowCasterMaterial.isNull())
+		{
+			mShadowCasterMaterial->load();
+		}
+		else if (!mShadowCasterMaterialName.empty())
+		{
+			// in case we could not get material as it wasn't yet parsed/existent at that time.
+			mShadowCasterMaterial = MaterialManager::getSingleton().getByName(mShadowCasterMaterialName);
+			mShadowCasterMaterial->load();
+		}
+		if (!mShadowReceiverMaterial.isNull())
+		{
+			mShadowReceiverMaterial->load();
+		}
+		else if (!mShadowReceiverMaterialName.empty())
+		{
+			// in case we could not get material as it wasn't yet parsed/existent at that time.
+			mShadowReceiverMaterial = MaterialManager::getSingleton().getByName(mShadowReceiverMaterialName);
+			mShadowReceiverMaterial->load();
+		}
     }
     //-----------------------------------------------------------------------------
     void Technique::_unload(void)
@@ -1043,5 +1064,54 @@ namespace Ogre {
 
         return testResult;
     }
-
+	//-----------------------------------------------------------------------
+	Ogre::MaterialPtr  Technique::getShadowCasterMaterial() const 
+	{ 
+		return mShadowCasterMaterial; 
+	}
+	//-----------------------------------------------------------------------
+	void  Technique::setShadowCasterMaterial(Ogre::MaterialPtr val) 
+	{ 
+		if (val.isNull())
+		{
+			mShadowCasterMaterial.setNull();
+			mShadowCasterMaterialName.clear();
+		}
+		else
+		{
+			mShadowCasterMaterial = val; 
+			mShadowCasterMaterialName = val->getName();
+		}
+	}
+	//-----------------------------------------------------------------------
+	void  Technique::setShadowCasterMaterial(const Ogre::String &name) 
+	{ 
+		mShadowCasterMaterialName = name;
+		mShadowCasterMaterial = MaterialManager::getSingleton().getByName(name); 
+	}
+	//-----------------------------------------------------------------------
+	Ogre::MaterialPtr  Technique::getShadowReceiverMaterial() const 
+	{ 
+		return mShadowReceiverMaterial; 
+	}
+	//-----------------------------------------------------------------------
+	void  Technique::setShadowReceiverMaterial(Ogre::MaterialPtr val) 
+	{ 
+		if (val.isNull())
+		{
+			mShadowReceiverMaterial.setNull();
+			mShadowReceiverMaterialName.clear();
+		}
+		else
+		{
+			mShadowReceiverMaterial = val; 
+			mShadowReceiverMaterialName = val->getName();
+		}
+	}
+	//-----------------------------------------------------------------------
+	void  Technique::setShadowReceiverMaterial(const Ogre::String &name)  
+	{ 
+		mShadowReceiverMaterialName = name;
+		mShadowReceiverMaterial = MaterialManager::getSingleton().getByName(name); 
+	}
 }

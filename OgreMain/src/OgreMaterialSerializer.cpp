@@ -1701,6 +1701,18 @@ namespace Ogre
 		return false;
 	}
     //-----------------------------------------------------------------------
+	bool parseShadowCasterMaterial(String& params, MaterialScriptContext& context)
+	{
+		context.technique->setShadowCasterMaterial(params);
+		return false;
+	}
+	//-----------------------------------------------------------------------
+	bool parseShadowReceiverMaterial(String& params, MaterialScriptContext& context)
+	{
+		context.technique->setShadowReceiverMaterial(params);
+		return false;
+	}
+    //-----------------------------------------------------------------------
     bool parseSetTextureAlias(String& params, MaterialScriptContext& context)
     {
         StringVector vecparams = StringUtil::split(params, " \t");
@@ -1709,7 +1721,7 @@ namespace Ogre
             logParseError("Wrong number of parameters for texture_alias, expected 2", context);
             return false;
         }
-        // first parameter is alias name and second paramater is texture name
+        // first parameter is alias name and second parameter is texture name
         context.textureAliases[vecparams[0]] = vecparams[1];
 
         return false;
@@ -2755,6 +2767,8 @@ namespace Ogre
 
         // Set up technique attribute parsers
         mTechniqueAttribParsers.insert(AttribParserList::value_type("lod_index", (ATTRIBUTE_PARSER)parseLodIndex));
+		mTechniqueAttribParsers.insert(AttribParserList::value_type("shadow_caster_material", (ATTRIBUTE_PARSER)parseShadowCasterMaterial));
+		mTechniqueAttribParsers.insert(AttribParserList::value_type("shadow_receiver_material", (ATTRIBUTE_PARSER)parseShadowReceiverMaterial));
 		mTechniqueAttribParsers.insert(AttribParserList::value_type("scheme", (ATTRIBUTE_PARSER)parseScheme));
         mTechniqueAttribParsers.insert(AttribParserList::value_type("pass", (ATTRIBUTE_PARSER)parsePass));
 
@@ -3378,6 +3392,18 @@ namespace Ogre
 				writeValue(pTech->getSchemeName());
 			}
 
+			// ShadowCasterMaterial name
+			if (!pTech->getShadowCasterMaterial().isNull())
+			{
+				writeAttribute(2, "shadow_caster_material");
+				writeValue(pTech->getShadowCasterMaterial()->getName());
+			}
+			// ShadowReceiverMaterial name
+			if (!pTech->getShadowReceiverMaterial().isNull())
+			{
+				writeAttribute(2, "shadow_receiver_material");
+				writeValue(pTech->getShadowReceiverMaterial()->getName());
+			}
             // Iterate over passes
             Technique::PassIterator it = const_cast<Technique*>(pTech)->getPassIterator();
             while (it.hasMoreElements())
@@ -4811,7 +4837,7 @@ namespace Ogre
             // write opening braces
             beginSection(0, false);
             {
-                // write program source + filenmae
+                // write program source + filename
                 writeAttribute(1, "source", false);
                 writeValue(program->getSourceFile(), false);
                 // write special parameters based on language

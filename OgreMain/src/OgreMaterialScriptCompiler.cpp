@@ -73,6 +73,8 @@ namespace Ogre {
         "    <Technique_Properties> ::= <Pass> | <Lod_Index> | <Scheme> \n"
         "    <Lod_Index> ::= 'lod_index' <#value> \n"
         "    <Scheme> ::= 'scheme' <Label> \n"
+		"    <shadow_caster_material> ::= 'shadow_caster_material' <Label> \n"
+		"    <shadow_receiver_material> ::= 'shadow_receiver_material' <Label> \n"
 
         // Pass section rules
         "    <Pass> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}' \n"
@@ -329,6 +331,8 @@ namespace Ogre {
 
         // Technique section
         addLexemeAction("technique", &MaterialScriptCompiler::parseTechnique);
+			addLexemeAction("shadow_caster_material", &MaterialScriptCompiler::parseShadowCasterMaterial);
+			addLexemeAction("shadow_receiver_material", &MaterialScriptCompiler::parseShadowReceiverMaterial);
             addLexemeAction("scheme", &MaterialScriptCompiler::parseScheme);
             addLexemeAction("lod_index", &MaterialScriptCompiler::parseLodIndex);
 
@@ -934,6 +938,18 @@ namespace Ogre {
 	    assert(mScriptContext.technique);
         mScriptContext.technique->setLodIndex(static_cast<uint>(getNextTokenValue()));
     }
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseShadowCasterMaterial(void)
+	{
+		assert(mScriptContext.technique);
+		mScriptContext.technique->setShadowCasterMaterial(getNextTokenLabel());
+	}
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseShadowReceiverMaterial(void)
+	{
+		assert(mScriptContext.technique);
+		mScriptContext.technique->setShadowReceiverMaterial(getNextTokenLabel());
+	}
 	//-----------------------------------------------------------------------
 	// Pass Section Actions
 	//-----------------------------------------------------------------------

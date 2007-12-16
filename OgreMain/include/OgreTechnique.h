@@ -73,7 +73,29 @@ namespace Ogre {
         void clearIlluminationPasses(void);
 		/// Internal method - check for manually assigned illumination passes
 		bool checkManuallyOrganisedIlluminationPasses();
-    public:
+
+
+		/** When casting shadow, if not using default Ogre shadow casting material, or 
+		* nor using fixed function casting, mShadowCasterMaterial let you customize per material
+		* shadow caster behavior
+		*/
+		MaterialPtr mShadowCasterMaterial;
+		/** When casting shadow, if not using default Ogre shadow casting material, or 
+		* nor using fixed function casting, mShadowCasterMaterial let you customize per material
+		* shadow caster behavior.There only material name is stored so that it can be loaded once all file parsed in a resource group.
+		*/
+		String mShadowCasterMaterialName;
+		/** When receiving shadow, if not using default Ogre shadow receiving material, or 
+		* nor using fixed function texture projection receiving, mShadowReceiverMaterial let you customize per material
+		* shadow caster behavior
+		*/
+		MaterialPtr mShadowReceiverMaterial;
+		/** When receiving shadow, if not using default Ogre shadow receiving material, or 
+		* nor using fixed function texture projection receiving, mShadowReceiverMaterial let you customize per material
+		* shadow caster behavior. There only material name is stored so that it can be loaded once all file parsed in a resource group.
+		*/
+		String mShadowReceiverMaterialName;	
+	public:
         /// Constructor
         Technique(Material* parent);
         /// Copy constructor
@@ -156,6 +178,24 @@ namespace Ogre {
         /** Tells the technique that it needs recompilation. */
         void _notifyNeedsRecompile(void);
 
+		/** return this material specific  shadow casting specific material
+		*/
+		Ogre::MaterialPtr getShadowCasterMaterial() const;
+		/** set this material specific  shadow casting specific material
+		*/
+		void setShadowCasterMaterial(Ogre::MaterialPtr val);
+		/** set this material specific  shadow casting specific material
+		*/
+		void setShadowCasterMaterial(const Ogre::String &name);
+		/** return this material specific shadow receiving specific material
+		*/
+		Ogre::MaterialPtr getShadowReceiverMaterial() const;
+		/** set this material specific  shadow receiving specific material
+		*/
+		void setShadowReceiverMaterial(Ogre::MaterialPtr val);
+		/** set this material specific  shadow receiving specific material
+		*/
+		void setShadowReceiverMaterial(const Ogre::String &name);
 
         // -------------------------------------------------------------------------------
         // The following methods are to make migration from previous versions simpler
@@ -482,8 +522,8 @@ namespace Ogre {
 
         /** Set the name of the technique.
         @remarks
-        The use of technique name is optional.  Its usefull in material scripts where a material could inherit
-        from another material and only want to modify a particalar technique.
+		The use of technique name is optional.  Its useful in material scripts where a material could inherit
+		from another material and only want to modify a particular technique.
         */
         void setName(const String& name);
         /// Gets the name of the technique

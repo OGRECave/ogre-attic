@@ -848,6 +848,8 @@ namespace Ogre
 
 		mIds["scheme"] = ID_SCHEME;
 		mIds["lod_index"] = ID_LOD_INDEX;
+		mIds["shadow_caster_material_name"] = ID_SHADOW_CASTER_MATERIAL_NAME;
+		mIds["shadow_receiver_material_name"] = ID_SHADOW_RECEIVER_MATERIAL_NAME;
 
 		mIds["ambient"] = ID_AMBIENT;
 		mIds["diffuse"] = ID_DIFFUSE;
@@ -1855,6 +1857,44 @@ namespace Ogre
 				Real val;
 				if(getNumber(*i0, &val))
 					mTechnique->setLodIndex(val);
+				else
+					getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+			}
+			break;
+		case ID_SHADOW_CASTER_MATERIAL_NAME:
+			if(prop->values.empty())
+			{
+				getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+			}
+			else if(prop->values.size() > 3)
+			{
+				getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+			}
+			else
+			{
+				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+				String matName;
+				if(getString(*i0, &matName))
+					mTechnique->setShadowCasterMaterial(matName);
+				else
+					getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+			}
+			break;
+		case ID_SHADOW_RECEIVER_MATERIAL_NAME:
+			if(prop->values.empty())
+			{
+				getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+			}
+			else if(prop->values.size() > 3)
+			{
+				getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+			}
+			else
+			{
+				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+				String matName;
+				if(getString(*i0, &matName))
+					mTechnique->setShadowReceiverMaterial(matName);
 				else
 					getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
 			}
