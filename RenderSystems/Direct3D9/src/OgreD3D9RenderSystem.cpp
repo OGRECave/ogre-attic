@@ -49,6 +49,7 @@ Torus Knot Software Ltd.
 #include "OgreD3D9HardwareOcclusionQuery.h"
 #include "OgreFrustum.h"
 #include "OgreD3D9MultiRenderTarget.h"
+#include "OgreCompositorManager.h"
 
 #define FLOAT2DWORD(f) *((DWORD*)&f)
 
@@ -3268,6 +3269,10 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("!!! Direct3D Device successfully restored.");
 
 		mDeviceLost = false;
+
+		// Force all compositors to reconstruct their internal resources
+		// render textures will have been changed without their knowledge
+		CompositorManager::getSingleton()._reconstructAllCompositorResources();
 
 		fireEvent("DeviceRestored");
 
