@@ -424,7 +424,18 @@ To help clearly identify what each technique is used for, the technique can be n
 
 Format: technique name@*@*
 
-Techniques have only a small number of attributes of their own, the 'scheme'(@xref{scheme})  they belong to, and the LOD index within that scheme (@xref{lod_index}). We also mention an extra Material attribute called @ref{lod_distances} which isn't a Technique attribute but is directly related to the lod_index attribute, so it's listed here for convenience.@*@*
+Techniques have only a small number of attributes of their own:
+@itemize @bullet
+@item
+@ref{scheme}
+@item
+@ref{lod_index} (and also see @ref{lod_distances} in the parent material)
+@item
+@ref{shadow_caster_material_name}
+@item
+@ref{shadow_receiver_material_name}
+@end itemize
+
 
 @anchor{scheme}
 @subheading scheme
@@ -465,7 +476,13 @@ The above example would cause the material to use the best Technique at lod_inde
 
 Techniques also contain one or more passes (and there must be at least one), @xref{Passes}.
 
+@anchor{shadow_caster_material_name}
+@subheading shadow_caster_material_name
+When using @xref{Texture-based Shadows} you can specify an alternate material to use when rendering the object using this material into the shadow texture. This is like a more advanced version of using shadow_caster_vertex_program, however note that for the moment you are expected to render the shadow in one pass, ie only the first pass is respected.
 
+@anchor{shadow_receiver_material_name}
+@subheading shadow_receiver_material_name
+When using @xref{Texture-based Shadows} you can specify an alternate material to use when performing the receiver shadow pass. Note that this explicit 'receiver' pass is only done when you're @strong{not} using @ref{Integrated Texture Shadows} - ie the shadow rendering is done separately (either as a modulative pass, or a masked light pass). This is like a more advanced version of using shadow_receiver_vertex_program and shadow_receiver_fragment_program, however note that for the moment you are expected to render the shadow in one pass, ie only the first pass is respected.
 
 @node Passes
 @subsection Passes

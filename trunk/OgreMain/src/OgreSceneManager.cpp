@@ -4238,9 +4238,17 @@ void SceneManager::initShadowVolumeMaterials(void)
 const Pass* SceneManager::deriveShadowCasterPass(const Pass* pass)
 {
 	if (isShadowTechniqueTextureBased())
-    {
-		Pass* retPass = mShadowTextureCustomCasterPass ? 
-			mShadowTextureCustomCasterPass : mShadowCasterPlainBlackPass;
+	{
+		Pass* retPass;	
+		if (!pass->getParent()->getShadowCasterMaterial().isNull())
+		{
+			return pass->getParent()->getShadowCasterMaterial()->getBestTechnique()->getPass(0); 
+		}
+		else 
+		{
+			retPass = mShadowTextureCustomCasterPass ? 
+				mShadowTextureCustomCasterPass : mShadowCasterPlainBlackPass;
+		}
 
 		
 		// Special case alpha-blended passes
@@ -4353,8 +4361,16 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 
     if (isShadowTechniqueTextureBased())
     {
-		Pass* retPass = mShadowTextureCustomReceiverPass ? 
-			mShadowTextureCustomReceiverPass : mShadowReceiverPass;
+		Pass* retPass;
+		if (!pass->getParent()->getShadowReceiverMaterial().isNull())
+		{
+			return retPass = pass->getParent()->getShadowReceiverMaterial()->getBestTechnique()->getPass(0); 
+		}
+		else
+		{
+			retPass = mShadowTextureCustomReceiverPass ? 
+				mShadowTextureCustomReceiverPass : mShadowReceiverPass;
+		}
 
 		// Does incoming pass have a custom shadow receiver program?
 		if (!pass->getShadowReceiverVertexProgramName().empty())

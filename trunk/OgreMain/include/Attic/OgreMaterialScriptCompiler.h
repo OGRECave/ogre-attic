@@ -321,6 +321,8 @@ namespace Ogre {
         void parseShadowCasterVertexProgramRef(void);
         void parseShadowReceiverVertexProgramRef(void);
         void parseShadowReceiverFragmentProgramRef(void);
+		void parseShadowReceiverMaterial(void);
+		void parseShadowCasterMaterial(void);
         void parseParamIndexed(void);
         void parseParamIndexedAuto(void);
         void parseParamNamed(void);
