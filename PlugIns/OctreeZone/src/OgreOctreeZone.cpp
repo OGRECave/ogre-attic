@@ -92,12 +92,12 @@ namespace Ogre
 		if (n->getHomeZone() == this)
 		{
 			// add a reference to this node in the "nodes at home in this zone" list
-			mHomeNodeList.push_back( n );
+			mHomeNodeList.insert( n );
 		}
 		else
 		{
 			// add a reference to this node in the "nodes visiting this zone" list
-			mVisitorNodeList.push_back( n );
+			mVisitorNodeList.insert( n );
 		}
     }
 
@@ -108,19 +108,12 @@ namespace Ogre
 
 		if (n->getHomeZone() == this)
 		{
-			PCZSceneNodeList::iterator it = std::find( mHomeNodeList.begin(), mHomeNodeList.end(), n );
-			if (it != mHomeNodeList.end())
-			{
-				mHomeNodeList.erase( it );
-			}
+			mHomeNodeList.erase( n );
+
 		}
 		else
 		{
-			PCZSceneNodeList::iterator it = std::find( mVisitorNodeList.begin(), mVisitorNodeList.end(), n );
-			if (it != mVisitorNodeList.end())
-			{
-				mVisitorNodeList.erase( it );
-			}
+			mVisitorNodeList.erase( n );
 		}
     }
 
@@ -994,25 +987,32 @@ namespace Ogre
 		if (!mOctree)
 			return;
 
+		PCZSceneNode* node = zoneData->mAssociatedNode;
 		if ( zoneData->getOctant() == 0 )
 		{
 			//if outside the octree, force into the root node.
 			if ( ! zoneData->_isIn( mOctree -> mBox ) )
-				mOctree->_addNode( zoneData->mAssociatedNode );
+				mOctree->_addNode( node  );
 			else
-				addNodeToOctree( zoneData->mAssociatedNode, mOctree );
+				addNodeToOctree( node, mOctree );
 			return ;
 		}
 
 		if ( ! zoneData->_isIn( zoneData->getOctant()->mBox ) )
 		{
-			removeNodeFromOctree( zoneData->mAssociatedNode );
 
 			//if outside the octree, force into the root node.
 			if ( !zoneData->_isIn( mOctree -> mBox ) )
-				mOctree->_addNode( zoneData->mAssociatedNode );
+			{
+				// skip if it's already in the root node.
+				if (((OctreeZoneData*)node->getZoneData(this))->getOctant() == mOctree)
+					return;
+
+				removeNodeFromOctree( node );
+				mOctree->_addNode( node );
+			}
 			else
-				addNodeToOctree( zoneData->mAssociatedNode, mOctree );
+				addNodeToOctree( node, mOctree );
 		}
 	}
 
@@ -1102,9 +1102,12 @@ namespace Ogre
 			addNodeToOctree( n, octant -> mChildren[ x ][ y ][ z ], ++depth );
 
 		}
-
 		else
 		{
+			if (((OctreeZoneData*)n->getZoneData(this))->getOctant() == octant)
+				return;
+
+			removeNodeFromOctree( n );
 			octant -> _addNode( n );
 		}
 	}
