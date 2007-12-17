@@ -75,12 +75,12 @@ namespace Ogre
 		if (n->getHomeZone() == this)
 		{
 			// add a reference to this node in the "nodes at home in this zone" list
-			mHomeNodeList.push_back( n );
+			mHomeNodeList.insert( n );
 		}
 		else
 		{
 			// add a reference to this node in the "nodes visiting this zone" list
-			mVisitorNodeList.push_back( n );
+			mVisitorNodeList.insert( n );
 		}
     }
 
@@ -88,19 +88,11 @@ namespace Ogre
     {
 		if (n->getHomeZone() == this)
 		{
-			PCZSceneNodeList::iterator it = std::find( mHomeNodeList.begin(), mHomeNodeList.end(), n );
-			if (it != mHomeNodeList.end())
-			{
-				mHomeNodeList.erase( it );
-			}
+			mHomeNodeList.erase( n );
 		}
 		else
 		{
-			PCZSceneNodeList::iterator it = std::find( mVisitorNodeList.begin(), mVisitorNodeList.end(), n );
-			if (it != mVisitorNodeList.end())
-			{
-				mVisitorNodeList.erase( it );
-			}
+			mVisitorNodeList.erase( n );
 		}
     }
 
@@ -577,13 +569,13 @@ namespace Ogre
 			{
 				// make sure node is not already in the list (might have been added in another
 				// zone it was visiting)
-				PCZSceneNodeList::iterator it2 = std::find( list.begin(), list.end(), pczsn );
+				PCZSceneNodeList::iterator it2 = list.find(pczsn);
 				if (it2 == list.end())
 				{
 					bool nsect = t.intersects( pczsn -> _getWorldAABB() );
 					if ( nsect )
 					{
-						list.push_back( pczsn );
+						list.insert( pczsn );
 					}
 				}
 			}
@@ -601,13 +593,13 @@ namespace Ogre
 				{
 					// make sure node is not already in the list (might have been added in another
 					// zone it was visiting)
-					PCZSceneNodeList::iterator it2 = std::find( list.begin(), list.end(), pczsn );
+					PCZSceneNodeList::iterator it2 = list.find(pczsn);
 					if (it2 == list.end())
 					{
 						bool nsect = t.intersects( pczsn -> _getWorldAABB() );
 						if ( nsect )
 						{
-							list.push_back( pczsn );
+							list.insert( pczsn );
 						}
 					}
 				}
@@ -671,13 +663,13 @@ namespace Ogre
 			{
 				// make sure node is not already in the list (might have been added in another
 				// zone it was visiting)
-				PCZSceneNodeList::iterator it2 = std::find( list.begin(), list.end(), pczsn );
+				PCZSceneNodeList::iterator it2 = list.find(pczsn);
 				if (it2 == list.end())
 				{
 					bool nsect = t.intersects( pczsn -> _getWorldAABB() );
 					if ( nsect )
 					{
-						list.push_back( pczsn );
+						list.insert( pczsn );
 					}
 				}
 			}
@@ -695,13 +687,13 @@ namespace Ogre
 				{
 					// make sure node is not already in the list (might have been added in another
 					// zone it was visiting)
-					PCZSceneNodeList::iterator it2 = std::find( list.begin(), list.end(), pczsn );
+					PCZSceneNodeList::iterator it2 = list.find(pczsn);
 					if (it2 == list.end())
 					{
 						bool nsect = t.intersects( pczsn -> _getWorldAABB() );
 						if ( nsect )
 						{
-							list.push_back( pczsn );
+							list.insert( pczsn );
 						}
 					}
 				}
@@ -766,13 +758,13 @@ namespace Ogre
 			{
 				// make sure node is not already in the list (might have been added in another
 				// zone it was visiting)
-				PCZSceneNodeList::iterator it2 = std::find( list.begin(), list.end(), pczsn );
+				PCZSceneNodeList::iterator it2 = list.find(pczsn);
 				if (it2 == list.end())
 				{
 					bool nsect = t.intersects( pczsn -> _getWorldAABB() );
 					if ( nsect )
 					{
-						list.push_back( pczsn );
+						list.insert( pczsn );
 					}
 				}
 			}
@@ -790,13 +782,13 @@ namespace Ogre
 				{
 					// make sure node is not already in the list (might have been added in another
 					// zone it was visiting)
-					PCZSceneNodeList::iterator it2 = std::find( list.begin(), list.end(), pczsn );
+					PCZSceneNodeList::iterator it2 = list.find(pczsn);
 					if (it2 == list.end())
 					{
 						bool nsect = t.intersects( pczsn -> _getWorldAABB() );
 						if ( nsect )
 						{
-							list.push_back( pczsn );
+							list.insert( pczsn );
 						}
 					}
 				}
@@ -862,13 +854,13 @@ namespace Ogre
 			{
 				// make sure node is not already in the list (might have been added in another
 				// zone it was visiting)
-				PCZSceneNodeList::iterator it2 = std::find( list.begin(), list.end(), pczsn );
+				PCZSceneNodeList::iterator it2 = list.find(pczsn);
 				if (it2 == list.end())
 				{
 					std::pair<bool, Real> nsect = t.intersects( pczsn -> _getWorldAABB() );
 					if ( nsect.first )
 					{
-						list.push_back( pczsn );
+						list.insert( pczsn );
 					}
 				}
 			}
@@ -886,13 +878,13 @@ namespace Ogre
 				{
 					// make sure node is not already in the list (might have been added in another
 					// zone it was visiting)
-					PCZSceneNodeList::iterator it2 = std::find( list.begin(), list.end(), pczsn );
+					PCZSceneNodeList::iterator it2 = list.find(pczsn);
 					if (it2 == list.end())
 					{
 						std::pair<bool, Real> nsect = t.intersects( pczsn -> _getWorldAABB() );
 						if ( nsect.first )
 						{
-							list.push_back( pczsn );
+							list.insert( pczsn );
 						}
 					}
 				}

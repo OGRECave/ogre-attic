@@ -232,6 +232,9 @@ namespace Ogre
 		/* Create a zone with the given name  */
 		PCZone * createZone(String& zoneType, String& instanceName);
 
+		/* destroy an existing zone within the scene */
+		void destroyZone(PCZone* zone, bool destroySceneNodes);
+
         /** Make sure the home zone for the PCZSceneNode is up-to-date
         */
         void _updateHomeZone( PCZSceneNode *, bool );
