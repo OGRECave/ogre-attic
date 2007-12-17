@@ -69,7 +69,7 @@ namespace Ogre
     typedef std::map<String, PCZone*> ZoneMap;
     typedef std::list < Portal * > PortalList;
 	typedef std::list < SceneNode * > NodeList;
-	typedef std::list < PCZSceneNode * > PCZSceneNodeList;
+	typedef std::set < PCZSceneNode * > PCZSceneNodeList;
     typedef std::map<String, SceneNode*> SceneNodeList;
 
     /** Portal-Connected Zone datastructure for managing scene nodes.

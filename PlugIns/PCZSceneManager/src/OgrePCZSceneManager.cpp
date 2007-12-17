@@ -652,6 +652,43 @@ namespace Ogre
 		return newZone;
 	}
 
+	/* destroy an existing zone within the scene */
+	/* if destroySceneNodes is true, then all nodes which have the destroyed
+	   zone as their homezone are desroyed too.  If destroySceneNodes is false
+	   then all scene nodes which have the zone as their homezone will have
+	   their homezone pointer set to 0, which will allow them to be re-assigned
+	   either by the user or via the automatic re-assignment routine */
+	void PCZSceneManager::destroyZone(PCZone* zone, bool destroySceneNodes)
+	{
+		// if not destroying scene nodes, then make sure any nodes who have
+		// this zone as homezone are set to have 0 for a homezone
+		for (SceneNodeList::iterator i = mSceneNodes.begin();
+			i != mSceneNodes.end(); ++i)
+		{
+			PCZSceneNode * pczsn = (PCZSceneNode*)(i->second);
+			if (!destroySceneNodes)
+			{
+				if (pczsn->getHomeZone() == zone)
+				{
+					pczsn->setHomeZone(0);
+				}
+			}
+			// reset all node visitor lists
+			// note, it might be more efficient to only do this to nodes which
+			// are actually visiting the zone being destroyed, but visitor lists
+			// get cleared every frame anyway, so it's not THAT big a deal.
+			pczsn->clearNodeFromVisitedZones();
+		}
+
+		ZoneMap::iterator it;
+		it = mZones.find(zone->getName());
+		if (it != mZones.end())
+		{
+			mZones.erase(zone->getName());
+		}
+		delete zone;
+	}
+
     /* The following function checks if a node has left it's current home zone.
 	* This is done by checking each portal in the zone.  If the node has crossed
 	* the portal, then the current zone is no longer the home zone of the node.  The
