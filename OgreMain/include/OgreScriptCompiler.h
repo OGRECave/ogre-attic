@@ -288,7 +288,7 @@ namespace Ogre
 			ID_NO = 0
 		};
 		// This is the translator base class
-		class Translator
+		class _OgreExport Translator
 		{
 		private:
 			ScriptCompiler *mCompiler;
@@ -318,9 +318,9 @@ namespace Ogre
 			virtual void processProperty(PropertyAbstractNode*) = 0;
 		};
 		friend class Translater;
-		class MaterialTranslator : public Translator
+		class _OgreExport MaterialTranslator : public Translator
 		{
-		private:
+		protected:
 			MaterialPtr mMaterial;
 			Ogre::AliasTextureNamePairList mTextureAliases;
 		public:
@@ -328,57 +328,57 @@ namespace Ogre
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class TechniqueTranslator : public Translator
+		class _OgreExport TechniqueTranslator : public Translator
 		{
-		private:
+		protected:
 			Technique *mTechnique;
 		public:
 			TechniqueTranslator(ScriptCompiler *compiler, Technique *technique);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class PassTranslator : public Translator
+		class _OgreExport PassTranslator : public Translator
 		{
-		private:
+		protected:
 			Pass *mPass;
 		public:
 			PassTranslator(ScriptCompiler *compiler, Pass *pass);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class TextureUnitTranslator : public Translator
+		class _OgreExport TextureUnitTranslator : public Translator
 		{
-		private:
+		protected:
 			TextureUnitState *mUnit;
 		public:
 			TextureUnitTranslator(ScriptCompiler *compiler, TextureUnitState *unit);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class GpuProgramTranslator : public Translator
+		class _OgreExport GpuProgramTranslator : public Translator
 		{
 		public:
 			GpuProgramTranslator(ScriptCompiler *compiler);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class HighLevelGpuProgramTranslator : public Translator
+		class _OgreExport HighLevelGpuProgramTranslator : public Translator
 		{
 		public:
 			HighLevelGpuProgramTranslator(ScriptCompiler *compiler);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class UnifiedGpuProgramTranslator : public Translator
+		class _OgreExport UnifiedGpuProgramTranslator : public Translator
 		{
 		public:
 			UnifiedGpuProgramTranslator(ScriptCompiler *compiler);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class GpuProgramParametersTranslator : public Translator
+		class _OgreExport GpuProgramParametersTranslator : public Translator
 		{
-		private:
+		protected:
 			GpuProgramParametersSharedPtr mParams;
 			int mAnimParametricsCount;
 		public:
@@ -386,63 +386,63 @@ namespace Ogre
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class ParticleSystemTranslator : public Translator
+		class _OgreExport ParticleSystemTranslator : public Translator
 		{
-		private:
+		protected:
 			Ogre::ParticleSystem *mSystem;
 		public:
 			ParticleSystemTranslator(ScriptCompiler *compiler);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class ParticleEmitterTranslator : public Translator
+		class _OgreExport ParticleEmitterTranslator : public Translator
 		{
-		private:
+		protected:
 			Ogre::ParticleEmitter *mEmitter;
 		public:
 			ParticleEmitterTranslator(ScriptCompiler *compiler, ParticleEmitter *emitter);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class ParticleAffectorTranslator : public Translator
+		class _OgreExport ParticleAffectorTranslator : public Translator
 		{
-		private:
+		protected:
 			Ogre::ParticleAffector *mAffector;
 		public:
 			ParticleAffectorTranslator(ScriptCompiler *compiler, ParticleAffector *affector);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class CompositorTranslator : public Translator
+		class _OgreExport CompositorTranslator : public Translator
 		{
-		private:
+		protected:
 			CompositorPtr mCompositor;
 		public:
 			CompositorTranslator(ScriptCompiler *compiler);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class CompositionTechniqueTranslator : public Translator
+		class _OgreExport CompositionTechniqueTranslator : public Translator
 		{
-		private:
+		protected:
 			CompositionTechnique *mTechnique;
 		public:
 			CompositionTechniqueTranslator(ScriptCompiler *compiler, CompositionTechnique *technique);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class CompositionTargetPassTranslator : public Translator
+		class _OgreExport CompositionTargetPassTranslator : public Translator
 		{
-		private:
+		protected:
 			CompositionTargetPass *mTarget;
 		public:
 			CompositionTargetPassTranslator(ScriptCompiler *compiler, CompositionTargetPass *target);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
-		class CompositionPassTranslator : public Translator
+		class _OgreExport CompositionPassTranslator : public Translator
 		{
-		private:
+		protected:
 			CompositionPass *mPass;
 		public:
 			CompositionPassTranslator(ScriptCompiler *compiler, CompositionPass *pass);
