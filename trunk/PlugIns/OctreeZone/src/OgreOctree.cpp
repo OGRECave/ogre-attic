@@ -350,7 +350,7 @@ namespace Ogre
 
     void Octree::_addNode( PCZSceneNode * n )
     {
-        mNodes.push_back( n );
+        mNodes.insert(n);
         ((OctreeZoneData*)n ->getZoneData(mZone))->setOctant( this );
 
         //update total counts.
@@ -360,8 +360,8 @@ namespace Ogre
 
     void Octree::_removeNode( PCZSceneNode * n )
     {
-        mNodes.erase( std::find( mNodes.begin(), mNodes.end(), n ) );
-        ((OctreeZoneData*)n ->getZoneData(mZone))->setOctant( 0 );
+        mNodes.erase(n);
+		((OctreeZoneData*)n ->getZoneData(mZone))->setOctant( 0 );
 
         //update total counts.
         _unref();
@@ -413,11 +413,7 @@ namespace Ogre
 			    if ( full )
 			    {
 					// make sure the node isn't already on the list
-					PCZSceneNodeList::iterator it = std::find( list.begin(), list.end(), on );
-					if (it == list.end())
-					{
-						list.push_back( on );
-					}
+					list.insert( on );
 			    }
 
 			    else
@@ -427,11 +423,7 @@ namespace Ogre
 				    if ( nsect != OUTSIDE )
 				    {
 						// make sure the node isn't already on the list
-						PCZSceneNodeList::iterator it = std::find( list.begin(), list.end(), on );
-						if (it == list.end())
-						{
-							list.push_back( on );
-						}
+						list.insert( on );
 				    }
 			    }
 
@@ -498,11 +490,7 @@ namespace Ogre
 			    if ( full )
 			    {
 					// make sure the node isn't already on the list
-					PCZSceneNodeList::iterator it = std::find( list.begin(), list.end(), on );
-					if (it == list.end())
-					{
-						list.push_back( on );
-					}
+					list.insert( on );
 			    }
 
 			    else
@@ -512,11 +500,7 @@ namespace Ogre
 				    if ( nsect != OUTSIDE )
 				    {
 						// make sure the node isn't already on the list
-						PCZSceneNodeList::iterator it = std::find( list.begin(), list.end(), on );
-						if (it == list.end())
-						{
-							list.push_back( on );
-						}
+						list.insert( on );
 				    }
 			    }
 
@@ -583,11 +567,7 @@ namespace Ogre
 			    if ( full )
 			    {
 					// make sure the node isn't already on the list
-					PCZSceneNodeList::iterator it = std::find( list.begin(), list.end(), on );
-					if (it == list.end())
-					{
-						list.push_back( on );
-					}
+					list.insert( on );
 			    }
 
 			    else
@@ -597,11 +577,7 @@ namespace Ogre
 				    if ( nsect != OUTSIDE )
 				    {
 						// make sure the node isn't already on the list
-						PCZSceneNodeList::iterator it = std::find( list.begin(), list.end(), on );
-						if (it == list.end())
-						{
-							list.push_back( on );
-						}
+						list.insert( on );
 				    }
 			    }
 
@@ -669,11 +645,7 @@ namespace Ogre
 			    if ( full )
 			    {
 					// make sure the node isn't already on the list
-					PCZSceneNodeList::iterator it = std::find( list.begin(), list.end(), on );
-					if (it == list.end())
-					{
-						list.push_back( on );
-					}
+					list.insert( on );
 			    }
 
 			    else
@@ -683,11 +655,7 @@ namespace Ogre
 				    if ( nsect != OUTSIDE )
 				    {
 						// make sure the node isn't already on the list
-						PCZSceneNodeList::iterator it = std::find( list.begin(), list.end(), on );
-						if (it == list.end())
-						{
-							list.push_back( on );
-						}
+						list.insert( on );
 				    }
 			    }
 

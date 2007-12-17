@@ -176,7 +176,7 @@ namespace Ogre
 
         mInit = true;
 
-        mRenderLevel = 1;
+        mRenderLevel = 0;
 
         mMinLevelDistSqr = new Real[ mOptions->maxGeoMipMapLevel ];
 
@@ -194,9 +194,9 @@ namespace Ogre
         unsigned char* pBase = static_cast<unsigned char*>(mMainBuffer->lock(HardwareBuffer::HBL_DISCARD));
 
         for ( int j = startz; j < endz; j++ )
-        {
-            for ( int i = startx; i < endx; i++ )
-            {
+	    {
+			for ( int i = startx; i < endx; i++ )
+			{
                 float *pPos, *pTex0, *pTex1;
                 poselem->baseVertexPointerToElement(pBase, &pPos);
                 texelem0->baseVertexPointerToElement(pBase, &pTex0);
@@ -1230,13 +1230,13 @@ namespace Ogre
             for ( int i = west; i < mOptions->tileSize - 1 - east; i += step )
             {
                 //triangles
-                *pIdx++ = _index( i, j ); numIndexes++;
-                *pIdx++ = _index( i, j + step ); numIndexes++;
-                *pIdx++ = _index( i + step, j ); numIndexes++;
+                *pIdx++ = _index( i, j + step ); numIndexes++; // original order: 2
+                *pIdx++ = _index( i + step, j ); numIndexes++; // original order: 3
+                *pIdx++ = _index( i, j ); numIndexes++; // original order: 1
 
-                *pIdx++ = _index( i, j + step ); numIndexes++;
-                *pIdx++ = _index( i + step, j + step ); numIndexes++;
-                *pIdx++ = _index( i + step, j ); numIndexes++;
+                *pIdx++ = _index( i + step, j + step ); numIndexes++; // original order: 2
+                *pIdx++ = _index( i + step, j ); numIndexes++; // original order: 3
+                *pIdx++ = _index( i, j + step ); numIndexes++; // original order: 1
             }
         }
 
@@ -1404,15 +1404,15 @@ namespace Ogre
                 {
                     if (horizontal)
                     {
-                        *pIdx++ = _index( j , starty ); numIndexes++;
-                        *pIdx++ = _index( jk, starty + rowstep ); numIndexes++;
-                        *pIdx++ = _index( jk + step, starty + rowstep ); numIndexes++;
+                        *pIdx++ = _index( jk, starty + rowstep ); numIndexes++; // original order: 2
+                        *pIdx++ = _index( jk + step, starty + rowstep ); numIndexes++; // original order: 3
+                        *pIdx++ = _index( j , starty ); numIndexes++; // original order: 1
                     }
                     else
                     {
-                        *pIdx++ = _index( starty, j ); numIndexes++;
-                        *pIdx++ = _index( starty + rowstep, jk ); numIndexes++;
-                        *pIdx++ = _index( starty + rowstep, jk + step); numIndexes++;
+                        *pIdx++ = _index( starty + rowstep, jk ); numIndexes++; // original order: 2
+                        *pIdx++ = _index( starty + rowstep, jk + step); numIndexes++; // original order: 3
+                        *pIdx++ = _index( starty, j ); numIndexes++; // original order: 1
                     }
                 }
             }
@@ -1420,15 +1420,15 @@ namespace Ogre
             // Middle tri
             if (horizontal)
             {
-                *pIdx++ = _index( j, starty ); numIndexes++;
-                *pIdx++ = _index( j + halfsuperstep, starty + rowstep); numIndexes++;
-                *pIdx++ = _index( j + superstep, starty ); numIndexes++;
+                *pIdx++ = _index( j + halfsuperstep, starty + rowstep); numIndexes++; // original order: 2
+                *pIdx++ = _index( j + superstep, starty ); numIndexes++; // original order: 3
+                *pIdx++ = _index( j, starty ); numIndexes++; // original order: 1
             }
             else
             {
-                *pIdx++ = _index( starty, j ); numIndexes++;
-                *pIdx++ = _index( starty + rowstep, j + halfsuperstep ); numIndexes++;
-                *pIdx++ = _index( starty, j + superstep ); numIndexes++;
+                *pIdx++ = _index( starty + rowstep, j + halfsuperstep ); numIndexes++; // original order: 2
+                *pIdx++ = _index( starty, j + superstep ); numIndexes++; // original order: 3
+                *pIdx++ = _index( starty, j ); numIndexes++; // original order: 1
             }
 
             for (k = halfsuperstep; k != superstep; k += step)
@@ -1438,15 +1438,15 @@ namespace Ogre
                 {
                     if (horizontal)
                     {
-                        *pIdx++ = _index( j + superstep, starty ); numIndexes++;
-                        *pIdx++ = _index( jk, starty + rowstep ); numIndexes++;
-                        *pIdx++ = _index( jk + step, starty + rowstep ); numIndexes++;
+                        *pIdx++ = _index( jk, starty + rowstep ); numIndexes++; // original order: 2
+                        *pIdx++ = _index( jk + step, starty + rowstep ); numIndexes++; // original order: 3
+                        *pIdx++ = _index( j + superstep, starty ); numIndexes++; // original order: 1
                     }
                     else
                     {
-                        *pIdx++ = _index( starty, j + superstep ); numIndexes++;
-                        *pIdx++ = _index( starty + rowstep, jk ); numIndexes++;
-                        *pIdx++ = _index( starty + rowstep, jk + step ); numIndexes++;
+                        *pIdx++ = _index( starty + rowstep, jk ); numIndexes++; // original order: 2
+                        *pIdx++ = _index( starty + rowstep, jk + step ); numIndexes++; // original order: 3
+                        *pIdx++ = _index( starty, j + superstep ); numIndexes++; // original order: 1
                     }
                 }
             }
