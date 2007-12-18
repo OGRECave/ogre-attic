@@ -15,6 +15,8 @@
 
 #include <string>
 #include <vector>
+#include <string.h>
+#include <stdlib.h>
 
 #include "nvparse.h"
 #include "nvparse_errors.h"

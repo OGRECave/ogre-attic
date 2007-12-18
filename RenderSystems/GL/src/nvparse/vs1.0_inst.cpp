@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string>
 #include <map>
+#include <string.h>
 #include "nvparse_errors.h"
 #include "nvparse_externs.h"
 
