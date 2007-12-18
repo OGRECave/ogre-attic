@@ -384,20 +384,20 @@ namespace Ogre
 				{
 				case ID_MATERIAL:
 					{	
-						MaterialTranslator translator(this);
-						Translator::translate(&translator, *i);
+						MaterialTranslator translator;
+						Translator::translate(&translator, *i, this);
 					}
 					break;
 				case ID_PARTICLE_SYSTEM:
 					{
-						ParticleSystemTranslator translator(this);
-						Translator::translate(&translator, *i);
+						ParticleSystemTranslator translator;
+						Translator::translate(&translator, *i, this);
 					}
 					break;
 				case ID_COMPOSITOR:
 					{
-						CompositorTranslator translator(this);
-						Translator::translate(&translator, *i);
+						CompositorTranslator translator;
+						Translator::translate(&translator, *i, this);
 					}
 					break;
 				case ID_VERTEX_PROGRAM:
@@ -410,18 +410,18 @@ namespace Ogre
 								String language = ((AtomAbstractNode*)obj->values.front().get())->value;
 								if(language == "asm")
 								{
-									GpuProgramTranslator translator(this);
-									Translator::translate(&translator, *i);
+									GpuProgramTranslator translator;
+									Translator::translate(&translator, *i, this);
 								}
 								else if(language == "unified")
 								{
-									UnifiedGpuProgramTranslator translator(this);
-									Translator::translate(&translator, *i);
+									UnifiedGpuProgramTranslator translator;
+									Translator::translate(&translator, *i, this);
 								}
 								else
 								{
-									HighLevelGpuProgramTranslator translator(this);
-									Translator::translate(&translator, *i);
+									HighLevelGpuProgramTranslator translator;
+									Translator::translate(&translator, *i, this);
 								}
 							}
 							else
@@ -436,7 +436,7 @@ namespace Ogre
 					}
 					break;
 				default:
-					Translator::translate((Translator*)0, *i);
+					Translator::translate((Translator*)0, *i, this);
 				}
 			}
 		}
@@ -1318,12 +1318,12 @@ namespace Ogre
 	}
 
 	// Translator
-	ScriptCompiler::Translator::Translator(Ogre::ScriptCompiler *compiler)
-		:mCompiler(compiler)
+	ScriptCompiler::Translator::Translator()
+		:mCompiler(0)
 	{
 	}
 
-	void ScriptCompiler::Translator::translate(Translator *translator, const AbstractNodePtr &node)
+	void ScriptCompiler::Translator::translate(Translator *translator, const AbstractNodePtr &node, ScriptCompiler *compiler)
 	{
 		// If it an abstract object it is completely skipped
 		if(node->type == ANT_OBJECT && ((ObjectAbstractNode*)node.get())->abstract)
@@ -1331,17 +1331,18 @@ namespace Ogre
 
 		// First check if the compiler listener will override this node
 		bool process = true;
-		if(translator && translator->mCompiler && translator->mCompiler->mListener)
+		if(compiler && compiler->mListener)
 		{
 			std::pair<bool,ScriptCompiler::Translator*> p;
 			if(node->type == ANT_OBJECT)
-				p = translator->mCompiler->mListener->preObjectTranslation((ObjectAbstractNode*)node.get());
+				p = compiler->mListener->preObjectTranslation((ObjectAbstractNode*)node.get());
 			else if(node->type == ANT_PROPERTY)
-				p = translator->mCompiler->mListener->prePropertyTranslation((PropertyAbstractNode*)node.get());
+				p = compiler->mListener->prePropertyTranslation((PropertyAbstractNode*)node.get());
 			else
 				p.first = false;
 			if(p.first && p.second)
 			{
+				p.second->mCompiler = compiler;
 				// Call the returned translator
 				if(node->type == ANT_OBJECT)
 					p.second->processObject((ObjectAbstractNode*)node.get());
@@ -1355,6 +1356,7 @@ namespace Ogre
 		// Or ignore the node if no translator is given
 		if(process && translator)
 		{
+			translator->mCompiler = compiler;
 			if(node->type == ANT_OBJECT)
 				translator->processObject((ObjectAbstractNode*)node.get());
 			else if(node->type == ANT_PROPERTY)
@@ -1657,8 +1659,7 @@ namespace Ogre
 	}
 
 	// MaterialTranslator
-	ScriptCompiler::MaterialTranslator::MaterialTranslator(ScriptCompiler *compiler)
-		:Translator(compiler)
+	ScriptCompiler::MaterialTranslator::MaterialTranslator()
 	{
 	}
 
@@ -1687,7 +1688,7 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 			}
 			else if((*i)->type == ANT_OBJECT)
 			{
@@ -1697,8 +1698,8 @@ namespace Ogre
 				{
 					// Compile the technique
 					Technique *tec = mMaterial->createTechnique();
-					TechniqueTranslator translator(getCompiler(), tec);
-					Translator::translate(&translator, *i);
+					TechniqueTranslator translator(tec);
+					Translator::translate(&translator, *i, getCompiler());
 				}
 			}
 		}
@@ -1785,8 +1786,8 @@ namespace Ogre
 	}
 
 	// TechniqueTranslator
-	ScriptCompiler::TechniqueTranslator::TechniqueTranslator(ScriptCompiler *compiler, Technique *technique)
-		:Translator(compiler), mTechnique(technique)
+	ScriptCompiler::TechniqueTranslator::TechniqueTranslator(Technique *technique)
+		:mTechnique(technique)
 	{
 	}
 
@@ -1803,7 +1804,7 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 			}
 			else if((*i)->type == ANT_OBJECT)
 			{
@@ -1812,8 +1813,8 @@ namespace Ogre
 				{
 					// Create a pass and compile it
 					Pass *pass = mTechnique->createPass();
-					PassTranslator translator(getCompiler(), pass);
-					Translator::translate(&translator, *i);
+					PassTranslator translator(pass);
+					Translator::translate(&translator, *i, getCompiler());
 				}
 			}
 		}
@@ -1903,8 +1904,8 @@ namespace Ogre
 	}
 
 	// PassTranslator
-	ScriptCompiler::PassTranslator::PassTranslator(Ogre::ScriptCompiler *compiler, Ogre::Pass *pass)
-		:Translator(compiler), mPass(pass)
+	ScriptCompiler::PassTranslator::PassTranslator(Ogre::Pass *pass)
+		:mPass(pass)
 	{
 	}
 
@@ -1921,7 +1922,7 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 			}
 			else if((*i)->type == ANT_OBJECT)
 			{
@@ -1931,8 +1932,8 @@ namespace Ogre
 				case ID_TEXTURE_UNIT:
 					{
 						TextureUnitState *unit = mPass->createTextureUnitState();
-						TextureUnitTranslator translator(getCompiler(), unit);
-						translate(&translator, *i);
+						TextureUnitTranslator translator(unit);
+						translate(&translator, *i, getCompiler());
 					}
 					break;
 				case ID_VERTEX_PROGRAM_REF:
@@ -1961,8 +1962,8 @@ namespace Ogre
 								if(prog->isSupported())
 								{
 									GpuProgramParametersSharedPtr params = mPass->getVertexProgramParameters();
-									GpuProgramParametersTranslator translator(getCompiler(), params);
-									translate(&translator, *i);
+									GpuProgramParametersTranslator translator(params);
+									translate(&translator, *i, getCompiler());
 								}
 							}
 							else
@@ -2002,8 +2003,8 @@ namespace Ogre
 								if(prog->isSupported())
 								{
 									GpuProgramParametersSharedPtr params = mPass->getFragmentProgramParameters();
-									GpuProgramParametersTranslator translator(getCompiler(), params);
-									translate(&translator, *i);
+									GpuProgramParametersTranslator translator(params);
+									translate(&translator, *i, getCompiler());
 								}
 							}
 							else
@@ -2043,8 +2044,8 @@ namespace Ogre
 								if(prog->isSupported())
 								{
 									GpuProgramParametersSharedPtr params = mPass->getShadowCasterVertexProgramParameters();
-									GpuProgramParametersTranslator translator(getCompiler(), params);
-									translate(&translator, *i);
+									GpuProgramParametersTranslator translator(params);
+									translate(&translator, *i, getCompiler());
 								}
 							}
 							else
@@ -2084,8 +2085,8 @@ namespace Ogre
 								if(prog->isSupported())
 								{
 									GpuProgramParametersSharedPtr params = mPass->getShadowReceiverVertexProgramParameters();
-									GpuProgramParametersTranslator translator(getCompiler(), params);
-									translate(&translator, *i);
+									GpuProgramParametersTranslator translator(params);
+									translate(&translator, *i, getCompiler());
 								}
 							}
 							else
@@ -2125,8 +2126,8 @@ namespace Ogre
 								if(prog->isSupported())
 								{
 									GpuProgramParametersSharedPtr params = mPass->getShadowReceiverFragmentProgramParameters();
-									GpuProgramParametersTranslator translator(getCompiler(), params);
-									translate(&translator, *i);
+									GpuProgramParametersTranslator translator(params);
+									translate(&translator, *i, getCompiler());
 								}
 							}
 							else
@@ -2140,6 +2141,8 @@ namespace Ogre
 						}
 					}
 					break;
+				default:
+					Translator::translate(0, *i, getCompiler());
 				}
 			}
 		}
@@ -3189,8 +3192,8 @@ namespace Ogre
 	}
 
 	// TextureUnitTranslator
-	ScriptCompiler::TextureUnitTranslator::TextureUnitTranslator(ScriptCompiler *compiler, TextureUnitState *unit)
-		:Translator(compiler), mUnit(unit)
+	ScriptCompiler::TextureUnitTranslator::TextureUnitTranslator(TextureUnitState *unit)
+		:mUnit(unit)
 	{
 	}
 
@@ -3207,11 +3210,12 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 				
 			}
 			else if((*i)->type == ANT_OBJECT)
 			{
+				Translator::translate(0, *i, getCompiler());
 			}
 		}
 	}
@@ -4366,8 +4370,7 @@ namespace Ogre
 	}
 
 	// GpuProgramTranslator
-	ScriptCompiler::GpuProgramTranslator::GpuProgramTranslator(ScriptCompiler *compiler)
-		:Translator(compiler)
+	ScriptCompiler::GpuProgramTranslator::GpuProgramTranslator()
 	{
 	}
 
@@ -4466,8 +4469,8 @@ namespace Ogre
 		if(prog->isSupported() && !params.isNull())
 		{
 			GpuProgramParametersSharedPtr ptr = prog->getDefaultParameters();
-			GpuProgramParametersTranslator translator(getCompiler(), ptr);
-			Translator::translate(&translator, params);
+			GpuProgramParametersTranslator translator(ptr);
+			Translator::translate(&translator, params, getCompiler());
 		}
 		prog->touch();
 	}
@@ -4477,8 +4480,7 @@ namespace Ogre
 	}
 
 	// HighLevelGpuProgramTranslator
-	ScriptCompiler::HighLevelGpuProgramTranslator::HighLevelGpuProgramTranslator(ScriptCompiler *compiler)
-		:Translator(compiler)
+	ScriptCompiler::HighLevelGpuProgramTranslator::HighLevelGpuProgramTranslator()
 	{
 	}
 
@@ -4566,8 +4568,8 @@ namespace Ogre
 		if(prog->isSupported() && !params.isNull())
 		{
 			GpuProgramParametersSharedPtr ptr = prog->getDefaultParameters();
-			GpuProgramParametersTranslator translator(getCompiler(), ptr);
-			Translator::translate(&translator, params);
+			GpuProgramParametersTranslator translator(ptr);
+			Translator::translate(&translator, params, getCompiler());
 		}
 		prog->touch();
 	}
@@ -4577,8 +4579,7 @@ namespace Ogre
 	}
 
 	// UnifiedGpuProgramTranslator
-	ScriptCompiler::UnifiedGpuProgramTranslator::UnifiedGpuProgramTranslator(ScriptCompiler *compiler)
-		:Translator(compiler)
+	ScriptCompiler::UnifiedGpuProgramTranslator::UnifiedGpuProgramTranslator()
 	{
 	}
 
@@ -4656,8 +4657,8 @@ namespace Ogre
 		if(prog->isSupported() && !params.isNull())
 		{
 			GpuProgramParametersSharedPtr ptr = prog->getDefaultParameters();
-			GpuProgramParametersTranslator translator(getCompiler(), ptr);
-			Translator::translate(&translator, params);
+			GpuProgramParametersTranslator translator(ptr);
+			Translator::translate(&translator, params, getCompiler());
 		}
 		prog->touch();
 	}
@@ -4667,8 +4668,8 @@ namespace Ogre
 	}
 
 	// GpuProgramParametersTranslator
-	ScriptCompiler::GpuProgramParametersTranslator::GpuProgramParametersTranslator(Ogre::ScriptCompiler *compiler, const Ogre::GpuProgramParametersSharedPtr &params)
-		:Translator(compiler), mParams(params), mAnimParametricsCount(0)
+	ScriptCompiler::GpuProgramParametersTranslator::GpuProgramParametersTranslator(const Ogre::GpuProgramParametersSharedPtr &params)
+		:mParams(params), mAnimParametricsCount(0)
 	{
 	}
 
@@ -4681,7 +4682,11 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
+			}
+			else if((*i)->type == ANT_OBJECT)
+			{
+				Translator::translate(0, *i, getCompiler());
 			}
 		}
 	}
@@ -5011,8 +5016,8 @@ namespace Ogre
 	}
 
 	// ParticleSystemTranslator
-	ScriptCompiler::ParticleSystemTranslator::ParticleSystemTranslator(Ogre::ScriptCompiler *compiler)
-		:Translator(compiler), mSystem(0)
+	ScriptCompiler::ParticleSystemTranslator::ParticleSystemTranslator()
+		:mSystem(0)
 	{
 	}
 
@@ -5063,8 +5068,8 @@ namespace Ogre
 							getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
 							continue;
 						}
-						ScriptCompiler::ParticleEmitterTranslator translator(getCompiler(), emitter);
-						Translator::translate(&translator, *i);
+						ScriptCompiler::ParticleEmitterTranslator translator(emitter);
+						Translator::translate(&translator, *i, getCompiler());
 					}
 					break;
 				case ID_AFFECTOR:
@@ -5081,17 +5086,17 @@ namespace Ogre
 							getCompiler()->addError(CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
 							continue;
 						}
-						ScriptCompiler::ParticleAffectorTranslator translator(getCompiler(), affector);
-						Translator::translate(&translator, *i);
+						ScriptCompiler::ParticleAffectorTranslator translator(affector);
+						Translator::translate(&translator, *i, getCompiler());
 					}
 					break;
 				default:
-					Translator::translate((ScriptCompiler::Translator*)0, *i);
+					Translator::translate((ScriptCompiler::Translator*)0, *i, getCompiler());
 				}
 			}
 			else if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 			}
 		}
 	}
@@ -5165,8 +5170,8 @@ namespace Ogre
 	}
 
 	// ParticleEmitterTranslator
-	ScriptCompiler::ParticleEmitterTranslator::ParticleEmitterTranslator(Ogre::ScriptCompiler *compiler, Ogre::ParticleEmitter *emitter)
-		:Translator(compiler), mEmitter(emitter)
+	ScriptCompiler::ParticleEmitterTranslator::ParticleEmitterTranslator(Ogre::ParticleEmitter *emitter)
+		:mEmitter(emitter)
 	{
 	}
 
@@ -5178,11 +5183,11 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
-				Translator::translate((Translator*)0, *i);
+				Translator::translate((Translator*)0, *i, getCompiler());
 			}
 			else if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 			}
 		}
 	}
@@ -5215,8 +5220,8 @@ namespace Ogre
 	}
 
 	// ParticleAffectorTranslator
-	ScriptCompiler::ParticleAffectorTranslator::ParticleAffectorTranslator(Ogre::ScriptCompiler *compiler, Ogre::ParticleAffector *affector)
-		:Translator(compiler), mAffector(affector)
+	ScriptCompiler::ParticleAffectorTranslator::ParticleAffectorTranslator(Ogre::ParticleAffector *affector)
+		:mAffector(affector)
 	{
 	}
 
@@ -5228,11 +5233,11 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
-				Translator::translate((Translator*)0, *i);
+				Translator::translate((Translator*)0, *i, getCompiler());
 			}
 			else if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 			}
 		}
 	}
@@ -5265,8 +5270,7 @@ namespace Ogre
 	}
 
 	// CompositorTranslator
-	ScriptCompiler::CompositorTranslator::CompositorTranslator(ScriptCompiler *compiler)
-		:Translator(compiler)
+	ScriptCompiler::CompositorTranslator::CompositorTranslator()
 	{
 	}
 
@@ -5302,17 +5306,17 @@ namespace Ogre
 				{
 				case ID_TECHNIQUE:
 					{
-						CompositionTechniqueTranslator translator(getCompiler(), mCompositor->createTechnique());
-						Translator::translate(&translator, *i);
+						CompositionTechniqueTranslator translator(mCompositor->createTechnique());
+						Translator::translate(&translator, *i, getCompiler());
 					}
 					break;
 				default:
-					Translator::translate(0, *i);
+					Translator::translate(0, *i, getCompiler());
 				}
 			}
 			else if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 			}
 		}
 	}
@@ -5322,8 +5326,8 @@ namespace Ogre
 	}
 
 	// CompositionTechniqueTranslator
-	ScriptCompiler::CompositionTechniqueTranslator::CompositionTechniqueTranslator(ScriptCompiler *compiler, CompositionTechnique *technique)
-		:Translator(compiler), mTechnique(technique)
+	ScriptCompiler::CompositionTechniqueTranslator::CompositionTechniqueTranslator(CompositionTechnique *technique)
+		:mTechnique(technique)
 	{
 	}
 
@@ -5341,23 +5345,23 @@ namespace Ogre
 				case ID_TARGET:
 					{
 						CompositionTargetPass *target = mTechnique->createTargetPass();
-						CompositionTargetPassTranslator translator(getCompiler(), target);
-						Translator::translate(&translator, *i);
+						CompositionTargetPassTranslator translator(target);
+						Translator::translate(&translator, *i, getCompiler());
 					}
 					break;
 				case ID_TARGET_OUTPUT:
 					{
-						CompositionTargetPassTranslator translator(getCompiler(), mTechnique->getOutputTargetPass());
-						Translator::translate(&translator, *i);
+						CompositionTargetPassTranslator translator(mTechnique->getOutputTargetPass());
+						Translator::translate(&translator, *i, getCompiler());
 					}
 					break;
 				default:
-					Translator::translate(0, *i);
+					Translator::translate(0, *i, getCompiler());
 				}
 			}
 			else if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 			}
 		}
 	}
@@ -5423,8 +5427,8 @@ namespace Ogre
 	}
 
 	// CompositionTargetPassTranslator
-	ScriptCompiler::CompositionTargetPassTranslator::CompositionTargetPassTranslator(ScriptCompiler *compiler, CompositionTargetPass *target)
-		:Translator(compiler), mTarget(target)
+	ScriptCompiler::CompositionTargetPassTranslator::CompositionTargetPassTranslator(CompositionTargetPass *target)
+		:mTarget(target)
 	{
 	}
 
@@ -5449,17 +5453,17 @@ namespace Ogre
 				{
 				case ID_PASS:
 					{
-						CompositionPassTranslator translator(getCompiler(), mTarget->createPass());
-						Translator::translate(&translator, *i);
+						CompositionPassTranslator translator(mTarget->createPass());
+						Translator::translate(&translator, *i, getCompiler());
 					}
 					break;
 				default:
-					Translator::translate(0, *i);
+					Translator::translate(0, *i, getCompiler());
 				}
 			}
 			else if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 			}
 		}
 	}
@@ -5602,8 +5606,8 @@ namespace Ogre
 	}
 
 	// CompositionPassTranslator
-	ScriptCompiler::CompositionPassTranslator::CompositionPassTranslator(ScriptCompiler *compiler, CompositionPass *pass)
-		:Translator(compiler), mPass(pass)
+	ScriptCompiler::CompositionPassTranslator::CompositionPassTranslator(CompositionPass *pass)
+		:mPass(pass)
 	{
 	}
 
@@ -5636,11 +5640,11 @@ namespace Ogre
 		{
 			if((*i)->type == ANT_OBJECT)
 			{
-				Translator::translate(0, *i);
+				Translator::translate(0, *i, getCompiler());
 			}
 			else if((*i)->type == ANT_PROPERTY)
 			{
-				Translator::translate(this, *i);
+				Translator::translate(this, *i, getCompiler());
 			}
 		}
 	}

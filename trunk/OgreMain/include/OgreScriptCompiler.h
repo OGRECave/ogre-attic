@@ -308,9 +308,9 @@ namespace Ogre
 			bool getFloats(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, float *vals, int count);
 			bool getStencilOp(const AbstractNodePtr &node, StencilOperation *op); 
 		public:
-			Translator(ScriptCompiler *compiler);
+			Translator();
 			/// This static translation function requests a translation on the given node
-			static void translate(Translator *translator, const AbstractNodePtr &node);
+			static void translate(Translator *translator, const AbstractNodePtr &node, ScriptCompiler *compiler);
 		protected:
 			/// This function is called to process each object node
 			virtual void processObject(ObjectAbstractNode*) = 0;
@@ -324,7 +324,7 @@ namespace Ogre
 			MaterialPtr mMaterial;
 			Ogre::AliasTextureNamePairList mTextureAliases;
 		public:
-			MaterialTranslator(ScriptCompiler *compiler);
+			MaterialTranslator();
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -333,7 +333,7 @@ namespace Ogre
 		protected:
 			Technique *mTechnique;
 		public:
-			TechniqueTranslator(ScriptCompiler *compiler, Technique *technique);
+			TechniqueTranslator(Technique *technique);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -342,7 +342,7 @@ namespace Ogre
 		protected:
 			Pass *mPass;
 		public:
-			PassTranslator(ScriptCompiler *compiler, Pass *pass);
+			PassTranslator(Pass *pass);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -351,28 +351,28 @@ namespace Ogre
 		protected:
 			TextureUnitState *mUnit;
 		public:
-			TextureUnitTranslator(ScriptCompiler *compiler, TextureUnitState *unit);
+			TextureUnitTranslator(TextureUnitState *unit);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
 		class _OgreExport GpuProgramTranslator : public Translator
 		{
 		public:
-			GpuProgramTranslator(ScriptCompiler *compiler);
+			GpuProgramTranslator();
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
 		class _OgreExport HighLevelGpuProgramTranslator : public Translator
 		{
 		public:
-			HighLevelGpuProgramTranslator(ScriptCompiler *compiler);
+			HighLevelGpuProgramTranslator();
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
 		class _OgreExport UnifiedGpuProgramTranslator : public Translator
 		{
 		public:
-			UnifiedGpuProgramTranslator(ScriptCompiler *compiler);
+			UnifiedGpuProgramTranslator();
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -382,7 +382,7 @@ namespace Ogre
 			GpuProgramParametersSharedPtr mParams;
 			int mAnimParametricsCount;
 		public:
-			GpuProgramParametersTranslator(ScriptCompiler *compiler, const GpuProgramParametersSharedPtr &params);
+			GpuProgramParametersTranslator(const GpuProgramParametersSharedPtr &params);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -391,7 +391,7 @@ namespace Ogre
 		protected:
 			Ogre::ParticleSystem *mSystem;
 		public:
-			ParticleSystemTranslator(ScriptCompiler *compiler);
+			ParticleSystemTranslator();
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -400,7 +400,7 @@ namespace Ogre
 		protected:
 			Ogre::ParticleEmitter *mEmitter;
 		public:
-			ParticleEmitterTranslator(ScriptCompiler *compiler, ParticleEmitter *emitter);
+			ParticleEmitterTranslator(ParticleEmitter *emitter);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -409,7 +409,7 @@ namespace Ogre
 		protected:
 			Ogre::ParticleAffector *mAffector;
 		public:
-			ParticleAffectorTranslator(ScriptCompiler *compiler, ParticleAffector *affector);
+			ParticleAffectorTranslator(ParticleAffector *affector);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -418,7 +418,7 @@ namespace Ogre
 		protected:
 			CompositorPtr mCompositor;
 		public:
-			CompositorTranslator(ScriptCompiler *compiler);
+			CompositorTranslator();
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -427,7 +427,7 @@ namespace Ogre
 		protected:
 			CompositionTechnique *mTechnique;
 		public:
-			CompositionTechniqueTranslator(ScriptCompiler *compiler, CompositionTechnique *technique);
+			CompositionTechniqueTranslator(CompositionTechnique *technique);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -436,7 +436,7 @@ namespace Ogre
 		protected:
 			CompositionTargetPass *mTarget;
 		public:
-			CompositionTargetPassTranslator(ScriptCompiler *compiler, CompositionTargetPass *target);
+			CompositionTargetPassTranslator(CompositionTargetPass *target);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
@@ -445,7 +445,7 @@ namespace Ogre
 		protected:
 			CompositionPass *mPass;
 		public:
-			CompositionPassTranslator(ScriptCompiler *compiler, CompositionPass *pass);
+			CompositionPassTranslator(CompositionPass *pass);
 			void processObject(ObjectAbstractNode*);
 			void processProperty(PropertyAbstractNode*);
 		};
