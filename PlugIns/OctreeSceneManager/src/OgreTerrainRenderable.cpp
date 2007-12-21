@@ -303,7 +303,8 @@ namespace Ogre
         HardwareVertexBufferSharedPtr vbuf = 
             mTerrain->vertexBufferBinding->getBuffer(MAIN_BINDING);
         const VertexElement* elem = mTerrain->vertexDeclaration->findElementBySemantic(VES_NORMAL);
-        unsigned char* pBase = static_cast<unsigned char*>( vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+		// Must lock with HBL_NORMAL as buffer already has data in it
+        unsigned char* pBase = static_cast<unsigned char*>( vbuf->lock(HardwareBuffer::HBL_NORMAL) );
         float* pNorm;
 
         for ( size_t j = 0; j < mOptions->tileSize; j++ )
