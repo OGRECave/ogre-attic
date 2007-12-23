@@ -49,7 +49,12 @@ CompositionPass::CompositionPass(CompositionTargetPass *parent):
     mStencilFailOp(SOP_KEEP),
     mStencilDepthFailOp(SOP_KEEP),
     mStencilPassOp(SOP_KEEP),
-    mStencilTwoSidedOperation(false)
+    mStencilTwoSidedOperation(false),
+    mQuadCornerModified(false),
+    mQuadLeft(-1),
+    mQuadTop(1),
+    mQuadRight(1),
+    mQuadBottom(-1)
 {
 }
 //-----------------------------------------------------------------------
@@ -249,7 +254,22 @@ bool CompositionPass::getStencilTwoSidedOperation()
 {
 	return mStencilTwoSidedOperation;
 }
-
+void CompositionPass::setQuadCorners(Real left,Real top,Real right,Real bottom)
+{
+    mQuadCornerModified=true;
+    mQuadLeft = left;
+    mQuadTop = top;
+    mQuadRight = right;
+    mQuadBottom = bottom;
+}
+bool CompositionPass::getQuadCorners(Real & left,Real & top,Real & right,Real & bottom) const
+{
+    left = mQuadLeft;
+    top = mQuadTop;
+    right = mQuadRight;
+    bottom = mQuadBottom;
+    return mQuadCornerModified;
+}
 //-----------------------------------------------------------------------
 bool CompositionPass::_isSupported(void)
 {

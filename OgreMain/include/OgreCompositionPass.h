@@ -245,6 +245,16 @@ namespace Ogre {
          */
         bool _isSupported(void);
 
+        /** Set quad normalised positions [-1;1]x[-1;1]
+            @note applies when PassType is RENDERQUAD
+         */
+        void setQuadCorners(Real left,Real top,Real right,Real bottom);
+
+        /** Get quad normalised positions [-1;1]x[-1;1]
+            @note applies when PassType is RENDERQUAD 
+         */
+        bool getQuadCorners(Real & left,Real & top,Real & right,Real & bottom) const;
+            
     private:
         /// Parent technique
         CompositionTargetPass *mParent;
@@ -277,6 +287,14 @@ namespace Ogre {
 		StencilOperation mStencilDepthFailOp;
 		StencilOperation mStencilPassOp;
 		bool mStencilTwoSidedOperation;
+
+        /// true if quad should not cover whole screen
+        bool mQuadCornerModified;
+        /// quad positions in normalised coordinates [-1;1]x[-1;1] (in case of PT_RENDERQUAD)
+        Real mQuadLeft;
+        Real mQuadTop;
+        Real mQuadRight;
+        Real mQuadBottom;
     };
 
 }

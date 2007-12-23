@@ -220,8 +220,8 @@ namespace Ogre {
 		/// The Pass hash functor
 		static HashFunc* msHashFunc;
     public:
-		OGRE_STATIC_MUTEX(msDirtyHashListMutex);
-		OGRE_STATIC_MUTEX(msPassGraveyardMutex);
+		OGRE_STATIC_MUTEX(msDirtyHashListMutex)
+		OGRE_STATIC_MUTEX(msPassGraveyardMutex)
         /// Default constructor
 		Pass(Technique* parent, unsigned short index);
         /// Copy constructor
