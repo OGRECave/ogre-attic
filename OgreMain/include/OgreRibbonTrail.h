@@ -90,6 +90,8 @@ namespace Ogre {
 		virtual void removeNode(Node* n);
 		/** Get an iterator over the nodes which are being tracked. */
 		virtual NodeIterator getNodeIterator(void) const;
+		/** Get the chain index for a given Node being tracked. */
+		virtual size_t getChainIndexForNode(const Node* n);
 
 		/** Set the length of the trail. 
 		@remarks
@@ -170,6 +172,18 @@ namespace Ogre {
 	protected:
 		/// List of nodes being trailed
 		NodeList mNodeList;
+		/// Mapping of nodes to chain segments
+		typedef std::vector<size_t> IndexVector;
+		/// Ordered like mNodeList, contains chain index
+		IndexVector mNodeToChainSegment;
+		// chains not in use
+		IndexVector mFreeChains;
+
+		// fast lookup node->chain index
+		// we use positional map too because that can be useful
+		typedef std::map<const Node*, size_t> NodeToChainSegmentMap;
+		NodeToChainSegmentMap mNodeToSegMap;
+
 		/// Total length of trail in world units
 		Real mTrailLength;
 		/// length of each element
