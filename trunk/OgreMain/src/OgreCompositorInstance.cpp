@@ -144,29 +144,63 @@ class RSQuadOperation: public CompositorInstance::RenderSystemOperation
 {
 public:
 	RSQuadOperation(CompositorInstance *instance, uint32 pass_id, MaterialPtr mat):
-	  mat(mat),instance(instance), pass_id(pass_id)
+	  mat(mat),instance(instance), pass_id(pass_id),
+      mQuadCornerModified(false),
+      mQuadLeft(-1),
+      mQuadTop(1),
+      mQuadRight(1),
+      mQuadBottom(-1)
 	{
 		mat->load();
 		instance->_fireNotifyMaterialSetup(pass_id, mat);
 		technique = mat->getTechnique(0);
 		assert(technique);
+        
+       
 	}
 	MaterialPtr mat;
 	Technique *technique;
 	CompositorInstance *instance;
 	uint32 pass_id;
 
+    bool mQuadCornerModified;
+    Real mQuadLeft;
+    Real mQuadTop;
+    Real mQuadRight;
+    Real mQuadBottom;
+
+    void setQuadCorners(Real left,Real top,Real right,Real bottom)
+    {
+        mQuadLeft = left;
+        mQuadTop = top;
+        mQuadRight = right;
+        mQuadBottom = bottom;
+        mQuadCornerModified=true;
+    }
+        
 	virtual void execute(SceneManager *sm, RenderSystem *rs)
 	{
 		// Fire listener
 		instance->_fireNotifyMaterialRender(pass_id, mat);
+
+        Rectangle2D * mRectangle=static_cast<Rectangle2D *>(CompositorManager::getSingleton()._getTexturedRectangle2D());
+        if (mQuadCornerModified)
+        {
+            // insure positions are using peculiar render system offsets 
+            RenderSystem* rs = Root::getSingleton().getRenderSystem();
+            Viewport* vp = rs->_getViewport();
+            Real hOffset = rs->getHorizontalTexelOffset() / (0.5 * vp->getActualWidth());
+            Real vOffset = rs->getVerticalTexelOffset() / (0.5 * vp->getActualHeight());
+            mRectangle->setCorners(mQuadLeft + hOffset, mQuadTop - vOffset, mQuadRight + hOffset, mQuadBottom - vOffset);
+        }
+        
 		// Queue passes from mat
 		Technique::PassIterator i = technique->getPassIterator();
 		while(i.hasMoreElements())
 		{
 			sm->_injectRenderWithPass(
 				i.getNext(), 
-				CompositorManager::getSingleton()._getTexturedRectangle2D(),
+				mRectangle,
 				false // don't allow replacement of shadow passes
 				);
 		}
@@ -271,7 +305,13 @@ void CompositorInstance::collectPasses(TargetOperation &finalState, CompositionT
 					}
 				}
 			}
-			queueRenderSystemOp(finalState, new RSQuadOperation(this,pass->getIdentifier(),mat));
+
+            RSQuadOperation * rsQuadOperation = new RSQuadOperation(this,pass->getIdentifier(),mat);
+            Real left,top,right,bottom;
+            if (pass->getQuadCorners(left,top,right,bottom))
+                rsQuadOperation->setQuadCorners(left,top,right,bottom);
+                
+			queueRenderSystemOp(finalState,rsQuadOperation);
             break;
         }
     }

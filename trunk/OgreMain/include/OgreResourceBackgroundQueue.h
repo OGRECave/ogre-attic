@@ -115,7 +115,7 @@ namespace Ogre {
 		/// Init notification mutex (must lock before waiting on initCondition)
 		OGRE_MUTEX(initMutex)
 		/// Synchroniser token to wait / notify on thread init (public incase external thread)
-		OGRE_THREAD_SYNCHRONISER(initSync);
+		OGRE_THREAD_SYNCHRONISER(initSync)
 
 	protected:
 		/** Enumerates the type of requests */

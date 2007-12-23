@@ -652,7 +652,7 @@ namespace Ogre {
             /** Provides packed texture size of the texture unit (index determined by setAutoConstant
                 call). Packed as float4(width, height, 1 / width, 1 / height)
             */
-            ACT_PACKED_TEXTURE_SIZE,
+            ACT_PACKED_TEXTURE_SIZE
 
 
         };
