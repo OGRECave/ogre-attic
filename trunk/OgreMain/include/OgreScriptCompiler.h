@@ -281,11 +281,11 @@ namespace Ogre
 		enum
 		{
 			ID_ON = 1,
-			ID_OFF = 0,
+			ID_OFF = 2,
 			ID_TRUE = 1,
-			ID_FALSE = 0,
+			ID_FALSE = 2,
 			ID_YES = 1,
-			ID_NO = 0
+			ID_NO = 2
 		};
 		// This is the translator base class
 		class _OgreExport Translator
@@ -497,7 +497,7 @@ namespace Ogre
 	/// This enum defines the integer ids for keywords this compiler handles
 	enum
 	{
-		ID_MATERIAL = 2,
+		ID_MATERIAL = 3,
 		ID_VERTEX_PROGRAM,
 		ID_FRAGMENT_PROGRAM,
 		ID_TECHNIQUE,

@@ -139,7 +139,7 @@ namespace Ogre
 
 	// ObjectAbstractNode
 	ObjectAbstractNode::ObjectAbstractNode(AbstractNode *ptr)
-		:AbstractNode(ptr), abstract(false)
+		:AbstractNode(ptr), abstract(false), id(0)
 	{
 		type = ANT_OBJECT;
 	}
@@ -204,7 +204,7 @@ namespace Ogre
 
 	// PropertyAbstractNode
 	PropertyAbstractNode::PropertyAbstractNode(AbstractNode *ptr)
-		:AbstractNode(ptr)
+		:AbstractNode(ptr), id(0)
 	{
 		type = ANT_PROPERTY;
 	}
@@ -1396,7 +1396,7 @@ namespace Ogre
 			return false;
 		}
 		AtomAbstractNode *atom = (AtomAbstractNode*)node.get();
-		if(atom->id != 1 && atom->id != 0)
+		if(atom->id != 1 && atom->id != 2)
 		{
 			mCompiler->addError(CE_INVALIDPARAMETERS, node->file, node->line);
 			return false;
