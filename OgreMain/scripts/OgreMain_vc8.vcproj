@@ -264,7 +264,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="zziplibd.lib freetype235_D.lib freeimaged.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib zlibd.lib "
+				AdditionalDependencies="zziplibd.lib freetype235_D.lib freeimaged.lib zlibd.lib "
 				OutputFile="$(OutDir)\$(ProjectName)Static_d.lib"
 				AdditionalLibraryDirectories="..\..\lib;..\..\Dependencies\lib\Debug"
 			/>
@@ -342,7 +342,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="zziplib.lib freetype235.lib freeimage.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib zlib.lib"
+				AdditionalDependencies="zziplib.lib freetype235.lib freeimage.lib zlib.lib"
 				OutputFile="$(OutDir)\$(ProjectName)Static.lib"
 				AdditionalLibraryDirectories="..\..\lib;..\..\Dependencies\lib\Release"
 			/>
