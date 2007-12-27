@@ -310,9 +310,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void GLSLProgram::attachToProgramObject( const GLhandleARB programObject )
 	{
-		glAttachObjectARB( programObject, mGLHandle );
-		checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram",
-			"Error attaching " + mName + " shader object to GLSL Program Object", programObject );
 		// attach child objects
 		GLSLProgramContainerIterator childprogramcurrent = mAttachedGLSLPrograms.begin();
 		GLSLProgramContainerIterator childprogramend = mAttachedGLSLPrograms.end();
@@ -331,6 +328,9 @@ namespace Ogre {
 
 			++childprogramcurrent;
 		}
+		glAttachObjectARB( programObject, mGLHandle );
+		checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram",
+			"Error attaching " + mName + " shader object to GLSL Program Object", programObject );
 
 	}
 	//-----------------------------------------------------------------------
