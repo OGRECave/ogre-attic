@@ -140,7 +140,9 @@ namespace Ogre
         AutoConstantDefinition(ACT_CAMERA_POSITION,               "camera_position",              3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_CAMERA_POSITION_OBJECT_SPACE,  "camera_position_object_space", 3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_TEXTURE_VIEWPROJ_MATRIX,       "texture_viewproj_matrix",     16, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_TEXTURE_VIEWPROJ_MATRIX_ARRAY, "texture_viewproj_matrix_array", 16, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_TEXTURE_WORLDVIEWPROJ_MATRIX,  "texture_worldviewproj_matrix",16, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_TEXTURE_WORLDVIEWPROJ_MATRIX_ARRAY, "texture_worldviewproj_matrix_array",16, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_SPOTLIGHT_VIEWPROJ_MATRIX,       "spotlight_viewproj_matrix",     16, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX,  "spotlight_worldviewproj_matrix",16, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_CUSTOM,                        "custom",                       4, ET_REAL, ACDT_INT),  // *** needs to be tested
@@ -1565,9 +1567,25 @@ namespace Ogre
 				// can also be updated in lights
 				_writeRawConstant(i->physicalIndex, source->getTextureViewProjMatrix(i->data));
 				break;
+			case ACT_TEXTURE_VIEWPROJ_MATRIX_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+				{
+					// can also be updated in lights
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						source->getTextureViewProjMatrix(l));
+				}
+				break;
 			case ACT_TEXTURE_WORLDVIEWPROJ_MATRIX:
 				// can also be updated in lights
 				_writeRawConstant(i->physicalIndex, source->getTextureWorldViewProjMatrix(i->data));
+				break;
+			case ACT_TEXTURE_WORLDVIEWPROJ_MATRIX_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+				{
+					// can also be updated in lights
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						source->getTextureWorldViewProjMatrix(l));
+				}
 				break;
 			case ACT_SPOTLIGHT_VIEWPROJ_MATRIX:
 				_writeRawConstant(i->physicalIndex, source->getSpotlightViewProjMatrix(i->data));

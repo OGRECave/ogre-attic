@@ -2269,8 +2269,12 @@ Near clip distance, in world units
 Far clip distance, in world units (may be 0 for infinite view projection)
 @item texture_viewproj_matrix
 Applicable to vertex programs which have been specified as the 'shadow receiver' vertex program alternative, or where a texture unit is marked as content_type shadow; this provides details of the view/projection matrix for the current shadow projector. The optional 'extra_params' entry specifies which light the projector refers to (for the case of content_type shadow where more than one shadow texture may be present in a single pass), where 0 is the default and refers to the first light referenced in this pass.
+@item texture_viewproj_matrix_array
+As texture_viewproj_matrix, except an array of matrices is passed, up to the number that you specify as the 'extra_params' value.
 @item texture_worldviewproj_matrix
 As texture_viewproj_matrix except it also includes the world matrix.
+@item texture_worldviewproj_matrix_array
+As texture_worldviewproj_matrix, except an array of matrices is passed, up to the number that you specify as the 'extra_params' value.
 @item spotlight_viewproj_matrix
 Provides a view / projection matrix which matches the set up of a given spotlight (requires an 'extra_params' entry to indicate the light index, which must be a spotlight). Can be used to project a texture from a given spotlight.
 @item spotlight_worldviewproj_matrix
