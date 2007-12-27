@@ -301,6 +301,65 @@ Rendering Engine)</p>
 
 
 
+<p class="mainheader" align="left">v1.4.6 [Eihort] (28 December 2007) - Maintenance Release</p>
+<ul>
+	<li>DirectX9:
+	<ul><li>Fix a bug when using fixed-function texture blending with manual source values. It only occurred when you used a manual colour as source2 and a manual alpha value as source2, together.</li>
+		<li>Fix a bug with compositors where the sequence {1. device lost 2.
+	  compositor disable/enable 3. device restore} would result in
+	  corrupted compositor resources.</li>
+	</ul></li>
+	<li>OpenGL:
+	<ul><li>Fix a DXT compression problem on Apple / Intel GMA machines.</li>
+		<li>Deal more gracefully with gluErrorString returning null; really shouldn't for a valid GL error code but FireGL has been shown to do so</li>
+		<li>Workaround for <a href="http://developer.nvidia.com/forums/index.php?showtopic=596">nvidia 169.x GLSL driver bug</a> resulting in "Bad scope in ConvertLocalReferences()" in HDR compositor</li>
+	</ul></li>
+	<li>Dependency updates:
+	<ul><li>Freetype 2.3.5</li>
+		<li>Cg 2.0</li>
+		<li>FreeImage 3.10.0</li>
+	</ul>
+	<li>Fix Animation::clone exception in Visual Studio 8 (release mode)</li>
+	<li>Cg &amp; HLSL: Fix bug with unload / reload if a compile error was encountered</li>
+	<li>Fix a potential deadlocking issue  between HardwareBufferManager allocateVertexBufferCopy and _notifyVertexBufferDestroyed, order the locks the same way to avoid</li>
+	<li>Make resource listener list threadsafe</li>
+	<li>Shadows:
+	<ul><li>Fix divergent behaviour in focused / LiSPSM shadows between debug and release.</li>
+		<li>Fixed edge case issues with focussed shadow camera setup: up dir
+		should be camera up dir; deal with zero vector</li>
+	</ul></li>
+	<li>Added setDebugOutputEnabled function to Log class</li>
+	<li>Add missing format initializer in Ogre::Image</li>
+	<li>Fix bounding box updates wh en background loading entity</li>
+	<li>Fix bug with TextAreaOverlayElement GMM_RELATIVE_ASPECT_ADJUSTED</li>
+	<li>Fix TerrainRenderable::_calculateNormals</li>
+	<li>Fix RibbonTrail::removeNode preserving associated ChainSegments</li>
+	<li>Link zlib[d].lib in static builds, avoid problem when referenced externally</li>
+	<li>GLX: Move restoration of desktop resolution from GLXWindow destructor to destroy() method, should be symmetric with create</li>
+	<li>gcc 4.3 fix - needs C stdlib includes explicitly now where used</li>
+	<li>TextureUnitState: 
+	<ul><li>Fix changing from animated texture to cubic texture (was still trying to be animated)</li>
+		<li>Fix inability to combine fixed-function x and y transform animations</li></ul></li>
+	<li>XSI exporter:
+	  <ul><li>Fix bug when using advanced rigs - 'RemoveAllAnimation'
+		  actually isn't necessary any more</li>
+		  <li>Several usability enhancements suggested by artists</li>
+	  </ul></li>
+	<li>Mesh::suggestTangentVectorBuildParams() exception condition - If
+	  you have more than one submesh and you find existing tangents in
+	  the mesh, avoid throwing an exception because of mismatching
+	  targets</li>
+	<li> Maya exporter: 
+	  <ul><li>Use correct Eihort default for tangent generation ie VES_TANGENT</li>
+		  <li>Enable the GUI option to switch between texcoord and tangent semantics when building tangents</li>
+		  <li>Put debug &amp; release plugins in consistent location</li>
+	  </ul></li>
+	  <li>BSP support:
+	  <ul><li>Fix use of BSP geometry with compositors</li>
+		  <li>Security fix (buffer overrun) for BSPSceneManager</li>
+	  </ul></li>
+	  <li>Various documentation corrections and code tidy ups</li>
+</ul>
 
 <p class="mainheader" align="left">v1.4.5 [Eihort] (29 September 2007) - Maintenance Release</p>
 <ul>
