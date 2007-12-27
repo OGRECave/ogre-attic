@@ -1088,8 +1088,8 @@ namespace Ogre
 			Polygon::EdgeMap::iterator it = intersectionEdges.begin();
 
 			// check the cross product of the first two edges
-			const Vector3& vFirst  = it->first;
-			const Vector3& vSecond = it->second;
+			Vector3 vFirst  = it->first;
+			Vector3 vSecond = it->second;
 
 			// remove inserted edge
 			intersectionEdges.erase( it );

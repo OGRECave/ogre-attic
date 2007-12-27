@@ -34,6 +34,7 @@ Torus Knot Software Ltd.
 #include "OgreCompositor.h"
 #include "OgreRectangle2D.h"
 #include "OgreCompositorSerializer.h"
+#include "OgreRenderSystem.h"
 
 #if OGRE_THREAD_SUPPORT
 // boost::thread_specific_ptr has 'new' in header but delete in lib
@@ -117,6 +118,9 @@ namespace Ogre {
 
 		/** Overridden from ResourceManager since we have to clean up chains too. */
 		void removeAll(void);
+
+		/** Internal method for forcing all active compositors to recreate their resources. */
+		void _reconstructAllCompositorResources();
 
 		/** Override standard Singleton retrieval.
 		@remarks
