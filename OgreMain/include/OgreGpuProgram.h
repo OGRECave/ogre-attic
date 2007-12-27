@@ -493,10 +493,14 @@ namespace Ogre {
             ACT_CAMERA_POSITION_OBJECT_SPACE,
             /// The view/projection matrix of the assigned texture projection frustum
             ACT_TEXTURE_VIEWPROJ_MATRIX,
+			/// Array of view/projection matrices of the first n texture projection frustums
+			ACT_TEXTURE_VIEWPROJ_MATRIX_ARRAY,
 			/** The view/projection matrix of the assigned texture projection frustum, 
 				combined with the current world matrix
 			*/
 			ACT_TEXTURE_WORLDVIEWPROJ_MATRIX,
+			/// Array of world/view/projection matrices of the first n texture projection frustums
+			ACT_TEXTURE_WORLDVIEWPROJ_MATRIX_ARRAY,
 			/// The view/projection matrix of a given spotlight
 			ACT_SPOTLIGHT_VIEWPROJ_MATRIX,
 			/** The view/projection matrix of a given spotlight projection frustum, 
