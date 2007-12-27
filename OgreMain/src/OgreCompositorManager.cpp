@@ -245,5 +245,23 @@ void CompositorManager::setCompositorEnabled(Viewport *vp, const String &composi
 		}
 	}
 }
+//---------------------------------------------------------------------
+void CompositorManager::_reconstructAllCompositorResources()
+{
+	for (Chains::iterator i = mChains.begin(); i != mChains.end(); ++i)
+	{
+		CompositorChain* chain = i->second;
+		CompositorChain::InstanceIterator instIt = chain->getCompositors();
+		while (instIt.hasMoreElements())
+		{
+			CompositorInstance* inst = instIt.getNext();
+			if (inst->getEnabled())
+			{
+				inst->setEnabled(false);
+				inst->setEnabled(true);
+			}
+		}
+	}
+}
 
 }

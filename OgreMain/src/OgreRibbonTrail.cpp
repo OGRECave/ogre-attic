@@ -98,12 +98,29 @@ namespace Ogre
 				"RibbonTrail::addNode");
 		}
 
+		// get chain index
+		size_t chainIndex = mFreeChains.back();
+		mFreeChains.pop_back();
+		mNodeToChainSegment.push_back(chainIndex);
+		mNodeToSegMap[n] = chainIndex;
+
         // initialise the chain
-        resetTrail(mNodeList.size(), n);
+        resetTrail(chainIndex, n);
 
 		mNodeList.push_back(n);
 		n->setListener(this);
 
+	}
+	//-----------------------------------------------------------------------
+	size_t RibbonTrail::getChainIndexForNode(const Node* n)
+	{
+		NodeToChainSegmentMap::const_iterator i = mNodeToSegMap.find(n);
+		if (i == mNodeToSegMap.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"This node is not being tracked", "RibbonTrail::getChainIndexForNode");
+		}
+		return i->second;
 	}
 	//-----------------------------------------------------------------------
 	void RibbonTrail::removeNode(Node* n)
@@ -111,8 +128,19 @@ namespace Ogre
 		NodeList::iterator i = std::find(mNodeList.begin(), mNodeList.end(), n);
 		if (i != mNodeList.end())
 		{
+			// also get matching chain segment
+			size_t index = std::distance(mNodeList.begin(), i);
+			IndexVector::iterator mi = mNodeToChainSegment.begin();
+			std::advance(mi, index);
+			size_t chainIndex = *mi;
+			clearChain(chainIndex);
+			// mark as free now
+			mFreeChains.push_back(chainIndex);
 			n->setListener(0);
 			mNodeList.erase(i);
+			mNodeToChainSegment.erase(mi);
+			mNodeToSegMap.erase(mNodeToSegMap.find(n));
+
 		}
 	}
 	//-----------------------------------------------------------------------
@@ -147,6 +175,8 @@ namespace Ogre
                 "RibbonTrail::setNumberOfChains");
         }
 
+		size_t oldChains = getNumberOfChains();
+
 		BillboardChain::setNumberOfChains(numChains);
 
 		mInitialColour.resize(numChains, ColourValue::White);
@@ -154,6 +184,24 @@ namespace Ogre
 		mInitialWidth.resize(numChains, 10);
 		mDeltaWidth.resize(numChains, 0);
 
+		if (oldChains > numChains)
+		{
+			// remove free chains
+			for (IndexVector::iterator i = mFreeChains.begin(); i != mFreeChains.end();)
+			{
+				if (*i >= numChains)
+					i = mFreeChains.erase(i);
+				else
+					++i;
+			}
+		}
+		else if (oldChains < numChains)
+		{
+			// add new chains, in reverse order to preserve previous ordering (pop_back)
+			int count = static_cast<int>(numChains - oldChains);
+			for (size_t i = numChains - 1; count > 0; --i, --count)
+				mFreeChains.push_back(i);
+		}
         resetAllTrails();
 	}
 	//-----------------------------------------------------------------------
@@ -162,9 +210,11 @@ namespace Ogre
         BillboardChain::clearChain(chainIndex);
 
         // Reset if we are tracking for this chain
-        if (chainIndex < mNodeList.size())
-        {
-            resetTrail(chainIndex, mNodeList[chainIndex]);
+		IndexVector::iterator i = std::find(mNodeToChainSegment.begin(), mNodeToChainSegment.end(), chainIndex);
+		if (i != mNodeToChainSegment.end())
+		{
+			size_t nodeIndex = std::distance(mNodeToChainSegment.begin(), i);
+            resetTrail(*i, mNodeList[nodeIndex]);
         }
     }
 	//-----------------------------------------------------------------------
@@ -298,15 +348,8 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void RibbonTrail::nodeUpdated(const Node* node)
 	{
-		
-		for (size_t idx = 0; idx < mNodeList.size(); ++idx)
-		{
-			if (mNodeList[idx] == node)
-			{
-				updateTrail(idx, node);
-				break;
-			}
-		}
+		size_t chainIndex = getChainIndexForNode(node);
+		updateTrail(chainIndex, node);
 	}
 	//-----------------------------------------------------------------------
 	void RibbonTrail::nodeDestroyed(const Node* node)

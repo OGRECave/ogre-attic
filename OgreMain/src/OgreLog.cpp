@@ -84,6 +84,13 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------
+    void Log::setDebugOutputEnabled(bool debugOutput)
+    {
+		OGRE_LOCK_AUTO_MUTEX
+        mDebugOut = debugOutput;
+    }
+
+	//-----------------------------------------------------------------------
     void Log::setLogDetail(LoggingLevel ll)
     {
 		OGRE_LOCK_AUTO_MUTEX

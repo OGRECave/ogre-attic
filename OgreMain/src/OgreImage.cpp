@@ -47,6 +47,7 @@ namespace Ogre {
 		m_uSize(0),
 		m_uNumMipmaps(0),
 		m_uFlags(0),
+		m_eFormat(PF_UNKNOWN),
 		m_pBuffer( NULL ),
 		m_bAutoDelete( true )
 	{

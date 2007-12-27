@@ -91,8 +91,9 @@ bool testreload = false;
 String testBackgroundLoadGroup;
 Sphere* projectionSphere = 0;
 ManualObject* scissorRect = 0;
+SceneNode* testremoveNode = 0;
+RibbonTrail* mRibbonTrail = 0;
 Mesh* testUpdateMesh = 0;
-
 // Hacky globals
 GpuProgramParametersSharedPtr fragParams;
 GpuProgramParametersSharedPtr vertParams;
@@ -162,6 +163,10 @@ public:
     bool frameStarted(const FrameEvent& evt)
     {
 		//mMoveSpeed = 0.2;
+		if (mKeyboard->isKeyDown(KC_SCROLL))
+		{
+			mWindow->writeContentsToTimestampedFile("test", ".jpg");
+		}
 
         if (!vertParams.isNull())
         {
@@ -307,7 +312,7 @@ public:
 			{
 				mWindow->setFullscreen(true, 1024, 768);
 			}
-			timeUntilNextToggle = 0.5;
+			timeUntilNextToggle = 5;
 
 		}
 		if (mKeyboard->isKeyDown(KC_EQUALS) && timeUntilNextToggle <= 0)
@@ -316,6 +321,7 @@ public:
 			timeUntilNextToggle = 0.5;
 
 		}
+
 
 
         MaterialPtr mat = MaterialManager::getSingleton().getByName("Core/StatsBlockBorder/Up");
@@ -448,6 +454,28 @@ public:
         }
         */
 
+		if (mKeyboard->isKeyDown(KC_SPACE))
+		{
+			if (testremoveNode)
+			{
+				if (mRibbonTrail && timeUntilNextToggle <= 0)
+				{
+					mRibbonTrail->removeNode(testremoveNode);
+					timeUntilNextToggle = 1.0f;
+				}
+			}
+		}
+		if (mKeyboard->isKeyDown(KC_0))
+		{
+			if (testremoveNode)
+			{
+				if (mRibbonTrail && timeUntilNextToggle <= 0)
+				{
+					mRibbonTrail->addNode(testremoveNode);
+					timeUntilNextToggle = 1.0f;
+				}
+			}
+		}
 		if (mKeyboard->isKeyDown(KC_P))
         {
             mTestNode[0]->yaw(Degree(-evt.timeSinceLastFrame * 30));
@@ -498,7 +526,6 @@ public:
 			anim->setEnabled(true);
 			mAnimStateList.push_back(anim);
 		}
-
         
         /** Hack to test frustum vols
         if (testCam)
@@ -985,6 +1012,41 @@ protected:
 
 
 	}
+	// Basically a copy of OSMAnimSerializer from oSceneLoaderLib
+	class AnimSerializer : public Ogre::Serializer
+	{
+	public:
+		AnimSerializer()
+		{
+			mVersion = "[oFusion_Serializer_v1.0]";
+		}
+
+		void addAnimation(Ogre::Skeleton* skeleton, Ogre::DataStreamPtr& stream)
+		{
+			Ogre::SkeletonSerializer serializer;
+
+			// Check header
+			readFileHeader(stream);
+
+			Ogre::uint16 numBones;
+
+			// Read number of bones needed for this animation
+			readShorts(stream, &numBones, 1);
+
+			if( numBones != skeleton->getNumBones() )
+			{
+				OGRE_EXCEPT(Ogre::Exception::ERR_RT_ASSERTION_FAILED,
+					"Animation not valid for skeleton: " + skeleton->getName(), 
+					"AnimSerializer::addAnimation");
+			}
+
+			// Workaround the oFusion file-in-file problem: 
+			//   http://www.ogre3d.org/phpBB2addons/viewtopic.php?t=3018
+			// we just chop off the first file part.
+			Ogre::DataStreamPtr memStream(new Ogre::MemoryDataStream(stream));
+			serializer.importSkeleton(memStream, skeleton);
+		}
+	};
 
 	void testMRTCompositorScript()
 	{
@@ -1012,12 +1074,28 @@ protected:
 
 	void testBug()
 	{
-		Entity* e = mSceneMgr->createEntity("2", "knot.mesh");
-		e->setMaterialName("FreeSst");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 
-		Light* l = mSceneMgr->createLight("3");
-		l->setPosition(100,0,0);
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		TextureUnitState* t = p->createTextureUnitState("ogrelogo.png");
+
+		t->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_TEXTURE, Ogre::LBS_MANUAL,Ogre::ColourValue::White,Ogre::ColourValue(1,0,0) );   
+		t->setAlphaOperation(Ogre::LBX_MODULATE, Ogre::LBS_TEXTURE, Ogre::LBS_MANUAL, 1.0, 1.0);
+
+
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
 
 
 	}
@@ -1852,10 +1930,10 @@ protected:
 
         Entity *ent = mSceneMgr->createEntity("robot", "robot.mesh");
         // Uncomment the below to test software skinning
-        //ent->setMaterialName("Examples/Rocky");
+        ent->setMaterialName("Examples/Rocky");
         // Add entity to the scene node
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
-        mAnimState = ent->getAnimationState("Default");
+        mAnimState = ent->getAnimationState("Walk");
         mAnimState->setEnabled(true);
 
         // Give it a little ambience with lights
@@ -3086,12 +3164,15 @@ protected:
 		l->setDirection(-Vector3::UNIT_Y);
 
 		// Create a set of random balls
-		Entity* ent = mSceneMgr->createEntity("Ball", "ogrehead.mesh");
+		Entity* ent = mSceneMgr->createEntity("Ball", "robot.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
-		createRandomEntityClones(ent, 400, Vector3(-2000,-2000,-2000), Vector3(2000,2000,2000));
+		createRandomEntityClones(ent, 3000, Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000));
 
 		//bool val = true;
 		//mSceneMgr->setOption("ShowOctree", &val);
+
+		mCamera->setPosition(0,0, -4000);
+		mCamera->lookAt(Vector3::ZERO);
 
 	}
 
@@ -3227,20 +3308,38 @@ protected:
 
 	void testStaticGeometry(void)
 	{
-		mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
-		//mSceneMgr->setShowDebugShadows(true);
 
-		mSceneMgr->setSkyBox(true, "Examples/EveningSkyBox");
 		// Set ambient light
-		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		mSceneMgr->setAmbientLight(ColourValue(0, 0, 0));
 
 		// Create a point light
 		Light* l = mSceneMgr->createLight("MainLight");
-		l->setType(Light::LT_DIRECTIONAL);
-		Vector3 dir(0, -1, -1.5);
-		dir.normalise();
-		l->setDirection(dir);
-		l->setDiffuseColour(1.0, 0.7, 0.0);
+		l->setDiffuseColour(0.4, 0.4, 0.4);
+		l->setSpecularColour(ColourValue::White);
+
+		SceneNode* animNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		Animation* anim = mSceneMgr->createAnimation("an1", 20);
+		anim->setInterpolationMode(Animation::IM_SPLINE);
+		NodeAnimationTrack* track = anim->createNodeTrack(1, animNode);
+		TransformKeyFrame* kf = track->createNodeKeyFrame(0);
+		kf->setTranslate(Vector3(2300, 600, 2300));
+		kf = track->createNodeKeyFrame(5);
+		kf->setTranslate(Vector3(-2300, 600, 2300));
+		kf = track->createNodeKeyFrame(10);
+		kf->setTranslate(Vector3(-2300, 600, -2300));
+		kf = track->createNodeKeyFrame(15);
+		kf->setTranslate(Vector3(2300, 600, -2300));
+		kf = track->createNodeKeyFrame(20);
+		kf->setTranslate(Vector3(2300, 600, 2300));
+
+		//animNode->attachObject(l);
+		l->setPosition(0, 600, 0);
+		l->setAttenuation(10000, 1, 0, 0);
+
+		AnimationState* animState = mSceneMgr->createAnimationState("an1");
+		animState->setEnabled(true);
+		mAnimStateList.push_back(animState);
+		
 
 
 		Plane plane;
@@ -3254,32 +3353,39 @@ protected:
 		pPlaneEnt->setCastShadows(false);
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
-		Vector3 min(-2000,0,-2000);
-		Vector3 max(2000,0,2000);
+		Vector3 min(-2000,30,-2000);
+		Vector3 max(2000,30,2000);
 
 
-		Entity* e = mSceneMgr->createEntity("1", "column.mesh");
-		//createRandomEntityClones(e, 1000, min, max);
+		MeshPtr msh = MeshManager::getSingleton().load("ogrehead.mesh", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		msh->buildTangentVectors();
+
+		Entity* e = mSceneMgr->createEntity("1", "ogrehead.mesh");
+		e->setMaterialName("Examples/BumpMapping/MultiLightSpecular");
 		
 		StaticGeometry* s = mSceneMgr->createStaticGeometry("bing");
 		s->setCastShadows(true);
 		s->setRegionDimensions(Vector3(500,500,500));
-		for (int i = 0; i < 100; ++i)
+		for (int i = 0; i < 10; ++i)
 		{
 			Vector3 pos;
 			pos.x = Math::RangeRandom(min.x, max.x);
 			pos.y = Math::RangeRandom(min.y, max.y);
 			pos.z = Math::RangeRandom(min.z, max.z);
 
-			s->addEntity(e, pos, Quaternion::IDENTITY);
+			s->addEntity(e, pos);
+			Entity* e2 = e->clone("clone" + StringConverter::toString(i));
+			mSceneMgr->getRootSceneNode()->createChildSceneNode(pos+Vector3(0,60,0))->attachObject(e2);
 
 		}
 
 		s->build();
-		//s->setRenderingDistance(1000);
-		//s->dump("static.txt");
-		//mSceneMgr->showBoundingBoxes(true);
 		mCamera->setLodBias(0.5);
+
+		//mTestNode[0] = s->getRegionIterator().getNext()->getParentSceneNode();
+
+
+
 		
 
 
@@ -4436,6 +4542,7 @@ protected:
 			mSceneMgr->createMovableObject("1", "RibbonTrail", &pairList));
 		trail->setMaterialName("Examples/LightRibbonTrail");
 		trail->setTrailLength(400);
+		mRibbonTrail = trail;
 
 
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(trail);
@@ -4458,6 +4565,8 @@ protected:
 		kf->setTranslate(Vector3(-100, 10, 100));
 		kf = track->createNodeKeyFrame(10);
 		kf->setTranslate(Vector3::ZERO);
+
+		testremoveNode = animNode;
 
 		AnimationState* animState = mSceneMgr->createAnimationState("an1");
 		animState->setEnabled(true);
@@ -5800,7 +5909,7 @@ protected:
 		ent->setMaterialName("Examples/Athene/NormalMapped");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,-20,0))->attachObject(ent);
 
-		//addTextureShadowDebugOverlay(2);
+		addTextureShadowDebugOverlay(2);
 
 
 
@@ -6284,6 +6393,53 @@ protected:
 	
 	}
 
+	// Testing sharedptr bug report
+	class CollisionShape
+	{
+	public:
+		CollisionShape() 
+			: someValue(99), someText(0)
+		{
+			someText = new char[2000];
+		}
+		virtual ~CollisionShape()
+		{
+			delete [] someText;
+		}
+	protected:
+		int someValue;
+		char* someText;
+
+
+	};
+	/** SharedPtr of CollisionShape
+	*/
+	class CollisionShapePtr : public SharedPtr<CollisionShape>
+	{
+	public:
+		CollisionShapePtr() : SharedPtr<CollisionShape>() {}
+		CollisionShapePtr(CollisionShape* rep) : SharedPtr<CollisionShape>(rep) {}
+		CollisionShapePtr(const CollisionShapePtr& r) : SharedPtr<CollisionShape>(r) {}
+	};
+	
+	void testSharedPtrBug()
+	{
+		CollisionShapePtr mCol[6];
+		mCol[0] = CollisionShapePtr(new CollisionShape()); 
+		mCol[1] = CollisionShapePtr(new CollisionShape()); 
+		mCol[2] = CollisionShapePtr(new CollisionShape()); 
+		mCol[3] = CollisionShapePtr(new CollisionShape()); 
+		mCol[4] = CollisionShapePtr(new CollisionShape()); 
+		mCol[5] = CollisionShapePtr(new CollisionShape()); 
+		mCol[0] = NULL;
+		mCol[1] = CollisionShapePtr(new CollisionShape()); 
+		mCol[2] = CollisionShapePtr(new CollisionShape()); 
+		mCol[3] = NULL; 
+		mCol[4] = CollisionShapePtr(new CollisionShape()); 
+		mCol[5] = CollisionShapePtr(new CollisionShape()); 
+
+	}
+
 	void testSpotlightViewProj(bool worldViewProj)
 	{
 		// Define programs that use spotlight projection
@@ -6481,19 +6637,24 @@ protected:
 
 	}
 
-	// Just override the mandatory create scene method
+
+
     void createScene(void)
     {
+		Entity *ent1 = mSceneMgr->createEntity( "Jaiqua", "testmesh.mesh" );
+		Ogre::MeshSerializer *m = new Ogre::MeshSerializer;
+		m->exportMesh( ent1->getMesh().getPointer(), "testmesh2.mesh",Ogre::Serializer::ENDIAN_NATIVE);
 
 
-		ErrorDialog e;
+		mCamera->setPosition(-0.19199729, 1.0310142, -41.884644);
+		mCamera->setDirection(Vector3::NEGATIVE_UNIT_Z);
+		mCamera->setNearClipDistance(5);
+		mCamera->setFarClipDistance(5000);
+		Vector3 worldPos(-3.2326765, 2.003727, -59.996029);
 
-		MeshPtr m;
-		ResourcePtr p = m;
+		Ogre::Vector3 pos = mCamera->getProjectionMatrix() * mCamera->getViewMatrix() * worldPos;
 
-		Real d = std::numeric_limits<Real>::infinity();
-		d = std::max(1e10f, d);
-		d = std::min(1e5f, d);
+		std::cout << pos;
 		/*
 		AnyNumeric anyInt1(43);
 		AnyNumeric anyInt2(5);
@@ -6513,12 +6674,7 @@ protected:
 		//Any anyString("test");
 		*/
 
-		LogManager::getSingleton().stream() << "This is test number " << 1 <<
-			" to see whether something like this: " << Vector3(1,2,3) << " works.";
-
-		LogManager::getSingleton().stream() << "How about this: " 
-			<< std::setw(5) << std::setfill('x') << 4;
-
+		//testSharedPtrBug();
         //testMatrices();
         //testBsp();
         //testAlpha();
@@ -6600,7 +6756,7 @@ protected:
 		//testSuppressedShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testViewportNoShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testBillboardChain();
-		//testRibbonTrail();
+		testRibbonTrail();
 		//testSerialisedColour();
 		//testBillboardAccurateFacing();
 		//testMultiSceneManagersSimple();
@@ -6667,6 +6823,7 @@ public:
 		mRoot = new Root(pluginsPath, 
 			mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
 #endif
+		LogManager::getSingleton().setLogDetail(LL_BOREME);
 		setupResources();
 
 		bool carryOn = configure();
