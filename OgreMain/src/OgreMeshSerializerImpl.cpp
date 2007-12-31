@@ -2776,7 +2776,7 @@ namespace Ogre {
             dest->vertexDeclaration->getVertexSize(bindIdx),
             dest->vertexCount,
             pMesh->mVertexBufferUsage,
-			pMesh->mIndexBufferShadowBuffer);
+			pMesh->mVertexBufferShadowBuffer);
         pFloat = static_cast<float*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
         readFloats(stream, pFloat, dest->vertexCount * 3);
