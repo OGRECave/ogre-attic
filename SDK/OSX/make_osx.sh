@@ -23,8 +23,6 @@ ditto -arch $ARCH ../../Mac/build/Release/Ogre.framework sdk_contents/Dependenci
 # dependencies
 ditto -arch $ARCH ../../Dependencies/Cg.framework sdk_contents/Dependencies/Cg.framework
 ditto -arch $ARCH ../../Dependencies/CEGUI.framework sdk_contents/Dependencies/CEGUI.framework
-# OgreCEGUIrenderer is currently in the precompiled deps, maybe move
-ditto -arch $ARCH ../../Dependencies/OgreCEGUIRenderer.framework sdk_contents/Dependencies/OgreCEGUIRenderer.framework
 
 echo Frameworks copied.
 

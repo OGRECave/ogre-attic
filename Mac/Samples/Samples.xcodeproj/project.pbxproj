@@ -13,6 +13,8 @@
 			buildPhases = (
 			);
 			dependencies = (
+				AA8867B70D2BDB1200C08A49 /* PBXTargetDependency */,
+				000E2A030B39E7D9004EA2DF /* PBXTargetDependency */,
 				000E2A2F0B39E7DD004EA2DF /* PBXTargetDependency */,
 				000E2A2D0B39E7DD004EA2DF /* PBXTargetDependency */,
 				000E2A2B0B39E7DD004EA2DF /* PBXTargetDependency */,
@@ -37,7 +39,6 @@
 				000E2A090B39E7DA004EA2DF /* PBXTargetDependency */,
 				000E2A070B39E7D9004EA2DF /* PBXTargetDependency */,
 				000E2A050B39E7D9004EA2DF /* PBXTargetDependency */,
-				000E2A030B39E7D9004EA2DF /* PBXTargetDependency */,
 				000E2A010B39E7D9004EA2DF /* PBXTargetDependency */,
 				000E29FF0B39E7D9004EA2DF /* PBXTargetDependency */,
 				000E29FD0B39E7D8004EA2DF /* PBXTargetDependency */,
@@ -270,13 +271,21 @@
 		00ABEEE70B4F7A4E0059129A /* spheremap.png in Resources */ = {isa = PBXBuildFile; fileRef = 00ABEEE40B4F7A4E0059129A /* spheremap.png */; };
 		00ABEF030B4F7C660059129A /* WeirdEye.png in Resources */ = {isa = PBXBuildFile; fileRef = 00ABEF020B4F7C660059129A /* WeirdEye.png */; };
 		AA215F5C0CA9BEAF006DBEA2 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
-		AA215F650CA9BED3006DBEA2 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
-		AAD4E9980C80C82600AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
-		AAD4E9990C80C82800AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
-		AAD4E99B0C80C83E00AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
-		AAD4E99C0C80C84000AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
-		AAD4E99D0C80C84200AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
-		AAD4E99E0C80C84600AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
+		AA8869450D2BDB3500C08A49 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
+		AA8869470D2BDB7000C08A49 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */; };
+		AA8869480D2BDB7200C08A49 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */; };
+		AA8869490D2BDB7D00C08A49 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */; };
+		AA88694A0D2BDB7F00C08A49 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */; };
+		AA88694B0D2BDB8000C08A49 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */; };
+		AA88694C0D2BDB8100C08A49 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */; };
+		AA88694E0D2BDB8700C08A49 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */; };
+		AA8869530D2BDBDB00C08A49 /* OgreCEGUIRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = AA8869500D2BDBDB00C08A49 /* OgreCEGUIRenderer.h */; };
+		AA8869540D2BDBDB00C08A49 /* OgreCEGUIResourceProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = AA8869510D2BDBDB00C08A49 /* OgreCEGUIResourceProvider.h */; };
+		AA8869550D2BDBDB00C08A49 /* OgreCEGUITexture.h in Headers */ = {isa = PBXBuildFile; fileRef = AA8869520D2BDBDB00C08A49 /* OgreCEGUITexture.h */; };
+		AA8869590D2BDBF900C08A49 /* OgreCEGUIRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8869560D2BDBF900C08A49 /* OgreCEGUIRenderer.cpp */; };
+		AA88695A0D2BDBF900C08A49 /* OgreCEGUIResourceProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8869570D2BDBF900C08A49 /* OgreCEGUIResourceProvider.cpp */; };
+		AA88695B0D2BDBF900C08A49 /* OgreCEGUITexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8869580D2BDBF900C08A49 /* OgreCEGUITexture.cpp */; };
+		AA8869840D2BDF3200C08A49 /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -497,6 +506,13 @@
 			remoteGlobalIDString = 00ABEB510B4D8A980059129A;
 			remoteInfo = OgreCustomNib;
 		};
+		AA8867B60D2BDB1200C08A49 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 000E24E00B3924F0004EA2DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA88679C0D2BDAD800C08A49 /* OgreCEGUIRenderer */;
+			remoteInfo = OgreCEGUIRenderer;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -523,7 +539,7 @@
 		000C05E00BB6173B00E6B30C /* Crowd.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Crowd.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000C05E20BB6173C00E6B30C /* Crowd-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Crowd-Info.plist"; path = "plist/Crowd-Info.plist"; sourceTree = "<group>"; };
 		000E25230B392BAA004EA2DF /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Ogre.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		000E252B0B392BE5004EA2DF /* BezierPatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BezierPatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000E252B0B392BE5004EA2DF /* BezierPatch.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BezierPatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E252E0B392BE6004EA2DF /* BezierPatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "BezierPatch-Info.plist"; path = "plist/BezierPatch-Info.plist"; sourceTree = "<group>"; };
 		000E25330B392C93004EA2DF /* Bezier.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Bezier.h; path = ../../Samples/BezierPatch/include/Bezier.h; sourceTree = SOURCE_ROOT; };
 		000E25340B392C9E004EA2DF /* Bezier.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Bezier.cpp; path = ../../Samples/BezierPatch/src/Bezier.cpp; sourceTree = SOURCE_ROOT; };
@@ -652,7 +668,6 @@
 		000E29ED0B39E71B004EA2DF /* Water.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Water.cpp; path = ../../Samples/Water/src/Water.cpp; sourceTree = SOURCE_ROOT; };
 		000E29EE0B39E71B004EA2DF /* WaterMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = WaterMesh.cpp; path = ../../Samples/Water/src/WaterMesh.cpp; sourceTree = SOURCE_ROOT; };
 		0053F52E0BB5908100328359 /* libois.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libois.a; path = ../../Dependencies/lib/Release/libois.a; sourceTree = SOURCE_ROOT; };
-		0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OgreCEGUIRenderer.framework; path = ../../Dependencies/OgreCEGUIRenderer.framework; sourceTree = SOURCE_ROOT; };
 		0062EE270B4ACACE0076F733 /* CEGUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CEGUI.framework; path = ../../Dependencies/CEGUI.framework; sourceTree = SOURCE_ROOT; };
 		00ABEB520B4D8A980059129A /* OgreCustomNib.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OgreCustomNib.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00ABEB540B4D8A990059129A /* OgreCustomNib-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "OgreCustomNib-Info.plist"; path = "plist/OgreCustomNib-Info.plist"; sourceTree = "<group>"; };
@@ -666,6 +681,14 @@
 		00ABEEE30B4F7A4E0059129A /* GreenSkin.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = GreenSkin.jpg; path = ../../Samples/Media/materials/textures/GreenSkin.jpg; sourceTree = SOURCE_ROOT; };
 		00ABEEE40B4F7A4E0059129A /* spheremap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = spheremap.png; path = ../../Samples/Media/materials/textures/spheremap.png; sourceTree = SOURCE_ROOT; };
 		00ABEF020B4F7C660059129A /* WeirdEye.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = WeirdEye.png; path = ../../Samples/Media/materials/textures/WeirdEye.png; sourceTree = SOURCE_ROOT; };
+		AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OgreCEGUIRenderer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA88679E0D2BDAD800C08A49 /* OgreCEGUIRenderer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OgreCEGUIRenderer-Info.plist"; sourceTree = "<group>"; };
+		AA8869500D2BDBDB00C08A49 /* OgreCEGUIRenderer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreCEGUIRenderer.h; path = ../../Samples/Common/CEGUIRenderer/include/OgreCEGUIRenderer.h; sourceTree = SOURCE_ROOT; };
+		AA8869510D2BDBDB00C08A49 /* OgreCEGUIResourceProvider.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreCEGUIResourceProvider.h; path = ../../Samples/Common/CEGUIRenderer/include/OgreCEGUIResourceProvider.h; sourceTree = SOURCE_ROOT; };
+		AA8869520D2BDBDB00C08A49 /* OgreCEGUITexture.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreCEGUITexture.h; path = ../../Samples/Common/CEGUIRenderer/include/OgreCEGUITexture.h; sourceTree = SOURCE_ROOT; };
+		AA8869560D2BDBF900C08A49 /* OgreCEGUIRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCEGUIRenderer.cpp; path = ../../Samples/Common/CEGUIRenderer/src/OgreCEGUIRenderer.cpp; sourceTree = SOURCE_ROOT; };
+		AA8869570D2BDBF900C08A49 /* OgreCEGUIResourceProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCEGUIResourceProvider.cpp; path = ../../Samples/Common/CEGUIRenderer/src/OgreCEGUIResourceProvider.cpp; sourceTree = SOURCE_ROOT; };
+		AA8869580D2BDBF900C08A49 /* OgreCEGUITexture.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCEGUITexture.cpp; path = ../../Samples/Common/CEGUIRenderer/src/OgreCEGUITexture.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -676,7 +699,7 @@
 				000C05110BB613C400E6B30C /* Ogre.framework in Frameworks */,
 				000C05120BB613C400E6B30C /* libois.a in Frameworks */,
 				000C05BA0BB613D500E6B30C /* CEGUI.framework in Frameworks */,
-				AAD4E99C0C80C84000AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA88694B0D2BDB8000C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -687,7 +710,7 @@
 				000C05EC0BB6186F00E6B30C /* CEGUI.framework in Frameworks */,
 				000C05ED0BB6186F00E6B30C /* Ogre.framework in Frameworks */,
 				000C05EE0BB6186F00E6B30C /* libois.a in Frameworks */,
-				AAD4E9980C80C82600AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA8869480D2BDB7200C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -725,7 +748,7 @@
 				000E273C0B39A09D004EA2DF /* Ogre.framework in Frameworks */,
 				0053F5320BB5908100328359 /* libois.a in Frameworks */,
 				AA215F5C0CA9BEAF006DBEA2 /* CEGUI.framework in Frameworks */,
-				AA215F650CA9BED3006DBEA2 /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA8869470D2BDB7000C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -781,7 +804,7 @@
 				000E27D40B39AD74004EA2DF /* Ogre.framework in Frameworks */,
 				0062EE2B0B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
 				0053F5380BB5908100328359 /* libois.a in Frameworks */,
-				AAD4E99B0C80C83E00AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA8869490D2BDB7D00C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -810,7 +833,7 @@
 				000E28300B39B278004EA2DF /* Ogre.framework in Frameworks */,
 				0062EE2D0B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
 				0053F53B0BB5908100328359 /* libois.a in Frameworks */,
-				AAD4E9990C80C82800AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA88694A0D2BDB7F00C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -830,7 +853,7 @@
 				000E28710B39B480004EA2DF /* Ogre.framework in Frameworks */,
 				0062EE2F0B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
 				0053F53D0BB5908100328359 /* libois.a in Frameworks */,
-				AAD4E99D0C80C84200AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA88694C0D2BDB8100C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -859,7 +882,7 @@
 				000E28E20B39DBFA004EA2DF /* Ogre.framework in Frameworks */,
 				0062EE310B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
 				0053F5400BB5908100328359 /* libois.a in Frameworks */,
-				AAD4E99E0C80C84600AE4E5D /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA88694E0D2BDB8700C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -961,6 +984,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA88679B0D2BDAD800C08A49 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA8869450D2BDB3500C08A49 /* CEGUI.framework in Frameworks */,
+				AA8869840D2BDF3200C08A49 /* Ogre.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -985,12 +1017,14 @@
 		000E24DE0B3924F0004EA2DF = {
 			isa = PBXGroup;
 			children = (
+				AA88694F0D2BDB9900C08A49 /* OgreCEGUIRenderer */,
 				000E251D0B392AF8004EA2DF /* Ogre Samples */,
 				00ABEB4B0B4D895C0059129A /* Cocoa Samples */,
 				000E25320B392C4E004EA2DF /* Resources */,
 				000E251E0B392B05004EA2DF /* Common Headers */,
 				000E25220B392B6F004EA2DF /* External Frameworks and Libraries */,
 				000E252C0B392BE5004EA2DF /* Products */,
+				AA88679E0D2BDAD800C08A49 /* OgreCEGUIRenderer-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1289,7 +1323,6 @@
 		000E25220B392B6F004EA2DF /* External Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */,
 				0062EE270B4ACACE0076F733 /* CEGUI.framework */,
 				000E25230B392BAA004EA2DF /* Ogre.framework */,
 				0053F52E0BB5908100328359 /* libois.a */,
@@ -1331,6 +1364,7 @@
 				00ABEB520B4D8A980059129A /* OgreCustomNib.app */,
 				000C04200BB6128200E6B30C /* Instancing.app */,
 				000C05E00BB6173B00E6B30C /* Crowd.app */,
+				AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1458,7 +1492,33 @@
 			name = Meshes;
 			sourceTree = "<group>";
 		};
+		AA88694F0D2BDB9900C08A49 /* OgreCEGUIRenderer */ = {
+			isa = PBXGroup;
+			children = (
+				AA8869560D2BDBF900C08A49 /* OgreCEGUIRenderer.cpp */,
+				AA8869570D2BDBF900C08A49 /* OgreCEGUIResourceProvider.cpp */,
+				AA8869580D2BDBF900C08A49 /* OgreCEGUITexture.cpp */,
+				AA8869500D2BDBDB00C08A49 /* OgreCEGUIRenderer.h */,
+				AA8869510D2BDBDB00C08A49 /* OgreCEGUIResourceProvider.h */,
+				AA8869520D2BDBDB00C08A49 /* OgreCEGUITexture.h */,
+			);
+			name = OgreCEGUIRenderer;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		AA8867980D2BDAD800C08A49 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA8869530D2BDBDB00C08A49 /* OgreCEGUIRenderer.h in Headers */,
+				AA8869540D2BDBDB00C08A49 /* OgreCEGUIResourceProvider.h in Headers */,
+				AA8869550D2BDBDB00C08A49 /* OgreCEGUITexture.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		000C041F0BB6128200E6B30C /* Instancing */ = {
@@ -2020,6 +2080,24 @@
 			productReference = 00ABEB520B4D8A980059129A /* OgreCustomNib.app */;
 			productType = "com.apple.product-type.application";
 		};
+		AA88679C0D2BDAD800C08A49 /* OgreCEGUIRenderer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA8867A00D2BDAD900C08A49 /* Build configuration list for PBXNativeTarget "OgreCEGUIRenderer" */;
+			buildPhases = (
+				AA8867980D2BDAD800C08A49 /* Headers */,
+				AA8867990D2BDAD800C08A49 /* Resources */,
+				AA88679A0D2BDAD800C08A49 /* Sources */,
+				AA88679B0D2BDAD800C08A49 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OgreCEGUIRenderer;
+			productName = OgreCEGUIRenderer;
+			productReference = AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -2064,6 +2142,7 @@
 				000E29BC0B39E5BE004EA2DF /* VolumeTex */,
 				000E29DA0B39E6BE004EA2DF /* Water */,
 				00ABEB510B4D8A980059129A /* OgreCustomNib */,
+				AA88679C0D2BDAD800C08A49 /* OgreCEGUIRenderer */,
 			);
 		};
 /* End PBXProject section */
@@ -2384,6 +2463,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA8867990D2BDAD800C08A49 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -2399,7 +2485,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9530C80C50900AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2413,7 +2499,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E95A0C80C55000AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2427,7 +2513,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E95F0C80C56000AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2441,7 +2527,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E97F0C80C76900AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2455,7 +2541,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9810C80C77900AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2469,7 +2555,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9830C80C78500AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2483,7 +2569,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9850C80C79700AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2497,7 +2583,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9870C80C7A400AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2511,7 +2597,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9890C80C7B100AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2525,7 +2611,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E98B0C80C7BE00AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2539,7 +2625,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E98D0C80C7CB00AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2553,7 +2639,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E98F0C80C7D900AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2567,7 +2653,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9910C80C7E600AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2581,7 +2667,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9A10C80C86600AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2595,7 +2681,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9A30C80C87600AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2609,7 +2695,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9A50C80C88400AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2623,7 +2709,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9B40C80C8A900AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2637,7 +2723,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9B60C80C8B500AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2651,7 +2737,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9B80C80C8C200AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2665,7 +2751,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9BA0C80C8CF00AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2679,7 +2765,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9BC0C80C8DE00AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2693,7 +2779,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9BE0C80C8EA00AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2707,7 +2793,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9C00C80C8F900AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2721,7 +2807,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9C20C80C90500AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2735,7 +2821,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9C40C80C91400AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2749,7 +2835,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9C60C80C92600AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2763,7 +2849,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9C80C80C93400AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2777,7 +2863,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9CA0C80C93F00AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2791,7 +2877,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9CC0C80C94E00AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2805,7 +2891,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 		AAD4E9E20C80C99300AE4E5D /* Symlink shared libs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2819,7 +2905,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/OgreCEGUIRenderer.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
+			shellScript = "# Symlink Ogre.framework from shared local build into Foo.app/Contents/Frameworks\n# This allows us to run the frameworks as if they are local to the .app without duplicating them\ncd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\nmkdir -p Frameworks\ncd Frameworks\nln -s -f ../../../Ogre.framework ./\nln -s -f ../../../OgreCEGUIRenderer.framework ./\n# Now link dependency frameworks (not all samples need these)\nln -s -f ../../../../../../Dependencies/CEGUI.framework ./\nln -s -f ../../../../../../Dependencies/Cg.framework ./\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -3083,6 +3169,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA88679A0D2BDAD800C08A49 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA8869590D2BDBF900C08A49 /* OgreCEGUIRenderer.cpp in Sources */,
+				AA88695A0D2BDBF900C08A49 /* OgreCEGUIResourceProvider.cpp in Sources */,
+				AA88695B0D2BDBF900C08A49 /* OgreCEGUITexture.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -3240,6 +3336,11 @@
 			isa = PBXTargetDependency;
 			target = 00ABEB510B4D8A980059129A /* OgreCustomNib */;
 			targetProxy = 00ABECAC0B4EC17A0059129A /* PBXContainerItemProxy */;
+		};
+		AA8867B70D2BDB1200C08A49 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA88679C0D2BDAD800C08A49 /* OgreCEGUIRenderer */;
+			targetProxy = AA8867B60D2BDB1200C08A49 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -5318,6 +5419,71 @@
 			};
 			name = Release;
 		};
+		AA8867A10D2BDAD900C08A49 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = ../../Dependencies;
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				HEADER_SEARCH_PATHS = (
+					"../../OgreMain/include/**",
+					../../Dependencies/include,
+					"../../Dependencies/include/CEGUI/**",
+				);
+				INFOPLIST_FILE = "OgreCEGUIRenderer-Info.plist";
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = OgreCEGUIRenderer;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		AA8867A20D2BDAD900C08A49 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+				);
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				HEADER_SEARCH_PATHS = (
+					"../../OgreMain/include/**",
+					../../Dependencies/include,
+					"../../Dependencies/include/CEGUI/**",
+				);
+				INFOPLIST_FILE = "OgreCEGUIRenderer-Info.plist";
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = OgreCEGUIRenderer;
+				STRIP_INSTALLED_PRODUCT = YES;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -5623,6 +5789,15 @@
 			buildConfigurations = (
 				00ABECAF0B4EC1980059129A /* Debug */,
 				00ABECB00B4EC1980059129A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA8867A00D2BDAD900C08A49 /* Build configuration list for PBXNativeTarget "OgreCEGUIRenderer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA8867A10D2BDAD900C08A49 /* Debug */,
+				AA8867A20D2BDAD900C08A49 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
