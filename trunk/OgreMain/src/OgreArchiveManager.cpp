@@ -101,6 +101,11 @@ namespace Ogre {
 			mArchives.erase(i);
 		}
 	}
+	//-----------------------------------------------------------------------
+	ArchiveManager::ArchiveMapIterator ArchiveManager::getArchiveIterator(void)
+	{
+		return ArchiveMapIterator(mArchives.begin(), mArchives.end());
+	}
     //-----------------------------------------------------------------------
     ArchiveManager::~ArchiveManager()
     {
