@@ -53,16 +53,6 @@ void Timer::reset()
     mLastTime = 0;
 	mQueryCount = 0;
 
-    // Save the current process
-    HANDLE mProc = GetCurrentProcess();
-
-    // Get the current Affinity
-#if _MSC_VER >= 1400 && defined (_M_X64)
-	GetProcessAffinityMask(mProc, (PDWORD_PTR)&mProcMask, (PDWORD_PTR)&mSysMask);
-#else
-	GetProcessAffinityMask(mProc, &mProcMask, &mSysMask);
-#endif
-
     mThread = GetCurrentThread();
 }
 
@@ -72,13 +62,13 @@ unsigned long Timer::getMilliseconds()
     LARGE_INTEGER curTime;
 
     // Set affinity to the first core
-    SetThreadAffinityMask(mThread, 1);
+    DWORD oldMask = SetThreadAffinityMask(mThread, 1);
 
     // Query the timer
     QueryPerformanceCounter(&curTime);
 
     // Reset affinity
-    SetThreadAffinityMask(mThread, mProcMask);
+    SetThreadAffinityMask(mThread, oldMask);
 
 	// Resample the frequency
     mQueryCount++;

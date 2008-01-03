@@ -56,9 +56,6 @@ namespace Ogre
         LARGE_INTEGER mStartTime;
         LARGE_INTEGER mFrequency;
 
-        DWORD mProcMask;
-        DWORD mSysMask;
-
         HANDLE mThread;
 
         DWORD mQueryCount;
