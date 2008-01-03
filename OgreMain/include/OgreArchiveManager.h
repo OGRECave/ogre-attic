@@ -82,7 +82,9 @@ namespace Ogre {
 			You must ensure that this archive is not being used before removing it.
 		*/
 		void unload(const String& filename);
-
+		typedef MapIterator<ArchiveMap> ArchiveMapIterator;
+		/** Get an iterator over the Archives in this Manager. */
+		ArchiveMapIterator getArchiveIterator(void);
 
         /** Adds a new ArchiveFactory to the list of available factories.
             @remarks
