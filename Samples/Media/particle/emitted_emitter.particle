@@ -26,7 +26,7 @@ Examples/Fireworks
     emitter Point
     {
         name                    explosion
-        angle                   360
+        angle                   180
         emission_rate           1000
         time_to_live            2
         direction               0 1 0
