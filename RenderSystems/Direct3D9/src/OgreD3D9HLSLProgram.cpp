@@ -37,6 +37,50 @@ namespace Ogre {
     D3D9HLSLProgram::CmdTarget D3D9HLSLProgram::msCmdTarget;
     D3D9HLSLProgram::CmdPreprocessorDefines D3D9HLSLProgram::msCmdPreprocessorDefines;
     D3D9HLSLProgram::CmdColumnMajorMatrices D3D9HLSLProgram::msCmdColumnMajorMatrices;
+
+	class HLSLIncludeHandler : public ID3DXInclude
+	{
+	public:
+		HLSLIncludeHandler(Resource* sourceProgram) 
+			: mProgram(sourceProgram) {}
+		~HLSLIncludeHandler() {}
+		
+		STDMETHOD(Open)(D3DXINCLUDE_TYPE IncludeType,
+			LPCSTR pFileName,
+			LPCVOID pParentData,
+			LPCVOID *ppData,
+			UINT *pByteLen
+			)
+		{
+			// find & load source code
+			DataStreamPtr stream = 
+				ResourceGroupManager::getSingleton().openResource(
+				String(pFileName), mProgram->getGroup(), true, mProgram);
+
+			String source = stream->getAsString();
+			// copy into separate c-string
+			// Note - must NOT copy the null terminator, otherwise this will terminate
+			// the entire program string!
+			*pByteLen = static_cast<UINT>(source.length());
+			char* pChar = new char[*pByteLen];
+			memcpy(pChar, source.c_str(), *pByteLen);
+			*ppData = pChar;
+
+			return S_OK;
+		}
+
+		STDMETHOD(Close)(LPCVOID pData)
+		{
+			char* pChar = (char*)pData;
+			delete [] pChar;
+			return S_OK;
+		}
+	protected:
+		Resource* mProgram;
+
+
+	};
+
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     void D3D9HLSLProgram::loadFromSource(void)
@@ -126,12 +170,15 @@ namespace Ogre {
 
         LPD3DXBUFFER errors = 0;
 
+		// include handler
+		HLSLIncludeHandler includeHandler(this);
+
         // Compile & assemble into microcode
         HRESULT hr = D3DXCompileShader(
             mSource.c_str(),
             static_cast<UINT>(mSource.length()),
             pDefines,
-            NULL, //no includes
+            &includeHandler, 
             mEntryPoint.c_str(),
             mTarget.c_str(),
             compileFlags,
