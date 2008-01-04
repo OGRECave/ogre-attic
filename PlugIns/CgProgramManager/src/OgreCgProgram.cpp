@@ -128,7 +128,9 @@ namespace Ogre {
 			return;
 		}
         buildArgs();
-        mCgProgram = cgCreateProgram(mCgContext, CG_SOURCE, mSource.c_str(), 
+		// deal with includes
+		String sourceToUse = preprocess(mSource);
+        mCgProgram = cgCreateProgram(mCgContext, CG_SOURCE, sourceToUse.c_str(), 
             mSelectedCgProfile, mEntryPoint.c_str(), const_cast<const char**>(mCgArguments));
 
         // Test
@@ -493,7 +495,102 @@ namespace Ogre {
             mProfiles.push_back(*i);
         }
     }
+	//-----------------------------------------------------------------------
+	String CgProgram::preprocess(const String& inSource)
+	{
+		String outSource;
+		// output will be at least this big
+		outSource.reserve(inSource.length());
 
+		size_t startMarker = 0;
+		size_t i = inSource.find("#include");
+		while (i != String::npos)
+		{
+			size_t includePos = i;
+			size_t afterIncludePos = includePos + 8;
+			size_t newLineBefore = inSource.rfind("\n", includePos);
+
+			// check we're not in a comment
+			size_t lineCommentIt = inSource.rfind("//", includePos);
+			if (lineCommentIt != String::npos)
+			{
+				if (newLineBefore == String::npos || lineCommentIt > newLineBefore)
+				{
+					// commented
+					i = inSource.find("#include", afterIncludePos);
+					continue;
+				}
+
+			}
+			size_t blockCommentIt = inSource.rfind("/*", includePos);
+			if (blockCommentIt != String::npos)
+			{
+				size_t closeCommentIt = inSource.rfind("*/", includePos);
+				if (closeCommentIt == String::npos || closeCommentIt < blockCommentIt)
+				{
+					// commented
+					i = inSource.find("#include", afterIncludePos);
+					continue;
+				}
+
+			}
+
+			// find following newline (or EOF)
+			size_t newLineAfter = inSource.find("\n", afterIncludePos);
+			// find include file string container
+			String endDelimeter = "\"";
+			size_t startIt = inSource.find("\"", afterIncludePos);
+			if (startIt == String::npos || startIt > newLineAfter)
+			{
+				// try <>
+				startIt = inSource.find("<", afterIncludePos);
+				if (startIt == String::npos || startIt > newLineAfter)
+				{
+					OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,
+						"Badly formed #include directive (expected \" or <) in file "
+						+ mFilename + ": " + inSource.substr(includePos, newLineAfter-includePos),
+						"CgProgram::preprocessor");
+				}
+				else
+				{
+					endDelimeter = ">";
+				}
+			}
+			size_t endIt = inSource.find(endDelimeter, startIt+1);
+			if (endIt == String::npos || endIt <= startIt)
+			{
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,
+					"Badly formed #include directive (expected " + endDelimeter + ") in file "
+					+ mFilename + ": " + inSource.substr(includePos, newLineAfter-includePos),
+					"CgProgram::preprocessor");
+			}
+
+			// extract filename
+			String filename(inSource.substr(startIt+1, endIt-startIt-1));
+
+			// open included file
+			DataStreamPtr resource = ResourceGroupManager::getSingleton().
+				openResource(filename, mGroup, true, this);
+
+			// replace entire include directive line
+			// copy up to just before include
+			if (newLineBefore != String::npos && newLineBefore >= startMarker)
+				outSource.append(inSource.substr(startMarker, newLineBefore-startMarker+1));
+
+			outSource.append(resource->getAsString());
+			startMarker = newLineAfter;
+
+			if (startMarker != String::npos)
+				i = inSource.find("#include", startMarker);
+			else
+				i = String::npos;
+
+		}
+		// copy any remaining characters
+		outSource.append(inSource.substr(startMarker));
+
+		return outSource;
+	}
     //-----------------------------------------------------------------------
     const String& CgProgram::getLanguage(void) const
     {
