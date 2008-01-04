@@ -64,7 +64,7 @@
 /* Begin PBXBuildFile section */
 		000C042B0BB6139600E6B30C /* Instancing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000C04290BB6139600E6B30C /* Instancing.cpp */; };
 		000C05110BB613C400E6B30C /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
-		000C05120BB613C400E6B30C /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		000C05120BB613C400E6B30C /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
 		000C05BA0BB613D500E6B30C /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
 		000C05BD0BB6142900E6B30C /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263E0B393B0A004EA2DF /* media.cfg */; };
 		000C05BE0BB6142900E6B30C /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263F0B393B0A004EA2DF /* plugins.cfg */; };
@@ -74,7 +74,7 @@
 		000C05E80BB617DA00E6B30C /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E26400B393B0A004EA2DF /* resources.cfg */; };
 		000C05EC0BB6186F00E6B30C /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
 		000C05ED0BB6186F00E6B30C /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
-		000C05EE0BB6186F00E6B30C /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		000C05EE0BB6186F00E6B30C /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
 		000C05EF0BB6187F00E6B30C /* crowd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000C04280BB6139600E6B30C /* crowd.cpp */; };
 		000E25350B392C9E004EA2DF /* Bezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E25340B392C9E004EA2DF /* Bezier.cpp */; };
 		000E261C0B393748004EA2DF /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
@@ -227,34 +227,33 @@
 		000E29EF0B39E71B004EA2DF /* Water.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E29ED0B39E71B004EA2DF /* Water.cpp */; };
 		000E29F00B39E71B004EA2DF /* WaterMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E29EE0B39E71B004EA2DF /* WaterMesh.cpp */; };
 		0053F4930BB4D00E00328359 /* Ogre.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
-		0053F52F0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5300BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5310BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5320BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5330BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5340BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5350BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5360BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5370BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5380BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5390BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F53A0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F53B0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F53C0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F53D0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F53E0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F53F0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5400BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5410BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5420BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5430BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5440BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5450BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5460BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5470BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5480BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F5490BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
-		0053F54A0BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F52F0BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5310BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5320BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5330BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5340BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5350BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5360BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5370BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5380BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5390BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F53A0BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F53B0BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F53C0BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F53D0BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F53E0BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F53F0BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5400BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5410BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5420BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5430BB5908100328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5440BB5908200328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5450BB5908200328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5460BB5908200328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5470BB5908200328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5480BB5908200328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F5490BB5908200328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		0053F54A0BB5908200328359 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
 		0062EE2B0B4ACACE0076F733 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
 		0062EE2D0B4ACACE0076F733 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
 		0062EE2F0B4ACACE0076F733 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
@@ -271,6 +270,37 @@
 		00ABEEE70B4F7A4E0059129A /* spheremap.png in Resources */ = {isa = PBXBuildFile; fileRef = 00ABEEE40B4F7A4E0059129A /* spheremap.png */; };
 		00ABEF030B4F7C660059129A /* WeirdEye.png in Resources */ = {isa = PBXBuildFile; fileRef = 00ABEF020B4F7C660059129A /* WeirdEye.png */; };
 		AA215F5C0CA9BEAF006DBEA2 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
+		AA5FCB860D2C37CF007F8E88 /* libOIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libOIS.a */; };
+		AA5FCC300D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC310D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC320D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC330D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC340D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC350D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC360D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC370D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC380D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC390D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC3A0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC3B0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC3C0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC3D0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC3E0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC3F0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC400D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC410D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC420D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC430D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC440D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC450D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC460D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC470D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC480D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC490D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC4A0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC4B0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC4C0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
+		AA5FCC4D0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */; };
 		AA8869450D2BDB3500C08A49 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
 		AA8869470D2BDB7000C08A49 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */; };
 		AA8869480D2BDB7200C08A49 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */; };
@@ -510,7 +540,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 000E24E00B3924F0004EA2DF /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = AA88679C0D2BDAD800C08A49 /* OgreCEGUIRenderer */;
+			remoteGlobalIDString = AA88679C0D2BDAD800C08A49;
 			remoteInfo = OgreCEGUIRenderer;
 		};
 /* End PBXContainerItemProxy section */
@@ -539,7 +569,7 @@
 		000C05E00BB6173B00E6B30C /* Crowd.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Crowd.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000C05E20BB6173C00E6B30C /* Crowd-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Crowd-Info.plist"; path = "plist/Crowd-Info.plist"; sourceTree = "<group>"; };
 		000E25230B392BAA004EA2DF /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Ogre.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		000E252B0B392BE5004EA2DF /* BezierPatch.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BezierPatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000E252B0B392BE5004EA2DF /* BezierPatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BezierPatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E252E0B392BE6004EA2DF /* BezierPatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "BezierPatch-Info.plist"; path = "plist/BezierPatch-Info.plist"; sourceTree = "<group>"; };
 		000E25330B392C93004EA2DF /* Bezier.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Bezier.h; path = ../../Samples/BezierPatch/include/Bezier.h; sourceTree = SOURCE_ROOT; };
 		000E25340B392C9E004EA2DF /* Bezier.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Bezier.cpp; path = ../../Samples/BezierPatch/src/Bezier.cpp; sourceTree = SOURCE_ROOT; };
@@ -667,7 +697,7 @@
 		000E29EC0B39E713004EA2DF /* WaterMesh.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = WaterMesh.h; path = ../../Samples/Water/include/WaterMesh.h; sourceTree = SOURCE_ROOT; };
 		000E29ED0B39E71B004EA2DF /* Water.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Water.cpp; path = ../../Samples/Water/src/Water.cpp; sourceTree = SOURCE_ROOT; };
 		000E29EE0B39E71B004EA2DF /* WaterMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = WaterMesh.cpp; path = ../../Samples/Water/src/WaterMesh.cpp; sourceTree = SOURCE_ROOT; };
-		0053F52E0BB5908100328359 /* libois.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libois.a; path = ../../Dependencies/lib/Release/libois.a; sourceTree = SOURCE_ROOT; };
+		0053F52E0BB5908100328359 /* libOIS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libOIS.a; path = ../../Dependencies/lib/Release/libOIS.a; sourceTree = SOURCE_ROOT; };
 		0062EE270B4ACACE0076F733 /* CEGUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CEGUI.framework; path = ../../Dependencies/CEGUI.framework; sourceTree = SOURCE_ROOT; };
 		00ABEB520B4D8A980059129A /* OgreCustomNib.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OgreCustomNib.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00ABEB540B4D8A990059129A /* OgreCustomNib-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "OgreCustomNib-Info.plist"; path = "plist/OgreCustomNib-Info.plist"; sourceTree = "<group>"; };
@@ -681,6 +711,7 @@
 		00ABEEE30B4F7A4E0059129A /* GreenSkin.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = GreenSkin.jpg; path = ../../Samples/Media/materials/textures/GreenSkin.jpg; sourceTree = SOURCE_ROOT; };
 		00ABEEE40B4F7A4E0059129A /* spheremap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = spheremap.png; path = ../../Samples/Media/materials/textures/spheremap.png; sourceTree = SOURCE_ROOT; };
 		00ABEF020B4F7C660059129A /* WeirdEye.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = WeirdEye.png; path = ../../Samples/Media/materials/textures/WeirdEye.png; sourceTree = SOURCE_ROOT; };
+		AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OgreCEGUIRenderer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA88679E0D2BDAD800C08A49 /* OgreCEGUIRenderer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OgreCEGUIRenderer-Info.plist"; sourceTree = "<group>"; };
 		AA8869500D2BDBDB00C08A49 /* OgreCEGUIRenderer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreCEGUIRenderer.h; path = ../../Samples/Common/CEGUIRenderer/include/OgreCEGUIRenderer.h; sourceTree = SOURCE_ROOT; };
@@ -697,9 +728,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				000C05110BB613C400E6B30C /* Ogre.framework in Frameworks */,
-				000C05120BB613C400E6B30C /* libois.a in Frameworks */,
+				000C05120BB613C400E6B30C /* libOIS.a in Frameworks */,
 				000C05BA0BB613D500E6B30C /* CEGUI.framework in Frameworks */,
 				AA88694B0D2BDB8000C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA5FCC410D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -709,8 +741,9 @@
 			files = (
 				000C05EC0BB6186F00E6B30C /* CEGUI.framework in Frameworks */,
 				000C05ED0BB6186F00E6B30C /* Ogre.framework in Frameworks */,
-				000C05EE0BB6186F00E6B30C /* libois.a in Frameworks */,
+				000C05EE0BB6186F00E6B30C /* libOIS.a in Frameworks */,
 				AA8869480D2BDB7200C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA5FCC370D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -719,7 +752,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E261C0B393748004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5300BB5908100328359 /* libois.a in Frameworks */,
+				AA5FCB860D2C37CF007F8E88 /* libOIS.a in Frameworks */,
+				AA5FCC330D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -728,7 +762,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27090B399CA7004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5310BB5908100328359 /* libois.a in Frameworks */,
+				0053F5310BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC340D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -737,7 +772,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27220B399EE2004EA2DF /* Ogre.framework in Frameworks */,
-				0053F52F0BB5908100328359 /* libois.a in Frameworks */,
+				0053F52F0BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC350D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -746,9 +782,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E273C0B39A09D004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5320BB5908100328359 /* libois.a in Frameworks */,
+				0053F5320BB5908100328359 /* libOIS.a in Frameworks */,
 				AA215F5C0CA9BEAF006DBEA2 /* CEGUI.framework in Frameworks */,
 				AA8869470D2BDB7000C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA5FCC360D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -757,7 +794,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27550B39A136004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5330BB5908100328359 /* libois.a in Frameworks */,
+				0053F5330BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC380D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -766,7 +804,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27720B39A3EB004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5340BB5908100328359 /* libois.a in Frameworks */,
+				0053F5340BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC390D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -775,7 +814,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27950B39A861004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5350BB5908100328359 /* libois.a in Frameworks */,
+				0053F5350BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC3A0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -784,7 +824,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27A90B39A99F004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5360BB5908100328359 /* libois.a in Frameworks */,
+				0053F5360BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC3B0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -793,7 +834,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27C40B39AC04004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5370BB5908100328359 /* libois.a in Frameworks */,
+				0053F5370BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC3C0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -803,8 +845,9 @@
 			files = (
 				000E27D40B39AD74004EA2DF /* Ogre.framework in Frameworks */,
 				0062EE2B0B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
-				0053F5380BB5908100328359 /* libois.a in Frameworks */,
+				0053F5380BB5908100328359 /* libOIS.a in Frameworks */,
 				AA8869490D2BDB7D00C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA5FCC3D0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -813,7 +856,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27FC0B39AE9D004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5390BB5908100328359 /* libois.a in Frameworks */,
+				0053F5390BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC3F0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -822,7 +866,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E281C0B39B0D9004EA2DF /* Ogre.framework in Frameworks */,
-				0053F53A0BB5908100328359 /* libois.a in Frameworks */,
+				0053F53A0BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC3E0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -832,8 +877,9 @@
 			files = (
 				000E28300B39B278004EA2DF /* Ogre.framework in Frameworks */,
 				0062EE2D0B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
-				0053F53B0BB5908100328359 /* libois.a in Frameworks */,
+				0053F53B0BB5908100328359 /* libOIS.a in Frameworks */,
 				AA88694A0D2BDB7F00C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA5FCC400D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -842,7 +888,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E285B0B39B3AC004EA2DF /* Ogre.framework in Frameworks */,
-				0053F53C0BB5908100328359 /* libois.a in Frameworks */,
+				0053F53C0BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC420D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -852,8 +899,9 @@
 			files = (
 				000E28710B39B480004EA2DF /* Ogre.framework in Frameworks */,
 				0062EE2F0B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
-				0053F53D0BB5908100328359 /* libois.a in Frameworks */,
+				0053F53D0BB5908100328359 /* libOIS.a in Frameworks */,
 				AA88694C0D2BDB8100C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA5FCC430D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -862,7 +910,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E28AA0B39B654004EA2DF /* Ogre.framework in Frameworks */,
-				0053F53E0BB5908100328359 /* libois.a in Frameworks */,
+				0053F53E0BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC440D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -871,7 +920,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E28CE0B39DAF8004EA2DF /* Ogre.framework in Frameworks */,
-				0053F53F0BB5908100328359 /* libois.a in Frameworks */,
+				0053F53F0BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC450D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -881,8 +931,9 @@
 			files = (
 				000E28E20B39DBFA004EA2DF /* Ogre.framework in Frameworks */,
 				0062EE310B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
-				0053F5400BB5908100328359 /* libois.a in Frameworks */,
+				0053F5400BB5908100328359 /* libOIS.a in Frameworks */,
 				AA88694E0D2BDB8700C08A49 /* OgreCEGUIRenderer.framework in Frameworks */,
+				AA5FCC460D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -891,7 +942,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E28F40B39DC80004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5410BB5908100328359 /* libois.a in Frameworks */,
+				0053F5410BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC470D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -900,7 +952,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29110B39DD71004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5420BB5908100328359 /* libois.a in Frameworks */,
+				0053F5420BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC480D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -909,7 +962,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29260B39DE87004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5430BB5908100328359 /* libois.a in Frameworks */,
+				0053F5430BB5908100328359 /* libOIS.a in Frameworks */,
+				AA5FCC490D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -918,7 +972,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29400B39DF69004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5440BB5908200328359 /* libois.a in Frameworks */,
+				0053F5440BB5908200328359 /* libOIS.a in Frameworks */,
+				AA5FCC4A0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -927,7 +982,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29580B39E06F004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5450BB5908200328359 /* libois.a in Frameworks */,
+				0053F5450BB5908200328359 /* libOIS.a in Frameworks */,
+				AA5FCC4B0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -936,7 +992,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29720B39E19C004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5460BB5908200328359 /* libois.a in Frameworks */,
+				0053F5460BB5908200328359 /* libOIS.a in Frameworks */,
+				AA5FCC4C0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -945,7 +1002,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29990B39E403004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5470BB5908200328359 /* libois.a in Frameworks */,
+				0053F5470BB5908200328359 /* libOIS.a in Frameworks */,
+				AA5FCC4D0D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -954,7 +1012,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29AF0B39E4FB004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5480BB5908200328359 /* libois.a in Frameworks */,
+				0053F5480BB5908200328359 /* libOIS.a in Frameworks */,
+				AA5FCC320D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -963,7 +1022,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29C50B39E607004EA2DF /* Ogre.framework in Frameworks */,
-				0053F5490BB5908200328359 /* libois.a in Frameworks */,
+				0053F5490BB5908200328359 /* libOIS.a in Frameworks */,
+				AA5FCC310D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -972,7 +1032,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29E40B39E6F8004EA2DF /* Ogre.framework in Frameworks */,
-				0053F54A0BB5908200328359 /* libois.a in Frameworks */,
+				0053F54A0BB5908200328359 /* libOIS.a in Frameworks */,
+				AA5FCC300D2C3B3E007F8E88 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1323,9 +1384,10 @@
 		000E25220B392B6F004EA2DF /* External Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */,
 				0062EE270B4ACACE0076F733 /* CEGUI.framework */,
 				000E25230B392BAA004EA2DF /* Ogre.framework */,
-				0053F52E0BB5908100328359 /* libois.a */,
+				0053F52E0BB5908100328359 /* libOIS.a */,
 			);
 			name = "External Frameworks and Libraries";
 			sourceTree = "<group>";
@@ -3552,9 +3614,11 @@
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_3)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3581,9 +3645,11 @@
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_3)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -5457,9 +5523,7 @@
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
