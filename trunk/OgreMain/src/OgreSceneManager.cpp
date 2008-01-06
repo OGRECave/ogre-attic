@@ -1493,10 +1493,6 @@ void SceneManager::setSkyBox(
         {
             mSkyBoxNode = createSceneNode("SkyBoxNode");
         }
-        else
-        {
-            mSkyBoxNode->detachAllObjects();
-        }
 
 		// Create object
 		if (!mSkyBoxObj)
