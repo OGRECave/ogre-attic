@@ -36,7 +36,10 @@ namespace Ogre
 {
 	//---------------------------------------------------------------------
 	TangentSpaceCalc::TangentSpaceCalc()
-		: mVData(0), mSplitMirrored(false), mSplitRotated(false)
+		: mVData(0)
+		, mSplitMirrored(false)
+		, mSplitRotated(false)
+		, mStoreParityInW(false)
 	{
 	}
 	//---------------------------------------------------------------------
@@ -351,14 +354,16 @@ namespace Ogre
 			bool splitVertex = false;
 			size_t reusedOppositeParity = 0;
 			bool splitBecauseOfParity = false;
+			bool newVertex = false;
+			if (!vertex->parity)
+			{
+				// init
+				vertex->parity = faceParity;
+				newVertex = true;
+			}
 			if (mSplitMirrored)
 			{
-				if (!vertex->parity)
-				{
-					// probably a mirrored UV edge, need to split the vertex
-					vertex->parity = faceParity;
-				}
-				else if (faceParity != calculateParity(vertex->tangent, vertex->binormal, vertex->norm))//vertex->parity != faceParity)
+				if (!newVertex && faceParity != calculateParity(vertex->tangent, vertex->binormal, vertex->norm))//vertex->parity != faceParity)
 				{
 					// Check for existing alternative parity
 					if (vertex->oppositeParityIndex)
@@ -392,7 +397,7 @@ namespace Ogre
 
 				// deal with excessive tangent space rotations as well as mirroring
 				// same kind of split behaviour appropriate
-				if (!splitVertex && vertex->tangent != Vector3::ZERO)
+				if (!newVertex && !splitVertex)
 				{
 					// If more than 90 degrees, split
 					Vector3 uvCurrent = vertex->tangent + vertex->binormal;
@@ -448,10 +453,12 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	int TangentSpaceCalc::calculateParity(const Vector3& u, const Vector3& v, const Vector3& n)
 	{
+		// Note that this parity is the reverse of what you'd expect - this is
+		// because the 'V' texture coordinate is actually left handed
 		if (u.crossProduct(v).dotProduct(n) >= 0.0f)
-			return 1;
-		else
 			return -1;
+		else
+			return 1;
 
 	}
 	//---------------------------------------------------------------------
@@ -644,18 +651,19 @@ namespace Ogre
 
 		const VertexElement *tangentsElem = vDecl->findElementBySemantic(targetSemantic, index);
 		bool needsToBeCreated = false;
+		VertexElementType tangentsType = mStoreParityInW ? VET_FLOAT4 : VET_FLOAT3;
 
 		if (!tangentsElem)
 		{ // no tex coords with index 1
 			needsToBeCreated = true ;
 		}
-		else if (tangentsElem->getType() != VET_FLOAT3)
+		else if (tangentsElem->getType() != tangentsType)
 		{
 			//  buffer exists, but not 3D
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-				"Target semantic set already exists but is not 3D, therefore "
-				"cannot contain tangents. Pick an alternative destination semantic. ",
-				"TangentSpaceCalc::organiseTangentsBuffer");
+				"Target semantic set already exists but is not of the right size, therefore "
+				"cannot contain tangents. You should delete this existing entry first. ",
+				"TangentSpaceCalc::insertTangents");
 		}
 
 		HardwareVertexBufferSharedPtr targetBuffer, origBuffer;
@@ -682,7 +690,7 @@ namespace Ogre
 			// Now create a new buffer, which includes the previous contents
 			// plus extra space for the 3D coords
 			targetBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
-				origBuffer->getVertexSize() + 3*sizeof(float),
+				origBuffer->getVertexSize() + VertexElement::getTypeSize(tangentsType),
 				origBuffer->getNumVertices(),
 				origBuffer->getUsage(),
 				origBuffer->hasShadowBuffer() );
@@ -690,7 +698,7 @@ namespace Ogre
 			tangentsElem = &(vDecl->addElement(
 				prevTexCoordElem->getSource(),
 				origBuffer->getVertexSize(),
-				VET_FLOAT3,
+				tangentsType,
 				targetSemantic,
 				index));
 			// Set up the source pointer
@@ -727,6 +735,8 @@ namespace Ogre
 			*pTangent++ = vertInfo.tangent.x;
 			*pTangent++ = vertInfo.tangent.y;
 			*pTangent++ = vertInfo.tangent.z;
+			if (mStoreParityInW)
+				*pTangent++ = vertInfo.parity;
 
 			// Next target vertex
 			pDest += newVertSize;

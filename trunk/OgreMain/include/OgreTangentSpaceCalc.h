@@ -90,6 +90,23 @@ namespace Ogre
 		*/
 		void addIndexData(IndexData* i_in, RenderOperation::OperationType opType = RenderOperation::OT_TRIANGLE_LIST);
 
+		/** Sets whether to store tangent space parity in the W of a 4-component tangent or not.
+		@remarks
+			The default element format to use is VET_FLOAT3 which is enough to accurately 
+			deal with tangents that do not involve any texture coordinate mirroring. 
+			If you wish to allow UV mirroring in your model, you must enable 4-component
+			tangents using this method, and the 'w' co-ordinate will be populated
+			with the parity of the triangle (+1 or -1), which will allow you to generate
+			the bitangent properly.
+		@param enable true to enable 4-component tangents (default false). If you enable
+			this, you will probably also want to enable mirror splitting (see setSplitMirrored), 
+			and your shader must understand how to deal with the parity.
+		*/
+		void setStoreParityInW(bool enabled) { mStoreParityInW = enabled; }
+
+		/**  Gets whether to store tangent space parity in the W of a 4-component tangent or not. */
+		bool getStoreParityInW() const { return mStoreParityInW; }
+
 		/** Sets whether or not to split vertices when a mirrored tangent space
 			transition is detected (matrix parity differs).
 		@remarks
@@ -166,6 +183,7 @@ namespace Ogre
 		OpTypeList mOpTypes;
 		bool mSplitMirrored;
 		bool mSplitRotated;
+		bool mStoreParityInW;
 
 
 		struct VertexInfo

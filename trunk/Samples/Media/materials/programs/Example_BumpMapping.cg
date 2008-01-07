@@ -16,7 +16,7 @@ float3 expand(float3 v)
 void main_vp(float4 position	: POSITION,
 			 float3 normal		: NORMAL,
 			 float2 uv			: TEXCOORD0,
-			 float3 tangent     : TANGENT0,
+			 float4 tangent     : TANGENT0,
 			 // outputs
 			 out float4 oPosition    : POSITION,
 			 out float2 oUv			 : TEXCOORD0,
@@ -40,10 +40,16 @@ void main_vp(float4 position	: POSITION,
 	// already normalised)
 	// NB looks like nvidia cross params are BACKWARDS to what you'd expect
 	// this equates to NxT, not TxN
-	float3 binormal = cross(tangent, normal);
+
+#if TANGENTS_HAVE_PARITY
+	float3 binormal = cross(tangent.xyz, normal) * tangent.www;
+#else
+	// fixed handedness
+	float3 binormal = cross(tangent.xyz, normal);
+#endif
 	
 	// Form a rotation matrix out of the vectors
-	float3x3 rotation = float3x3(tangent, binormal, normal);
+	float3x3 rotation = float3x3(tangent.xyz, binormal, normal);
 	
 	// Transform the light vector according to this matrix
 	oTSLightDir = mul(rotation, lightDir);
@@ -92,7 +98,7 @@ void main_shadowreceiver_vp(float4 position	: POSITION,
 	float3 binormal = cross(tangent, normal);
 	
 	// Form a rotation matrix out of the vectors
-	float3x3 rotation = float3x3(tangent, binormal, normal);
+	float3x3 rotation = float3x3(tangent.xyz, binormal, normal);
 	
 	// Transform the light vector according to this matrix
 	oTSLightDir = mul(rotation, lightDir);
