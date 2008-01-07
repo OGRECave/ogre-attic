@@ -1072,32 +1072,26 @@ protected:
 		addTextureDebugOverlay(TextureManager::getSingleton().getByName(texName), 3);
 	}
 
-	void testBug()
+	void testNormalMapMirroredUVs()
 	{
 
-		// Set ambient light
-		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
-		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		Pass* p = mat->getTechnique(0)->getPass(0);
-		p->setLightingEnabled(false);
-		p->setCullingMode(CULL_NONE);
-		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
-		TextureUnitState* t = p->createTextureUnitState("ogrelogo.png");
-
-		t->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_TEXTURE, Ogre::LBS_MANUAL,Ogre::ColourValue::White,Ogre::ColourValue(1,0,0) );   
-		t->setAlphaOperation(Ogre::LBX_MODULATE, Ogre::LBS_TEXTURE, Ogre::LBS_MANUAL, 1.0, 1.0);
-
-
-		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
-		e->setMaterialName(mat->getName());
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+		// this mesh has been generated with 4-component tangents, including a parity in w
+		Entity* e = mSceneMgr->createEntity("2", "testmirroreduvmesh.mesh");
+		e->setMaterialName("Examples/BumpMapping/MultiLightTangentParity");
+		// here's what it looks like without the parity
+		//e->setMaterialName("Examples/BumpMapping/MultiLight");
+		
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
-		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
 
-		mCamera->setPosition(0,0,300);
+		Light* l = mSceneMgr->createLight("3");
+		l->setPosition(1000,500,1000);
+		
+		mCamera->setPosition(0,200,50);
 		mCamera->lookAt(Vector3::ZERO);
-
-
+		
+		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
 	}
 
 	void testMaterialSerializer()
@@ -6641,9 +6635,6 @@ protected:
 
     void createScene(void)
     {
-		Entity *ent1 = mSceneMgr->createEntity( "Jaiqua", "testmesh.mesh" );
-		Ogre::MeshSerializer *m = new Ogre::MeshSerializer;
-		m->exportMesh( ent1->getMesh().getPointer(), "testmesh2.mesh",Ogre::Serializer::ENDIAN_NATIVE);
 
 
 		mCamera->setPosition(-0.19199729, 1.0310142, -41.884644);
@@ -6701,7 +6692,7 @@ protected:
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
-		testTextureShadowsIntegrated();
+		//testTextureShadowsIntegrated();
 		//testTextureShadowsIntegrated();
 		//testStencilShadowsMixedOpSubMeshes(false, true);
 		//testTextureShadowsTransparentCaster();
@@ -6734,7 +6725,7 @@ protected:
 		//testMorphAnimation();
 		//testPoseAnimation();
 		//testPoseAnimation2();
-		//testBug();
+		testNormalMapMirroredUVs();
 		//testMRTCompositorScript();
 		//testSpotlightViewProj(true);
 		//test16Textures();
@@ -6756,7 +6747,7 @@ protected:
 		//testSuppressedShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testViewportNoShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testBillboardChain();
-		testRibbonTrail();
+		//testRibbonTrail();
 		//testSerialisedColour();
 		//testBillboardAccurateFacing();
 		//testMultiSceneManagersSimple();

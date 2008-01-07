@@ -380,6 +380,10 @@ namespace Ogre {
                     break;
 				case VES_TANGENT:
 					vbNode->SetAttribute("tangents","true");
+					if (elem.getType() == VET_FLOAT4)
+					{
+						vbNode->SetAttribute("tangent_dimensions", "4");
+					}
 					break;
 				case VES_BINORMAL:
 					vbNode->SetAttribute("binormals","true");
@@ -441,6 +445,10 @@ namespace Ogre {
 						dataNode->SetAttribute("x", StringConverter::toString(pFloat[0]));
 						dataNode->SetAttribute("y", StringConverter::toString(pFloat[1]));
 						dataNode->SetAttribute("z", StringConverter::toString(pFloat[2]));
+						if (elem.getType() == VET_FLOAT4)
+						{
+							dataNode->SetAttribute("w", StringConverter::toString(pFloat[3]));
+						}
 						break;
 					case VES_BINORMAL:
 						elem.baseVertexPointerToElement(pVert, &pFloat);
@@ -754,9 +762,18 @@ namespace Ogre {
 			attrib = vbElem->Attribute("tangents");
 			if (attrib && StringConverter::parseBool(attrib))
 			{
+				VertexElementType tangentType = VET_FLOAT3;
+				attrib = vbElem->Attribute("tangent_dimensions");
+				if (attrib)
+				{
+					unsigned int dims = StringConverter::parseUnsignedInt(attrib);
+					if (dims == 4)
+						tangentType = VET_FLOAT4;
+				}
+
 				// Add element
-				decl->addElement(bufCount, offset, VET_FLOAT3, VES_TANGENT);
-				offset += VertexElement::getTypeSize(VET_FLOAT3);
+				decl->addElement(bufCount, offset, tangentType, VES_TANGENT);
+				offset += VertexElement::getTypeSize(tangentType);
 			}
 			attrib = vbElem->Attribute("binormals");
 			if (attrib && StringConverter::parseBool(attrib))
@@ -916,6 +933,11 @@ namespace Ogre {
 							xmlElem->Attribute("y"));
 						*pFloat++ = StringConverter::parseReal(
 							xmlElem->Attribute("z"));
+						if (elem.getType() == VET_FLOAT4)
+						{
+							*pFloat++ = StringConverter::parseReal(
+								xmlElem->Attribute("w"));
+						}
 						break;
 					case VES_BINORMAL:
 						xmlElem = vertexElem->FirstChildElement("binormal");

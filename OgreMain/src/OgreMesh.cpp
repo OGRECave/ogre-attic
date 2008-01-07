@@ -1167,12 +1167,13 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Mesh::buildTangentVectors(VertexElementSemantic targetSemantic, 
 		unsigned short sourceTexCoordSet, unsigned short index, 
-		bool splitMirrored, bool splitRotated)
+		bool splitMirrored, bool splitRotated, bool storeParityInW)
     {
 
 		TangentSpaceCalc tangentsCalc;
 		tangentsCalc.setSplitMirrored(splitMirrored);
 		tangentsCalc.setSplitRotated(splitRotated);
+		tangentsCalc.setStoreParityInW(storeParityInW);
 
 		// shared geometry first
 		if (sharedVertexData)

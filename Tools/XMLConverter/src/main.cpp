@@ -58,6 +58,9 @@ struct XmlOptions
     bool generateEdgeLists;
     bool generateTangents;
 	VertexElementSemantic tangentSemantic;
+	bool tangentUseParity;
+	bool tangentSplitMirrored;
+	bool tangentSplitRotated;
     bool reorganiseBuffers;
 	bool optimiseAnimations;
 	bool quietMode;
@@ -84,6 +87,9 @@ void help(void)
     cout << "-t             = Generate tangents (for normal mapping)" << endl;
 	cout << "-td [uvw|tangent]" << endl;
 	cout << "           = Tangent vertex semantic destination (default tangent)" << endl;
+	cout << "-ts [3|4]      = Tangent size (3 or 4 components, 4 includes parity, default 3)" << endl;
+	cout << "-tm            = Split tangent vertices at UV mirror points" << endl;
+	cout << "-tr            = Split tangent vertices where basis is rotated > 90 degrees" << endl;
     cout << "-o             = DON'T optimise out redundant tracks & keyframes" << endl;
 	cout << "-d3d           = Prefer D3D packed colour formats (default on Windows)" << endl;
 	cout << "-gl            = Prefer GL packed colour formats (default on non-Windows)" << endl;
@@ -116,6 +122,9 @@ XmlOptions parseArgs(int numArgs, char **args)
     opts.generateEdgeLists = true;
     opts.generateTangents = false;
 	opts.tangentSemantic = VES_TANGENT;
+	opts.tangentUseParity = false;
+	opts.tangentSplitMirrored = false;
+	opts.tangentSplitRotated = false;
     opts.reorganiseBuffers = true;
 	opts.optimiseAnimations = true;
     opts.quietMode = false;
@@ -133,6 +142,8 @@ XmlOptions parseArgs(int numArgs, char **args)
     unOpt["-e"] = false;
     unOpt["-r"] = false;
     unOpt["-t"] = false;
+	unOpt["-tm"] = false;
+	unOpt["-tr"] = false;
     unOpt["-o"] = false;
 	unOpt["-q"] = false;
 	unOpt["-d3d"] = false;
@@ -145,6 +156,7 @@ XmlOptions parseArgs(int numArgs, char **args)
     binOpt["-x"] = "";
     binOpt["-log"] = "OgreXMLConverter.log";
 	binOpt["-td"] = "";
+	binOpt["-ts"] = "";
 
     int startIndex = findCommandLineOpts(numArgs, args, unOpt, binOpt);
     UnaryOptionList::iterator ui;
@@ -180,6 +192,17 @@ XmlOptions parseArgs(int numArgs, char **args)
         {
             opts.generateTangents = true;
         }
+		ui = unOpt.find("-tm");
+		if (ui->second)
+		{
+			opts.tangentSplitMirrored = true;
+		}
+		ui = unOpt.find("-tr");
+		if (ui->second)
+		{
+			opts.tangentSplitRotated = true;
+		}
+
 		bi = binOpt.find("-td");
 		if (!bi->second.empty())
 		{
@@ -187,6 +210,12 @@ XmlOptions parseArgs(int numArgs, char **args)
 				opts.tangentSemantic = VES_TEXTURE_COORDINATES;
 			else
 				opts.tangentSemantic = VES_TANGENT;
+		}
+		bi = binOpt.find("-ts");
+		if (!bi->second.empty())
+		{
+			if (bi->second == "4")
+				opts.tangentUseParity = true;
 		}
 
         ui = unOpt.find("-o");
@@ -331,6 +360,10 @@ XmlOptions parseArgs(int numArgs, char **args)
             cout << "Generate extremes per submesh = " << opts.nuextremityPoints << endl;
         cout << "Generate edge lists  = " << opts.generateEdgeLists << endl;
         cout << "Generate tangents = " << opts.generateTangents << endl;
+		cout << " semantic = " << (opts.tangentSemantic == VES_TANGENT? "TANGENT" : "TEXCOORD") << endl;
+		cout << " parity = " << opts.tangentUseParity << endl;
+		cout << " split mirror = " << opts.tangentSplitMirrored << endl;
+		cout << " split rotated = " << opts.tangentSplitRotated << endl;
         cout << "Reorganise vertex buffers = " << opts.reorganiseBuffers << endl;
     	cout << "Optimise animations = " << opts.optimiseAnimations << endl;
     	
@@ -664,7 +697,8 @@ void XMLToBinary(XmlOptions opts)
 				{
                     std::cout << "Generating tangent vectors...." << std::endl;
                 }
-                newMesh->buildTangentVectors(opts.tangentSemantic, srcTex, destTex);
+                newMesh->buildTangentVectors(opts.tangentSemantic, srcTex, destTex, 
+					opts.tangentSplitMirrored, opts.tangentSplitRotated, opts.tangentUseParity);
             }
         }
 

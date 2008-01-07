@@ -578,10 +578,11 @@ namespace Ogre {
 			transition is detected (matrix parity differs). @see TangentSpaceCalc::setSplitMirrored
 		@param splitRotated Sets whether or not to split vertices when a rotated tangent space
 			is detected. @see TangentSpaceCalc::setSplitRotated
+		@param storeParityInW If true, store tangents as a 4-vector and include parity in w
         */
         void buildTangentVectors(VertexElementSemantic targetSemantic = VES_TANGENT,
 			unsigned short sourceTexCoordSet = 0, unsigned short index = 0, 
-			bool splitMirrored = false, bool splitRotated = false);
+			bool splitMirrored = false, bool splitRotated = false, bool storeParityInW = false);
 
         /** Ask the mesh to suggest parameters to a future buildTangentVectors call, 
 			should you wish to use texture coordinates to store the tangents. 
