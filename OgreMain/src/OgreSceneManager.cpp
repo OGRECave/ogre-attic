@@ -404,16 +404,16 @@ void SceneManager::_populateLightList(const Vector3& position, Real radius,
     for (it = candidateLights.begin(); it != candidateLights.end(); ++it)
     {
         Light* lt = *it;
+		// Calc squared distance
+		lt->_calcTempSquareDist(position);
+
         if (lt->getType() == Light::LT_DIRECTIONAL)
         {
-            // No distance
-            lt->tempSquareDist = 0.0f;
+            // Always included
             destList.push_back(lt);
         }
         else
         {
-            // Calc squared distance
-            lt->tempSquareDist = (lt->getDerivedPosition() - position).squaredLength();
             // only add in-range lights
             Real range = lt->getAttenuationRange();
             Real maxDist = range + radius;
@@ -3577,8 +3577,7 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 			// add cam distance for sorting if texture shadows
 			if (isShadowTechniqueTextureBased())
 			{
-				(*j)->tempSquareDist = 
-					(camera->getDerivedPosition() - (*j)->getDerivedPosition()).squaredLength();
+				(*j)->_calcTempSquareDist(camera->getDerivedPosition());
 			}
         }
 
