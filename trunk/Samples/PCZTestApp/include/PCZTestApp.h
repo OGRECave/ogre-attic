@@ -18,8 +18,6 @@ This file based on the Example App framework from Ogre3d (www.ogre3d.org)
 #include "RoomObject.h"
 #include "OgreTerrainZone.h"
 
-ParticleSystem *pThrusters;
-PCZSceneNode * shipNode;
 PCZSceneNode * buildingNode;
 Vector3 buildingTranslate;
 RaySceneQuery* raySceneQuery = 0;
@@ -28,10 +26,6 @@ MovableObject* targetMO = 0;
 
 class PCZTestFrameListener : public ExampleFrameListener
 {
-private:
-    static float fDefDim;
-    static float fDefVel;
-
 public:
     PCZTestFrameListener(RenderWindow* win, Camera* cam) : ExampleFrameListener( win, cam )
     {
@@ -103,9 +97,6 @@ public:
         return true;
     }
 };
-
-float PCZTestFrameListener::fDefDim = 25.0f;
-float PCZTestFrameListener::fDefVel = 50.0f;
 
 class PCZTestApplication : public ExampleApplication
 {
