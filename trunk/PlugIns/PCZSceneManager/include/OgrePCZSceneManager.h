@@ -346,7 +346,7 @@ namespace Ogre
         bool mShowPortals;
 
         /// frame counter used in visibility determination
-        long mFrameCount;
+        unsigned long mFrameCount;
 
 		// ZoneFactoryManager instance
 		PCZoneFactoryManager * mZoneFactoryManager;

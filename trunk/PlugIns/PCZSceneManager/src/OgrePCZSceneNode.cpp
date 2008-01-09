@@ -48,6 +48,7 @@ TODO				 : None known
 #include "OgrePCZSceneManager.h"
 #include "OgrePortal.h"
 #include "OgrePCZone.h"
+#include "OgrePCZCamera.h"
 
 namespace Ogre
 {
@@ -57,6 +58,7 @@ namespace Ogre
 		mAnchored = false;
 		mAllowedToVisit = true;
 		mLastVisibleFrame = 0;
+		mLastVisibleFromCamera = 0;
 		mEnabled = true;
 	}
 	PCZSceneNode::PCZSceneNode( SceneManager* creator, const String& name ) : SceneNode( creator, name )
@@ -65,6 +67,7 @@ namespace Ogre
 		mAnchored = false;
 		mAllowedToVisit = true;
 		mLastVisibleFrame = 0;
+		mLastVisibleFromCamera = 0;
 		mEnabled = true;
 	}
 	PCZSceneNode::~PCZSceneNode()
