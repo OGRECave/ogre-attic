@@ -2727,6 +2727,12 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 						lightsLeft = 0;
 					}
 					pLightListToUse = &localLightList;
+
+					// deal with the case where we found no lights
+					// since this is light iteration, we shouldn't render at all
+					if (pLightListToUse->empty())
+						return;
+
 				}
 				else
 				{
