@@ -4,12 +4,6 @@ Some items are specific, some are not, it's just a list to keep notes for myself
 
 TODO:
 -------------
-* Add support for multiple cameras
- - initial analysis indicates that much of the PCZ-specific scene node update stuff needs to 
-   be moved to within the PCZSceneNode::_update() function in order to keep them from being 
-   called multiple times per frame.  Right now, most of the functions in PCZSM::_updateSceneGraph()
-   need to be replaced/moved to somewhere which is not called multiple times (once per camera)
-   per frame.
 * Allow portals to connect to the same zone they are in
 * Test function to prevent scenenodes from crossing portals which they won't fit through
 * More testing 

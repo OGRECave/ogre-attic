@@ -52,6 +52,7 @@ namespace Ogre
 	// forward declarations
 	class PCZone;
 	class ZoneData;
+	class PCZCamera;
     typedef std::map<String, PCZone*> ZoneMap;
 	typedef std::map<String, ZoneData*> ZoneDataMap;
 
@@ -81,22 +82,25 @@ namespace Ogre
                                        VisibleObjectsBoundsInfo* visibleBounds );
 		void		savePrevPosition(void);
 		Vector3&	getPrevPosition(void) {return mPrevPosition;}
-		long		getLastVisibleFrame(void) {return mLastVisibleFrame;}
-		void		setLastVisibleFrame(long newLVF) {mLastVisibleFrame = newLVF;}
+		unsigned long		getLastVisibleFrame(void) {return mLastVisibleFrame;}
+		void		setLastVisibleFrame(unsigned long newLVF) {mLastVisibleFrame = newLVF;}
+		void		setLastVisibleFromCamera(PCZCamera * camera) {mLastVisibleFromCamera = camera;}
+		PCZCamera*	getLastVisibleFromCamera() {return mLastVisibleFromCamera;}
 		void		setZoneData(PCZone * zone, ZoneData * zoneData);
 		ZoneData*	getZoneData(PCZone * zone);
 		void		updateZoneData(void);
 		void		enable(bool yesno) {mEnabled = yesno;}
 		bool		isEnabled(void) {return mEnabled;}
 	protected:
-		PCZone *	mHomeZone;
-		bool		mAnchored;
-		bool		mAllowedToVisit;
-		ZoneMap		mVisitingZones;
-		Vector3		mPrevPosition;
-		long		mLastVisibleFrame;
-		ZoneDataMap mZoneData;
-		bool		mEnabled;
+		PCZone *		mHomeZone;
+		bool			mAnchored;
+		bool			mAllowedToVisit;
+		ZoneMap			mVisitingZones;
+		Vector3			mPrevPosition;
+		unsigned long	mLastVisibleFrame;
+		PCZCamera*		mLastVisibleFromCamera;
+		ZoneDataMap		mZoneData;
+		bool			mEnabled;
 	};
 }
 

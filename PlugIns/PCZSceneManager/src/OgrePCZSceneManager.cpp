@@ -44,6 +44,7 @@ email                : ericc@xenopi.com
 #include "OgreSubMesh.h"
 #include "OgreLogManager.h"
 #include <OgreRenderSystem.h>
+#include "OgreRoot.h"
 
 
 namespace Ogre
@@ -1064,7 +1065,8 @@ namespace Ogre
 		((PCZCamera*)cam)->removeAllExtraCullingPlanes();
 
         // increment the visibility frame counter
-        mFrameCount++;
+        //mFrameCount++;
+		mFrameCount = Root::getSingleton().getNextFrameNumber();
 
         // update the camera
         ((PCZCamera*)cam)->update();

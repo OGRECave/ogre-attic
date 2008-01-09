@@ -531,6 +531,7 @@ namespace Ogre
 				int planes_added = camera->addPortalCullingPlanes(portal);
 				// tell target zone it's visible this frame
 				portal->getTargetZone()->setLastVisibleFrame(mLastVisibleFrame);
+				portal->getTargetZone()->setLastVisibleFromCamera(camera);
 				// recurse into the connected zone 
 				portal->getTargetZone()->findVisibleNodes(camera, 
 														  visibleNodeList, 
@@ -596,7 +597,8 @@ namespace Ogre
 			{
 				PCZSceneNode * sn = *it;
 				// if the scene node is already visible, then we can skip it
-				if (sn->getLastVisibleFrame() != mLastVisibleFrame)
+				if (sn->getLastVisibleFrame() != mLastVisibleFrame ||
+					sn->getLastVisibleFromCamera() != camera)
 				{
 					// if this octree is partially visible, manually cull all
 					// scene nodes attached directly to this level.
@@ -622,6 +624,7 @@ namespace Ogre
 						}
 						// flag the node as being visible this frame
 						sn->setLastVisibleFrame(mLastVisibleFrame);
+						sn->setLastVisibleFromCamera(camera);
 					}
 				}
 				++it;

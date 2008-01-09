@@ -452,7 +452,8 @@ namespace Ogre
         {
 			PCZSceneNode * pczsn = *it;
             // if the scene node is already visible, then we can skip it
-            if (pczsn->getLastVisibleFrame() != mLastVisibleFrame)
+            if (pczsn->getLastVisibleFrame() != mLastVisibleFrame ||
+				pczsn->getLastVisibleFromCamera() != camera)
             {
 				// for a scene node, check visibility using AABB
 				vis = camera ->isVisible( pczsn -> _getWorldAABB() );
@@ -474,6 +475,7 @@ namespace Ogre
 					}
 					// flag the node as being visible this frame
 					pczsn->setLastVisibleFrame(mLastVisibleFrame);
+					pczsn->setLastVisibleFromCamera(camera);
 				}
             }
             ++it;
@@ -484,7 +486,8 @@ namespace Ogre
         {
 			PCZSceneNode * pczsn = *it;
             // if the scene node is already visible, then we can skip it
-            if (pczsn->getLastVisibleFrame() != mLastVisibleFrame)
+            if (pczsn->getLastVisibleFrame() != mLastVisibleFrame ||
+				pczsn->getLastVisibleFromCamera() != camera)
             {
 				// for a scene node, check visibility using AABB
 				vis = camera ->isVisible( pczsn -> _getWorldAABB() );
@@ -506,6 +509,7 @@ namespace Ogre
 					}
 					// flag the node as being visible this frame
 					pczsn->setLastVisibleFrame(mLastVisibleFrame);
+					pczsn->setLastVisibleFromCamera(camera);
 				}
             }
             ++it;
@@ -525,6 +529,7 @@ namespace Ogre
 				int planes_added = camera->addPortalCullingPlanes(portal);
 				// tell target zone it's visible this frame
 				portal->getTargetZone()->setLastVisibleFrame(mLastVisibleFrame);
+				portal->getTargetZone()->setLastVisibleFromCamera(camera);
 				// recurse into the connected zone 
 				portal->getTargetZone()->findVisibleNodes(camera, 
 														  visibleNodeList, 

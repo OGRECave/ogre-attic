@@ -45,6 +45,7 @@ namespace Ogre
     PCZone::PCZone( PCZSceneManager * creator, const String& name ) 
     {
         mLastVisibleFrame = 0;
+		mLastVisibleFromCamera = 0;
 		mName = name;
 		mZoneTypeName = "ZoneType_Undefined";
 		mEnclosureNode = 0;

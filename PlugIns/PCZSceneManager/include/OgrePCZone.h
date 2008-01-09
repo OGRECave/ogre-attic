@@ -108,10 +108,16 @@ namespace Ogre
 		bool hasSky(void) {return mHasSky;}
 
 		/* set the lastVisibleFrame counter */
-		void setLastVisibleFrame(long frameCount) {mLastVisibleFrame = frameCount;}
+		void setLastVisibleFrame(unsigned long frameCount) {mLastVisibleFrame = frameCount;}
 
         /* get the lastVisibleFrame counter value */
-        long getLastVisibleFrame(void) {return mLastVisibleFrame;}
+        unsigned long getLastVisibleFrame(void) {return mLastVisibleFrame;}
+
+		/* set the lastVisibleFromCamera pointer */
+		void setLastVisibleFromCamera(PCZCamera * camera) {mLastVisibleFromCamera = camera;}
+
+		/* get the lastVisibleFromCamera pointer */
+		PCZCamera* getLastVisibleFromCamera() {return mLastVisibleFromCamera;}
 
 	public:
 		/** Set the enclosure node for this PCZone
@@ -239,6 +245,8 @@ namespace Ogre
 		String mZoneTypeName;
         // frame counter for visibility
         unsigned long mLastVisibleFrame;
+		// last camera which this zone was visible to
+		PCZCamera * mLastVisibleFromCamera;
 		// flag determining whether or not this zone has sky in it.
 		bool mHasSky;
 		//SceneNode which corresponds to the enclosure for this zone
