@@ -109,7 +109,7 @@ namespace Ogre {
 		{
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot find a group named " + name, 
-				"ResourceGroupManager::parseResourceGroupScripts");
+				"ResourceGroupManager::initialiseResourceGroup");
 		}
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
 
@@ -421,7 +421,7 @@ namespace Ogre {
         {
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a resource group called '" + resGroup + "'", 
-                "ResourceGroupManager::addResourceLocation");
+                "ResourceGroupManager::removeResourceLocation");
         }
 
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
