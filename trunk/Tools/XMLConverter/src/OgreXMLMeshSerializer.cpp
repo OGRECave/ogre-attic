@@ -139,12 +139,18 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("DOM populated, writing XML file..");
 
         // Write out to a file
-        mXMLDoc->SaveFile(filename);
+        if(! mXMLDoc->SaveFile(filename) )
+        {
+            LogManager::getSingleton().logMessage("XMLMeshSerializer failed writing the XML file.", LML_CRITICAL);
+        }
+        else
+        {
+            LogManager::getSingleton().logMessage("XMLMeshSerializer export successful.");
+        }
 
     
         delete mXMLDoc;
 
-        LogManager::getSingleton().logMessage("XMLMeshSerializer export successful.");
 
     }
     //---------------------------------------------------------------------

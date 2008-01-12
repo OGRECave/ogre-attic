@@ -524,6 +524,20 @@ namespace Ogre {
 	{
 		return SceneManager::LIGHT_TYPE_MASK;
 	}
+	//---------------------------------------------------------------------
+	void Light::_calcTempSquareDist(const Vector3& worldPos)
+	{
+		if (mLightType == LT_DIRECTIONAL)
+		{
+			tempSquareDist = 0;
+		}
+		else
+		{
+			tempSquareDist = 
+				(worldPos - getDerivedPosition()).squaredLength();
+		}
+
+	}
 	//-----------------------------------------------------------------------
 	const String& Light::getAnimableDictionaryName(void) const
 	{
