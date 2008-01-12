@@ -406,13 +406,17 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("DOM populated, writing XML file..");
 
         // Write out to a file
-        mXMLDoc->SaveFile(filename);
+        if(! mXMLDoc->SaveFile(filename) )
+        {
+            LogManager::getSingleton().logMessage("XMLSkeletonSerializer failed writing the XML file.", LML_CRITICAL);
+        }
+        else
+        {
+            LogManager::getSingleton().logMessage("XMLSkeletonSerializer export successful.");
+        }
 
-    
         delete mXMLDoc;
 
-        LogManager::getSingleton().logMessage("XMLSkeletonSerializer export successful.");
-	
     }
     //---------------------------------------------------------------------
     void XMLSkeletonSerializer::writeSkeleton(const Skeleton* pSkel)
