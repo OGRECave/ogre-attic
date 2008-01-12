@@ -395,6 +395,13 @@ void meshToXML(XmlOptions opts)
 {
     std::ifstream ifs;
     ifs.open(opts.source.c_str(), std::ios_base::in | std::ios_base::binary);
+
+    if (ifs.bad())
+    {
+        cout << "Unable to load file " << opts.source << endl;
+        exit(1);
+    }
+
     // pass false for freeOnClose to FileStreamDataStream since ifs is created on stack
     DataStreamPtr stream(new FileStreamDataStream(opts.source, &ifs, false));
 
@@ -738,7 +745,7 @@ void skeletonToXML(XmlOptions opts)
 
     std::ifstream ifs;
     ifs.open(opts.source.c_str(), std::ios_base::in | std::ios_base::binary);
-	if (!ifs)
+    if (ifs.bad())
 	{
 		cout << "Unable to load file " << opts.source << endl;
 		exit(1);
@@ -747,7 +754,7 @@ void skeletonToXML(XmlOptions opts)
     SkeletonPtr skel = SkeletonManager::getSingleton().create("conversion", 
         ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
-    // pass false for freeOnClose to FileStreamDataStream since ifs is created localy on stack
+    // pass false for freeOnClose to FileStreamDataStream since ifs is created locally on stack
     DataStreamPtr stream(new FileStreamDataStream(opts.source, &ifs, false));
     skeletonSerializer->importSkeleton(stream, skel.getPointer());
    
