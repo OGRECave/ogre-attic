@@ -311,6 +311,12 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			CString tangentSemStr = param.GetValue();
 			Ogre::VertexElementSemantic tangentSemantic = (tangentSemStr == L"t")?
 				Ogre::VES_TANGENT : Ogre::VES_TEXTURE_COORDINATES;
+			param = prop.GetParameters().GetItem( L"tangentsSplitMirrored" );
+			bool tangentsSplitMirrored = param.GetValue();
+			param = prop.GetParameters().GetItem( L"tangentsSplitRotated" );
+			bool tangentsSplitRotated = param.GetValue();
+			param = prop.GetParameters().GetItem( L"tangentsUseParity" );
+			bool tangentsUseParity = param.GetValue();
 			param = prop.GetParameters().GetItem( L"numLodLevels" );
 			long numlods = param.GetValue();
 			Ogre::XsiMeshExporter::LodData* lodData = 0;
@@ -438,6 +444,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				Ogre::DeformerMap& deformers = 
 					meshExporter.buildMeshForExport(mergeSubmeshes, 
 						exportChildren, edgeLists, tangents, tangentSemantic, 
+						tangentsSplitMirrored, tangentsSplitRotated, tangentsUseParity,
 						exportVertexAnimation, selAnimList, fps, materialPrefix,
 						lodData, skelName);
 				// do the skeleton
@@ -453,6 +460,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				// No skeleton
 				meshExporter.buildMeshForExport(mergeSubmeshes, 
 					exportChildren, edgeLists, tangents, tangentSemantic, 
+					tangentsSplitMirrored, tangentsSplitRotated, tangentsUseParity,
 					exportVertexAnimation, selAnimList, fps, materialPrefix, lodData);
 				meshExporter.exportMesh(meshFileName, nullbb);
 			}
@@ -561,6 +569,18 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
 		L"Tangent Semantic", L"", 
 		L"t", param) ;	
 	prop.AddParameter(	
+		L"tangentsSplitMirrored",CValue::siBool, caps, 
+		L"Split tangents at UV mirror", L"", 
+		CValue(false), param) ;	
+	prop.AddParameter(	
+		L"tangentsSplitRotated",CValue::siBool, caps, 
+		L"Split tangents at UV rotation", L"", 
+		CValue(false), param) ;	
+	prop.AddParameter(	
+		L"tangentsUseParity",CValue::siBool, caps, 
+		L"4D Tangents", L"", 
+		CValue(false), param) ;	
+	prop.AddParameter(	
 		L"numLodLevels",CValue::siInt2, caps, 
 		L"Levels of Detail", L"", 
 		CValue(0L), param) ;	
@@ -661,6 +681,9 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	tangentVals.Add(L"Texture Coords");
 	tangentVals.Add(L"uvw");
 	item = oLayout.AddEnumControl(L"tangentSemantic", tangentVals, L"Tangent Semantic", XSI::siControlCombo);
+	item = oLayout.AddItem(L"tangentsSplitMirrored");
+	item = oLayout.AddItem(L"tangentsSplitRotated");
+	item = oLayout.AddItem(L"tangentsUseParity");
 	oLayout.AddGroup(L"Level of Detail Reduction");
     item = oLayout.AddItem(L"numLodLevels");
 	item = oLayout.AddItem(L"lodDistanceIncrement");
