@@ -62,7 +62,8 @@ namespace OgreMayaExporter
 			exportVertNorm, exportVertCol, exportTexCoord, exportCamerasAnim,
 			exportSkeleton, exportSkelAnims, exportBSAnims, exportVertAnims, exportBlendShapes, 
 			exportWorldCoords, useSharedGeom, lightingOff, copyTextures, exportParticles,
-			buildTangents, buildEdges, skelBB, bsBB, vertBB;
+			buildTangents, buildEdges, skelBB, bsBB, vertBB, 
+			tangentsSplitMirrored, tangentsSplitRotated, tangentsUseParity;
 
 		float lum;	// Length Unit Multiplier
 
@@ -123,6 +124,9 @@ namespace OgreMayaExporter
 			neutralPoseType = NPT_CURFRAME;
 			buildEdges = false;
 			buildTangents = false;
+			tangentsSplitMirrored = false;
+			tangentsSplitRotated = false;
+			tangentsUseParity = false;
 			tangentSemantic = TS_TANGENT;
 			loadedSubmeshes.clear();
 			currentRootJoints.clear();
@@ -165,6 +169,9 @@ namespace OgreMayaExporter
 			texOutputDir = source.texOutputDir;
 			buildEdges = source.buildEdges;
 			buildTangents = source.buildTangents;
+			tangentsSplitMirrored = source.tangentsSplitMirrored;
+			tangentsSplitRotated = source.tangentsSplitRotated;
+			tangentsUseParity = source.tangentsUseParity;
 			tangentSemantic = source.tangentSemantic;
 			skelClipList.resize(source.skelClipList.size());
 			for (i=0; i< skelClipList.size(); i++)
