@@ -1301,7 +1301,8 @@ namespace OgreMayaExporter
 				canBuild = false;
 			}
 			if (canBuild)
-				pMesh->buildTangentVectors(targetSemantic, srcTex, destTex);
+				pMesh->buildTangentVectors(targetSemantic, srcTex, destTex, 
+					params.tangentsSplitMirrored, params.tangentsSplitRotated, params.tangentsUseParity);
 		}
 		// Export the binary mesh
 		Ogre::MeshSerializer serializer;

@@ -49,7 +49,7 @@ namespace OgreMayaExporter
 		//constructor
 		OgreExporter();
 		//destructor
-		virtual ~OgreExporter(){};
+		virtual ~OgreExporter();
 		//override of MPxCommand methods
 		static void* creator();
 		MStatus doIt(const MArgList& args);
@@ -87,6 +87,7 @@ namespace OgreMayaExporter
 	*********************************************************************************************/
 	// Standard constructor
 	inline OgreExporter::OgreExporter()
+		:m_pMesh(0), m_pMaterialSet(0)
 	{
 		MGlobal::displayInfo("Translating scene to OGRE format");
 	}

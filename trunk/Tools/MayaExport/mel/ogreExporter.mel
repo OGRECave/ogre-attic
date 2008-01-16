@@ -123,9 +123,23 @@ global proc runOgreExport()
 		{
 			$options += " -tangents";
 			if (`radioButton -query -select TangentSemanticTexCoord`)
-				$options += " -TEXCOORD";
+				$options += " TEXCOORD";
 			else
-				$options += " -TANGENT";
+				$options += " TANGENT";
+
+			if (`checkBox -query -value TangentsSplitMirrored`)
+			{
+				$options += " -tangentsplitmirrored";
+			}
+			if (`checkBox -query -value TangentsSplitRotated`)
+			{
+				$options += " -tangentsplitrotated";
+			}
+			if (`checkBox -query -value TangentsUseParity`)
+			{
+				$options += " -tangentuseparity";
+			}
+
 		}
 	}
 	
@@ -394,12 +408,18 @@ global proc formatOgreExporterUI()
 		text -edit -enable $buildTangents TangentSemanticLabel;
 		radioButton -edit -enable $buildTangents TangentSemanticTexCoord;
 		radioButton -edit -enable $buildTangents TangentSemanticTangent;
+		checkBox -edit -enable $buildTangents TangentsSplitMirrored;
+		checkBox -edit -enable $buildTangents TangentsSplitRotated;
+		checkBox -edit -enable $buildTangents TangentsUseParity;
 	}
 	else
 	{
 		text -edit -enable false TangentSemanticLabel;
 		radioButton -edit -enable false TangentSemanticTexCoord;
 		radioButton -edit -enable false TangentSemanticTangent;
+		checkBox -edit -enable false TangentsSplitMirrored;
+		checkBox -edit -enable false TangentsSplitRotated;
+		checkBox -edit -enable false TangentsUseParity;
 	}
 	
 	// --- Material Export
@@ -799,8 +819,28 @@ global proc defineOgreExporterUIView()
 					TangentSemanticLabel;
 					
 					radioCollection TangentSemanticCollection;
-					radioButton -label "TEXCOORD" -enable true -select TangentSemanticTexCoord;
-					radioButton -label "TANGENT" -enable true TangentSemanticTangent;
+					radioButton -label "TANGENT" -enable true -select TangentSemanticTangent;
+					radioButton -label "TEXCOORD" -enable true TangentSemanticTexCoord;
+
+				checkBox
+					-parent MeshLayout
+					-value false
+					-enable false
+					-label "Split tangents at mirrored UVs"
+				TangentsSplitMirrored;
+				checkBox
+					-parent MeshLayout
+					-value false
+					-enable false
+					-label "Split tangents at rotated UVs"
+				TangentsSplitRotated;
+				checkBox
+					-parent MeshLayout
+					-value false
+					-enable false
+					-label "Use 4D tangents"
+				TangentsUseParity;
+				
 					
 					
 
@@ -1881,6 +1921,9 @@ global proc saveOgreExporterSettings()
 	fileInfo "ogreExporter_buildEdges" `checkBox -q -v BuildEdges`;
 	fileInfo "ogreExporter_buildTangents" `checkBox -q -v BuildTangents`;
 	fileInfo "ogreExporter_tangentSemantic" `radioCollection -q -select TangentSemanticCollection`;
+	fileInfo "ogreExporter_tangentSplitMirrored" `checkBox -q -select TangentsSplitMirrored`;
+	fileInfo "ogreExporter_tangentSplitRotated" `checkBox -q -select TangentsSplitRotated`;
+	fileInfo "ogreExporter_tangentUseParity" `checkBox -q -select TangentsUseParity`;
 	
 	// Materials
 	fileInfo "ogreExporter_exportMat" `checkBox -q -v ExportMaterial`;
@@ -2025,6 +2068,9 @@ global proc loadOgreExporterSettings()
 		$valStrings = `fileInfo -q "ogreExporter_buildTangents"`;
 		checkBox -edit -v `gmatch $valStrings[0] "1"` BuildTangents;
 		radioCollection -edit -select `fileInfo -q "ogreExporter_tangentSemantic"` TangentSemanticCollection;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` TangentsSplitMirrored;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` TangentsSplitRotated;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` TangentsUseParity;
 	
 		// Materials
 		$valStrings = `fileInfo -q "ogreExporter_exportMat"`;
@@ -2214,7 +2260,10 @@ global proc defaultOgreExporterSettings()
 	textField -edit -text "" ExportMeshFilename;
 	checkBox -edit -v 0 BuildEdges;
 	checkBox -edit -v 0 BuildTangents;
-	radioCollection -edit -select "TangentSemanticTexCoord" TangentSemanticCollection;
+	radioCollection -edit -select "TangentSemanticTangent" TangentSemanticCollection;
+	checkBox -edit -v 0 TangentsSplitMirrored;
+	checkBox -edit -v 0 TangentsSplitRotated;
+	checkBox -edit -v 0 TangentsUseParity;
 
 	// Materials
 	checkBox -edit -v 0 ExportMaterial;

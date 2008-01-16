@@ -19,6 +19,10 @@
 
 namespace OgreMayaExporter
 {
+	OgreExporter::~OgreExporter()
+	{
+		exit();
+	}
 	// Restore the scene to a state previous to the export, clean up memory and exit
 	void OgreExporter::exit()
 	{
@@ -27,10 +31,10 @@ namespace OgreMayaExporter
 		// Restore current time
 		MAnimControl::setCurrentTime(m_curTime);
 		// Free memory
-		if (m_pMesh)
-			delete m_pMesh;
-		if (m_pMaterialSet)
-			delete m_pMaterialSet;
+		delete m_pMesh;
+		m_pMesh = 0;
+		delete m_pMaterialSet;
+		m_pMaterialSet = 0;
 		// Close output files
 		m_params.closeFiles();
 		std::cout.flush();
@@ -39,6 +43,10 @@ namespace OgreMayaExporter
 	// Execute the command
 	MStatus OgreExporter::doIt(const MArgList& args)
 	{
+		// clean up
+		delete m_pMesh;
+		delete m_pMaterialSet;
+
 		// Parse the arguments.
 		m_params.parseArgs(args);
 		// Create output files

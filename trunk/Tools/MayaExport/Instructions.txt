@@ -69,7 +69,10 @@ meshOptions:
 	["-c"]			export vertex colours
 	["-t"]			export texture coordinates
 	["-edges"]		generate mesh edge list
-	["-tangents"]		generate tangents
+	["-tangents <semantic>"]	generate tangents (semantic can be TANGENT or TEXCOORD)
+	["-tangentsplitmirrored"]	Split vertices where tangent space is mirrored
+	["-tangentsplitrotated"]	Split vertices where tangent space is rotated more than 90 degrees
+	["-tangentuseparity"]		Use 4-dimensional tangents where parity is stored in w (deals with mirrored tangent space)
 
 matOptions:
 	["-matPrefix" prefix]	add prefix to all exported materials names [optional]
