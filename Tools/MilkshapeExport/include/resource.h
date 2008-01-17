@@ -20,7 +20,10 @@
 #define IDC_NUM_LODS                    1014
 #define IDC_EDGE_LISTS                  1016
 #define IDC_TANGENT_VECTORS             1017
+#define IDC_TANG_SPLIT_MIRR             1018
 #define IDC_TANGENTS_TARGET             1019
+#define IDC_TANG_SPLIT_ROT              1020
+#define IDC_4D_TANGENTS                 1021
 
 
 
