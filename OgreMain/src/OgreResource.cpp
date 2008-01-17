@@ -235,14 +235,21 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::queueFireBackgroundLoadingComplete(void)
 	{
-		ResourceBackgroundQueue& rbq = ResourceBackgroundQueue::getSingleton();
+		// Lock the listener list
+		OGRE_LOCK_MUTEX(mListenerListMutex)
+		if(!mListenerList.empty())
+			ResourceBackgroundQueue::getSingleton()._queueFireBackgroundLoadingComplete(this);
+	}
+	//-----------------------------------------------------------------------
+	void Resource::_fireBackgroundLoadingComplete(void)
+	{
+		// Lock the listener list
 		OGRE_LOCK_MUTEX(mListenerListMutex)
 		for (ListenerList::iterator i = mListenerList.begin();
 			i != mListenerList.end(); ++i)
 		{
-			rbq._queueFireBackgroundLoadingComplete(*i, this);
+			(*i)->backgroundLoadingComplete(this);
 		}
 	}
-
 
 }

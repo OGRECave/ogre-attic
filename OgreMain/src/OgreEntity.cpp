@@ -286,6 +286,8 @@ namespace Ogre {
     Entity::~Entity()
     {
 		_deinitialise();
+		// Unregister our listener
+		mMesh->removeListener(this);
     }
 	//-----------------------------------------------------------------------
 	bool Entity::hasVertexAnimation(void) const
