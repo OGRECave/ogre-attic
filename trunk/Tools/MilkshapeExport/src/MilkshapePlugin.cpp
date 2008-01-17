@@ -232,6 +232,12 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
 					// texture coords
 					plugin->tangentSemantic = Ogre::VES_TEXTURE_COORDINATES;
 				}
+				hwndDlgItem = GetDlgItem(hDlg, IDC_TANG_SPLIT_MIRR);
+				plugin->tangentsSplitMirrored = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+				hwndDlgItem = GetDlgItem(hDlg, IDC_TANG_SPLIT_ROT);
+				plugin->tangentsSplitRotated = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+				hwndDlgItem = GetDlgItem(hDlg, IDC_4D_TANGENTS);
+				plugin->tangentsUseParity = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
 
                 hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
                 plugin->exportSkeleton = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
@@ -593,7 +599,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     {
 		unsigned short src, dest;
 		ogreMesh->suggestTangentVectorBuildParams(tangentSemantic, src, dest);
-		ogreMesh->buildTangentVectors(tangentSemantic, src, dest);
+		ogreMesh->buildTangentVectors(tangentSemantic, src, dest, tangentsSplitMirrored, tangentsSplitRotated, tangentsUseParity);
     }
 
     // Export
