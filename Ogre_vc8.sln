@@ -403,15 +403,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshUpgrader", "Tools\MeshU
 		{35AFBABB-DF05-43DE-91A7-BB828A874015} = {35AFBABB-DF05-43DE-91A7-BB828A874015}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MilkshapeExport", "Tools\MilkshapeExport\scripts\MilkshapeExport_vc8.vcproj", "{D4929E45-2A25-4F53-96A1-E1BCD91D9B6A}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{35AFBABB-DF05-43DE-91A7-BB828A874015} = {35AFBABB-DF05-43DE-91A7-BB828A874015}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XMLConverter", "Tools\XMLConverter\scripts\XMLConverter_vc8.vcproj", "{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
@@ -855,12 +846,6 @@ Global
 		{6B3CABED-0D07-4AF0-8931-929B9B28BA8B}.Release|Win32.ActiveCfg = Release|Win32
 		{6B3CABED-0D07-4AF0-8931-929B9B28BA8B}.Release|Win32.Build.0 = Release|Win32
 		{6B3CABED-0D07-4AF0-8931-929B9B28BA8B}.ReleaseStaticLib|Win32.ActiveCfg = Release|Win32
-		{D4929E45-2A25-4F53-96A1-E1BCD91D9B6A}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D4929E45-2A25-4F53-96A1-E1BCD91D9B6A}.Debug|Win32.Build.0 = Debug|Win32
-		{D4929E45-2A25-4F53-96A1-E1BCD91D9B6A}.DebugStaticLib|Win32.ActiveCfg = Debug|Win32
-		{D4929E45-2A25-4F53-96A1-E1BCD91D9B6A}.Release|Win32.ActiveCfg = Release|Win32
-		{D4929E45-2A25-4F53-96A1-E1BCD91D9B6A}.Release|Win32.Build.0 = Release|Win32
-		{D4929E45-2A25-4F53-96A1-E1BCD91D9B6A}.ReleaseStaticLib|Win32.ActiveCfg = Release|Win32
 		{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}.Debug|Win32.Build.0 = Debug|Win32
 		{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}.DebugStaticLib|Win32.ActiveCfg = Debug|Win32
