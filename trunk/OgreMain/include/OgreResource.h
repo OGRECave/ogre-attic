@@ -376,6 +376,15 @@ namespace Ogre {
 		virtual void _dirtyState();
 
 
+		/** Firing of background loading complete event
+		@remarks
+			You should call this from the thread that runs the main frame loop 
+			to avoid having to make the receivers of this event thread-safe.
+			If you use Ogre's built in frame loop you don't need to call this
+			yourself.
+		*/
+		virtual void _fireBackgroundLoadingComplete(void);
+
     };
 
 	/** Shared pointer to a Resource.
