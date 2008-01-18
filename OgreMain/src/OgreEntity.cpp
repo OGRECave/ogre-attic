@@ -69,6 +69,7 @@ namespace Ogre {
 		  mSharedSkeletonEntities(NULL),
 		  mDisplaySkeleton(false),
 	      mHardwareAnimation(false),
+		  mHardwarePoseCount(0),
 		  mVertexProgramInUse(false),
 		  mSoftwareAnimationRequests(0),
 		  mSoftwareAnimationNormalsRequests(0),
