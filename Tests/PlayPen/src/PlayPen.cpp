@@ -6644,6 +6644,13 @@ protected:
 		Vector3 worldPos(-3.2326765, 2.003727, -59.996029);
 
 		Ogre::Vector3 pos = mCamera->getProjectionMatrix() * mCamera->getViewMatrix() * worldPos;
+		
+		// test image format identification
+		DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource("ASCII.dds", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		//DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource("grassWalpha.tga", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		//DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource("GreenSkin.jpg", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		//DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource("ogreborder.png", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		String typ = Image::getFileExtFromMagic(stream);
 
 		std::cout << pos;
 		/*
@@ -6725,7 +6732,7 @@ protected:
 		//testMorphAnimation();
 		//testPoseAnimation();
 		//testPoseAnimation2();
-		testNormalMapMirroredUVs();
+		//testNormalMapMirroredUVs();
 		//testMRTCompositorScript();
 		//testSpotlightViewProj(true);
 		//test16Textures();
@@ -6761,7 +6768,7 @@ protected:
         //testBuildTangentOnAnimatedMesh();
 		//testOverlayRelativeMode();
 
-		//testCubeDDS();
+		testCubeDDS();
 		//testDxt1();
 		//testDxt1FromMemory();
 		//testDxt3FromMemory();

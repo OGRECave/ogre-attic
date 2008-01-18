@@ -246,15 +246,10 @@ namespace Ogre {
         {
 			String baseName, ext;
 			size_t pos = mName.find_last_of(".");
-			if( pos == String::npos )
-				OGRE_EXCEPT(
-					Exception::ERR_INVALIDPARAMS, 
-					"Unable to load image file '"+ mName + "' - invalid extension.",
-					"GLTexture::loadImpl" );
-
 			baseName = mName.substr(0, pos);
-			ext = mName.substr(pos+1);
-    
+			if( pos != String::npos )
+				ext = mName.substr(pos+1);
+
 			if(mTextureType == TEX_TYPE_1D || mTextureType == TEX_TYPE_2D || 
                 mTextureType == TEX_TYPE_3D)
             {
@@ -282,7 +277,7 @@ namespace Ogre {
             }
             else if (mTextureType == TEX_TYPE_CUBE_MAP)
             {
-				if(StringUtil::endsWith(getName(), ".dds"))
+				if(getSourceFileType() == "dds")
 				{
 					// XX HACK there should be a better way to specify whether 
 					// all faces are in the same file or not
@@ -308,7 +303,9 @@ namespace Ogre {
 	
 					for(size_t i = 0; i < 6; i++)
 					{
-						String fullName = baseName + suffixes[i] + "." + ext;
+						String fullName = baseName + suffixes[i];
+						if (!ext.empty())
+							fullName = fullName + "." + ext;
 		            	// find & load resource data intro stream to allow resource
 						// group changes if required
 						DataStreamPtr dstream = 

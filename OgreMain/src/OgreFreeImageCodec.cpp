@@ -237,7 +237,7 @@ namespace Ogre {
 
 		// Check support for this image type & bit depth
 		if (!FreeImage_FIFSupportsExportType((FREE_IMAGE_FORMAT)mFreeImageType, imageType) ||
-			!FreeImage_FIFSupportsExportBPP((FREE_IMAGE_FORMAT)mFreeImageType, PixelUtil::getNumElemBits(requiredFormat)))
+			!FreeImage_FIFSupportsExportBPP((FREE_IMAGE_FORMAT)mFreeImageType, (int)PixelUtil::getNumElemBits(requiredFormat)))
 		{
 			// Ok, need to allocate a fallback
 			// Only deal with RGBA -> RGB for now
@@ -518,4 +518,24 @@ namespace Ogre {
     {
         return mType;
     }
+	//---------------------------------------------------------------------
+	String FreeImageCodec::magicNumberToFileExt(const char *magicNumberPtr, size_t maxbytes) const
+	{
+		FIMEMORY* fiMem = 
+			FreeImage_OpenMemory((BYTE*)magicNumberPtr, static_cast<DWORD>(maxbytes));
+
+		FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(fiMem, (int)maxbytes);
+		FreeImage_CloseMemory(fiMem);
+
+		if (fif != FIF_UNKNOWN)
+		{
+			String ext(FreeImage_GetFormatFromFIF(fif));
+			StringUtil::toLowerCase(ext);
+			return ext;
+		}
+		else
+		{
+			return StringUtil::BLANK;
+		}
+	}
 }

@@ -385,6 +385,53 @@ namespace Ogre {
             }
         }
     }
+	//---------------------------------------------------------------------
+	String Texture::getSourceFileType() const
+	{
+		if (mName.empty())
+			return StringUtil::BLANK;
+
+		String::size_type pos = mName.find_last_of(".");
+		if (pos != String::npos && pos < (mName.length() - 1))
+		{
+			String ext = mName.substr(pos+1);
+			StringUtil::toLowerCase(ext);
+			return ext;
+		}
+		else
+		{
+			// No extension
+			DataStreamPtr dstream;
+			try
+			{
+				dstream = ResourceGroupManager::getSingleton().openResource(
+						mName, mGroup, true, 0);
+			}
+			catch (Exception&)
+			{
+			}
+			if (dstream.isNull() && getTextureType() == TEX_TYPE_CUBE_MAP)
+			{
+				// try again with one of the faces (non-dds)
+				try
+				{
+					dstream = ResourceGroupManager::getSingleton().openResource(
+						mName + "_rt", mGroup, true, 0);
+				}
+				catch (Exception&)
+				{
+				}
+			}
+
+			if (!dstream.isNull())
+			{
+				return Image::getFileExtFromMagic(dstream);
+			}
+		}
+
+		return StringUtil::BLANK;
+
+	}
 
 
 }
