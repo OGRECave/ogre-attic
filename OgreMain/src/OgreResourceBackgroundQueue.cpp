@@ -472,11 +472,10 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
-	void ResourceBackgroundQueue::_queueFireBackgroundLoadingComplete(
-		Resource::Listener* listener, Resource* res)
+	void ResourceBackgroundQueue::_queueFireBackgroundLoadingComplete(Resource* res)
 	{
 		OGRE_LOCK_MUTEX(mNotificationQueueMutex);
-		mNotificationQueue.push_back(QueuedNotification(listener, res));
+		mNotificationQueue.push_back(QueuedNotification(res));
 
 	}
 	//-----------------------------------------------------------------------
@@ -494,7 +493,7 @@ namespace Ogre {
 			i != mNotificationQueue.end(); ++i)
 		{
 			if (i->resource)
-				i->resourceListener->backgroundLoadingComplete(i->resource);
+				i->resource->_fireBackgroundLoadingComplete();
 			else
 				i->opListener->operationCompleted(i->ticket);
 		}

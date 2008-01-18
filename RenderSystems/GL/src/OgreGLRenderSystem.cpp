@@ -192,8 +192,6 @@ namespace Ogre {
 
 		RenderWindow* autoWindow = mGLSupport->createWindow(autoCreateWindow, this, windowTitle);
 
-		_setCullingMode( mCullingMode );
-
 		RenderSystem::_initialise(autoCreateWindow, windowTitle);
 
 		return autoWindow;
