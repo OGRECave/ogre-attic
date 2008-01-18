@@ -396,6 +396,11 @@ namespace Ogre {
 		/** Default implementation of unload which calls freeInternalResources */
 		void unloadImpl(void);
 
+		/** Identify the source file type as a string, either from the extension
+			or from a magic number.
+		*/
+		String getSourceFileType() const;
+
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to TexturePtr 

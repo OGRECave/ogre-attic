@@ -66,4 +66,27 @@ namespace Ogre {
 
     }
 
+	Codec* Codec::getCodec(char *magicNumberPtr, size_t maxbytes)
+	{
+		for (CodecList::const_iterator i = ms_mapCodecs. begin(); 
+			i != ms_mapCodecs.end(); ++i)
+		{
+			String ext = i->second->magicNumberToFileExt(magicNumberPtr, maxbytes);
+			if (!ext.empty())
+			{
+				// check codec type matches
+				// if we have a single codec class that can handle many types, 
+				// and register many instances of it against different types, we
+				// can end up matching the wrong one here, so grab the right one
+				if (ext == i->second->getType())
+					return i->second;
+				else
+					return getCodec(ext);
+			}
+		}
+
+		return 0;
+
+	}
+
 }

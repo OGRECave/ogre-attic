@@ -736,6 +736,24 @@ namespace Ogre {
         }
 #endif
     }
+	//---------------------------------------------------------------------
+	String DDSCodec::magicNumberToFileExt(const char *magicNumberPtr, size_t maxbytes) const
+	{
+		if (maxbytes >= sizeof(uint32))
+		{
+			uint32 fileType;
+			memcpy(&fileType, magicNumberPtr, sizeof(uint32));
+			flipEndian(&fileType, sizeof(uint32), 1);
+
+			if (FOURCC('D', 'D', 'S', ' ') == fileType)
+			{
+				return String("dds");
+			}
+		}
+
+		return StringUtil::BLANK;
+
+	}
 	
 }
 

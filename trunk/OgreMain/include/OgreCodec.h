@@ -97,6 +97,14 @@ namespace Ogre {
         /** Gets the codec registered for the passed in file extension. */
         static Codec* getCodec(const String& extension);
 
+		/** Gets the codec that can handle the given 'magic' identifier. 
+		@param magicNumberPtr Pointer to a stream of bytes which should identify the file.
+			Note that this may be more than needed - each codec may be looking for 
+			a different size magic number.
+		@param maxbytes The number of bytes passed
+		*/
+		static Codec* getCodec(char *magicNumberPtr, size_t maxbytes);
+
         /** Codes the data in the input stream and saves the result in the output
             stream.
         */
@@ -126,6 +134,23 @@ namespace Ogre {
         /** Returns the type of the data that supported by this codec as a String
         */
         virtual String getDataType() const = 0;
+
+		/** Returns whether a magic number header matches this codec.
+		@param magicNumberPtr Pointer to a stream of bytes which should identify the file.
+			Note that this may be more than needed - each codec may be looking for 
+			a different size magic number.
+		@param maxbytes The number of bytes passed
+		*/
+		virtual bool magicNumberMatch(const char *magicNumberPtr, size_t maxbytes) const 
+		{ return !magicNumberToFileExt(magicNumberPtr, maxbytes).empty(); }
+		/** Maps a magic number header to a file extension, if this codec recognises it.
+		@param magicNumberPtr Pointer to a stream of bytes which should identify the file.
+			Note that this may be more than needed - each codec may be looking for 
+			a different size magic number.
+		@param maxbytes The number of bytes passed
+		@returns A blank string if the magic number was unknown, or a file extension.
+		*/
+		virtual String magicNumberToFileExt(const char *magicNumberPtr, size_t maxbytes) const = 0;
     };
 
 } // namespace

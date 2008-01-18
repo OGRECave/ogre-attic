@@ -294,7 +294,6 @@ namespace Ogre {
 			eFormat, true, numFaces, numMipMaps);
 
 	}
-
 	//-----------------------------------------------------------------------------
 	Image & Image::load(const String& strFileName, const String& group)
 	{
@@ -302,18 +301,12 @@ namespace Ogre {
 		String strExt;
 
 		size_t pos = strFileName.find_last_of(".");
-		if( pos == String::npos )
-			OGRE_EXCEPT(
-			Exception::ERR_INVALIDPARAMS, 
-			"Unable to load image file '" + strFileName + "' - invalid extension.",
-			"Image::load" );
+		if( pos != String::npos && pos < (strFileName.length() - 1))
+		{
+			strExt = strFileName.substr(pos+1);
+		}
 
-		while( pos != strFileName.length() - 1 )
-			strExt += strFileName[++pos];
-
-		DataStreamPtr encoded = 
-		ResourceGroupManager::getSingleton().openResource(strFileName, group);
-
+		DataStreamPtr encoded = ResourceGroupManager::getSingleton().openResource(strFileName, group);
 		return load(encoded, strExt);
 
 	}
@@ -393,13 +386,29 @@ namespace Ogre {
 			m_pBuffer = NULL;
 		}
 
-		String strType = type;
+		Codec * pCodec = 0;
+		if (!type.empty())
+		{
+			// use named codec
+			pCodec = Codec::getCodec(type);
+		}
+		else
+		{
+			// derive from magic number
+			// read the first 32 bytes or file size, if less
+			size_t magicLen = std::min(stream->size(), (size_t)32);
+			char magicBuf[32];
+			stream->read(magicBuf, magicLen);
+			// return to start
+			stream->seek(0);
+			pCodec = Codec::getCodec(magicBuf, magicLen);
+		}
 
-		Codec * pCodec = Codec::getCodec(strType);
 		if( !pCodec )
 			OGRE_EXCEPT(
 			Exception::ERR_INVALIDPARAMS, 
-			"Unable to load image - invalid extension.",
+			"Unable to load image - unable to identify codec. Check file extension "
+			"and file format.",
 			"Image::load" );
 
 		Codec::DecodeResult res = pCodec->decode(stream);
@@ -424,7 +433,23 @@ namespace Ogre {
 
 		return *this;
 	}
+	//---------------------------------------------------------------------
+	String Image::getFileExtFromMagic(DataStreamPtr stream)
+	{
+		// read the first 32 bytes or file size, if less
+		size_t magicLen = std::min(stream->size(), (size_t)32);
+		char magicBuf[32];
+		stream->read(magicBuf, magicLen);
+		// return to start
+		stream->seek(0);
+		Codec* pCodec = Codec::getCodec(magicBuf, magicLen);
 
+		if(pCodec)
+			return pCodec->getType();
+		else
+			return StringUtil::BLANK;
+
+	}
 	//-----------------------------------------------------------------------------
 	uchar* Image::getData()
 	{

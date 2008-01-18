@@ -226,8 +226,8 @@ namespace Ogre
 		assert(this->getTextureType() == TEX_TYPE_CUBE_MAP);
 
         // DDS load?
-		if (StringUtil::endsWith(getName(), ".dds"))
-        {
+		if (getSourceFileType() == "dds")
+		{
             // find & load resource data
 			DataStreamPtr dstream = 
 				ResourceGroupManager::getSingleton().openResource(
@@ -301,14 +301,17 @@ namespace Ogre
 			String baseName, ext;
 			size_t pos = mName.find_last_of(".");
 			baseName = mName.substr(0, pos);
-			ext = mName.substr(pos+1);
+			if ( pos != String::npos )
+				ext = mName.substr(pos+1);
 			std::vector<Image> images(6);
 			ConstImagePtrList imagePtrs;
 			static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 
 			for(size_t i = 0; i < 6; i++)
 			{
-				String fullName = baseName + suffixes[i] + "." + ext;
+				String fullName = baseName + suffixes[i];
+				if (!ext.empty())
+					fullName = fullName + "." + ext;
 
             	// find & load resource data intro stream to allow resource
 				// group changes if required
@@ -329,7 +332,7 @@ namespace Ogre
 	{
 		assert(this->getTextureType() == TEX_TYPE_3D);
 		// DDS load?
-		if (StringUtil::endsWith(getName(), ".dds"))
+		if (getSourceFileType() == "dds")
 		{
 			// find & load resource data
 			DataStreamPtr dstream = 
@@ -407,7 +410,9 @@ namespace Ogre
 				ResourceGroupManager::getSingleton().openResource(
 					mName, mGroup, true, this);
 			size_t pos = mName.find_last_of(".");
-			String ext = mName.substr(pos+1);
+			String ext;
+			if ( pos != String::npos )
+				ext = mName.substr(pos+1);
 	
 			img.load(dstream, ext);
 			// Call internal _loadImages, not loadImage since that's external and 
@@ -422,7 +427,7 @@ namespace Ogre
 	{
 		assert(this->getTextureType() == TEX_TYPE_1D || this->getTextureType() == TEX_TYPE_2D);
 		// DDS load?
-		if (StringUtil::endsWith(getName(), ".dds"))
+		if (getSourceFileType() == "dds")
 		{
 			// Use D3DX
 			// find & load resource data
@@ -502,7 +507,9 @@ namespace Ogre
 					mName, mGroup, true, this);
 	
 			size_t pos = mName.find_last_of(".");
-			String ext = mName.substr(pos+1);
+			String ext; 
+			if ( pos != String::npos )
+				ext = mName.substr(pos+1);
 			
 			img.load(dstream, ext);
 			// Call internal _loadImages, not loadImage since that's external and 

@@ -282,11 +282,12 @@ namespace Ogre {
                 stream The source data.
             @param
                 type The type of the image. Used to decide what decompression
-                codec to use.
+                codec to use. Can be left blank if the stream data includes
+				a header to identify the data.
             @see
                 Image::load( const String& strFileName )
         */
-        Image & load(DataStreamPtr& stream, const String& type );
+		Image & load(DataStreamPtr& stream, const String& type = StringUtil::BLANK );
         
         /** Save the image as a file. */
         void save(const String& filename);
@@ -400,6 +401,10 @@ namespace Ogre {
 		
         // Static function to calculate size in bytes from the number of mipmaps, faces and the dimensions
         static size_t calculateSize(size_t mipmaps, size_t faces, size_t width, size_t height, size_t depth, PixelFormat format);
+
+		/// Static function to get an image type string from a stream via magic numbers
+		static String Image::getFileExtFromMagic(DataStreamPtr stream);
+
     protected:
         // The width of the image in pixels
         size_t m_uWidth;
