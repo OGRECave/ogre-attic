@@ -123,9 +123,8 @@ namespace Ogre {
 		virtual Ogre::DataStreamPtr resourceLoading(const String &name, const String &group, Resource *resource) = 0;
 
 		/** This event is called when a resource collides with another existing one in a resource manager
-		  * @returns true if the handler resolves the collision, false if not (an exception will be thrown)
 		  */
-		virtual bool resourceCollision(Resource *resource, ResourceManager *resourceManager) = 0;
+		virtual bool resourceCollision(ResourcePtr &resource, ResourceManager *resourceManager) = 0;
     };
     /** This singleton class manages the list of resource groups, and notifying
         the various resource managers of their obligations to load / unload
@@ -826,7 +825,7 @@ namespace Ogre {
 		ResourceDeclarationList getResourceDeclarationList(const String& groupName);
 
 		/// Internal event firing method
-		bool _fireResourceCollision(Resource *resource, ResourceManager *resourceManager);
+		bool _fireResourceCollision(ResourcePtr &resource, ResourceManager *resourceManager);
 
 
 		/** Override standard Singleton retrieval.

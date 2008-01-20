@@ -110,13 +110,35 @@ namespace Ogre {
         if (!result.second)
         {
 			// Attempt to resolve the collision
-			if(!Ogre::ResourceGroupManager::getSingleton()._fireResourceCollision(res.get(), this))
+			if(!Ogre::ResourceGroupManager::getSingleton()._fireResourceCollision(res, this))
+			{
 				OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Resource with the name " + res->getName() + 
 					" already exists.", "ResourceManager::add");
+			}
+			else
+			{
+				// Try to do the addition again, no seconds attempts to resolve collisions are allowed
+				std::pair<ResourceMap::iterator, bool> result = 
+					mResources.insert( ResourceMap::value_type( res->getName(), res ) );
+				if (!result.second)
+				{
+					OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Resource with the name " + res->getName() + 
+						" already exists.", "ResourceManager::add");
+				}
+
+				std::pair<ResourceHandleMap::iterator, bool> resultHandle = 
+					mResourcesByHandle.insert( ResourceHandleMap::value_type( res->getHandle(), res ) );
+				if (!resultHandle.second)
+				{
+					OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Resource with the handle " + 
+						StringConverter::toString((long) (res->getHandle())) + 
+						" already exists.", "ResourceManager::add");
+				}
+			}
         }
 		else
 		{
-			// Inser the handle
+			// Insert the handle
 			std::pair<ResourceHandleMap::iterator, bool> resultHandle = 
 				mResourcesByHandle.insert( ResourceHandleMap::value_type( res->getHandle(), res ) );
 			if (!resultHandle.second)
