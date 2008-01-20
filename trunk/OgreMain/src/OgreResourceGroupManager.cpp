@@ -533,6 +533,13 @@ namespace Ogre {
 		bool searchGroupsIfNotFound, Resource* resourceBeingLoaded)
     {
 		OGRE_LOCK_AUTO_MUTEX
+
+		{
+			DataStreamPtr stream = fireResourceLoading(resourceName, groupName, resourceBeingLoaded);
+			if(!stream.isNull())
+				return stream;
+		}
+
 		// Try to find in resource index first
 		ResourceGroup* grp = getResourceGroup(groupName);
 		if (!grp)
@@ -1145,6 +1152,32 @@ namespace Ogre {
 		{
 			(*l)->resourceGroupLoadEnded(groupName);
 		}
+	}
+	//-----------------------------------------------------------------------
+	DataStreamPtr ResourceGroupManager::fireResourceLoading(const String &name, const String &group, Resource *resource)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+        for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
+            l != mResourceGroupListenerList.end(); ++l)
+        {
+            DataStreamPtr stream = (*l)->resourceLoading(name, group, resource);
+			if(!stream.isNull())
+				return stream;
+        }
+		return DataStreamPtr();
+	}
+	//-----------------------------------------------------------------------
+	bool ResourceGroupManager::_fireResourceCollision(Resource *resource, ResourceManager *resourceManager)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+        for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
+            l != mResourceGroupListenerList.end(); ++l)
+        {
+            bool b = (*l)->resourceCollision(resource, resourceManager);
+			if(b)
+				return b;
+        }
+		return false;
 	}
 	//-----------------------------------------------------------------------
     void ResourceGroupManager::shutdownAll(void)

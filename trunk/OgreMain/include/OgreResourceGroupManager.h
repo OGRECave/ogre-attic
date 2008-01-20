@@ -119,6 +119,13 @@ namespace Ogre {
 		/** This event is fired when a resource group finished loading. */
 		virtual void resourceGroupLoadEnded(const String& groupName) = 0;
 
+		/** This event is called when a resource beings loading. */
+		virtual Ogre::DataStreamPtr resourceLoading(const String &name, const String &group, Resource *resource) = 0;
+
+		/** This event is called when a resource collides with another existing one in a resource manager
+		  * @returns true if the handler resolves the collision, false if not (an exception will be thrown)
+		  */
+		virtual bool resourceCollision(Resource *resource, ResourceManager *resourceManager) = 0;
     };
     /** This singleton class manages the list of resource groups, and notifying
         the various resource managers of their obligations to load / unload
@@ -301,8 +308,8 @@ namespace Ogre {
 		void fireResourceEnded(void);
 		/// Internal event firing method
 		void fireResourceGroupLoadEnded(const String& groupName);
-
-
+		/// Internal event firing method
+		Ogre::DataStreamPtr fireResourceLoading(const String &name, const String &group, Resource *resource);
 
 		/// Stored current group - optimisation for when bulk loading a group
 		ResourceGroup* mCurrentGroup;
@@ -817,6 +824,9 @@ namespace Ogre {
 		@returns A copy of list of currently defined resources.
 		*/
 		ResourceDeclarationList getResourceDeclarationList(const String& groupName);
+
+		/// Internal event firing method
+		bool _fireResourceCollision(Resource *resource, ResourceManager *resourceManager);
 
 
 		/** Override standard Singleton retrieval.
