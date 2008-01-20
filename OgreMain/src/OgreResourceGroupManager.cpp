@@ -1167,15 +1167,14 @@ namespace Ogre {
 		return DataStreamPtr();
 	}
 	//-----------------------------------------------------------------------
-	bool ResourceGroupManager::_fireResourceCollision(Resource *resource, ResourceManager *resourceManager)
+	bool ResourceGroupManager::_fireResourceCollision(ResourcePtr &resource, ResourceManager *resourceManager)
 	{
 		OGRE_LOCK_AUTO_MUTEX
         for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
             l != mResourceGroupListenerList.end(); ++l)
         {
-            bool b = (*l)->resourceCollision(resource, resourceManager);
-			if(b)
-				return b;
+           if((*l)->resourceCollision(resource, resourceManager))
+			   return true;
         }
 		return false;
 	}
