@@ -94,6 +94,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreNoMemoryMacros.h \
                      OgreNode.h \
                      OgreNumerics.h \
+					 OgreOptimisedUtils.h \ 
                      OgreOverlay.h \
                      OgreOverlayContainer.h \
                      OgreOverlayElement.h \
@@ -118,6 +119,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgrePlane.h \
                      OgrePlaneBoundedVolume.h \
                      OgrePlatform.h \
+					 OgrePlatformInformation.h \ 
                      OgrePlugin.h \
                      OgrePolygon.h \
                      OgrePose.h \
