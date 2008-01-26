@@ -38,7 +38,7 @@ namespace Ogre {
     class OSXCarbonContext: public OSXContext
     {
     public:
-        OSXCarbonContext(AGLContext aglContext);
+        OSXCarbonContext(AGLContext aglContext, AGLPixelFormat pixelFormat);
 
         virtual ~OSXCarbonContext();
 
@@ -64,6 +64,7 @@ namespace Ogre {
 
 	private:
 		AGLContext mAGLContext;
+        AGLPixelFormat mPixelFormat;
     };
 }
 

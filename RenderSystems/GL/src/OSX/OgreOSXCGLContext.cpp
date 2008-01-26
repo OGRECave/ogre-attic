@@ -33,12 +33,17 @@ Torus Knot Software Ltd.
 namespace Ogre
 {
 	
-	OSXCGLContext::OSXCGLContext(CGLContextObj cglContext): mCGLContext(cglContext)
+	OSXCGLContext::OSXCGLContext(CGLContextObj cglContext, CGLPixelFormatObj pixelFormat): mCGLContext(cglContext), mPixelFormat(pixelFormat)
 	{
 	}
     
 	OSXCGLContext::~OSXCGLContext()
 	{
+        CGLClearDrawable(mCGLContext); 
+		CGLDestroyContext(mCGLContext);
+        
+        if(mPixelFormat != NULL)
+            CGLDestroyPixelFormat(mPixelFormat);
     }
 
     void OSXCGLContext::setCurrent()
@@ -48,15 +53,14 @@ namespace Ogre
 		
 	void OSXCGLContext::endCurrent()
 	{
-		CGLClearDrawable(mCGLContext); 
-		CGLDestroyContext(mCGLContext);
+		CGLSetCurrentContext(NULL);
 	}
 	
 	GLContext* OSXCGLContext::clone() const
 	{
-		CGLContextObj cglCtxCopy;
-		CGLCopyContext(mCGLContext, cglCtxCopy, NULL);
-		return new OSXCGLContext(cglCtxCopy);
+		CGLContextObj cglCtxShare;
+        CGLCreateContext(mPixelFormat, mCGLContext, &cglCtxShare);
+		return new OSXCGLContext(cglCtxShare, mPixelFormat);
 	}
 	
 	String OSXCGLContext::getContextType()

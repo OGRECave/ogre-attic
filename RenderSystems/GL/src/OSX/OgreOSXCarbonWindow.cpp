@@ -250,7 +250,7 @@ void OSXCarbonWindow::create( const String& name, unsigned int width, unsigned i
 		aglSetCurrentContext(mAGLContext);
 
 		// Give a copy of our context to the render system
-		mContext = new OSXCarbonContext(mAGLContext);
+		mContext = new OSXCarbonContext(mAGLContext, pixelFormat);
 	}
 	
 	WindowEventUtilities::_addRenderWindow(this);
@@ -359,30 +359,36 @@ void OSXCarbonWindow::windowMovedOrResized()
 	// External windows will call this method.
 	if(mView != NULL)
 	{
-		//update our drawing region
-		::Rect ctrlBounds;
-		GetControlBounds(mView, &ctrlBounds);
-		GLint bufferRect[4];
-
-		bufferRect[0] = ctrlBounds.left; // 0 = left edge
-		bufferRect[1] = ctrlBounds.bottom; // 0 = bottom edge
-		bufferRect[2] =	ctrlBounds.right - ctrlBounds.left; // width of buffer rect
-		bufferRect[3] = ctrlBounds.bottom - ctrlBounds.top; // height of buffer rect
-		aglSetInteger(mAGLContext, AGL_BUFFER_RECT, bufferRect);
-		aglEnable (mAGLContext, AGL_BUFFER_RECT);
-		swapBuffers(true);
-		
-		mWidth = ctrlBounds.right - ctrlBounds.left;
-		mHeight = ctrlBounds.bottom - ctrlBounds.top;
-		mLeft = ctrlBounds.left;
-		mTop = ctrlBounds.top;
-		
-	}
-	
-	for (ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it)
-	{
-	(*it).second->_updateDimensions();
-	}
+		// Determine the AGL_BUFFER_RECT for the view. The coordinate 
+        // system for this rectangle is relative to the owning window, with 
+        // the origin at the bottom left corner and the y-axis inverted. 
+        HIRect viewBounds, winBounds; 
+        HIViewGetBounds(mView, &viewBounds); 
+        HIViewRef root = HIViewGetRoot(HIViewGetWindow(mView)); 
+        
+        HIViewGetBounds(root, &winBounds); 
+        HIViewConvertRect(&viewBounds, mView, root); 
+        
+        // Set the AGL buffer rectangle (i.e. the bounds that we will use) 
+        GLint bufferRect[4]; 
+        bufferRect[0] = viewBounds.origin.x; // 0 = left edge 
+        bufferRect[1] = winBounds.size.height - (viewBounds.origin.y + viewBounds.size.height); // 0 = bottom edge 
+        bufferRect[2] = viewBounds.size.width; // width of buffer rect 
+        bufferRect[3] = viewBounds.size.height; // height of buffer rect 
+        
+        aglSetInteger(mAGLContext, AGL_BUFFER_RECT, bufferRect); 
+        aglEnable (mAGLContext, AGL_BUFFER_RECT); 
+        
+        mWidth = viewBounds.size.width; 
+        mHeight = viewBounds.size.height; 
+        mLeft = viewBounds.origin.x; 
+        mTop = bufferRect[1]; 
+    } 
+    
+    for (ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it) 
+    { 
+        (*it).second->_updateDimensions(); 
+    }
 }
 
 //-------------------------------------------------------------------------------------------------//
