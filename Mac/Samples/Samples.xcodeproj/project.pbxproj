@@ -713,7 +713,7 @@
 		00ABEF020B4F7C660059129A /* WeirdEye.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = WeirdEye.png; path = ../../Samples/Media/materials/textures/WeirdEye.png; sourceTree = SOURCE_ROOT; };
 		AA5FCC2F0D2C3B3E007F8E88 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		AA88679D0D2BDAD800C08A49 /* OgreCEGUIRenderer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OgreCEGUIRenderer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA88679E0D2BDAD800C08A49 /* OgreCEGUIRenderer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OgreCEGUIRenderer-Info.plist"; sourceTree = "<group>"; };
+		AA88679E0D2BDAD800C08A49 /* OgreCEGUIRenderer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "OgreCEGUIRenderer-Info.plist"; path = "plist/OgreCEGUIRenderer-Info.plist"; sourceTree = "<group>"; };
 		AA8869500D2BDBDB00C08A49 /* OgreCEGUIRenderer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreCEGUIRenderer.h; path = ../../Samples/Common/CEGUIRenderer/include/OgreCEGUIRenderer.h; sourceTree = SOURCE_ROOT; };
 		AA8869510D2BDBDB00C08A49 /* OgreCEGUIResourceProvider.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreCEGUIResourceProvider.h; path = ../../Samples/Common/CEGUIRenderer/include/OgreCEGUIResourceProvider.h; sourceTree = SOURCE_ROOT; };
 		AA8869520D2BDBDB00C08A49 /* OgreCEGUITexture.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreCEGUITexture.h; path = ../../Samples/Common/CEGUIRenderer/include/OgreCEGUITexture.h; sourceTree = SOURCE_ROOT; };
@@ -1085,7 +1085,6 @@
 				000E251E0B392B05004EA2DF /* Common Headers */,
 				000E25220B392B6F004EA2DF /* External Frameworks and Libraries */,
 				000E252C0B392BE5004EA2DF /* Products */,
-				AA88679E0D2BDAD800C08A49 /* OgreCEGUIRenderer-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1454,6 +1453,7 @@
 				000C05BB0BB613F000E6B30C /* Instancing-Info.plist */,
 				000E28570B39B377004EA2DF /* Lighting-Info.plist */,
 				000E286D0B39B441004EA2DF /* OceanDemo-Info.plist */,
+				AA88679E0D2BDAD800C08A49 /* OgreCEGUIRenderer-Info.plist */,
 				000E28970B39B5DF004EA2DF /* ParticleFX-Info.plist */,
 				000E28C20B39DA98004EA2DF /* RenderToTexture-Info.plist */,
 				000E28860B39B510004EA2DF /* Shadows-Info.plist */,
@@ -5505,7 +5505,7 @@
 					../../Dependencies/include,
 					"../../Dependencies/include/CEGUI/**",
 				);
-				INFOPLIST_FILE = "OgreCEGUIRenderer-Info.plist";
+				INFOPLIST_FILE = "./plist/OgreCEGUIRenderer-Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -5535,7 +5535,7 @@
 					../../Dependencies/include,
 					"../../Dependencies/include/CEGUI/**",
 				);
-				INFOPLIST_FILE = "OgreCEGUIRenderer-Info.plist";
+				INFOPLIST_FILE = "./plist/OgreCEGUIRenderer-Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				OTHER_LDFLAGS = (
 					"-framework",
