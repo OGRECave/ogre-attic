@@ -52,6 +52,7 @@ OSXCarbonWindow::OSXCarbonWindow()
 	mAGLContext = NULL;
 	mContext = NULL;
 	mWindow = NULL;
+    mEventHandlerRef = NULL;
 	mView = NULL;
 }
 
@@ -209,9 +210,31 @@ void OSXCarbonWindow::create( const String& name, unsigned int width, unsigned i
 			
 			// Center our window on the screen
 			RepositionWindow( mWindow, NULL, kWindowCenterOnMainScreen );
+            
+            // Get our view
+            HIViewFindByID( HIViewGetRoot( mWindow ), kHIViewWindowContentID, &mView );
 			
-			// Install the event handler for the window
-			InstallStandardEventHandler(GetWindowEventTarget(mWindow));
+			// Set up our UPP for Window Events
+            EventTypeSpec eventSpecs[] = {
+                {kEventClassWindow, kEventWindowActivated},
+                {kEventClassWindow, kEventWindowDeactivated},
+                {kEventClassWindow, kEventWindowShown},
+                {kEventClassWindow, kEventWindowHidden},
+                {kEventClassWindow, kEventWindowDragCompleted},
+                {kEventClassWindow, kEventWindowBoundsChanged},
+                {kEventClassWindow, kEventWindowExpanded},
+                {kEventClassWindow, kEventWindowCollapsed},
+                {kEventClassWindow, kEventWindowClosed}
+            };
+            
+            EventHandlerUPP handlerUPP = NewEventHandlerUPP(WindowEventUtilities::_CarbonWindowHandler);
+            
+            // Install the standard event handler for the window
+            EventTargetRef target = GetWindowEventTarget(mWindow);
+			InstallStandardEventHandler(target);
+            
+            // We also need to install the WindowEvent Handler, we pass along the window with our requests
+            InstallEventHandler(target, handlerUPP, 9, eventSpecs, (void*)this, &mEventHandlerRef);
 			
 			// Display and select our window
 			ShowWindow(mWindow);
@@ -263,9 +286,7 @@ void OSXCarbonWindow::create( const String& name, unsigned int width, unsigned i
 
 //-------------------------------------------------------------------------------------------------//
 void OSXCarbonWindow::destroy(void)
-{
-	LogManager::getSingleton().logMessage( "OSXCarbonWindow::destroy()" );
-	
+{	
 	if(mIsFullScreen)
 		destroyCGLFullscreen();
 		
@@ -273,6 +294,9 @@ void OSXCarbonWindow::destroy(void)
 
 	if(mWindow)
 		DisposeWindow(mWindow);
+    
+    if(mEventHandlerRef)
+        RemoveEventHandler(mEventHandlerRef);
 
 	mActive = false;
 
@@ -336,21 +360,38 @@ void OSXCarbonWindow::windowResized()
 	// Ensure the context is current
 	if(!mIsFullScreen)
 	{
-		aglUpdateContext(mAGLContext);
-		::Rect rect;
-		GetWindowBounds( mWindow, kWindowContentRgn, &rect );
-		mWidth = rect.left + rect.right;
-		mHeight = rect.top + rect.bottom;
-		mLeft = rect.left;
-		mTop = rect.top;
+		// Determine the AGL_BUFFER_RECT for the view. The coordinate 
+        // system for this rectangle is relative to the owning window, with 
+        // the origin at the bottom left corner and the y-axis inverted. 
+        HIRect viewBounds, winBounds; 
+        HIViewGetBounds(mView, &viewBounds); 
+        HIViewRef root = HIViewGetRoot(HIViewGetWindow(mView)); 
+        
+        HIViewGetBounds(root, &winBounds); 
+        HIViewConvertRect(&viewBounds, mView, root); 
+        
+        // Set the AGL buffer rectangle (i.e. the bounds that we will use) 
+        GLint bufferRect[4]; 
+        bufferRect[0] = viewBounds.origin.x; // 0 = left edge 
+        bufferRect[1] = winBounds.size.height - (viewBounds.origin.y + viewBounds.size.height); // 0 = bottom edge 
+        bufferRect[2] = viewBounds.size.width; // width of buffer rect 
+        bufferRect[3] = viewBounds.size.height; // height of buffer rect 
+        
+        aglSetInteger(mAGLContext, AGL_BUFFER_RECT, bufferRect); 
+        aglEnable (mAGLContext, AGL_BUFFER_RECT); 
+        
+        mWidth = viewBounds.size.width; 
+        mHeight = viewBounds.size.height; 
+        mLeft = viewBounds.origin.x; 
+        mTop = bufferRect[1]; 
 	}
 	else
 		swapCGLBuffers();
 	
-	for( ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it )
-	{
-		( *it ).second->_updateDimensions();
-	}
+    for (ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it) 
+    { 
+        (*it).second->_updateDimensions(); 
+    }
 }
 
 //-------------------------------------------------------------------------------------------------//

@@ -73,6 +73,7 @@ namespace Ogre
 		
 	private:
 		WindowRef mWindow;
+        EventHandlerRef mEventHandlerRef;
 		HIViewRef mView;
 		AGLContext mAGLContext;
 		
