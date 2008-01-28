@@ -374,14 +374,9 @@ OSStatus WindowEventUtilities::_CarbonWindowHandler(EventHandlerCallRef nextHand
 				(start->second)->windowResized(curWindow);
             break;
         case kEventWindowClosed:
+            curWindow->destroy();
             for( ; start != end; ++start )
 				(start->second)->windowClosed(curWindow);
-            // TODO: Destroying windows from the close click is crashing hard, no idea why.
-            //       Also clicking the close box is crashing, as the default behaivor of hiding
-            //       The window is still making it through...
-            //curWindow->destroy();
-            curWindow->setActive( false );
-            curWindow->setVisible( false );
             break;
         default:
             status = eventNotHandledErr;
