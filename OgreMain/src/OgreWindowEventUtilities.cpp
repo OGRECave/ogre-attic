@@ -69,7 +69,7 @@ void WindowEventUtilities::messagePump()
 			GLXProc(event);
 		}
 	}
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE && !defined __OBJC__
 	// OSX Message Pump
 	EventRef event = NULL;
 	EventTargetRef targetWindow;
@@ -317,7 +317,7 @@ void GLXProc( const XEvent &event )
 		break;
 	} //End switch event.type
 }
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE && !defined __OBJC__
 //--------------------------------------------------------------------------------//
 OSStatus WindowEventUtilities::_CarbonWindowHandler(EventHandlerCallRef nextHandler, EventRef event, void* wnd)
 {
@@ -377,6 +377,8 @@ OSStatus WindowEventUtilities::_CarbonWindowHandler(EventHandlerCallRef nextHand
             for( ; start != end; ++start )
 				(start->second)->windowClosed(curWindow);
             // TODO: Destroying windows from the close click is crashing hard, no idea why.
+            //       Also clicking the close box is crashing, as the default behaivor of hiding
+            //       The window is still making it through...
             //curWindow->destroy();
             curWindow->setActive( false );
             curWindow->setVisible( false );

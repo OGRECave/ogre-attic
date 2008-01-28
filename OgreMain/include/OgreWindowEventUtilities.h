@@ -138,7 +138,7 @@ namespace Ogre
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 		//! Internal winProc (RenderWindow's use this when creating the Win32 Window)
 		static LRESULT CALLBACK _WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE && !defined __OBJC__
         //! Internal UPP Window Handler (RenderWindow's use this when creating the OS X Carbon Window
         static OSStatus _CarbonWindowHandler(EventHandlerCallRef nextHandler, EventRef event, void* wnd);
 #endif
