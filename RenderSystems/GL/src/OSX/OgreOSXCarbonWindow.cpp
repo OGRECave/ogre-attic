@@ -48,7 +48,7 @@ namespace Ogre
 //-------------------------------------------------------------------------------------------------//
 OSXCarbonWindow::OSXCarbonWindow()
 {
-	mActive = mClosed = mHasResized = mIsFullScreen = false;
+	mActive = mClosed = mCreated = mHasResized = mIsFullScreen = mIsExternal = false;
 	mAGLContext = NULL;
 	mContext = NULL;
 	mWindow = NULL;
@@ -59,6 +59,7 @@ OSXCarbonWindow::OSXCarbonWindow()
 //-------------------------------------------------------------------------------------------------//
 OSXCarbonWindow::~OSXCarbonWindow()
 {
+    destroy();
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -239,6 +240,9 @@ void OSXCarbonWindow::create( const String& name, unsigned int width, unsigned i
 			// Display and select our window
 			ShowWindow(mWindow);
 			SelectWindow(mWindow);
+            
+            // Add our window to the window event listener class
+            WindowEventUtilities::_addRenderWindow(this);
 		}
 		else
 		{
@@ -263,6 +267,8 @@ void OSXCarbonWindow::create( const String& name, unsigned int width, unsigned i
 			bufferRect[3] = ctrlBounds.bottom - ctrlBounds.top; // height of buffer rect
 			aglSetInteger(mAGLContext, AGL_BUFFER_RECT, bufferRect);
 			aglEnable (mAGLContext, AGL_BUFFER_RECT);
+            
+            mIsExternal = true;
 		}
 		
 		// Set the drawable, and current context
@@ -276,31 +282,47 @@ void OSXCarbonWindow::create( const String& name, unsigned int width, unsigned i
 		mContext = new OSXCarbonContext(mAGLContext, pixelFormat);
 	}
 	
-	WindowEventUtilities::_addRenderWindow(this);
 	mName = name;
 	mWidth = width;
 	mHeight = height;
 	mActive = true;
+    mClosed = false;
+    mCreated = true;
 	mIsFullScreen = fullScreen;
 }
 
 //-------------------------------------------------------------------------------------------------//
 void OSXCarbonWindow::destroy(void)
-{	
-	if(mIsFullScreen)
-		destroyCGLFullscreen();
-		
-	WindowEventUtilities::_removeRenderWindow( this );
-
-	if(mWindow)
-		DisposeWindow(mWindow);
+{
+    if(!mCreated)
+        return;
     
-    if(mEventHandlerRef)
-        RemoveEventHandler(mEventHandlerRef);
+	if(mIsFullScreen)
+    {
+        // Handle fullscreen destruction
+		destroyCGLFullscreen();
+    }
+    else
+    {
+        // Handle windowed destruction
+        
+        // Destroy the Ogre context
+        delete mContext;
+        
+        if(!mIsExternal)
+        {
+            // Remove the window from the Window listener
+            WindowEventUtilities::_removeRenderWindow( this );
+            
+            // Remove our event handler
+            if(mEventHandlerRef)
+                RemoveEventHandler(mEventHandlerRef);        
+        }
+    }
 
 	mActive = false;
-
-	Root::getSingleton().getRenderSystem()->detachRenderTarget(this->getName());
+    mClosed = true;
+    mCreated = false;
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -312,7 +334,7 @@ bool OSXCarbonWindow::isActive() const
 //-------------------------------------------------------------------------------------------------//
 bool OSXCarbonWindow::isClosed() const
 {
-	return false;
+	return mClosed;
 }
 
 //-------------------------------------------------------------------------------------------------//

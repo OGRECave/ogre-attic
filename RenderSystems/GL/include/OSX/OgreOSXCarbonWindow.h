@@ -79,7 +79,9 @@ namespace Ogre
 		
 		bool mActive;
 		bool mClosed;
+        bool mCreated;
 		bool mHasResized;
+        bool mIsExternal;
 	};
 }
 
