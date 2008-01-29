@@ -54,8 +54,10 @@ namespace Ogre {
 		// Technique
 		"<Technique> ::= 'technique' '{' {<Texture>} {<Target>} <TargetOutput> '}' \n"
 		"<Texture> ::= 'texture' <Label> <WidthOption> <HeightOption> <PixelFormat> {<PixelFormat>} \n"
-		"<WidthOption> ::= 'target_width' | <#width> \n"
-		"<HeightOption> ::= 'target_height' | <#height> \n"
+		"<WidthOption> ::= <TargetWidthScaled> | 'target_width' | <#width> \n"
+		"<HeightOption> ::= <TargetHeightScaled> | 'target_height' | <#height> \n"
+		"<TargetWidthScaled> ::= 'target_width_scaled' <#scaling> \n"
+		"<TargetHeightScaled> ::= 'target_height_scaled' <#scaling> \n"
 		"<PixelFormat> ::= 'PF_A8R8G8B8' | 'PF_R8G8B8A8' | 'PF_R8G8B8' | 'PF_FLOAT16_RGBA' | \n"
         "   'PF_FLOAT16_RGB' | 'PF_FLOAT16_R' | 'PF_FLOAT32_RGBA' | 'PF_FLOAT32_RGB' | 'PF_FLOAT32_R' | \n"
 		"   'PF_FLOAT16_GR' | 'PF_FLOAT32_GR' \n"
@@ -150,6 +152,8 @@ namespace Ogre {
 		// Technique section
 		addLexemeAction("technique", &CompositorScriptCompiler::parseTechnique);
 		addLexemeAction("texture", &CompositorScriptCompiler::parseTexture);
+		addLexemeToken("target_width_scaled", ID_TARGET_WIDTH_SCALED);
+		addLexemeToken("target_height_scaled", ID_TARGET_HEIGHT_SCALED);
 		addLexemeToken("target_width", ID_TARGET_WIDTH);
 		addLexemeToken("target_height", ID_TARGET_HEIGHT);
 		addLexemeToken("PF_A8R8G8B8", ID_PF_A8R8G8B8);
@@ -350,22 +354,42 @@ namespace Ogre {
         CompositionTechnique::TextureDefinition* textureDef = mScriptContext.technique->createTextureDefinition(textureName);
         // if peek next token is target_width then get token and use 0 for width
         // determine width parameter
-        if (testNextTokenID(ID_TARGET_WIDTH))
+		if (testNextTokenID(ID_TARGET_WIDTH_SCALED))
+		{
+			getNextToken();
+			// a value of zero causes texture to be size of render target
+			textureDef->width = 0;
+			// get factor from next token
+			textureDef->widthFactor = static_cast<float>(getNextTokenValue());
+
+		}
+        else if (testNextTokenID(ID_TARGET_WIDTH))
         {
             getNextToken();
             // a value of zero causes texture to be size of render target
             textureDef->width = 0;
+			textureDef->widthFactor = 1.0f;
         }
         else
         {
             textureDef->width = static_cast<size_t>(getNextTokenValue());
         }
         // determine height parameter
-        if (testNextTokenID(ID_TARGET_HEIGHT))
+		if (testNextTokenID(ID_TARGET_HEIGHT_SCALED))
+		{
+			getNextToken();
+			// a value of zero causes texture to be dependent on render target
+			textureDef->height = 0;
+			// get factor from next token
+			textureDef->heightFactor = static_cast<float>(getNextTokenValue());
+
+		}
+        else if (testNextTokenID(ID_TARGET_HEIGHT))
         {
             getNextToken();
             // a value of zero causes texture to be size of render target
             textureDef->height = 0;
+			textureDef->heightFactor = 1.0f;
         }
         else
         {

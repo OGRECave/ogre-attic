@@ -1015,6 +1015,8 @@ namespace Ogre
 			mIds["previous"] = ID_PREVIOUS;
 			mIds["target_width"] = ID_TARGET_WIDTH;
 			mIds["target_height"] = ID_TARGET_HEIGHT;
+			mIds["target_width_scaled"] = ID_TARGET_WIDTH_SCALED;
+			mIds["target_height_scaled"] = ID_TARGET_HEIGHT_SCALED;
 		mIds["only_initial"] = ID_ONLY_INITIAL;
 		mIds["visibility_mask"] = ID_VISIBILITY_MASK;
 		mIds["lod_bias"] = ID_LOD_BIAS;
@@ -5371,57 +5373,127 @@ namespace Ogre
 		switch(prop->id)
 		{
 		case ID_TEXTURE:
-			if(prop->values.size() < 4)
+			size_t atomIndex = 1;
+
+			AbstractNodeList::const_iterator i = getNodeAt(prop->values, 0);
+
+			if((*i)->type != ANT_ATOM)
+			{
+				PROP_ERROR(CE_INVALIDPARAMETERS);
+				return;
+			}
+			// Save the first atom, should be name
+			AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i).get();
+
+			size_t width = 0, height = 0;
+			float widthFactor = 1.0f, heightFactor = 1.0f;
+			bool widthSet = false, heightSet = false, formatSet = false;
+			Ogre::PixelFormatList formats;
+
+			while (atomIndex < prop->values.size())
+			{
+				i = getNodeAt(prop->values, atomIndex++);
+				if((*i)->type != ANT_ATOM)
+				{
+					PROP_ERROR(CE_INVALIDPARAMETERS);
+					return;
+				}
+				AtomAbstractNode *atom = (AtomAbstractNode*)(*i).get();
+
+				switch(atom->id)
+				{
+				case ID_TARGET_WIDTH:
+					width = 0;
+					widthSet = true;
+					break;
+				case ID_TARGET_HEIGHT:
+					height = 0;
+					heightSet = true;
+					break;
+				case ID_TARGET_WIDTH_SCALED:
+				case ID_TARGET_HEIGHT_SCALED:
+					{
+						bool *pSetFlag;
+						size_t *pSize;
+						float *pFactor;
+						if (atom->id == ID_TARGET_WIDTH_SCALED)
+						{
+							pSetFlag = &widthSet;
+							pSize = &width;
+							pFactor = &widthFactor;
+						}
+						else
+						{
+							pSetFlag = &heightSet;
+							pSize = &height;
+							pFactor = &heightFactor;
+						}
+						// advance to next to get scaling
+						i = getNodeAt(prop->values, atomIndex++);
+						if((*i)->type != ANT_ATOM)
+						{
+							PROP_ERROR(CE_INVALIDPARAMETERS);
+							return;
+						}
+						atom = (AtomAbstractNode*)(*i).get();
+						if (!atom->isNumber())
+						{
+							PROP_ERROR(CE_INVALIDPARAMETERS);
+							return;
+						}
+
+						*pSize = 0;
+						*pFactor = atom->getNumber();
+						*pSetFlag = true;
+					}
+					break;
+				default:
+					if (atom->isNumber())
+					{
+						if (atomIndex == 1)
+							width = atom->getNumber();
+						else if (atomIndex == 2)
+							height = atom->getNumber();
+						else
+						{
+							PROP_ERROR(CE_INVALIDPARAMETERS);
+							return;
+						}
+
+					}
+					else
+					{
+						// pixel format?
+						PixelFormat format = PixelUtil::getFormatFromName(atom->value, true);
+						if (format == PF_UNKNOWN)
+						{
+							PROP_ERROR(CE_INVALIDPARAMETERS);
+							return;
+						}
+						formats.push_back(format);
+						formatSet = true;
+					}
+
+				}
+			}
+			if (!widthSet || !heightSet || !formatSet)
 			{
 				getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+				return;
 			}
-			else
-			{
-				AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1),
-					i2 = getNodeAt(prop->values, 2), i3 = getNodeAt(prop->values, 3);
-				if((*i0)->type != ANT_ATOM || (*i1)->type != ANT_ATOM || (*i2)->type != ANT_ATOM)
-				{
-					PROP_ERROR(CE_INVALIDPARAMETERS);
-					return;
-				}
+	
 
-				AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get(), *atom1 = (AtomAbstractNode*)(*i1).get(), *atom2 = (AtomAbstractNode*)(*i2).get();
-				size_t width = 0, height = 0;
+			// No errors, create
+			String name = atom0->value;
+			if(getCompilerListener())
+				getCompilerListener()->getTextureNames(&name, 1);
+			CompositionTechnique::TextureDefinition *def = mTechnique->createTextureDefinition(name);
+			def->width = width;
+			def->height = height;
+			def->widthFactor = widthFactor;
+			def->heightFactor = heightFactor;
+			def->formatList = formats;
 
-				if(atom1->id == ID_TARGET_WIDTH || atom1->isNumber())
-					width = atom1->id == ID_TARGET_WIDTH ? 0 : atom1->getNumber();
-				else
-				{
-					PROP_ERROR(CE_INVALIDPARAMETERS);
-					return;
-				}
-
-				if(atom2->id == ID_TARGET_HEIGHT || atom2->isNumber())
-					height = atom2->id == ID_TARGET_HEIGHT ? 0 : atom2->getNumber();
-				else
-				{
-					PROP_ERROR(CE_INVALIDPARAMETERS);
-					return;
-				}
-				
-				String name = atom0->value;
-				if(getCompilerListener())
-					getCompilerListener()->getTextureNames(&name, 1);
-				CompositionTechnique::TextureDefinition *def = mTechnique->createTextureDefinition(name);
-				def->width = width;
-				def->height = height;
-
-				while(i3 != prop->values.end())
-				{
-					if((*i3)->type == ANT_ATOM)
-					{
-						AtomAbstractNode *atom = (AtomAbstractNode*)(*i3).get();
-						PixelFormat format = PixelUtil::getFormatFromName(atom->value, true);
-						def->formatList.push_back(format);
-					}
-					++i3;
-				}
-			}
 			break;
 		}
 	}
