@@ -428,9 +428,11 @@ static size_t dummyCounter = 0;
 		deriveTextureRenderTargetOptions(def->name, &hwGammaWrite, &fsaa);
 
         if(width == 0)
-            width = mChain->getViewport()->getActualWidth();
+            width = static_cast<size_t>(
+				static_cast<float>(mChain->getViewport()->getActualWidth()) * def->widthFactor);
         if(height == 0)
-            height = mChain->getViewport()->getActualHeight();
+			height = static_cast<size_t>(
+				static_cast<float>(mChain->getViewport()->getActualHeight()) * def->heightFactor);
         /// Make the tetxure
 		RenderTarget* rendTarget;
 		if (def->formatList.size() > 1)

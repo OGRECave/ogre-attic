@@ -5,8 +5,8 @@ compositor Bloom
     {
         // Temporary textures
         texture rt_output target_width target_height PF_R8G8B8
-        texture rt0 128 128 PF_R8G8B8
-        texture rt1 128 128 PF_R8G8B8
+        texture rt0 target_width_scaled 0.25 target_height_scaled 0.25 PF_R8G8B8
+        texture rt1 target_width_scaled 0.25 target_height_scaled 0.25 PF_R8G8B8
 
         target rt_output
         {
