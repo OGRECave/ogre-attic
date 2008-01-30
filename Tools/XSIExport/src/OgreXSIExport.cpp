@@ -277,7 +277,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 	try
 	{
 		// Popup Returns true if the command was cancelled otherwise it returns false. 
-		CStatus ret = Popup(exportPropertyDialogName,CValue(),L"OGRE Mesh / Skeleton Export",(long)siModal,true);
+		CStatus ret = Popup(exportPropertyDialogName,CValue(),L"OGRE Mesh / Skeleton Export",((LONG)siModal),true);
 		if (ret == CStatus::OK)
 		{
 			Ogre::XsiMeshExporter meshExporter;
@@ -318,7 +318,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			param = prop.GetParameters().GetItem( L"tangentsUseParity" );
 			bool tangentsUseParity = param.GetValue();
 			param = prop.GetParameters().GetItem( L"numLodLevels" );
-			long numlods = param.GetValue();
+			long numlods = (LONG)param.GetValue();
 			Ogre::XsiMeshExporter::LodData* lodData = 0;
 			if (numlods > 0)
 			{
@@ -403,8 +403,8 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 						Ogre::AnimationEntry ae;
 						ae.animationName = XSItoOgre(XSI::CString(gd.GetCell(ANIMATION_LIST_NAME_COL, a)));
 						ae.ikSampleInterval = gd.GetCell(ANIMATION_LIST_IKFREQ_COL, a);
-						ae.startFrame = gd.GetCell(ANIMATION_LIST_START_COL, a);
-						ae.endFrame = gd.GetCell(ANIMATION_LIST_END_COL, a);
+						ae.startFrame = (LONG)gd.GetCell(ANIMATION_LIST_START_COL, a);
+						ae.endFrame = (LONG)gd.GetCell(ANIMATION_LIST_END_COL, a);
 						selAnimList.push_back(ae);
 					}
 				}
@@ -583,15 +583,15 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
 	prop.AddParameter(	
 		L"numLodLevels",CValue::siInt2, caps, 
 		L"Levels of Detail", L"", 
-		CValue(0L), param) ;	
+		(LONG)0, param) ;	
 	prop.AddParameter(	
 		L"lodDistanceIncrement",CValue::siFloat, caps, 
 		L"Distance Increment", L"", 
-		CValue(2000L), //default
-		CValue(1L), // hard min
-		CValue(1000000L), // hard max
-		CValue(50L), // suggested min
-		CValue(10000L), // suggested max
+		(LONG)2000, //default
+		(LONG)1, // hard min
+		(LONG)1000000, // hard max
+		(LONG)50, // suggested min
+		(LONG)10000, // suggested max
 		param) ;	
 	prop.AddParameter(	
 		L"lodQuota",CValue::siString, caps, 
@@ -616,7 +616,7 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
     prop.AddParameter(
         L"fps",CValue::siInt2, caps, 
         L"Frames per second", L"", 
-        CValue(24l), param) ;	
+        (LONG)24, param) ;	
 	prop.AddGridParameter(L"animationList");	
 	prop.AddParameter(
 		L"exportMaterials", CValue::siBool, caps, 
@@ -894,8 +894,8 @@ void populateAnimationsList(XSI::GridData gd)
 		gd.PutCell(ANIMATION_LIST_NAME_COL, row, OgretoXSI(a->animationName));
 		// default to export
 		gd.PutCell(ANIMATION_LIST_EXPORT_COL, row, true);
-		gd.PutCell(ANIMATION_LIST_START_COL, row, a->startFrame);
-		gd.PutCell(ANIMATION_LIST_END_COL, row, a->endFrame);
+		gd.PutCell(ANIMATION_LIST_START_COL, row, CValue((LONG)a->startFrame));
+		gd.PutCell(ANIMATION_LIST_END_COL, row, CValue((LONG)a->endFrame));
 		gd.PutCell(ANIMATION_LIST_IKFREQ_COL, row, a->ikSampleInterval);
 	}
 }
@@ -1008,7 +1008,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
         // Clicked the refresh animation button
 		if ( buttonPressed.GetAsText() == L"refreshAnimation" )
 		{
-			long btn;
+			LONG btn;
 			CStatus ret = app.GetUIToolkit().MsgBox(
 				L"Are you sure you want to lose the current contents "
 				L"of the animations list and to refresh it from mixers?",
@@ -1031,7 +1031,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			gd.PutRowCount(gd.GetRowCount() + 1);
 			// default export to true and sample rate
 			gd.PutCell(ANIMATION_LIST_EXPORT_COL, gd.GetRowCount()-1, true);
-			gd.PutCell(ANIMATION_LIST_IKFREQ_COL, gd.GetRowCount()-1, 5L);
+			gd.PutCell(ANIMATION_LIST_IKFREQ_COL, gd.GetRowCount()-1, (LONG)5);
 		}
 		else if( buttonPressed.GetAsText() == L"removeAnimation" )
 		{
@@ -1054,7 +1054,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 
 			if (selRow != -1)
 			{
-				long btn;
+				LONG btn;
 				CStatus ret = app.GetUIToolkit().MsgBox(
 					L"Are you sure you want to remove this animation entry?",
 					siMsgYesNo,
@@ -1142,7 +1142,7 @@ CString GetUserSelectedObject()
 
 	xsidialog.Call(L"Combo",index,L"Select Item",args );
 
-	long ind = (long)index;
+	long ind = (LONG)index;
 	return args[ind];
 }
 
