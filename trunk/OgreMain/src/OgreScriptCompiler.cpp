@@ -5450,16 +5450,21 @@ namespace Ogre
 				default:
 					if (atom->isNumber())
 					{
-						if (atomIndex == 1)
+						if (atomIndex == 2)
+						{
 							width = atom->getNumber();
-						else if (atomIndex == 2)
+							widthSet = true;
+						}
+						else if (atomIndex == 3)
+						{
 							height = atom->getNumber();
+							heightSet = true;
+						}
 						else
 						{
 							PROP_ERROR(CE_INVALIDPARAMETERS);
 							return;
 						}
-
 					}
 					else
 					{
