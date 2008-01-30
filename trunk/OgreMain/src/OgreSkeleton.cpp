@@ -520,6 +520,11 @@ namespace Ogre {
         return i->second;
 
     }
+	//---------------------------------------------------------------------
+	bool Skeleton::hasBone(const String& name) const 
+	{	
+		return mBoneListByName.find(name) != mBoneListByName.end();
+	}
     //---------------------------------------------------------------------
     void Skeleton::deriveRootBone(void) const
     {
