@@ -1030,7 +1030,10 @@ namespace Ogre {
 		// Process all mixers
 		Model root = mXsiApp.GetActiveSceneRoot();
 		if (root.HasMixer())
-			buildShapeClipList(root.GetMixer(), listToPopulate);
+		{
+			XSI::Mixer mixer = root.GetMixer();
+			buildShapeClipList(mixer, listToPopulate);
+		}
 
 		// Get all child models (recursive)
 		CRefArray models = root.GetModels();
@@ -1038,7 +1041,10 @@ namespace Ogre {
 		{
 			Model model(models[m]);
 			if (model.HasMixer())
-				buildShapeClipList(model.GetMixer(), listToPopulate);
+			{
+				XSI::Mixer mixer = root.GetMixer();
+				buildShapeClipList(mixer, listToPopulate);
+			}
 		}
 
 	}

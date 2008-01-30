@@ -360,7 +360,7 @@ namespace Ogre {
 			param = shader.GetParameter(L"modulation");
 			if (param.IsValid())
 			{
-				long colourop = param.GetValue();
+				long colourop = ((LONG)param.GetValue());
 				switch (colourop)
 				{
 				case 0:
@@ -402,7 +402,7 @@ namespace Ogre {
 		if (!param.IsValid())
 			param = shader.GetParameter(L"Texture_Target"); // DX
 
-		long target = param.GetValue();
+		long target = ((LONG)param.GetValue());
 		mTextureUnitTargetMap.insert(
 			TextureUnitTargetMap::value_type(target, tex));
 
@@ -454,7 +454,7 @@ namespace Ogre {
 		if (param.IsValid())
 		{
 			// XSI OGL shader uses minfilter to determine mip too
-			long filt = param.GetValue();
+			long filt = ((LONG)param.GetValue());
 			switch(filt)
 			{
 			case 0:
@@ -487,7 +487,7 @@ namespace Ogre {
 		param = shader.GetParameter(L"magfilter");
 		if (param.IsValid())
 		{
-			long filt = param.GetValue();
+			long filt = ((LONG)param.GetValue());
 			switch(filt)
 			{
 			case 0:
@@ -502,7 +502,7 @@ namespace Ogre {
 		param = shader.GetParameter(L"anisotropy");
 		if (param.IsValid())
 		{
-			long aniso = param.GetValue();
+			long aniso = ((LONG)param.GetValue());
 			if (aniso > 1)
 			{
 				// No specific aniso filtering option, so upgrade linear -> aniso
@@ -528,7 +528,7 @@ namespace Ogre {
 		if (param.IsValid())
 		{
 			// XSI DX shader has min/mag and mip, and has more options
-			long filt = param.GetValue();
+			long filt = ((LONG)param.GetValue());
 			switch(filt)
 			{
 			case 0:
@@ -551,7 +551,7 @@ namespace Ogre {
 		if (param.IsValid())
 		{
 			// XSI DX shader has mag/mag and mip, and has more options
-			long filt = param.GetValue();
+			long filt = ((LONG)param.GetValue());
 			switch(filt)
 			{
 			case 0:
@@ -574,7 +574,7 @@ namespace Ogre {
 		if (param.IsValid())
 		{
 			// XSI DX shader has mip/mag and mip, and has more options
-			long filt = param.GetValue();
+			long filt = ((LONG)param.GetValue());
 			switch(filt)
 			{
 			case 0:
@@ -597,7 +597,7 @@ namespace Ogre {
 		param = shader.GetParameter(L"anisotropy");
 		if (param.IsValid())
 		{
-			long aniso = param.GetValue();
+			long aniso = ((LONG)param.GetValue());
 			tex->setTextureAnisotropy(aniso);
 		}
 
@@ -614,7 +614,7 @@ namespace Ogre {
 		if (!param.IsValid())
 			param = shader.GetParameter(L"Texture_Target"); // DX
 
-		long target = param.GetValue();
+		long target = ((LONG)param.GetValue());
 		mTextureUnitTargetMap.insert(
 			TextureUnitTargetMap::value_type(target, tex));
 
@@ -739,7 +739,7 @@ namespace Ogre {
 			
 
 			// Look up texture unit(s) that are using this target
-			long target = shader.GetParameter(L"Texture_Target").GetValue();
+			long target = ((LONG)shader.GetParameter(L"Texture_Target").GetValue());
 			TextureUnitTargetMap::iterator i = mTextureUnitTargetMap.find(target);
 			while (i != mTextureUnitTargetMap.end() && i->first == target)
 			{
@@ -753,7 +753,7 @@ namespace Ogre {
 				param = shader.GetParameter(L"texcoord_index");
 				if (param.IsValid())
 				{
-					long e = param.GetValue();
+					long e = ((LONG)param.GetValue());
 					if (e != 0)
 					{
 						// Not Explicit
@@ -785,12 +785,12 @@ namespace Ogre {
 			{
 				TextureUnitState* tex = pass->getTextureUnitState(target);
 
-				long uvType = shader.GetParameter(L"UV_Type").GetValue();
+				long uvType = ((LONG)shader.GetParameter(L"UV_Type").GetValue());
 				if (uvType != 0)
 				{
 					double val1 = shader.GetParameter(L"Val1").GetValue();
 					double val2 = shader.GetParameter(L"Val2").GetValue();
-					long wave = shader.GetParameter(L"Wave").GetValue();
+					long wave = ((LONG)shader.GetParameter(L"Wave").GetValue());
 					WaveformType wft;
 					switch (wave)
 					{
