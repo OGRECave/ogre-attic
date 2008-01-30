@@ -181,6 +181,9 @@ namespace Ogre {
         /** Gets a bone by it's name. */
         virtual Bone* getBone(const String& name) const;
 
+		/** Returns whether this skeleton contains the named bone. */
+        virtual bool hasBone(const String& name) const;
+
         /** Sets the current position / orientation to be the 'binding pose' ie the layout in which 
             bones were originally bound to a mesh.
         */
