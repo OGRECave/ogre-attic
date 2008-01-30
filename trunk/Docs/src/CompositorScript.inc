@@ -103,7 +103,7 @@ Here is a description of the parameters:
 @item Name
 A name to give the render texture, which must be unique within this compositor. This name is used to reference the texture in @ref{Compositor Target Passes,target passes}, when the texture is rendered to, and in @ref{Compositor Passes,passes}, when the texture is used as input to a material rendering a fullscreen quad.
 @item Width, Height
-The dimensions of the render texture. You can either specify a fixed width and height, or you can request that the texture matches the physical dimensions of the viewport to which the compositor is attached (specify target_width and target_height instead of numerical dimensions).
+The dimensions of the render texture. You can either specify a fixed width and height, or you can request that the texture is based on the physical dimensions of the viewport to which the compositor is attached. The options for the latter are 'target_width', 'target_height', 'target_width_scaled <factor>' and 'target_height_scaled <factor>' - where 'factor' is the amount by which you wish to multiply the size of the main target to derive the dimensions.
 @item Pixel Format
 The pixel format of the render texture. This affects how much memory it will take, what colour channels will be available, and what precision you will have within those channels. The available options are PF_A8R8G8B8, PF_R8G8B8A8, PF_R8G8B8, PF_FLOAT16_RGBA, PF_FLOAT16_RGB, PF_FLOAT16_R, PF_FLOAT32_RGBA, PF_FLOAT32_RGB, and PF_FLOAT32_R.
 @end table
