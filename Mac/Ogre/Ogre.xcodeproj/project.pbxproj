@@ -3060,6 +3060,7 @@
 					i386,
 				);
 				COPY_PHASE_STRIP = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SHARED_PRECOMPS_DIR = ../build/PCH;
 			};
