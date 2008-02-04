@@ -196,6 +196,7 @@ namespace Ogre {
 		virtual Real getShadowExtrusionDistance(void) const;
 		virtual const Vector4& getSceneDepthRange() const;
 		virtual const Vector4& getShadowSceneDepthRange(size_t lightIndex) const;
+		virtual const ColourValue& getShadowColour() const;
 		virtual Matrix4 getInverseViewProjMatrix(void) const;
 		virtual Matrix4 getInverseTransposeViewProjMatrix() const;
 		virtual Matrix4 getTransposeViewProjMatrix() const;
