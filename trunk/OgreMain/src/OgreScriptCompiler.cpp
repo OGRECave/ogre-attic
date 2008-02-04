@@ -3353,7 +3353,7 @@ namespace Ogre
 					if((*in)->type == ANT_ATOM && ((AtomAbstractNode*)(*in).get())->isNumber())
 					{
 						Real duration = ((AtomAbstractNode*)(*in).get())->getNumber();
-						String *names = new String[prop->values.size() - 2];
+						String *names = new String[prop->values.size() - 1];
 						int n = 0;
 
 						AbstractNodeList::iterator j = prop->values.begin();
@@ -3367,8 +3367,8 @@ namespace Ogre
 						}
 
 						if(getCompilerListener())
-							getCompilerListener()->getTextureNames(names, prop->values.size() - 2);
-						mUnit->setAnimatedTextureName(names, prop->values.size() - 2, duration);
+							getCompilerListener()->getTextureNames(names, n);
+						mUnit->setAnimatedTextureName(names, n, duration);
 					}
 					else
 					{
@@ -3454,8 +3454,11 @@ namespace Ogre
 				}
 				else
 				{
-					AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2);
+					AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0), 
+						i1 = getNodeAt(prop->values, 1), 
+						i2 = getNodeAt(prop->values, 2);
 					TextureUnitState::UVWAddressingMode mode;
+					mode.u = mode.v = mode.w = TextureUnitState::TAM_WRAP;
 					
 					if(i0 != prop->values.end() && (*i0)->type == ANT_ATOM)
 					{
@@ -3478,6 +3481,8 @@ namespace Ogre
 							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
 						}
 					}
+					mode.v = mode.u;
+					mode.w = mode.u;
 					
 					if(i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
 					{
@@ -3485,16 +3490,16 @@ namespace Ogre
 						switch(atom->id)
 						{
 						case ID_WRAP:
-							mode.u = TextureUnitState::TAM_WRAP;
+							mode.v = TextureUnitState::TAM_WRAP;
 							break;
 						case ID_CLAMP:
-							mode.u = TextureUnitState::TAM_CLAMP;
+							mode.v = TextureUnitState::TAM_CLAMP;
 							break;
 						case ID_MIRROR:
-							mode.u = TextureUnitState::TAM_MIRROR;
+							mode.v = TextureUnitState::TAM_MIRROR;
 							break;
 						case ID_BORDER:
-							mode.u = TextureUnitState::TAM_BORDER;
+							mode.v = TextureUnitState::TAM_BORDER;
 							break;
 						default:
 							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
@@ -3507,16 +3512,16 @@ namespace Ogre
 						switch(atom->id)
 						{
 						case ID_WRAP:
-							mode.u = TextureUnitState::TAM_WRAP;
+							mode.w = TextureUnitState::TAM_WRAP;
 							break;
 						case ID_CLAMP:
-							mode.u = TextureUnitState::TAM_CLAMP;
+							mode.w = TextureUnitState::TAM_CLAMP;
 							break;
 						case ID_MIRROR:
-							mode.u = TextureUnitState::TAM_MIRROR;
+							mode.w = TextureUnitState::TAM_MIRROR;
 							break;
 						case ID_BORDER:
-							mode.u = TextureUnitState::TAM_BORDER;
+							mode.w = TextureUnitState::TAM_BORDER;
 							break;
 						default:
 							getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
