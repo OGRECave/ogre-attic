@@ -181,6 +181,7 @@ namespace Ogre
 		AutoConstantDefinition(ACT_TEXEL_OFFSETS,               "texel_offsets",				  4, ET_REAL, ACDT_NONE),
 		AutoConstantDefinition(ACT_SCENE_DEPTH_RANGE,           "scene_depth_range",			  4, ET_REAL, ACDT_NONE),
 		AutoConstantDefinition(ACT_SHADOW_SCENE_DEPTH_RANGE,    "shadow_scene_depth_range",		  4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_SHADOW_COLOUR,				"shadow_colour",				  4, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_TEXTURE_SIZE,                "texture_size",                   4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_INVERSE_TEXTURE_SIZE,        "inverse_texture_size",           4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_PACKED_TEXTURE_SIZE,         "packed_texture_size",            4, ET_REAL, ACDT_INT),
@@ -1408,6 +1409,9 @@ namespace Ogre
                 break;
 			case ACT_SHADOW_SCENE_DEPTH_RANGE:
 				_writeRawConstant(i->physicalIndex, source->getShadowSceneDepthRange(i->data));
+				break;
+			case ACT_SHADOW_COLOUR:
+				_writeRawConstant(i->physicalIndex, source->getShadowColour(), i->elementCount);
 				break;
             case ACT_LIGHT_POWER_SCALE:
 				_writeRawConstant(i->physicalIndex, source->getLightPowerScale(i->data));

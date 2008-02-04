@@ -977,6 +977,11 @@ namespace Ogre {
 		}
 
 	}
+	//---------------------------------------------------------------------
+	const ColourValue& AutoParamDataSource::getShadowColour() const
+	{
+		return mCurrentSceneManager->getShadowColour();
+	}
 
 }
 

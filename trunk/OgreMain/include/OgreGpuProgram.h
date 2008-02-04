@@ -645,6 +645,10 @@ namespace Ogre {
 			*/
 			ACT_SHADOW_SCENE_DEPTH_RANGE,
 
+			/** Provides the fixed shadow colour as configured via SceneManager::setShadowColour;
+				useful for integrated modulative shadows.
+			*/
+			ACT_SHADOW_COLOUR,
             /** Provides texture size of the texture unit (index determined by setAutoConstant
                 call). Packed as float4(width, height, depth, 1)
             */
