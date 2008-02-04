@@ -2283,6 +2283,10 @@ As spotlight_viewproj_matrix except it also includes the world matrix.
 Provides information about the depth range as viewed from the current camera being used to render. Provided as float4(minDepth, maxDepth, depthRange, 1 / depthRange).
 @item shadow_scene_depth_range
 Provides information about the depth range as viewed from the shadow camera relating to a selected light. Requires a light index parameter. Provided as float4(minDepth, maxDepth, depthRange, 1 / depthRange).
+@item shadow_colour
+The shadow colour (for modulative shadows) as set via SceneManager::setShadowColour.
+@item shadow_extrusion_distance
+The shadow extrusion distance as determined by the range of a non-directional light or set via SceneManager::setShadowDirectionalLightExtrusionDistance for directional lights.
 @item texture_size
 Provides texture size of the selected texture unit. Requires a texture unit index parameter. Provided as float4(width, height, depth, 1). For 2D-texture, depth sets to 1, for 1D-texture, height and depth sets to 1.
 @item inverse_texture_size
