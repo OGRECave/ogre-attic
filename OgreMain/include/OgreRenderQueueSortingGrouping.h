@@ -329,6 +329,8 @@ namespace Ogre {
         QueuedRenderableCollection mSolidsDecal;
         /// Solid pass list, used when shadows are enabled but shadow receive is turned off for these passes
         QueuedRenderableCollection mSolidsNoShadowReceive;
+		/// Unsorted transparent list
+		QueuedRenderableCollection mTransparentsUnsorted;
 		/// Transparent list
 		QueuedRenderableCollection mTransparents;
 
@@ -339,6 +341,8 @@ namespace Ogre {
         void addSolidRenderable(Technique* pTech, Renderable* rend, bool toNoShadowMap);
         /// Internal method for adding a solid renderable
         void addSolidRenderableSplitByLightType(Technique* pTech, Renderable* rend);
+        /// Internal method for adding an unsorted transparent renderable
+        void addUnsortedTransparentRenderable(Technique* pTech, Renderable* rend);
         /// Internal method for adding a transparent renderable
         void addTransparentRenderable(Technique* pTech, Renderable* rend);
 
@@ -368,6 +372,9 @@ namespace Ogre {
 			applicable when shadows are enabled). */
         const QueuedRenderableCollection& getSolidsNoShadowReceive(void) const
         { return mSolidsNoShadowReceive; }
+        /** Get the collection of transparent objects currently queued */
+        const QueuedRenderableCollection& getTransparentsUnsorted(void) const
+        { return mTransparentsUnsorted; }
         /** Get the collection of transparent objects currently queued */
         const QueuedRenderableCollection& getTransparents(void) const
         { return mTransparents; }

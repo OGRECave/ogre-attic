@@ -131,6 +131,9 @@ namespace Ogre {
 		// Alpha reject settings
 		CompareFunction mAlphaRejectFunc;
 		unsigned char mAlphaRejectVal;
+
+		// Transparent depth sorting
+		bool mTransparentSorting;
         //-------------------------------------------------------------------------
 
         //-------------------------------------------------------------------------
@@ -962,7 +965,26 @@ namespace Ogre {
         /** Gets the alpha reject value. See setAlphaRejectSettings for more information.
         */
 		unsigned char getAlphaRejectValue(void) const { return mAlphaRejectVal; }
-        /** Sets whether or not this pass should iterate per light or number of
+
+        /** Sets whether or not transparent sorting is enabled.
+        @param enabled
+			If false depth sorting of this material will be disabled.
+        @remarks
+			By default all transparent materials are sorted such that renderables furthest
+			away from the camera are rendered first. This is usually the desired behaviour
+			but in certain cases this depth sorting may be unnecessary and undesirable. If
+			for example it is necessary to ensure the rendering order does not change from
+			one frame to the next.
+		@note
+			This will have no effect on non-transparent materials.
+        */
+        void setTransparentSortingEnabled(bool enabled);
+
+        /** Returns whether or not transparent sorting is enabled.
+        */
+		bool getTransparentSortingEnabled(void) const;
+
+		/** Sets whether or not this pass should iterate per light or number of
 			lights which can affect the object being rendered.
 		@remarks
 			The default behaviour for a pass (when this option is 'false'), is

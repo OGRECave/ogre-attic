@@ -64,6 +64,7 @@ namespace Ogre {
 		mSolidsDiffuseSpecular.resetOrganisationModes();
 		mSolidsDecal.resetOrganisationModes();
 		mSolidsNoShadowReceive.resetOrganisationModes();
+		mTransparentsUnsorted.resetOrganisationModes();
 	}
 	//-----------------------------------------------------------------------
 	void RenderPriorityGroup::addOrganisationMode(QueuedRenderableCollection::OrganisationMode om)
@@ -72,6 +73,7 @@ namespace Ogre {
 		mSolidsDiffuseSpecular.addOrganisationMode(om);
 		mSolidsDecal.addOrganisationMode(om);
 		mSolidsNoShadowReceive.addOrganisationMode(om);
+		mTransparentsUnsorted.addOrganisationMode(om);
 	}
 	//-----------------------------------------------------------------------
 	void RenderPriorityGroup::defaultOrganisationMode(void)
@@ -90,7 +92,10 @@ namespace Ogre {
              !pTech->isDepthCheckEnabled() ||
              pTech->hasColourWriteDisabled()))
         {
-            addTransparentRenderable(pTech, rend);
+			if (pTech->isTransparentSortingEnabled())
+				addTransparentRenderable(pTech, rend);
+			else
+				addUnsortedTransparentRenderable(pTech, rend);
         }
         else
         {
@@ -172,6 +177,17 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+    void RenderPriorityGroup::addUnsortedTransparentRenderable(Technique* pTech, Renderable* rend)
+    {
+        Technique::PassIterator pi = pTech->getPassIterator();
+
+        while (pi.hasMoreElements())
+        {
+            // Insert into transparent list
+            mTransparentsUnsorted.addRenderable(pi.getNext(), rend);
+        }
+    }
+    //-----------------------------------------------------------------------
     void RenderPriorityGroup::addTransparentRenderable(Technique* pTech, Renderable* rend)
     {
         Technique::PassIterator pi = pTech->getPassIterator();
@@ -189,6 +205,7 @@ namespace Ogre {
 		mSolidsDiffuseSpecular.removePassGroup(p);
 		mSolidsNoShadowReceive.removePassGroup(p);
 		mSolidsDecal.removePassGroup(p);
+		mTransparentsUnsorted.removePassGroup(p);
 		mTransparents.removePassGroup(p); // shouldn't be any, but for completeness
 	}	
     //-----------------------------------------------------------------------
@@ -235,6 +252,7 @@ namespace Ogre {
         mSolidsDecal.clear();
         mSolidsDiffuseSpecular.clear();
         mSolidsNoShadowReceive.clear();
+		mTransparentsUnsorted.clear();
         mTransparents.clear();
 
     }
@@ -245,6 +263,7 @@ namespace Ogre {
 		mSolidsDecal.sort(cam);
 		mSolidsDiffuseSpecular.sort(cam);
 		mSolidsNoShadowReceive.sort(cam);
+		mTransparentsUnsorted.sort(cam);
 		mTransparents.sort(cam);
 	}
     //-----------------------------------------------------------------------

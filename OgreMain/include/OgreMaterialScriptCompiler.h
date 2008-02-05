@@ -254,6 +254,7 @@ namespace Ogre {
 		void parseIterationDepthBias(void);
 		void parseNormaliseNormals(void);
         void parseAlphaRejection(void);
+		void parseTransparentSorting(void);
 		void parseLightScissor(void);
 		void parseLightClip(void);
 		void parseIlluminationStage(void);

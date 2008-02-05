@@ -377,6 +377,19 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------------
+    bool Technique::isTransparentSortingEnabled(void) const
+    {
+        if (mPasses.empty())
+        {
+            return true;
+        }
+        else
+        {
+            // Base decision on the transparency of the first pass
+            return mPasses[0]->getTransparentSortingEnabled();
+        }
+    }
+    //-----------------------------------------------------------------------------
     bool Technique::isDepthWriteEnabled(void) const
     {
         if (mPasses.empty())

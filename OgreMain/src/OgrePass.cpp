@@ -135,6 +135,7 @@ namespace Ogre {
 		, mColourWrite(true)
 		, mAlphaRejectFunc(CMPF_ALWAYS_PASS)
 		, mAlphaRejectVal(0)
+		, mTransparentSorting(true)
 		, mCullMode(CULL_CLOCKWISE)
 		, mManualCullMode(MANUAL_CULL_BACK)
 		, mLightingEnabled(true)
@@ -226,6 +227,7 @@ namespace Ogre {
 	    mDepthWrite = oth.mDepthWrite;
 		mAlphaRejectFunc = oth.mAlphaRejectFunc;
 		mAlphaRejectVal = oth.mAlphaRejectVal;
+		mTransparentSorting = oth.mTransparentSorting;
         mColourWrite = oth.mColourWrite;
 	    mDepthFunc = oth.mDepthFunc;
         mDepthBiasConstant = oth.mDepthBiasConstant;
@@ -834,6 +836,16 @@ namespace Ogre {
 	void Pass::setAlphaRejectValue(unsigned char val)
 	{
 		mAlphaRejectVal = val;
+	}
+	//-----------------------------------------------------------------------
+	void Pass::setTransparentSortingEnabled(bool enabled)
+	{
+		mTransparentSorting = enabled;
+	}
+	//-----------------------------------------------------------------------
+	bool Pass::getTransparentSortingEnabled(void) const
+	{
+		return mTransparentSorting;
 	}
     //-----------------------------------------------------------------------
 	void Pass::setColourWriteEnabled(bool enabled)
