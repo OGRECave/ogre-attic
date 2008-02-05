@@ -83,6 +83,7 @@ namespace Ogre {
 		"							   <Depth_Check> | <Depth_Write> | <Illumination_Stage> | \n"
 		"                              <Light_Scissor> | <Light_Clip> | <Texture_Unit> | \n"
 		"                              <Depth_Func> | <Depth_Bias> | <Iteration_Depth_Bias> | <Alpha_Rejection> | \n"
+		"                              <Transparent_Sorting> | \n"
         "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
 		"                              <GPU_Program_Ref> | <NormaliseNormals> | \n"
         "                              <Shading> | <PolygonMode> | <PolygonModeOverride> | <Fog_Override> | <Colour_Write> | \n"
@@ -123,6 +124,7 @@ namespace Ogre {
 		"        <Light_Scissor> ::= 'light_scissor' <On_Off> \n"
 		"        <Light_Clip> ::= 'light_clip_planes' <On_Off> \n"
         "        <Alpha_Rejection> ::= 'alpha_rejection' <Compare_Func> <#value> \n"
+        "        <Transparent_Sorting> ::= 'transparent_sorting' <On_Off> \n"
         "        <Compare_Func> ::= 'always_fail' | 'always_pass' | 'less_equal' | 'less' | \n"
         "                           'equal' | 'not_equal' | 'greater_equal' | 'greater' \n"
         "        <Cull_Hardware> ::= 'cull_hardware' <Cull_Hardware_Otions> \n"
@@ -372,6 +374,7 @@ namespace Ogre {
                 addLexemeToken("greater_equal", ID_GREATER_EQUAL);
                 addLexemeToken("greater", ID_GREATER);
             addLexemeAction("alpha_rejection", &MaterialScriptCompiler::parseAlphaRejection);
+			addLexemeAction("transparent_sorting", &MaterialScriptCompiler::parseTransparentSorting);
 			addLexemeAction("light_scissor", &MaterialScriptCompiler::parseLightScissor);
 			addLexemeAction("light_clip_planes", &MaterialScriptCompiler::parseLightClip);
 			addLexemeAction("illumination_stage", &MaterialScriptCompiler::parseIlluminationStage);
@@ -1366,6 +1369,12 @@ namespace Ogre {
         assert(mScriptContext.pass);
         const CompareFunction cmp = convertCompareFunction();
         mScriptContext.pass->setAlphaRejectSettings(cmp, static_cast<unsigned char>(getNextTokenValue()));
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseTransparentSorting(void)
+    {
+        assert(mScriptContext.pass);
+        mScriptContext.pass->setTransparentSortingEnabled(testNextTokenID(ID_ON));
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseCullHardware(void)

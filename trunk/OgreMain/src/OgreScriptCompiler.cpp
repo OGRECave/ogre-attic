@@ -885,6 +885,7 @@ namespace Ogre
 		mIds["alpha_rejection"] = ID_ALPHA_REJECTION;
 		mIds["light_scissor"] = ID_LIGHT_SCISSOR;
 		mIds["light_clip_planes"] = ID_LIGHT_CLIP_PLANES;
+		mIds["transparent_sorting"] = ID_TRANSPARENT_SORTING;
 		mIds["illumination_stage"] = ID_ILLUMINATION_STAGE;
 			mIds["decal"] = ID_DECAL;
 		mIds["cull_hardware"] = ID_CULL_HARDWARE;
@@ -2533,6 +2534,24 @@ namespace Ogre
 				bool val = false;
 				if(getBoolean(prop->values.front(), &val))
 					mPass->setLightClipPlanesEnabled(val);
+				else
+					getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
+			}
+			break;
+		case ID_TRANSPARENT_SORTING:
+			if(prop->values.empty())
+			{
+				getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
+			}
+			else if(prop->values.size() > 1)
+			{
+				getCompiler()->addError(CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+			}
+			else
+			{
+				bool val = true;
+				if(getBoolean(prop->values.front(), &val))
+					mPass->setTransparentSortingEnabled(val);
 				else
 					getCompiler()->addError(CE_INVALIDPARAMETERS, prop->file, prop->line);
 			}

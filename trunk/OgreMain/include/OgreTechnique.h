@@ -167,6 +167,13 @@ namespace Ogre {
 		*/
 		bool isTransparent(void) const;
 
+		/** Returns true if this Technique has transparent sorting enabled. 
+		@remarks
+			This basically boils down to whether the first pass
+			has transparent sorting enabled or not
+		*/
+		bool isTransparentSortingEnabled(void) const;
+
         /** Internal load method, derived from call to Material::load. */
         void _load(void);
         /** Internal unload method, derived from call to Material::unload. */

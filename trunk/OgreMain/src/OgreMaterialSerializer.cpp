@@ -1158,6 +1158,21 @@ namespace Ogre
         return false;
     }
     //-----------------------------------------------------------------------
+    bool parseTransparentSorting(String& params, MaterialScriptContext& context)
+    {
+        StringUtil::toLowerCase(params);
+        if (params == "on")
+            context.pass->setTransparentSortingEnabled(true);
+        else if (params == "off")
+            context.pass->setTransparentSortingEnabled(false);
+        else
+            logParseError(
+            "Bad transparent_sorting attribute, valid parameters are 'on' or 'off'.",
+            context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
     LayerBlendOperationEx convertBlendOpEx(const String& param)
     {
         if (param == "source1")
@@ -2784,6 +2799,7 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("depth_func", (ATTRIBUTE_PARSER)parseDepthFunc));
 		mPassAttribParsers.insert(AttribParserList::value_type("normalise_normals", (ATTRIBUTE_PARSER)parseNormaliseNormals));
 		mPassAttribParsers.insert(AttribParserList::value_type("alpha_rejection", (ATTRIBUTE_PARSER)parseAlphaRejection));
+		mPassAttribParsers.insert(AttribParserList::value_type("transparent_sorting", (ATTRIBUTE_PARSER)parseTransparentSorting));
         mPassAttribParsers.insert(AttribParserList::value_type("colour_write", (ATTRIBUTE_PARSER)parseColourWrite));
 		mPassAttribParsers.insert(AttribParserList::value_type("light_scissor", (ATTRIBUTE_PARSER)parseLightScissor));
 		mPassAttribParsers.insert(AttribParserList::value_type("light_clip_planes", (ATTRIBUTE_PARSER)parseLightClip));
@@ -3652,6 +3668,13 @@ namespace Ogre
 				writeAttribute(3, "alpha_rejection");
 				writeCompareFunction(pPass->getAlphaRejectFunction());
 				writeValue(StringConverter::toString(pPass->getAlphaRejectValue()));
+			}
+			// transparent_sorting
+			if (mDefaults ||
+				pPass->getTransparentSortingEnabled() != true)
+			{
+				writeAttribute(3, "transparent_sorting");
+                writeValue(pPass->getTransparentSortingEnabled() ? "on" : "off");
 			}
 
 

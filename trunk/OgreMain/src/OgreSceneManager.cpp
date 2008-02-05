@@ -2090,6 +2090,8 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
     {
         RenderPriorityGroup* pPriorityGrp = groupIt2.getNext();
 
+        // Do unsorted transparents
+        renderObjects(pPriorityGrp->getTransparentsUnsorted(), om, true, true);
         // Do transparents (always descending sort)
         renderObjects(pPriorityGrp->getTransparents(), 
 			QueuedRenderableCollection::OM_SORT_DESCENDING, true, true);
@@ -2171,6 +2173,8 @@ void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(
     {
         RenderPriorityGroup* pPriorityGrp = groupIt3.getNext();
 
+        // Do unsorted transparents
+        renderObjects(pPriorityGrp->getTransparentsUnsorted(), om, true, true);
         // Do transparents (always descending sort)
         renderObjects(pPriorityGrp->getTransparents(), 
 			QueuedRenderableCollection::OM_SORT_DESCENDING, true, true);
@@ -2216,6 +2220,8 @@ void SceneManager::renderTextureShadowCasterQueueGroupObjects(
         // Do solids, override light list incase any vertex programs use them
         renderObjects(pPriorityGrp->getSolidsBasic(), om, false, false, &nullLightList);
         renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, false, false, &nullLightList);
+		// Do unsorted transparents that cast shadows
+		renderObjects(pPriorityGrp->getTransparentsUnsorted(), om, false, false, &nullLightList);
 		// Do transparents that cast shadows
 		renderTransparentShadowCasterObjects(
 				pPriorityGrp->getTransparents(), 
@@ -2360,6 +2366,8 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
     {
         RenderPriorityGroup* pPriorityGrp = groupIt3.getNext();
 
+        // Do unsorted transparents
+        renderObjects(pPriorityGrp->getTransparentsUnsorted(), om, true, true);
         // Do transparents (always descending)
         renderObjects(pPriorityGrp->getTransparents(), 
 			QueuedRenderableCollection::OM_SORT_DESCENDING, true, true);
@@ -2490,6 +2498,8 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 	{
 		RenderPriorityGroup* pPriorityGrp = groupIt2.getNext();
 
+        // Do unsorted transparents
+        renderObjects(pPriorityGrp->getTransparentsUnsorted(), om, true, true);
 		// Do transparents (always descending sort)
 		renderObjects(pPriorityGrp->getTransparents(), 
 			QueuedRenderableCollection::OM_SORT_DESCENDING, true, true);
@@ -2703,6 +2713,8 @@ void SceneManager::renderBasicQueueGroupObjects(RenderQueueGroup* pGroup,
 
         // Do solids
         renderObjects(pPriorityGrp->getSolidsBasic(), om, true, true);
+		// Do unsorted transparents
+		renderObjects(pPriorityGrp->getTransparentsUnsorted(), om, true, true);
         // Do transparents (always descending)
         renderObjects(pPriorityGrp->getTransparents(), 
 			QueuedRenderableCollection::OM_SORT_DESCENDING, true, true);
