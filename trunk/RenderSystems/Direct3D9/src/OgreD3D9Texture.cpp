@@ -1243,7 +1243,7 @@ namespace Ogre
 				surface->Release();
 
 				GETLEVEL(0, mip)->bind(mpDev, surface, updateOldList, mHwGammaWriteSupported, 
-					mFSAALevelSupported? mFSAA : 0, mFSAASurface);
+					mFSAALevelSupported? mFSAA : 0, mFSAASurface, mName);
 			}
 			break;
 		case TEX_TYPE_CUBE_MAP:
@@ -1261,7 +1261,7 @@ namespace Ogre
 					surface->Release();
 					
 					GETLEVEL(face, mip)->bind(mpDev, surface, updateOldList, mHwGammaWriteSupported, 
-						mFSAALevelSupported? mFSAA : 0, mFSAASurface);
+						mFSAALevelSupported? mFSAA : 0, mFSAASurface, mName);
 				}
 			}
 			break;
@@ -1277,7 +1277,7 @@ namespace Ogre
 				// this is safe because the texture keeps a reference as well
 				volume->Release();
 						
-				GETLEVEL(0, mip)->bind(mpDev, volume, updateOldList, mHwGammaWriteSupported);
+				GETLEVEL(0, mip)->bind(mpDev, volume, updateOldList, mHwGammaWriteSupported, mName);
 			}
 			break;
 		};

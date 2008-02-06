@@ -437,7 +437,7 @@ static size_t dummyCounter = 0;
 		RenderTarget* rendTarget;
 		if (def->formatList.size() > 1)
 		{
-			String MRTbaseName = "CompositorInstanceMRT" + StringConverter::toString(dummyCounter++);
+			String MRTbaseName = StringConverter::toString(dummyCounter++) + "/" + def->name + "/" + mChain->getViewport()->getTarget()->getName();
 			MultiRenderTarget* mrt = 
 				Root::getSingleton().getRenderSystem()->createMultiRenderTarget(MRTbaseName);
 			mLocalMRTs[def->name] = mrt;
@@ -467,8 +467,9 @@ static size_t dummyCounter = 0;
 		}
 		else
 		{
+			String texName =  StringConverter::toString(dummyCounter++) + "/" + def->name + "/" + mChain->getViewport()->getTarget()->getName();
 			TexturePtr tex = TextureManager::getSingleton().createManual(
-				"CompositorInstanceTexture"+StringConverter::toString(dummyCounter++), 
+				texName, 
 				ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
 				(uint)width, (uint)height, 0, def->formatList[0], TU_RENDERTARGET, 0,
 				hwGammaWrite, fsaa); 
