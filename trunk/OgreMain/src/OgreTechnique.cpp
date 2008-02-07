@@ -349,6 +349,11 @@ namespace Ogre {
 		this->mIsSupported = rhs.mIsSupported;
         this->mLodIndex = rhs.mLodIndex;
 		this->mSchemeIndex = rhs.mSchemeIndex;
+		this->mShadowCasterMaterial = rhs.mShadowCasterMaterial;
+		this->mShadowCasterMaterialName = rhs.mShadowCasterMaterialName;
+		this->mShadowReceiverMaterial = rhs.mShadowReceiverMaterial;
+		this->mShadowReceiverMaterialName = rhs.mShadowReceiverMaterialName;
+
 		// copy passes
 		removeAllPasses();
 		Passes::const_iterator i, iend;
