@@ -192,7 +192,9 @@ void OSXWindow::createCGLFullscreen(unsigned int width, unsigned int height, uns
 		}
 				
 		// Once we have the context we can destroy the pixel format
-		CGLDestroyPixelFormat(pixelFormatObj); 
+        // In order to share contexts you must keep a pointer to the context objext around
+        // Our context class will now manage the life of the pixelFormatObj
+		//CGLDestroyPixelFormat(pixelFormatObj); 
 				
 		// Set the context to drawable
 		CGLSetFullScreen(mCGLContext);
@@ -207,7 +209,7 @@ void OSXWindow::createCGLFullscreen(unsigned int width, unsigned int height, uns
 		CGLSetParameter(mCGLContext, kCGLCPSwapInterval, &swapInterval);
 		
 		// Give a copy of our context to the rendersystem
-		mContext = new OSXCGLContext(mCGLContext);
+		mContext = new OSXCGLContext(mCGLContext, pixelFormatObj);
 		
 		// Let everyone know we are fullscreen now
 		mIsFullScreen = true;

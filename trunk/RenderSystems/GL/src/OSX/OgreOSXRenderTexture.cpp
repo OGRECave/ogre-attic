@@ -23,7 +23,7 @@ namespace Ogre
 		LogManager::getSingleton().logMessage( "OSXPBuffer::OSXPBuffer()" );
 		createPBuffer();
 		// Create context
-		mContext = new OSXCarbonContext( mAGLContext );
+		//mContext = new OSXCarbonContext(mAGLContext);
     }
 	
 	OSXPBuffer::~OSXPBuffer()
@@ -51,7 +51,8 @@ namespace Ogre
 		aglCreatePBuffer( mWidth, mHeight, GL_TEXTURE_2D, GL_RGBA, 0, &mPBuffer );
 		
 		GLint vs = aglGetVirtualScreen( mAGLContext );
-		aglSetPBuffer( mAGLContext, mPBuffer, 0, 0, vs ); 
+		aglSetPBuffer( mAGLContext, mPBuffer, 0, 0, vs );
+        mContext = new OSXCarbonContext(mAGLContext, pixelFormat);
 	}
 	
 	void OSXPBuffer::destroyPBuffer()
