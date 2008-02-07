@@ -147,6 +147,9 @@ namespace Ogre
         virtual void getMetrics(unsigned int& width, unsigned int& height, unsigned int& colourDepth, 
 			int& left, int& top);
 
+		/// Override since windows don't usually have alpha
+		PixelFormat suggestPixelFormat() const { return PF_BYTE_RGB; }
+
     protected:
         bool mIsFullScreen;
         bool mIsPrimary;
