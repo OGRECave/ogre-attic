@@ -276,7 +276,7 @@ void CompositorInstance::collectPasses(TargetOperation &finalState, CompositionT
 			}
 			srctech = srcmat->getBestTechnique(0);
 			/// Create local material
-			MaterialPtr mat = createLocalMaterial();
+			MaterialPtr mat = createLocalMaterial(srcmat->getName());
 			/// Copy and adapt passes from source material
 			Technique::PassIterator i = srctech->getPassIterator();
 			while(i.hasMoreElements())
@@ -389,12 +389,12 @@ const String& CompositorInstance::getTextureInstanceName(const String& name,
 	return getSourceForTex(name, mrtIndex);
 }
 //-----------------------------------------------------------------------
-MaterialPtr CompositorInstance::createLocalMaterial()
+MaterialPtr CompositorInstance::createLocalMaterial(const String& srcName)
 {
 static size_t dummyCounter = 0;
     MaterialPtr mat = 
         MaterialManager::getSingleton().create(
-            "CompositorInstanceMaterial"+StringConverter::toString(dummyCounter),
+            "c" + StringConverter::toString(dummyCounter) + "/" + srcName,
             ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME
         );
     ++dummyCounter;
@@ -437,7 +437,8 @@ static size_t dummyCounter = 0;
 		RenderTarget* rendTarget;
 		if (def->formatList.size() > 1)
 		{
-			String MRTbaseName = StringConverter::toString(dummyCounter++) + "/" + def->name + "/" + mChain->getViewport()->getTarget()->getName();
+			String MRTbaseName = "c" + StringConverter::toString(dummyCounter++) + 
+				"/" + def->name + "/" + mChain->getViewport()->getTarget()->getName();
 			MultiRenderTarget* mrt = 
 				Root::getSingleton().getRenderSystem()->createMultiRenderTarget(MRTbaseName);
 			mLocalMRTs[def->name] = mrt;
@@ -467,7 +468,8 @@ static size_t dummyCounter = 0;
 		}
 		else
 		{
-			String texName =  StringConverter::toString(dummyCounter++) + "/" + def->name + "/" + mChain->getViewport()->getTarget()->getName();
+			String texName =  "c" + StringConverter::toString(dummyCounter++) + 
+				"/" + def->name + "/" + mChain->getViewport()->getTarget()->getName();
 			TexturePtr tex = TextureManager::getSingleton().createManual(
 				texName, 
 				ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
