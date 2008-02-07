@@ -38,7 +38,7 @@ namespace Ogre {
     class OSXCGLContext: public OSXContext
     {
     public:
-		OSXCGLContext(CGLContextObj cglContext);
+		OSXCGLContext(CGLContextObj cglContext, CGLPixelFormatObj pixelFormat);
         virtual ~OSXCGLContext();
 
         /** See GLContext */
@@ -63,6 +63,7 @@ namespace Ogre {
 
 	private:
 		CGLContextObj mCGLContext;
+        CGLPixelFormatObj mPixelFormat;
     };
 }
 

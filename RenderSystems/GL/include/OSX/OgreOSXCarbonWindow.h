@@ -73,12 +73,15 @@ namespace Ogre
 		
 	private:
 		WindowRef mWindow;
+        EventHandlerRef mEventHandlerRef;
 		HIViewRef mView;
 		AGLContext mAGLContext;
 		
 		bool mActive;
 		bool mClosed;
+        bool mCreated;
 		bool mHasResized;
+        bool mIsExternal;
 	};
 }
 

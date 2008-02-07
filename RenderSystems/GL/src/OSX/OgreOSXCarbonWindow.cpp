@@ -48,16 +48,18 @@ namespace Ogre
 //-------------------------------------------------------------------------------------------------//
 OSXCarbonWindow::OSXCarbonWindow()
 {
-	mActive = mClosed = mHasResized = mIsFullScreen = false;
+	mActive = mClosed = mCreated = mHasResized = mIsFullScreen = mIsExternal = false;
 	mAGLContext = NULL;
 	mContext = NULL;
 	mWindow = NULL;
+    mEventHandlerRef = NULL;
 	mView = NULL;
 }
 
 //-------------------------------------------------------------------------------------------------//
 OSXCarbonWindow::~OSXCarbonWindow()
 {
+    destroy();
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -209,13 +211,38 @@ void OSXCarbonWindow::create( const String& name, unsigned int width, unsigned i
 			
 			// Center our window on the screen
 			RepositionWindow( mWindow, NULL, kWindowCenterOnMainScreen );
+            
+            // Get our view
+            HIViewFindByID( HIViewGetRoot( mWindow ), kHIViewWindowContentID, &mView );
 			
-			// Install the event handler for the window
-			InstallStandardEventHandler(GetWindowEventTarget(mWindow));
+			// Set up our UPP for Window Events
+            EventTypeSpec eventSpecs[] = {
+                {kEventClassWindow, kEventWindowActivated},
+                {kEventClassWindow, kEventWindowDeactivated},
+                {kEventClassWindow, kEventWindowShown},
+                {kEventClassWindow, kEventWindowHidden},
+                {kEventClassWindow, kEventWindowDragCompleted},
+                {kEventClassWindow, kEventWindowBoundsChanged},
+                {kEventClassWindow, kEventWindowExpanded},
+                {kEventClassWindow, kEventWindowCollapsed},
+                {kEventClassWindow, kEventWindowClosed}
+            };
+            
+            EventHandlerUPP handlerUPP = NewEventHandlerUPP(WindowEventUtilities::_CarbonWindowHandler);
+            
+            // Install the standard event handler for the window
+            EventTargetRef target = GetWindowEventTarget(mWindow);
+			InstallStandardEventHandler(target);
+            
+            // We also need to install the WindowEvent Handler, we pass along the window with our requests
+            InstallEventHandler(target, handlerUPP, 9, eventSpecs, (void*)this, &mEventHandlerRef);
 			
 			// Display and select our window
 			ShowWindow(mWindow);
 			SelectWindow(mWindow);
+            
+            // Add our window to the window event listener class
+            WindowEventUtilities::_addRenderWindow(this);
 		}
 		else
 		{
@@ -240,6 +267,8 @@ void OSXCarbonWindow::create( const String& name, unsigned int width, unsigned i
 			bufferRect[3] = ctrlBounds.bottom - ctrlBounds.top; // height of buffer rect
 			aglSetInteger(mAGLContext, AGL_BUFFER_RECT, bufferRect);
 			aglEnable (mAGLContext, AGL_BUFFER_RECT);
+            
+            mIsExternal = true;
 		}
 		
 		// Set the drawable, and current context
@@ -250,33 +279,50 @@ void OSXCarbonWindow::create( const String& name, unsigned int width, unsigned i
 		aglSetCurrentContext(mAGLContext);
 
 		// Give a copy of our context to the render system
-		mContext = new OSXCarbonContext(mAGLContext);
+		mContext = new OSXCarbonContext(mAGLContext, pixelFormat);
 	}
 	
-	WindowEventUtilities::_addRenderWindow(this);
 	mName = name;
 	mWidth = width;
 	mHeight = height;
 	mActive = true;
+    mClosed = false;
+    mCreated = true;
 	mIsFullScreen = fullScreen;
 }
 
 //-------------------------------------------------------------------------------------------------//
 void OSXCarbonWindow::destroy(void)
 {
-	LogManager::getSingleton().logMessage( "OSXCarbonWindow::destroy()" );
-	
+    if(!mCreated)
+        return;
+    
 	if(mIsFullScreen)
+    {
+        // Handle fullscreen destruction
 		destroyCGLFullscreen();
-		
-	WindowEventUtilities::_removeRenderWindow( this );
-
-	if(mWindow)
-		DisposeWindow(mWindow);
+    }
+    else
+    {
+        // Handle windowed destruction
+        
+        // Destroy the Ogre context
+        delete mContext;
+        
+        if(!mIsExternal)
+        {
+            // Remove the window from the Window listener
+            WindowEventUtilities::_removeRenderWindow( this );
+            
+            // Remove our event handler
+            if(mEventHandlerRef)
+                RemoveEventHandler(mEventHandlerRef);        
+        }
+    }
 
 	mActive = false;
-
-	Root::getSingleton().getRenderSystem()->detachRenderTarget(this->getName());
+    mClosed = true;
+    mCreated = false;
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -288,7 +334,7 @@ bool OSXCarbonWindow::isActive() const
 //-------------------------------------------------------------------------------------------------//
 bool OSXCarbonWindow::isClosed() const
 {
-	return false;
+	return mClosed;
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -336,21 +382,38 @@ void OSXCarbonWindow::windowResized()
 	// Ensure the context is current
 	if(!mIsFullScreen)
 	{
-		aglUpdateContext(mAGLContext);
-		::Rect rect;
-		GetWindowBounds( mWindow, kWindowContentRgn, &rect );
-		mWidth = rect.left + rect.right;
-		mHeight = rect.top + rect.bottom;
-		mLeft = rect.left;
-		mTop = rect.top;
+		// Determine the AGL_BUFFER_RECT for the view. The coordinate 
+        // system for this rectangle is relative to the owning window, with 
+        // the origin at the bottom left corner and the y-axis inverted. 
+        HIRect viewBounds, winBounds; 
+        HIViewGetBounds(mView, &viewBounds); 
+        HIViewRef root = HIViewGetRoot(HIViewGetWindow(mView)); 
+        
+        HIViewGetBounds(root, &winBounds); 
+        HIViewConvertRect(&viewBounds, mView, root); 
+        
+        // Set the AGL buffer rectangle (i.e. the bounds that we will use) 
+        GLint bufferRect[4]; 
+        bufferRect[0] = viewBounds.origin.x; // 0 = left edge 
+        bufferRect[1] = winBounds.size.height - (viewBounds.origin.y + viewBounds.size.height); // 0 = bottom edge 
+        bufferRect[2] = viewBounds.size.width; // width of buffer rect 
+        bufferRect[3] = viewBounds.size.height; // height of buffer rect 
+        
+        aglSetInteger(mAGLContext, AGL_BUFFER_RECT, bufferRect); 
+        aglEnable (mAGLContext, AGL_BUFFER_RECT); 
+        
+        mWidth = viewBounds.size.width; 
+        mHeight = viewBounds.size.height; 
+        mLeft = viewBounds.origin.x; 
+        mTop = bufferRect[1]; 
 	}
 	else
 		swapCGLBuffers();
 	
-	for( ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it )
-	{
-		( *it ).second->_updateDimensions();
-	}
+    for (ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it) 
+    { 
+        (*it).second->_updateDimensions(); 
+    }
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -359,30 +422,36 @@ void OSXCarbonWindow::windowMovedOrResized()
 	// External windows will call this method.
 	if(mView != NULL)
 	{
-		//update our drawing region
-		::Rect ctrlBounds;
-		GetControlBounds(mView, &ctrlBounds);
-		GLint bufferRect[4];
-
-		bufferRect[0] = ctrlBounds.left; // 0 = left edge
-		bufferRect[1] = ctrlBounds.bottom; // 0 = bottom edge
-		bufferRect[2] =	ctrlBounds.right - ctrlBounds.left; // width of buffer rect
-		bufferRect[3] = ctrlBounds.bottom - ctrlBounds.top; // height of buffer rect
-		aglSetInteger(mAGLContext, AGL_BUFFER_RECT, bufferRect);
-		aglEnable (mAGLContext, AGL_BUFFER_RECT);
-		swapBuffers(true);
-		
-		mWidth = ctrlBounds.right - ctrlBounds.left;
-		mHeight = ctrlBounds.bottom - ctrlBounds.top;
-		mLeft = ctrlBounds.left;
-		mTop = ctrlBounds.top;
-		
-	}
-	
-	for (ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it)
-	{
-	(*it).second->_updateDimensions();
-	}
+		// Determine the AGL_BUFFER_RECT for the view. The coordinate 
+        // system for this rectangle is relative to the owning window, with 
+        // the origin at the bottom left corner and the y-axis inverted. 
+        HIRect viewBounds, winBounds; 
+        HIViewGetBounds(mView, &viewBounds); 
+        HIViewRef root = HIViewGetRoot(HIViewGetWindow(mView)); 
+        
+        HIViewGetBounds(root, &winBounds); 
+        HIViewConvertRect(&viewBounds, mView, root); 
+        
+        // Set the AGL buffer rectangle (i.e. the bounds that we will use) 
+        GLint bufferRect[4]; 
+        bufferRect[0] = viewBounds.origin.x; // 0 = left edge 
+        bufferRect[1] = winBounds.size.height - (viewBounds.origin.y + viewBounds.size.height); // 0 = bottom edge 
+        bufferRect[2] = viewBounds.size.width; // width of buffer rect 
+        bufferRect[3] = viewBounds.size.height; // height of buffer rect 
+        
+        aglSetInteger(mAGLContext, AGL_BUFFER_RECT, bufferRect); 
+        aglEnable (mAGLContext, AGL_BUFFER_RECT); 
+        
+        mWidth = viewBounds.size.width; 
+        mHeight = viewBounds.size.height; 
+        mLeft = viewBounds.origin.x; 
+        mTop = bufferRect[1]; 
+    } 
+    
+    for (ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it) 
+    { 
+        (*it).second->_updateDimensions(); 
+    }
 }
 
 //-------------------------------------------------------------------------------------------------//

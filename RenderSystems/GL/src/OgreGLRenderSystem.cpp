@@ -1644,6 +1644,11 @@ namespace Ogre {
 	{
 		// Deactivate the viewport clipping.
 		glDisable(GL_SCISSOR_TEST);
+		// unbind GPU programs at end of frame
+		// this is mostly to avoid holding bound programs that might get deleted
+		// outside via the resource manager
+		unbindGpuProgram(GPT_VERTEX_PROGRAM);
+		unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
 	}
 
 	//-----------------------------------------------------------------------------

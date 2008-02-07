@@ -139,6 +139,8 @@ protected:
             mReflectCam->setAspectRatio(
                 (Real)mWindow->getViewport(0)->getActualWidth() / 
                 (Real)mWindow->getViewport(0)->getActualHeight());
+			mReflectCam->setFOVy (mCamera->getFOVy());
+
 
             Viewport *v = rttTex->addViewport( mReflectCam );
             v->setClearEveryFrame( true );

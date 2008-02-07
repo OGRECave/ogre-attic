@@ -133,7 +133,7 @@ namespace Ogre
 			IndexVector::iterator mi = mNodeToChainSegment.begin();
 			std::advance(mi, index);
 			size_t chainIndex = *mi;
-			clearChain(chainIndex);
+			BillboardChain::clearChain(chainIndex);
 			// mark as free now
 			mFreeChains.push_back(chainIndex);
 			n->setListener(0);
