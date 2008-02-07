@@ -239,7 +239,7 @@ namespace Ogre {
             The material is detached from the Material Manager to make sure it is destroyed
 			when going out of scope.
         */
-        MaterialPtr createLocalMaterial();
+        MaterialPtr createLocalMaterial(const String& srcName);
         
         /** Create local rendertextures and other resources. Builds mLocalTextures.
         */
