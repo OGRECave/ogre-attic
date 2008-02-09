@@ -52,17 +52,17 @@ void MaterialScriptEditor::initialize()
 	SetLexer(wxSCI_LEX_OMS);
 
 	// Load keywords
-	wxString path = wxT("resources/lexers/oms/keywords");
+	wxString path = wxT("../lexers/oms/keywords");
 	loadKeywords(path);
 
 	// Load call tips
-	path = wxT("resources/lexers/oms/calltips");
+	path = wxT("../lexers/oms/calltips");
 	getCallTipManager().load(path);
 	wxChar trigger(' ');
 	getCallTipManager().addTrigger(trigger);
 
 	// Load docs
-	path = wxT("resources/lexers/oms/docs");
+	path = wxT("../lexers/oms/docs");
 	getDocManager().load(path);
 	
 	// Set styles
