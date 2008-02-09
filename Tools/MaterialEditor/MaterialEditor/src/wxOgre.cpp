@@ -217,8 +217,8 @@ void wxOgre::OnMouseMotion(wxMouseEvent& event)
 			int left, top, width, height;
 			mCamera->getViewport()->getActualDimensions(left, top, width, height);
 
-			float moveX = ((float)-change.x / (float)width) * mZoomScale * (event.ShiftDown() ? 1.0 : 0.1);
-			float moveY = ((float)-change.y / (float)height) * mZoomScale * (event.ShiftDown() ? 1.0 : 0.1);
+			float moveX = ((float)-change.x / (float)width) * mZoomScale * (event.ShiftDown() ? 0.1 : 1.0);
+			float moveY = ((float)change.y / (float)height) * mZoomScale * (event.ShiftDown() ? 0.1 : 1.0);
 
 			mCamera->moveRelative(Ogre::Vector3(moveX, moveY, 0));
 		}
