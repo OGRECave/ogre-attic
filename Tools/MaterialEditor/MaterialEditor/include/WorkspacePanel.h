@@ -64,11 +64,13 @@ public:
 	virtual ~WorkspacePanel();
 
 	void OnRightClick(wxTreeEvent& event);
+	void OnActivate(wxTreeEvent& event);
 	void OnSelectionChanged(wxTreeEvent& event);
 	void OnNewProject(wxCommandEvent& event);
 	void OnNewMaterial(wxCommandEvent& event);
 	void OnNewTechnique(wxCommandEvent& event);
 	void OnNewPass(wxCommandEvent& event);
+	void OnAddMaterial(wxCommandEvent& event);
 	void OnEdit(wxCommandEvent& event);
 	void OnUpdateProjectMenuItem(wxUpdateUIEvent& event);
 	void OnUpdateMaterialMenuItem(wxUpdateUIEvent& event);

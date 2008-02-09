@@ -17,7 +17,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)\lib\$(ConfigurationName)"
+			OutputDirectory=".\$(ConfigurationName)"
 			IntermediateDirectory=".\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="0"
@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;$(WXWIN)\include;$(WXWIN)\contrib\include;$(WXWIN)\lib\vc_lib\mswd;$(OGRE)\OgreMain\include;..\..\wxScintilla_1.69.2\include;$(WXWIN)\contrib\include\wx\propgrid;$(BOOST)"
+				AdditionalIncludeDirectories="..\include;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\contrib\include&quot;;&quot;$(WXWIN)\lib\vc_lib\mswd&quot;;&quot;$(OGRE_SRC)\OgreMain\include&quot;;..\..\wxScintilla_1.69.2\include;&quot;$(WXWIN)\contrib\include\wx\propgrid&quot;;&quot;$(BOOST_ROOT)&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_WINDOWS;NOPCH;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +64,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxbase28d.lib wxmsw28d_core.lib wxmsw28d_aui.lib wxmsw28d_adv.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib OgreMain_d.lib wxmsw28d_propgrid.lib wxscintillad.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="$(WXWIN)\lib;$(WXWIN)\contrib\lib;$(WXWIN)\lib\vc_lib;$(WXWIN)\lib\vc_lib\mswd;$(OGRE)\lib;..\..\wxScintilla_1.69.2\lib;$(WXWIN)\lib\vc_dll\;$(BOOST)\lib"
+				AdditionalLibraryDirectories="&quot;$(WXWIN)\lib&quot;;&quot;$(WXWIN)\contrib\lib&quot;;&quot;$(WXWIN)\lib\vc_lib&quot;;&quot;$(WXWIN)\lib\vc_lib\mswd&quot;;&quot;$(OGRE_SRC)\lib&quot;;..\..\wxScintilla_1.69.2\lib;&quot;$(WXWIN)\lib\vc_dll\&quot;;&quot;$(BOOST_ROOT)\lib&quot;"
 				GenerateManifest="true"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
@@ -96,6 +96,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy &quot;.\$(ConfigurationName)\*.exe&quot; &quot;$(SolutionDir)\bin\&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -224,6 +225,10 @@
 			</File>
 			<File
 				RelativePath="..\src\HLSLEditor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\IconManager.cpp"
 				>
 			</File>
 			<File
@@ -433,6 +438,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\IconManager.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\LogPanel.h"
 				>
 			</File>
@@ -602,6 +611,58 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath="..\xpm\close.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\copy.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\cut.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\material.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\material_script.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\paste.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\program_script.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\project.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\project_new.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\project_save.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\save.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\save_as.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\shader.xpm"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

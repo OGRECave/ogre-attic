@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreLogManager.h"
 #include "OgreResourceManager.h"
 
+#include "IconManager.h"
 #include "MaterialEditorFrame.h"
 #include "SelectionService.h"
 #include "Workspace.h"
@@ -41,7 +42,6 @@ using Ogre::ResourceGroupManager;
 
 MaterialEditorApp::~MaterialEditorApp()
 {
-	if (mRoot) delete mRoot;
 }
 
 bool MaterialEditorApp::OnInit()
@@ -55,47 +55,27 @@ bool MaterialEditorApp::OnInit()
 			2000, NULL, -1, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER | wxSTAY_ON_TOP);
 	}
 
-	wxYield();
-
 	// Create Selection Service
 	new SelectionService();
-
-	// Create Log Manager and default log
-	new LogManager();
-	LogManager::getSingletonPtr()->createLog("OGRE", true, true, false);
-
-	// Create Ogre Root
-	mRoot = new Ogre::Root("plugins.cfg", "ogre.cfg", "OGRE");
-
-	ConfigFile cf;
-	cf.load("resources.cfg");
-
-	ConfigFile::SectionIterator seci = cf.getSectionIterator();
-
-	Ogre::String secName, typeName, archName;
-	while(seci.hasMoreElements())
-	{
-		secName = seci.peekNextKey();
-		ConfigFile::SettingsMultiMap *settings = seci.getNext();
-		ConfigFile::SettingsMultiMap::iterator i;
-		for(i = settings->begin(); i != settings->end(); ++i)
-		{
-			typeName = i->first;
-			archName = i->second;
-			Ogre::ResourceGroupManager::getSingleton().addResourceLocation(archName, typeName, secName);
-		}
-	}
-
-	// cant init here, no rendersystem!
-	//mRoot->initialise(false);
 
 	// Ensure Workspace is created
 	new Workspace();
 
-	MaterialEditorFrame* frame = new MaterialEditorFrame(NULL);
-	frame->Show(TRUE);
+	// Create the IconManager
+	new IconManager();
+
+	MaterialEditorFrame* frame = new MaterialEditorFrame();
+	frame->Show(true);
 
 	SetTopWindow(frame);
 
-	return TRUE;
+	return true;
+}
+
+int MaterialEditorApp::OnExit()
+{
+	// Minimally clean up the IconManager
+	delete IconManager::getSingletonPtr();
+
+	return 0;
 }

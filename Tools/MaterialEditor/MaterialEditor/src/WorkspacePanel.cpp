@@ -38,12 +38,14 @@ Torus Knot Software Ltd.
 #include <wx/aui/auibook.h>
 
 #include "OgreMaterial.h"
+#include "OgreMaterialManager.h"
 #include "OgreMaterialSerializer.h"
 #include "OgrePass.h"
 #include "OgreTechnique.h"
 
 #include "EditorManager.h"
 #include "EventArgs.h"
+#include "IconManager.h"
 #include "MaterialController.h"
 #include "MaterialEventArgs.h"
 #include "MaterialScriptEditor.h"
@@ -77,17 +79,20 @@ const long ID_MENU_NEW_PROJECT = wxNewId();
 const long ID_MENU_NEW_MATERIAL = wxNewId();
 const long ID_MENU_NEW_TECHNIQUE = wxNewId();
 const long ID_MENU_NEW_PASS = wxNewId();
+const long ID_MENU_ADD_MATERIAL = wxNewId();
 const long ID_MENU_EDIT = wxNewId();
 const long ID_MENU_PASS_ENABLED = wxNewId();
 const long ID_MENU_DELETE = wxNewId();
 
 BEGIN_EVENT_TABLE(WorkspacePanel, wxPanel)
 	EVT_TREE_ITEM_RIGHT_CLICK(ID_TREE_CTRL, WorkspacePanel::OnRightClick)
+	EVT_TREE_ITEM_ACTIVATED(ID_TREE_CTRL, WorkspacePanel::OnActivate)
 	EVT_TREE_SEL_CHANGED(ID_TREE_CTRL, WorkspacePanel::OnSelectionChanged)
 	EVT_MENU(ID_MENU_NEW_PROJECT, WorkspacePanel::OnNewProject)
 	EVT_MENU(ID_MENU_NEW_MATERIAL, WorkspacePanel::OnNewMaterial)
 	EVT_MENU(ID_MENU_NEW_TECHNIQUE, WorkspacePanel::OnNewTechnique)
 	EVT_MENU(ID_MENU_NEW_PASS, WorkspacePanel::OnNewPass)
+	EVT_MENU(ID_MENU_ADD_MATERIAL, WorkspacePanel::OnAddMaterial)
 	EVT_MENU(ID_MENU_EDIT, WorkspacePanel::OnEdit)
 	EVT_UPDATE_UI(ID_MENU_NEW_MATERIAL, WorkspacePanel::OnUpdateMaterialMenuItem)
 	EVT_UPDATE_UI(ID_MENU_NEW_TECHNIQUE, WorkspacePanel::OnUpdateTechniqueMenuItem)
@@ -137,27 +142,12 @@ wxImageList* WorkspacePanel::getImageList()
 {
 	if(mImageList == NULL)
 	{
-		wxBitmap workspaceImage;
-		workspaceImage.LoadFile("resources/images/workspace.png", wxBITMAP_TYPE_PNG);
-
-		wxBitmap projectImage;
-		projectImage.LoadFile("resources/images/project.png", wxBITMAP_TYPE_PNG);
-
-		wxBitmap materialImage;
-		materialImage.LoadFile("resources/images/material.png", wxBITMAP_TYPE_PNG);
-
-		wxBitmap techniqueImage;
-		techniqueImage.LoadFile("resources/images/technique.png", wxBITMAP_TYPE_PNG);
-
-		wxBitmap passImage;
-		passImage.LoadFile("resources/images/pass.png", wxBITMAP_TYPE_PNG);
-
 		mImageList = new wxImageList(16, 16, true, 5);
-		mImageList->Add(workspaceImage);
-		mImageList->Add(projectImage);
-		mImageList->Add(materialImage);
-		mImageList->Add(techniqueImage);
-		mImageList->Add(passImage);
+		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::WORKSPACE));
+		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::PROJECT));
+		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::MATERIAL));
+		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::TECHNIQUE));
+		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::PASS));
 	}
 
 	return mImageList;
@@ -189,6 +179,7 @@ void WorkspacePanel::appendNewMenu(wxMenu* menu)
 
 void WorkspacePanel::appendProjectMenuItems(wxMenu* menu)
 {
+	menu->Append(ID_MENU_ADD_MATERIAL, wxT("Add Material"));
 }
 
 void WorkspacePanel::appendMaterialMenuItems(wxMenu* menu)
@@ -293,6 +284,11 @@ void WorkspacePanel::subscribe(TechniqueController* technique)
 void WorkspacePanel::OnRightClick(wxTreeEvent& event)
 {
 	showContextMenu(event.GetPoint(), event.GetItem());
+}
+
+void WorkspacePanel::OnActivate(wxTreeEvent& event)
+{
+	OnEdit(event);
 }
 
 void WorkspacePanel::OnSelectionChanged(wxTreeEvent& event)
@@ -403,6 +399,36 @@ void WorkspacePanel::OnNewPass(wxCommandEvent& event)
 	delete wizard;
 }
 
+void WorkspacePanel::OnAddMaterial(wxCommandEvent& event)
+{
+	wxFileDialog * openDialog = new wxFileDialog(this, _("Add a Material"), wxEmptyString, wxEmptyString,
+		_("Material Files (*.material)|*.material|All Files (*.*)|*.*"));
+
+	if(openDialog->ShowModal() == wxID_OK)
+	{
+		wxString path = openDialog->GetPath();
+		if(path.EndsWith(wxT(".material")))
+		{
+			wxTreeItemId selId = mTreeCtrl->GetSelection();
+			if(isProject(selId))
+			{
+				Project* project = getProject(selId);
+
+				MaterialScriptEditor* editor = new MaterialScriptEditor(EditorManager::getSingletonPtr()->getEditorNotebook());
+				editor->loadFile(path);
+				int index = (int)path.find_last_of('\\');
+				if(index == -1) index = (int)path.find_last_of('/');
+				editor->setName((index != -1) ? path.substr(index + 1, path.Length()) : path);
+
+				EditorManager::getSingletonPtr()->openEditor(editor);
+
+				Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("Ogre/Earring");
+				project->addMaterial(mat);
+			}
+		}
+	}
+}
+
 void WorkspacePanel::OnEdit(wxCommandEvent& event)
 {
 	wxTreeItemId selId = mTreeCtrl->GetSelection();
@@ -412,9 +438,14 @@ void WorkspacePanel::OnEdit(wxCommandEvent& event)
 		
 		EditorManager* editorManager = EditorManager::getSingletonPtr();
 		Editor* editor = editorManager->findEditor(mc->getMaterial()->getName().c_str());
+		Editor* editorMat = editorManager->findEditor(Ogre::String(mc->getMaterial()->getName() + ".material").c_str());
 		if(editor != NULL)
 		{
 			editorManager->setActiveEditor(editor);
+		}
+		else if(editorMat != NULL)
+		{
+			editorManager->setActiveEditor(editorMat);
 		}
 		else
 		{
