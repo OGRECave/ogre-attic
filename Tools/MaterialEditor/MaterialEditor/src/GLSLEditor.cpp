@@ -52,11 +52,11 @@ void GLSLEditor::initialize()
 	SetLexer(wxSCI_LEX_CPP);
 
 	// Load keywords
-	wxString path = wxT("resources/lexers/glsl/keywords");
+	wxString path = wxT("../lexers/glsl/keywords");
 	loadKeywords(path);
 
 	// Load call tips
-	path = wxT("resources/lexers/glsl/calltips");
+	path = wxT("../lexers/glsl/calltips");
 	getCallTipManager().load(path);
 	wxChar trigger('(');
 	getCallTipManager().addTrigger(trigger);
