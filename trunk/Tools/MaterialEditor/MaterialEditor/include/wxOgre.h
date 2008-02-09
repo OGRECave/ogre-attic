@@ -1,90 +1,119 @@
-#ifndef WXOGRE_H_INCLUDE 
-#define WXOGRE_H_INCLUDE 
+#ifndef __WXOGRE_H__
+#define __WXOGRE_H__
 
-#include <wx/control.h> 
-class wxSizeEvent; 
-class wxPaintEvent; 
-class wxEraseEvent; 
+#include "Ogre.h"
+#include "wx/wx.h"
 
-// Ogre Includes 
-namespace Ogre 
-{ 
-    class RenderWindow; 
-    class Viewport; 
-    class Camera; 
-} 
+	/**
+	@brief WX widget for and Ogre rendering window
 
-class wxOgre : public wxControl 
-{ 
-    DECLARE_DYNAMIC_CLASS(wxOgre) 
-public: 
-    wxOgre(); 
+	This WX widget is a self-contained SINGLETON Ogre rendering window; 
+	meaning it contains all Ogre objects necessary to create a rendering 
+	window and currently supports only one rendering window at a time!
+	This is due to the limitation of the self contained class.
+	
+	@usage Simply create a new wxOgre object and pass a wxFrame as its 
+	parent window. Then work with it just like ay other wxControl object.
+	It can even be passed to an wxAUI pane.
+	*/
+	class wxOgre : 
+		public wxControl, 
+		public Ogre::Singleton<wxOgre>
+	{
+		DECLARE_CLASS(wxOgre)
+	public:
+		/** A new wxOgre must receive a parent frame to which to attach 
+		itself to */
+		wxOgre (wxFrame* parent, Ogre::RenderSystem* renderSystem = 0);
+		~wxOgre();
 
-    wxOgre(Ogre::Camera* camera, wxWindow* parent, wxWindowID id = wxID_ANY, 
-           const wxPoint& pos = wxDefaultPosition, 
-           const wxSize& size = wxDefaultSize, long style = 0, 
-           const wxString& name = wxPanelNameStr); 
+		/** Renders a single Ogre frame */
+		void update();
 
-    /** Standard 2-Stage wxWidgets window creation */ 
-    virtual bool Create(Ogre::Camera* camera, wxWindow* parent, wxWindowID id, 
-                        const wxPoint& pos = wxDefaultPosition, 
-                        const wxSize& size = wxDefaultSize, long style = 0, 
-                        const wxString& name = wxPanelNameStr); 
+		/** Returns the currently used camera */
+		inline Ogre::Camera* getCamera() const {return mCamera;}
+		/** Sets a new camera for rendering */
+		inline void setCamera(Ogre::Camera* camera){mCamera = camera;}
 
-    virtual ~wxOgre(); 
+		inline Ogre::SceneManager* getSceneManager() const {return mSceneMgr;}
+		void setZoomScale(Ogre::Real zoomScale) {mZoomScale = zoomScale;}
+		inline Ogre::Light* getLight() const {return mLight;}
 
-    /** Call to startup Ogre due to platform issues, these have to be seperate 
-    for Linux this <b>must</b> be called after you main frame reices its 
-    activate event.  I suggest you do so for all platforms for simplicity */ 
-    void initOgre(); 
+		void resetCamera();
 
-    /** Retrieves a pointer to the camera for the main viewport */ 
-    Ogre::Camera* getCamera(void); 
+	protected:
+		DECLARE_EVENT_TABLE()
 
-    /** Sets the camera to use for rendering to this viewport. If this is the 
-    first you window you are creating you have to set it after creating the 
-    window. */ 
-    void setCamera(Ogre::Camera* camera); 
+	private:
+		/** Creates an ogre rendering window and all other default objects
+		such as the Ogre Root, default camera, default scene manager etc */ 
+		void createOgreRenderWindow(Ogre::RenderSystem* renderSystem);
+		/** Toggles the rendering timer on/off */
+		void toggleTimerRendering();
 
-    /** Grabs the current window */ 
-    Ogre::RenderWindow* getRenderWindow(); 
+		/** WX Callbacks */
+		void OnSize(wxSizeEvent& event);
+		void OnPaint(wxPaintEvent& event);
+		void OnEraseBackground(wxEraseEvent& event);
+		void OnRenderTimer(wxTimerEvent& event);
+		void OnMouseDown(wxMouseEvent& event);
+		void OnMouseMotion(wxMouseEvent& event);
+		void OnMouseWheel(wxMouseEvent& event);
 
-    /** Retrieve whether or not the ogre part of this windows has been started*/ 
-    bool initialized(); 
+		/** Rendering timer */
+		wxTimer	mTimer;
+		wxPoint mPrevPos;
 
-private: 
-    /** Callback function to a window resize event */ 
-    void onSize(wxSizeEvent& event); 
+		/* Ogre members */
+		Ogre::Root* mRoot;
+		Ogre::Viewport* mViewPort;
+		Ogre::Camera* mCamera;
+		Ogre::SceneManager* mSceneMgr;
+		Ogre::RenderWindow* mRenderWindow;
+		Ogre::SceneNode *mCameraYawNode, *mCameraPitchNode;
+		Ogre::SceneNode *mLightYawNode, *mLightPitchNode;
+		Ogre::Real mZoomScale;
+		Ogre::Light* mLight;
 
-    /** Callback function to a window paint event */ 
-    void onPaint(wxPaintEvent& event); 
+	public:
+		// *****************************************************
 
-    /** Callback function to an EraseBackground event */ 
-    void onEraseBackground(wxEraseEvent& event); 
+		// -----------------------------------------------------
+		/**
+		@remarks
+		Why do we do this? Well, it's because the Singleton
+		implementation is in a .h file, which means it gets compiled
+		into anybody who includes it. This is needed for the
+		Singleton template to work, but we actually only want it
+		compiled into the implementation of the class based on the
+		Singleton, not all of them. If we don't change this, we get
+		link errors when trying to use the Singleton-based class from
+		an outside dll.
+		@par
+		This method just delegates to the template version anyway,
+		but the implementation stays in this single compilation unit,
+		preventing link errors.
+		*/
+		static wxOgre& getSingleton();
+		/**
+		@remarks
+		Why do we do this? Well, it's because the Singleton
+		implementation is in a .h file, which means it gets compiled
+		into anybody who includes it. This is needed for the
+		Singleton template to work, but we actually only want it
+		compiled into the implementation of the class based on the
+		Singleton, not all of them. If we don't change this, we get
+		link errors when trying to use the Singleton-based class from
+		an outside dll.
+		@par
+		This method just delegates to the template version anyway,
+		but the implementation stays in this single compilation unit,
+		preventing link errors.
+		*/
+		static wxOgre* getSingletonPtr();
 
-    /** Creates an ogre rendering window based on the current wxControl */ 
-	void createOgreRenderWindow(); 
 
-    /** This builds the window params in a platform depenent manner */ 
-    void getWindowParams(Ogre::NameValuePairList* params); 
+	};
 
-    /** Redraws the window */ 
-    void update(); 
 
-    /** The Ogre Rending window displayed in the application */ 
-    Ogre::RenderWindow* mRenderWindow; 
-
-    /** The first viewport of the window */ 
-    Ogre::Viewport* mViewport; 
-
-    /** The Camera for the main viewport */ 
-    Ogre::Camera* mCamera; 
-
-    /** Whether or not you have started up the Ogre part of this window*/ 
-    bool mInitialized; 
-
-    /** Setups the wxWidgets event table */ 
-    DECLARE_EVENT_TABLE() 
-}; 
-
-#endif // WXOGRE_H_INCLUDE 
+#endif // __WXOGRE_H__

@@ -59,7 +59,6 @@ public:
 	~MaterialEditorFrame();
 
 protected:
-	void createDummyControl(void);
 	void createAuiManager(void);
 	void createAuiNotebookPane(void);
 	void createManagementPane(void);
@@ -84,6 +83,7 @@ protected:
 	void OnFileOpen(wxCommandEvent& event);
 	void OnFileSave(wxCommandEvent& event);
 	void OnFileSaveAs(wxCommandEvent& event);
+	void OnFileClose(wxCommandEvent& event);
 	void OnFileExit(wxCommandEvent& event);
 	void OnEditUndo(wxCommandEvent& event);
 	void OnEditRedo(wxCommandEvent& event);
@@ -111,15 +111,13 @@ private:
 	ResourcePanel* mResourcePanel;
 	PropertiesPanel* mPropertiesPanel;
 
-	wxControl* mDummy;
-
 	Ogre::Root* mRoot;
-
+	Ogre::Entity* mEntity;
+	
 	LogPanel* mLogPanel;
 	DocPanel* mDocPanel;
 	wxOgre* mOgreControl;
 
-	Ogre::SceneManager* mSceneManager;
 	Ogre::RenderSystem* mDirectXRenderSystem;
 	Ogre::RenderSystem* mOpenGLRenderSystem;
 

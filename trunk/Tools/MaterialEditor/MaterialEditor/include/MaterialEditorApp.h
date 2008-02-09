@@ -38,6 +38,7 @@ public:
 
 private:
 	virtual bool OnInit();
+	virtual int OnExit();
 
 	Root* mRoot;
 };

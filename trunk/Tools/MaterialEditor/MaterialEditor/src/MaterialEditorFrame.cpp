@@ -50,6 +50,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "DocPanel.h"
 #include "EditorEventArgs.h"
 #include "EditorManager.h"
+#include "IconManager.h"
 #include "LogPanel.h"
 #include "MaterialController.h"
 #include "MaterialPropertyGridPage.h"
@@ -105,6 +106,7 @@ BEGIN_EVENT_TABLE(MaterialEditorFrame, wxFrame)
 	EVT_MENU (ID_FILE_MENU_OPEN,		 MaterialEditorFrame::OnFileOpen)
 	EVT_MENU (ID_FILE_MENU_SAVE,		 MaterialEditorFrame::OnFileSave)
 	EVT_MENU (ID_FILE_MENU_SAVE_AS,		 MaterialEditorFrame::OnFileSaveAs)
+	EVT_MENU (ID_FILE_MENU_CLOSE,		 MaterialEditorFrame::OnFileClose)
 	EVT_MENU (ID_FILE_MENU_EXIT,		 MaterialEditorFrame::OnFileExit)
 	// Edit Menu
 	EVT_MENU (ID_EDIT_MENU_UNDO,  MaterialEditorFrame::OnEditUndo)
@@ -119,35 +121,25 @@ END_EVENT_TABLE()
 
 MaterialEditorFrame::MaterialEditorFrame(wxWindow* parent)
 : mFileMenu(NULL), mEditMenu(NULL), mToolsMenu(NULL),
-  wxFrame(parent, - 1, _("Ogre Material Editor"), wxDefaultPosition, wxSize(512, 512), wxDEFAULT_FRAME_STYLE)
+  wxFrame(parent, - 1, wxT("Ogre Material Editor"), wxDefaultPosition, wxSize(512, 512), wxDEFAULT_FRAME_STYLE),
+  mRoot(0),
+  mEntity(0),
+  mDirectXRenderSystem(0),
+  mOpenGLRenderSystem(0)
 {
-	mRoot = Ogre::Root::getSingletonPtr();
-	mSceneManager = 0;
-
-	// Find Render Systems
-	// Testing only, this will be deleted once Projects can tell us
-	// which rendering system they want used
-	mDirectXRenderSystem = NULL;
-	mOpenGLRenderSystem = NULL;
-	RenderSystemList *rl = mRoot->getAvailableRenderers();
-	if (rl->empty()) 
-	{
-		wxMessageBox("No render systems found", "Error");
-		return;
-	}
-	for(RenderSystemList::iterator it = rl->begin(); it != rl->end(); ++it)
-	{
-		if((*it)->getName() == "OpenGL Rendering Subsystem") 
-			mOpenGLRenderSystem = *it;
-		else
-			mDirectXRenderSystem = *it;
-	}
-	
 	createAuiManager();
 	createMenuBar();
-
+	
 	CreateToolBar();
 	CreateStatusBar();
+
+	createOgrePane();
+	createAuiNotebookPane();
+	createManagementPane();
+	createInformationPane();
+	createPropertiesPane();
+
+	mAuiManager->Update();
 }
 
 MaterialEditorFrame::~MaterialEditorFrame() 
@@ -157,22 +149,6 @@ MaterialEditorFrame::~MaterialEditorFrame()
 		mAuiManager->UnInit();
 		delete mAuiManager;
 	}
-}
-
-void MaterialEditorFrame::createDummyControl()
-{
-	mDummy = new wxControl(this, wxID_ANY);
-	mDummy->Show(false);
-
-	// Grab the current render system from Ogre 
-	Ogre::RenderSystem* renderSystem = mRoot->getRenderSystem(); 
-
-	// Create a new parameters list according to compiled OS 
-	Ogre::NameValuePairList params; 
-	params["externalWindowHandle"] = Ogre::StringConverter::toString((size_t)(mDummy->GetHandle())); 
-
-	// Create the render window (give the name of wxWidget window to Ogre) 
-	/* mRenderWindow = */ renderSystem->createRenderWindow("dummy", 10, 10, false, &params); 
 }
 
 void MaterialEditorFrame::createAuiManager()
@@ -191,28 +167,6 @@ void MaterialEditorFrame::createAuiManager()
 	art->SetColour(wxAUI_DOCKART_INACTIVE_CAPTION_COLOUR, wxColour(200, 198, 183));
 	art->SetColour(wxAUI_DOCKART_INACTIVE_CAPTION_GRADIENT_COLOUR, wxColour(228, 226, 209));
 	art->SetColour(wxAUI_DOCKART_INACTIVE_CAPTION_TEXT_COLOUR, wxColour(0, 0, 0));
-
-	createAuiNotebookPane();
-	createManagementPane();
-	createInformationPane();
-	createPropertiesPane();
-
-	// TEMP
-	mRoot->setRenderSystem(mOpenGLRenderSystem);
-	mOpenGLRenderSystem->setConfigOption("Full Screen", "No");
-	mOpenGLRenderSystem->setConfigOption("VSync", "No");
-
-	char buffer [1024] ;
-
-	wxSize size = wxWindow::GetSize();
-
-	sprintf(buffer, "%d x %d @ 32-bit colour", size.GetWidth(), size.GetHeight());
-	mOpenGLRenderSystem->setConfigOption("Video Mode", buffer);
-
-	mRoot->initialise(false);
-
-	//createDummyControl();
-	//createOgrePane();
 
 	mAuiManager->Update();
 }
@@ -289,31 +243,75 @@ void MaterialEditorFrame::createPropertiesPane()
 
 void MaterialEditorFrame::createOgrePane()
 {
-	//mRoot->createRenderWindow("PreviewWindow", 0, 0, false);
+	mRoot = new Ogre::Root();
 
-	mSceneManager = mRoot->createSceneManager("DefaultSceneManager", "DefaultSceneManager1");
+	// Find Render Systems
+	// Testing only, this will be deleted once Projects can tell us
+	// which rendering system they want used
+	mDirectXRenderSystem = NULL;
+	mOpenGLRenderSystem = NULL;
+	RenderSystemList *rl = mRoot->getAvailableRenderers();
+	if (rl->empty()) 
+	{
+		wxMessageBox("No render systems found", "Error");
+		return;
+	}
+	for(RenderSystemList::iterator it = rl->begin(); it != rl->end(); ++it)
+	{
+		Ogre::RenderSystem *rs = (*it);
+		rs->setConfigOption("Full Screen", "No");
+		rs->setConfigOption("VSync", "No");
+		rs->setConfigOption("Video Mode", "512 x 512 @ 32-bit");
+		
+		if(rs->getName() == "OpenGL Rendering Subsystem") 
+			mOpenGLRenderSystem = *it;
+		else if(rs->getName() == "Direct3D9 Rendering Subsystem")
+			mDirectXRenderSystem = *it;
+	}
 
-	mSceneManager->setAmbientLight(ColourValue(0.4, 0.3, 0.3));
-	
-	Camera* camera = mSceneManager->createCamera("PlayerCam");
-	camera->setPosition(Vector3(0, 0, 500));
-	camera->lookAt(Vector3(0, 0, -300));
-	camera->setNearClipDistance(5);
+	// We'll see if there is already and Ogre.cfg, if not we'll
+	// default to OpenGL since we know that will work on all
+	// platforms
+	if(!mRoot->restoreConfig())
+	{
+		mRoot->setRenderSystem(mOpenGLRenderSystem);
+	}
 
-	mOgreControl = new wxOgre(camera, this, wxID_ANY);
+	mOgreControl = new wxOgre(this);
 
-	//mOgreControl->Show(false);
+	ConfigFile cf;
+	cf.load("resources.cfg");
 
-	String caption;
+	ConfigFile::SectionIterator seci = cf.getSectionIterator();
+
+	Ogre::String secName, typeName, archName;
+	while(seci.hasMoreElements())
+	{
+		secName = seci.peekNextKey();
+		ConfigFile::SettingsMultiMap *settings = seci.getNext();
+		ConfigFile::SettingsMultiMap::iterator i;
+		for(i = settings->begin(); i != settings->end(); ++i)
+		{
+			typeName = i->first;
+			archName = i->second;
+			Ogre::ResourceGroupManager::getSingleton().addResourceLocation(archName, typeName, secName);
+		}
+	}
+
+	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+
+	wxString caption;
 	String rs = mRoot->getRenderSystem()->getName();
 	if(rs == "OpenGL Rendering Subsystem") caption = "OGRE - OpenGL";
 	else caption = "OGRE - DirectX";
 
 	wxAuiPaneInfo info;
-	info.Caption("test");
+	info.Caption(caption);
 	info.MaximizeButton(true);
 	info.MinimizeButton(true);
-	info.Float();
+	info.Floatable(true);
+	info.BestSize(512, 512);
+	info.Left();
 
 	mAuiManager->AddPane(mOgreControl, info);
 }
@@ -339,47 +337,40 @@ void MaterialEditorFrame::createFileMenu()
 	// New sub menu
 	wxMenu* newMenu = new wxMenu();
 
-	wxMenuItem* newProjectItem = newMenu->Append(ID_FILE_NEW_MENU_PROJECT, wxT("&Project..."));
-	wxBitmap projectImage;
-	if(projectImage.LoadFile("resources/images/project.png", wxBITMAP_TYPE_PNG))
-	{
-		newProjectItem->SetBitmap(projectImage);
-	}
+	wxMenuItem *menuItem = new wxMenuItem(newMenu, ID_FILE_NEW_MENU_PROJECT, "&Project");
+	menuItem->SetBitmap(IconManager::getSingleton().getIcon(IconManager::PROJECT_NEW));
+	newMenu->Append(menuItem);
 
-	wxMenuItem* newMaterialItem = newMenu->Append(ID_FILE_NEW_MENU_MATERIAL, wxT("&Material..."));
-	wxBitmap materialImage;
-	if(materialImage.LoadFile("resources/images/material.png", wxBITMAP_TYPE_PNG))
-	{
-		newMaterialItem->SetBitmap(materialImage);
-	}
+	menuItem = new wxMenuItem(newMenu, ID_FILE_NEW_MENU_MATERIAL, "&Material");
+	menuItem->SetBitmap(IconManager::getSingleton().getIcon(IconManager::MATERIAL));
+	newMenu->Append(menuItem);
 
 	mFileMenu->AppendSubMenu(newMenu, wxT("&New"));
 
-	mFileMenu->Append(ID_FILE_MENU_OPEN, _("&Open..."));
+	menuItem = new wxMenuItem(mFileMenu, ID_FILE_MENU_OPEN, "&Open");
+	mFileMenu->Append(menuItem);
 
-	wxMenuItem* saveItem = mFileMenu->Append(ID_FILE_MENU_SAVE, wxT("&Save"));
-	wxBitmap saveImage;
-	if(saveImage.LoadFile("resources/images/save.png", wxBITMAP_TYPE_PNG))
-	{
-		saveItem->SetBitmap(saveImage);
-	}
+	menuItem = new wxMenuItem(mFileMenu, ID_FILE_MENU_SAVE, "&Save");
+	menuItem->SetBitmap(IconManager::getSingleton().getIcon(IconManager::SAVE));
+	mFileMenu->Append(menuItem);
 
-	wxMenuItem* saveAsItem = mFileMenu->Append(ID_FILE_MENU_SAVE_AS, wxT("Save &As..."));
-	//wxBitmap saveAsImage;
-	//if(saveAsImage.LoadFile("resources/images/save.png", wxBITMAP_TYPE_PNG))
-	//{
-		saveAsItem->SetBitmap(saveImage);
-	//}
+	menuItem = new wxMenuItem(mFileMenu, ID_FILE_MENU_SAVE_AS, "Save &As...");
+	menuItem->SetBitmap(IconManager::getSingleton().getIcon(IconManager::SAVE_AS));
+	mFileMenu->Append(menuItem);
 
 	mFileMenu->AppendSeparator();
 
-	mFileMenu->Append(ID_FILE_MENU_CLOSE, _("&Close"));
-	mFileMenu->AppendSeparator();
-	mFileMenu->Append(ID_FILE_MENU_EXIT, _("E&xit"));
+	menuItem = new wxMenuItem(mFileMenu, ID_FILE_MENU_CLOSE, "&Close");
+	menuItem->SetBitmap(IconManager::getSingleton().getIcon(IconManager::CLOSE));
+	mFileMenu->Append(menuItem);
 
+	mFileMenu->AppendSeparator();
+
+	menuItem = new wxMenuItem(mFileMenu, ID_FILE_MENU_EXIT, "E&xit");
+	mFileMenu->Append(menuItem);
 	mFileMenu->UpdateUI();
 
-	mMenuBar->Append(mFileMenu, _("&File"));
+	mMenuBar->Append(mFileMenu, wxT("&File"));
 }
 
 void MaterialEditorFrame::createEditMenu()
@@ -466,7 +457,8 @@ void MaterialEditorFrame::OnNewMaterial(wxCommandEvent& event)
 
 void MaterialEditorFrame::OnFileOpen(wxCommandEvent& event)
 {
-	wxFileDialog * openDialog = new wxFileDialog(this, _("Choose a file to open"), wxEmptyString, wxEmptyString, _("Material Files (*.material)|*.material|Program Files (*.program)|*.program|Cg Files (*.cg)|*.cg|GLSL Files(*.vert; *.frag)|*.vert;*.frag|All Files (*.*)|*.*"));
+	wxFileDialog * openDialog = new wxFileDialog(this, _("Choose a file to open"), wxEmptyString, wxEmptyString,
+		_("Material Files (*.material)|*.material|Mesh Files (*.mesh)|*.mesh|Program Files (*.program)|*.program|Cg Files (*.cg)|*.cg|GLSL Files(*.vert; *.frag)|*.vert;*.frag|All Files (*.*)|*.*"));
 
 	if(openDialog->ShowModal() == wxID_OK)
 	{
@@ -491,6 +483,47 @@ void MaterialEditorFrame::OnFileOpen(wxCommandEvent& event)
 
 			EditorManager::getSingletonPtr()->openEditor(editor);
 		}
+		else if(path.EndsWith(wxT(".mesh")))
+		{
+			Ogre::SceneManager *sceneMgr = wxOgre::getSingleton().getSceneManager();
+			Ogre::Camera *camera = wxOgre::getSingleton().getCamera();
+
+			if(mEntity)
+			{
+				sceneMgr->getRootSceneNode()->detachObject(mEntity);
+				sceneMgr->destroyEntity(mEntity);
+				mEntity = 0;
+			}
+			
+			static int meshNumber = 0;
+			Ogre::String meshName = Ogre::String("Mesh") + Ogre::StringConverter::toString(meshNumber++);
+
+			int index = (int)path.find_last_of('\\');
+			if(index == -1) index = (int)path.find_last_of('/');
+			wxString mesh = (index != -1) ? path.substr(index + 1, path.Length()) : path;
+
+			mEntity = sceneMgr->createEntity(meshName, mesh.GetData());
+			sceneMgr->getRootSceneNode()->attachObject(mEntity);
+
+			Ogre::AxisAlignedBox box = mEntity->getBoundingBox();
+			Ogre::Vector3 minPoint = box.getMinimum();
+			Ogre::Vector3 maxPoint = box.getMaximum();
+			Ogre::Vector3 size = box.getSize();
+
+			wxOgre::getSingleton().setZoomScale(max(size.x, max(size.y, size.z)));
+			wxOgre::getSingleton().resetCamera();
+
+			Ogre::Vector3 camPos;
+			camPos.x = minPoint.x + (size.x / 2.0);
+			camPos.y = minPoint.y + (size.y / 2.0);
+			Ogre::Real width = max(size.x, size.y);
+			camPos.z = (width / tan(camera->getFOVy().valueRadians())) + size.z / 2;
+
+			wxOgre::getSingleton().getCamera()->setPosition(camPos);
+			wxOgre::getSingleton().getCamera()->lookAt(0,0,0);
+
+			wxOgre::getSingleton().getLight()->setPosition(maxPoint * 2);
+		}
 	}
 }
 
@@ -510,6 +543,9 @@ void MaterialEditorFrame::OnFileSaveAs(wxCommandEvent& event)
 	// TODO: Support project & workspace saveAs
 }
 
+void MaterialEditorFrame::OnFileClose(wxCommandEvent& event)
+{
+}
 
 void MaterialEditorFrame::OnFileExit(wxCommandEvent& event)
 {
@@ -548,29 +584,27 @@ void MaterialEditorFrame::OnEditPaste(wxCommandEvent& event)
 
 void MaterialEditorFrame::OnViewOpenGL(wxCommandEvent& event)
 {
-	/*
-	if(mOpenGLRenderSystem == NULL)
-	{
-		wxMessageBox("OpenGL Render System not found", "Error");
-		return;
-	}
-                                                                                   
-	mOgreControl->SetRenderSystem(mOpenGLRenderSystem);
+	//if(mOpenGLRenderSystem == NULL)
+	//{
+	//	wxMessageBox("OpenGL Render System not found", "Error");
+	//	return;
+	//}
+                                                                               
+	//mOgreControl->SetRenderSystem(mOpenGLRenderSystem);
 
-	wxAuiPaneInfo info = mAuiManager->GetPane(mOgreControl);
-	if(!info.IsOk())
-	{
-		info.MaximizeButton(true);
-		info.MinimizeButton(true);
-		info.Float();
+	//wxAuiPaneInfo info = mAuiManager->GetPane(mOgreControl);
+	//if(!info.IsOk())
+	//{
+	//	info.MaximizeButton(true);
+	//	info.MinimizeButton(true);
+	//	info.Float();
 
-		mAuiManager->AddPane(mOgreControl, info);
-	}
+	//	mAuiManager->AddPane(mOgreControl, info);
+	//}
 
-	info.Caption(_("OGRE - OpenGL"));
+	//info.Caption(_("OGRE - OpenGL"));
 
-	mAuiManager->Update();
-	*/
+	//mAuiManager->Update();
 }
 
 void MaterialEditorFrame::OnViewDirectX(wxCommandEvent& event)

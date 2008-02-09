@@ -352,7 +352,7 @@ wxString ScintillaEditor::getSurroundingWord(int pos /* = -1 */)
 
 		if(!pos) return word;
 
-		while(pos)
+		while(pos < line.Length())
 		{
 			ch = GetCharAt(++pos);
 			if(ch != ' ' && ch != ')' && ch!= '\n' && ch!= '\r' && ch !='\t' && ch != '.' && ch != '(' && ch != ')' && ch != ';' && ch != ',') word += ch;
