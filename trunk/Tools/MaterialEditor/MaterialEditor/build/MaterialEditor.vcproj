@@ -96,7 +96,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;.\$(ConfigurationName)\*.exe&quot; &quot;$(SolutionDir)\bin\&quot;"
+				CommandLine="copy &quot;.\$(ConfigurationName)\*.exe&quot; &quot;$(SolutionDir)\bin\$(ConfigurationName)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -176,6 +176,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy &quot;.\$(ConfigurationName)\*.exe&quot; &quot;$(SolutionDir)\bin\$(ConfigurationName)&quot;"
 			/>
 		</Configuration>
 	</Configurations>
