@@ -145,6 +145,7 @@ namespace Ogre
 		AutoConstantDefinition(ACT_TEXTURE_WORLDVIEWPROJ_MATRIX_ARRAY, "texture_worldviewproj_matrix_array",16, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_SPOTLIGHT_VIEWPROJ_MATRIX,       "spotlight_viewproj_matrix",     16, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX,  "spotlight_worldviewproj_matrix",16, ET_REAL, ACDT_INT),
+        AutoConstantDefinition(ACT_TEXTURE_MATRIX,  "texture_matrix", 16, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_CUSTOM,                        "custom",                       4, ET_REAL, ACDT_INT),  // *** needs to be tested
         AutoConstantDefinition(ACT_TIME,                               "time",                               1, ET_REAL, ACDT_REAL),
         AutoConstantDefinition(ACT_TIME_0_X,                      "time_0_x",                     4, ET_REAL, ACDT_REAL),
@@ -1333,6 +1334,9 @@ namespace Ogre
             case ACT_CUSTOM:
 			case ACT_ANIMATION_PARAMETRIC:
                 source->getCurrentRenderable()->_updateCustomGpuParameter(*i, this);
+                break;
+            case ACT_TEXTURE_MATRIX:
+                _writeRawConstant(i->physicalIndex, source->getTextureTransformMatrix(i->data));
                 break;
             default:
                 break;
