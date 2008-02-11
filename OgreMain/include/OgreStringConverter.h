@@ -152,7 +152,7 @@ namespace Ogre {
         static String toString(const ColourValue& val);
         /** Converts a StringVector to a string.
         @remarks
-            Strings must not contain spaces since space is used as a delimeter in
+            Strings must not contain spaces since space is used as a delimiter in
             the output.
         */
         static String toString(const StringVector& val);
@@ -241,7 +241,7 @@ namespace Ogre {
 
         /** Pareses a StringVector from a string.
         @remarks
-            Strings must not contain spaces since space is used as a delimeter in
+            Strings must not contain spaces since space is used as a delimiter in
             the output.
         */
         static StringVector parseStringVector(const String& val);

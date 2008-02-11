@@ -46,7 +46,7 @@ namespace Ogre {
 	// Forward declaration
 	class MovableObjectFactory;
 
-    /** Abstract class definining a movable object in a scene.
+    /** Abstract class defining a movable object in a scene.
         @remarks
             Instances of this class are discrete, relatively small, movable objects
             which are attached to SceneNode objects to define their position.
@@ -80,7 +80,7 @@ namespace Ogre {
 				this method and hook into MovableObject via MovableObject::setListener.
 				Be aware that the default method caches results within a frame to 
 				prevent unnecessary recalculation, so if you override this you 
-				should provide your own cacheing to maintain performance.
+				should provide your own caching to maintain performance.
 			@note
 				If you use texture shadows, there is an additional restriction - 
 				since the lights which should have shadow textures rendered for
@@ -213,7 +213,7 @@ namespace Ogre {
 		/** Internal method to notify the object of the camera to be used for the next rendering operation.
             @remarks
                 Certain objects may want to do specific processing based on the camera position. This method notifies
-                them incase they wish to do this.
+                them in case they wish to do this.
         */
         virtual void _notifyCurrentCamera(Camera* cam);
 
@@ -244,12 +244,12 @@ namespace Ogre {
 			from it's SceneNode, or to remove the SceneNode entirely. 
 			Detaching a node means that structurally the scene graph changes. 
 			Once this change has taken place, the objects / nodes that have been 
-			removed have less overhead to the visbility detection pass than simply
+			removed have less overhead to the visibility detection pass than simply
 			making the object invisible, so if you do this and leave the objects 
 			out of the tree for a long time, it's faster. However, the act of 
 			detaching / reattaching nodes is in itself more expensive than 
 			setting an object visibility flag, since in the latter case 
-			structural changes are not made. Therefore, small or frequent visbility
+			structural changes are not made. Therefore, small or frequent visibility
 			changes are best done using this method; large or more longer term
 			changes are best done by detaching.
 		*/

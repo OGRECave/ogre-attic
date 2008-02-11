@@ -39,7 +39,7 @@ namespace Ogre {
     /** Class for serialising mesh data to/from an OGRE .mesh file.
     @remarks
         This class allows exporters to write OGRE .mesh files easily, and allows the
-        OGRE engine to import .mesh files into instatiated OGRE Meshes.
+        OGRE engine to import .mesh files into instantiated OGRE Meshes.
         Note that a .mesh file can include not only the Mesh, but also definitions of
         any Materials it uses (although this is optional, the .mesh can rely on the
         Material being loaded from another source, especially useful if you want to

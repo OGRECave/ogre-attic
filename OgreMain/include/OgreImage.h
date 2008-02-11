@@ -338,7 +338,7 @@ namespace Ogre {
         */
         size_t getDepth(void) const;
 		
-		/** Get the numer of faces of the image. This is usually 6 for a cubemap, and
+		/** Get the number of faces of the image. This is usually 6 for a cubemap, and
 		    1 for a normal image.
 		*/
 		size_t getNumFaces(void) const;

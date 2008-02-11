@@ -69,7 +69,7 @@ namespace Ogre {
 	@par
 		In order to retain some sort of culling, this class will batch up 
 		meshes in localised regions. The size and shape of these blocks is
-		controlled by the SceneManager which contructs this object, since it
+		controlled by the SceneManager which constructs this object, since it
 		makes sense to batch things up in the most appropriate way given the 
 		existing partitioning of the scene. 
 	@par

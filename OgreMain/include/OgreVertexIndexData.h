@@ -106,14 +106,14 @@ namespace Ogre {
         /** Additional shadow volume vertex buffer storage. 
         @remarks
             This additional buffer is only used where we have prepared this VertexData for
-            use in shadow volume contruction, and where the current render system supports
+            use in shadow volume construction, and where the current render system supports
             vertex programs. This buffer contains the 'w' vertex position component which will
             be used by that program to differentiate between extruded and non-extruded vertices.
             This 'w' component cannot be included in the original position buffer because
             DirectX does not allow 4-component positions in the fixed-function pipeline, and the original
             position buffer must still be usable for fixed-function rendering.
         @par    
-            Note that we don't store any vertex declaration or vertex buffer binding here becuase this
+            Note that we don't store any vertex declaration or vertex buffer binding here because this
             can be reused in the shadow algorithm.
         */
         HardwareVertexBufferSharedPtr hardwareShadowVolWBuffer;
@@ -127,7 +127,7 @@ namespace Ogre {
 			Once this operation has completed, the new declaration 
 			passed in will overwrite the current one.
 		@param newDeclaration The vertex declaration which will be used
-			for the reorganised buffer state. Note that the new delcaration
+			for the reorganised buffer state. Note that the new declaration
 			must not include any elements which do not already exist in the 
 			current declaration; you can drop elements by 
 			excluding them from the declaration if you wish, however.

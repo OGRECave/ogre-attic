@@ -105,7 +105,7 @@ namespace Ogre
 	The advanced user of the library may use these lower
 	level methods to access the 3D API at a more fundamental
 	level (dealing direct with render states and rendering
-	primitives), but still benefitting from Ogre's abstraction
+	primitives), but still benefiting from Ogre's abstraction
 	of exactly which 3D API is in use.
 	@author
 	Steven Streeting
@@ -239,10 +239,10 @@ namespace Ogre
 		*/
 		virtual void setLightingEnabled(bool enabled) = 0;
 
-		/** Sets whether or not W-buffers are enabled if they are avalible for this renderer.
+		/** Sets whether or not W-buffers are enabled if they are available for this renderer.
 		@param
 		enabled If true and the renderer supports them W-buffers will be used.  If false 
-		W-buffers will not be used even if avalible.  W-buffers are enabled by default 
+		W-buffers will not be used even if available.  W-buffers are enabled by default 
 		for 16bit depth buffers and disabled for all other depths.
 		*/
 		void setWBufferEnabled(bool enabled);
@@ -276,7 +276,7 @@ namespace Ogre
 		@param
 		miscParams A NameValuePairList describing the other parameters for the new rendering window. 
 		Options are case sensitive. Unrecognised parameters will be ignored silently.
-		These values might be platform dependent, but these are present for all platorms unless
+		These values might be platform dependent, but these are present for all platforms unless
 		indicated otherwise:
 		**
 		Key: "title"
@@ -662,7 +662,7 @@ namespace Ogre
 		*/
 		virtual void _setAlphaRejectSettings(CompareFunction func, unsigned char value) = 0;
 		/**
-		* Signifies the beginning of a frame, ie the start of rendering on a single viewport. Will occur
+		* Signifies the beginning of a frame, i.e. the start of rendering on a single viewport. Will occur
 		* several times per complete frame if multiple viewports exist.
 		*/
 		virtual void _beginFrame(void) = 0;
@@ -755,7 +755,7 @@ namespace Ogre
 		is constantBias + slopeScaleBias * maxslope. Slope scale biasing is
 		generally preferable but is not available on older hardware.
 		@param constantBias The constant bias value, expressed as a value in 
-		homogenous depth coordinates.
+		homogeneous depth coordinates.
 		@param slopeScaleBias The bias value which is factored by the maximum slope
 		of the polygon, see the description above. This is not supported by all
 		cards.
@@ -859,7 +859,7 @@ namespace Ogre
 		/** Turns stencil buffer checking on or off. 
 		@remarks
 		Stencilling (masking off areas of the rendering target based on the stencil 
-		buffer) canbe turned on or off using this method. By default, stencilling is
+		buffer) can be turned on or off using this method. By default, stencilling is
 		disabled.
 		*/
 		virtual void setStencilCheckEnabled(bool enabled) = 0;
@@ -965,7 +965,7 @@ namespace Ogre
 
 		/** Binds a given GpuProgram (but not the parameters). 
 		@remarks Only one GpuProgram of each type can be bound at once, binding another
-		one will simply replace the exsiting one.
+		one will simply replace the existing one.
 		*/
 		virtual void bindGpuProgram(GpuProgram* prg);
 
@@ -1001,7 +1001,7 @@ namespace Ogre
 		virtual void _initRenderTargets(void);
 
 		/** Utility method to notify all render targets that a camera has been removed, 
-		incase they were referring to it as their viewer. 
+		in case they were referring to it as their viewer. 
 		*/
 		virtual void _notifyCameraRemoved(const Camera* cam);
 

@@ -119,10 +119,10 @@ namespace Ogre {
 
         /** Active tag point list.
         @remarks
-            This is a linked list of pointers to actived tag point
+            This is a linked list of pointers to active tag points
         @par
-            This allows very fast instertions and deletions from anywhere in the list to activate / deactivate
-            tag points (required for weapon / equip systems etc)    as well as resuse of TagPoint instances
+            This allows very fast insertions and deletions from anywhere in the list to activate / deactivate
+            tag points (required for weapon / equip systems etc) as well as reuse of TagPoint instances
             without construction & destruction which avoids memory thrashing.
         */
         TagPointList mActiveTagPoints;
@@ -130,7 +130,7 @@ namespace Ogre {
         /** Free tag point list.
         @remarks
             This contains a list of the tag points free for use as new instances
-            as required by the set. When a TagPoint instances are deactived, there will are referenced on this
+            as required by the set. When a TagPoint instance is deactivated, there will be a reference on this
             list. As they get used this list reduces, as they get released back to to the set they get added
             back to the list.
         */

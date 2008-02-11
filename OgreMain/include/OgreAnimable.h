@@ -42,7 +42,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-	/** Defines an object property which is animable, ie may be keyframed.
+	/** Defines an object property which is animable, i.e. may be keyframed.
 	@remarks
 		Animable properties are those which can be altered over time by a 
 		predefined keyframe sequence. They may be set directly, or they may

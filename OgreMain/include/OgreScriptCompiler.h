@@ -276,7 +276,7 @@ namespace Ogre
 			static void visit(AbstractTreeBuilder *visitor, const ConcreteNodeList &nodes);
 		};
 		friend class AbstractTreeBuilder;
-	public: // Public translater definitions
+	public: // Public translator definitions
 		// This enum are built-in word id values
 		enum
 		{

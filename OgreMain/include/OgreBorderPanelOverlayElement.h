@@ -310,7 +310,7 @@ namespace Ogre {
     /** Class for rendering the border of a BorderPanelOverlayElement.
     @remarks
         We need this because we have to render twice, once with the inner panel's repeating
-        material (handled by superclass) and once for the border's separate meterial. 
+        material (handled by superclass) and once for the border's separate material. 
     */
     class _OgreExport BorderRenderable : public Renderable
     {

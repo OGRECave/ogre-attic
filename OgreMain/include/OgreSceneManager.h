@@ -418,7 +418,7 @@ namespace Ogre {
 		/** Visible objects bounding box list.
 			@remarks
 				Holds an ABB for each camera that contains the physical extends of the visible
-				scene elements by each camera. The map is crutial for shadow algorithms which
+				scene elements by each camera. The map is crucial for shadow algorithms which
 				have a focus step to limit the shadow sample distribution to only valid visible
 				scene elements.
 		*/

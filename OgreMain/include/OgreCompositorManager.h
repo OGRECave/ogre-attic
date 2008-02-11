@@ -69,7 +69,7 @@ namespace Ogre {
             const String& group, bool isManual, ManualResourceLoader* loader,
             const NameValuePairList* params);
 
-        /** Intialises the Compositor manager, which also triggers it to
+        /** Initialises the Compositor manager, which also triggers it to
             parse all available .compositor scripts. */
         void initialise(void);
 

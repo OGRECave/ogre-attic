@@ -37,7 +37,7 @@ namespace Ogre {
 	/** Abstract class containing any additional data required to be associated
 		with a particle to perform the required rendering. 
 	@remarks
-		Because you can specialise the way that particles are renderered by supplying
+		Because you can specialise the way that particles are rendered by supplying
 		custom ParticleSystemRenderer classes, you might well need some additional 
 		data for your custom rendering routine which is not held on the default particle
 		class. If that's the case, then you should define a subclass of this class, 

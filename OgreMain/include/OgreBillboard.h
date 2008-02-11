@@ -137,7 +137,7 @@ namespace Ogre {
         void resetDimensions(void) { mOwnDimensions = false; }
         /** Sets the colour of this billboard.
             @remarks
-                Billboards can be tinted based on a base colour. This allows variations in colour irresective of the
+                Billboards can be tinted based on a base colour. This allows variations in colour irrespective of the
                 base colour of the material allowing more varied billboards. The default colour is white.
                 The tinting is effected using vertex colours.
         */

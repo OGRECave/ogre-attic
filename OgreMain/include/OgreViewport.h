@@ -292,7 +292,7 @@ namespace Ogre {
 			potentially customised ordering and render state options. You should
 			create the named sequence through Root first, then set the name here.
 		@param The name of the RenderQueueInvocationSequence to use. If you
-			specify a blank string, behaviour will return to the defaul render
+			specify a blank string, behaviour will return to the default render
 			queue management.
 		*/
 		virtual void setRenderQueueInvocationSequenceName(const String& sequenceName);

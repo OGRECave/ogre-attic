@@ -39,7 +39,7 @@ namespace Ogre
     /** Standard 2-dimensional vector.
         @remarks
             A direction in 2D space represented as distances along the 2
-            orthoganal axes (x, y). Note that positions, directions and
+            orthogonal axes (x, y). Note that positions, directions and
             scaling factors can be represented by a vector, depending on how
             you interpret the values.
     */

@@ -150,8 +150,8 @@ namespace Ogre {
             @remarks
                 This is a linked list of pointers to billboards in the billboard pool.
             @par
-                This allows very fast instertions and deletions from anywhere in the list to activate / deactivate billboards
-                (required for particle systems etc)    as well as resuse of Billboard instances in the pool
+                This allows very fast insertions and deletions from anywhere in the list to activate / deactivate billboards
+                (required for particle systems etc.) as well as reuse of Billboard instances in the pool
                 without construction & destruction which avoids memory thrashing.
         */
         ActiveBillboardList mActiveBillboards;
@@ -240,7 +240,7 @@ namespace Ogre {
 
         /** Internal method for generating vertex data. 
         @param offsets Array of 4 Vector3 offsets
-        @param bb Referenceto billboard
+        @param bb Reference to billboard
         */
         void genVertices(const Vector3* const offsets, const Billboard& pBillboard);
 
@@ -311,7 +311,7 @@ namespace Ogre {
             @param
                 externalDataSource If true, the source of data for drawing the 
                 billboards will not be the internal billboard list, but external 
-                data. When driving thebillboard from external data, you must call
+                data. When driving the billboard from external data, you must call
                 _notifyCurrentCamera to reorient the billboards, setPoolSize to set
                 the maximum billboards you want to use, beginBillboards to 
                 start the update, and injectBillboard per billboard, 
@@ -354,14 +354,14 @@ namespace Ogre {
             @param
                 y
             @param
-                z The position of the new billboard realtive to the certer of the set
+                z The position of the new billboard relative to the center of the set
             @param
                 colour Optional base colour of the billboard.
             @returns
                 On success, a pointer to a newly created Billboard is
                 returned.
             @par
-                On failiure (i.e. no more space and can't autoextend),
+                On failure (i.e. no more space and can't autoextend),
                 <b>NULL</b> is returned.
             @see
                 BillboardSet::setAutoextend
@@ -441,7 +441,7 @@ namespace Ogre {
                 On success, a valid pointer to the requested billboard is
                 returned.
             @par
-                On failiure, <b>NULL</b> is returned.
+                On failure, <b>NULL</b> is returned.
         */
         virtual Billboard* getBillboard(unsigned int index) const;
 
@@ -592,7 +592,7 @@ namespace Ogre {
         */
         virtual void _notifyBillboardRotated(void);
 
-        /** Returns whether or not billbards in this are tested individually for culling. */
+        /** Returns whether or not billboards in this are tested individually for culling. */
         virtual bool getCullIndividually(void) const;
         /** Sets whether culling tests billboards in this individually as well as in a group.
         @remarks
@@ -683,7 +683,7 @@ namespace Ogre {
             based on the vector from each billboard to the camera, rather than 
             an optimised version using just the camera direction.
         @remarks
-            By default, the axes for all billboards are calulated using the 
+            By default, the axes for all billboards are calculated using the 
             camera's view direction, not the vector from the camera position to
             the billboard. The former is faster, and most of the time the difference
             is not noticeable. However for some purposes (e.g. very large, static

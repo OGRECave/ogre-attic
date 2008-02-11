@@ -118,7 +118,7 @@ namespace Ogre {
 				specify different speed values for horizontal and vertical scroll, use the specific methods
 				ControllerManager::createTextureUScroller and ControllerManager::createTextureVScroller.
 				If you want more control, look up the ControllerManager::createTextureWaveTransformer 
-				for more complex wave-based scrollers / stretchers / rotaters.
+				for more complex wave-based scrollers / stretchers / rotators.
             @param
                 layer The texture layer to animate.
             @param
@@ -130,7 +130,7 @@ namespace Ogre {
             @remarks
                 This simple method allows you to easily create constant-speed u scrolling textures. If you want more
                 control, look up the ControllerManager::createTextureWaveTransformer for more complex wave-based
-                scrollers / stretchers / rotaters.
+                scrollers / stretchers / rotators.
             @param
                 layer The texture layer to animate.
             @param
@@ -142,7 +142,7 @@ namespace Ogre {
             @remarks
                 This simple method allows you to easily create constant-speed v scrolling textures. If you want more
                 control, look up the ControllerManager::createTextureWaveTransformer for more complex wave-based
-                scrollers / stretchers / rotaters.
+                scrollers / stretchers / rotators.
             @param
                 layer The texture layer to animate.            
             @param
@@ -154,7 +154,7 @@ namespace Ogre {
             @return
                 This simple method allows you to easily create constant-speed rotating textures. If you want more
                 control, look up the ControllerManager::createTextureWaveTransformer for more complex wave-based
-                scrollers / stretchers / rotaters.
+                scrollers / stretchers / rotators.
             @param
                 layer The texture layer to rotate.
             @param

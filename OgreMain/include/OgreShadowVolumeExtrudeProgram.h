@@ -48,7 +48,7 @@ namespace Ogre {
             out float4 oPosition	: POSITION,
 
             uniform float4x4 worldViewProjMatrix,
-            uniform float4   lightPos // homogenous, object space
+            uniform float4   lightPos // homogeneous, object space
             )
         {
             // extrusion in object space
@@ -88,7 +88,7 @@ namespace Ogre {
             out float4 oPosition	: POSITION,
 
             uniform float4x4 worldViewProjMatrix,
-            uniform float4   lightPos, // homogenous, object space
+            uniform float4   lightPos, // homogeneous, object space
 			uniform float    extrusionDistance // how far to extrude
             )
         {
@@ -112,7 +112,7 @@ namespace Ogre {
             out float4 oPosition	: POSITION,
 
             uniform float4x4 worldViewProjMatrix,
-            uniform float4   lightPos, // homogenous, object space
+            uniform float4   lightPos, // homogeneous, object space
 			uniform float    extrusionDistance // how far to extrude
             )
         {

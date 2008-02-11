@@ -36,7 +36,7 @@ namespace Ogre {
     /** Class to provide aligned memory allocate functionality.
     @remarks
         All SIMD processing are friendly with aligned memory, and some SIMD routines
-        are designed for working with aligned memory only. If the data are intented to
+        are designed for working with aligned memory only. If the data are intended to
         use SIMD processing, it's need to be aligned for better performance boost.
         In additional, most time cache boundary aligned data also lead to better
         performance even if didn't used SIMD processing. So this class provides a couple
@@ -49,7 +49,7 @@ namespace Ogre {
         achieve performance boost. If you didn't know what are you doing or what there
         are going, just ignore this class.
     @note
-        This class intented to use by advanced user only.
+        This class intended to use by advanced user only.
     */
 	class _OgreExport AlignedMemory
 	{
@@ -63,7 +63,7 @@ namespace Ogre {
             @returns
                 The allocated memory pointer.
             @par
-                On failiure, exception will be throw.
+                On failure, exception will be throw.
         */
         static void* allocate(size_t size, size_t alignment);
 
@@ -77,7 +77,7 @@ namespace Ogre {
             @returns
                 The allocated memory pointer.
             @par
-                On failiure, exception will be throw.
+                On failure, exception will be throw.
         */
         static void* allocate(size_t size);
 

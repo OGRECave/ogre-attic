@@ -120,8 +120,8 @@ namespace Ogre
 		/** Calculates the distance between camera position and near clipping plane.
 		@remarks
 		n_opt determines the distance between light space origin (shadow camera position)
-		and	the near clipping plane to achieve an optimal perspective forshortening effect.
-		In this	way the texel distibution over the shadow map is controlled.
+		and	the near clipping plane to achieve an optimal perspective foreshortening effect.
+		In this	way the texel distribution over the shadow map is controlled.
 
 		Formula:
 		               d

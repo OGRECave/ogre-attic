@@ -193,7 +193,7 @@ namespace Ogre {
 			// unsigned short submesh_index;
 			// float extremes [n_extremes][3];
 
-	/* Version 1.2 of the .mesh fornmat (deprecated)
+	/* Version 1.2 of the .mesh format (deprecated)
 	enum MeshChunkID {
         M_HEADER                = 0x1000,
             // char*          version           : Version number check

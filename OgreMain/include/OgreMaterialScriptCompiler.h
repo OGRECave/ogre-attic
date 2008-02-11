@@ -45,11 +45,11 @@ namespace Ogre {
         MaterialScriptCompiler(void);
         ~MaterialScriptCompiler(void);
 
-        /** gets BNF Grammer for Compositor script.
+        /** gets BNF Grammar for Compositor script.
         */
         virtual const String& getClientBNFGrammer(void) const;
 
-        /** get the name of the BNF grammer.
+        /** get the name of the BNF grammar.
         */
         virtual const String& getClientGrammerName(void) const;
 
@@ -133,7 +133,7 @@ namespace Ogre {
             ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE, ID_POINT, ID_LINEAR, ID_ADD, ID_MODULATE, ID_ALPHA_BLEND,
             ID_ONE, ID_ZERO, ID_VERTEX, ID_FRAGMENT,
 
-            // where auto generated tokens start so donot remove
+            // where auto generated tokens start so do not remove
             ID_AUTOTOKENSTART
         };
 

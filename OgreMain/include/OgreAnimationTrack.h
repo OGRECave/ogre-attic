@@ -94,7 +94,7 @@ namespace Ogre
         }
     };
 
-    /** A 'track' in an animation sequence, ie a sequence of keyframes which affect a
+    /** A 'track' in an animation sequence, i.e. a sequence of keyframes which affect a
         certain type of animable object.
     @remarks
         This class is intended as a base for more complete classes which will actually
@@ -146,7 +146,7 @@ namespace Ogre
         @param keyFrame2 Pointer to a KeyFrame pointer which will receive the pointer to the 
             keyframe just after this time index. 
         @param firstKeyIndex Pointer to an unsigned short which, if supplied, will receive the 
-            index of the 'from' keyframe incase the caller needs it.
+            index of the 'from' keyframe in case the caller needs it.
         @returns Parametric value indicating how far along the gap between the 2 keyframes the timeIndex
             value is, e.g. 0.0 for exactly at 1, 0.25 for a quarter etc. By definition the range of this 
             value is:  0.0 <= returnValue < 1.0 .

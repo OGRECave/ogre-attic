@@ -54,7 +54,7 @@ namespace Ogre
 	enum eTexturePlayMode
 	{
 		TextureEffectPause = 0,			//! Video starts out paused
-		TextureEffectPlay_ASAP = 1,		//! Video starts playing as soon as posible
+		TextureEffectPlay_ASAP = 1,		//! Video starts playing as soon as possible
 		TextureEffectPlay_Looping = 2	//! Video Plays Instantly && Loops
 	};
 
@@ -155,7 +155,7 @@ namespace Ogre
         static CmdInputFileName msCmdInputFile;		//! Command for setting input file name
 		static CmdFPS msCmdFramesPerSecond;			//! Command for setting frames per second
 		static CmdPlayMode msCmdPlayMode;			//! Command for setting play mode
-		static CmdTecPassState msCmdTecPassState;	//! Command for setting the tecnique, pass, & state level
+		static CmdTecPassState msCmdTecPassState;	//! Command for setting the technique, pass, & state level
 
 
 		//! String Name of this PlugIn

@@ -119,7 +119,7 @@ namespace Ogre {
 
         /** Method for determining if the viewport has changed dimensions. 
         @remarks This is used by pixel-based OverlayElements to work out if they need to
-            reclaculate their sizes.
+            recalculate their sizes.
         */
         bool hasViewportChanged(void) const;
 

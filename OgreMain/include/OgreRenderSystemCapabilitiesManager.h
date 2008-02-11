@@ -70,7 +70,7 @@ namespace Ogre {
         */
         void parseCapabilitiesFromArchive(const String& filename, const String& archiveType, bool recursive = true);
 		
-		/** Returns a capabilitiy loaded with RenderSystemCapabilitiesManager::parseCapabilitiesFromArchive method
+		/** Returns a capability loaded with RenderSystemCapabilitiesManager::parseCapabilitiesFromArchive method
 		* @return NULL if the name is invalid, a parsed RenderSystemCapabilities otherwise.
 		*/
         RenderSystemCapabilities* loadParsedCapabilities(const String& name);

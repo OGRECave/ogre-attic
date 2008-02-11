@@ -153,7 +153,7 @@ namespace Ogre {
         inline void setNull(void) { 
 			if (pRep)
 			{
-				// can't scope lock mutex before release incase deleted
+				// can't scope lock mutex before release in case deleted
 				release();
 				pRep = 0;
 				pUseCount = 0;

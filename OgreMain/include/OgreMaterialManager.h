@@ -154,7 +154,7 @@ namespace Ogre {
         */
         virtual ~MaterialManager();
 
-		/** Intialises the material manager, which also triggers it to 
+		/** Initialises the material manager, which also triggers it to 
 		 * parse all available .program and .material scripts. */
 		void initialise(void);
         

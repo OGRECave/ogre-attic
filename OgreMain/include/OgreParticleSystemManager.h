@@ -138,7 +138,7 @@ namespace Ogre {
             type. This must be unique.
         @par
             Note that the object passed to this function will not be destroyed by the ParticleSystemManager,
-            since it may have been allocted on a different heap in the case of plugins. The caller must
+            since it may have been allocated on a different heap in the case of plugins. The caller must
             destroy the object later on, probably on plugin shutdown.
         @param
             factory Pointer to a ParticleEmitterFactory subclass created by the plugin or application code.
@@ -157,7 +157,7 @@ namespace Ogre {
             type. This must be unique.
         @par
             Note that the object passed to this function will not be destroyed by the ParticleSystemManager,
-            since it may have been allocted on a different heap in the case of plugins. The caller must
+            since it may have been allocated on a different heap in the case of plugins. The caller must
             destroy the object later on, probably on plugin shutdown.
         @param
             factory Pointer to a ParticleAffectorFactory subclass created by the plugin or application code.
@@ -167,7 +167,7 @@ namespace Ogre {
 		/** Registers a factory class for creating ParticleSystemRenderer instances. 
         @par
             Note that the object passed to this function will not be destroyed by the ParticleSystemManager,
-            since it may have been allocted on a different heap in the case of plugins. The caller must
+            since it may have been allocated on a different heap in the case of plugins. The caller must
             destroy the object later on, probably on plugin shutdown.
         @param
             factory Pointer to a ParticleSystemRendererFactory subclass created by the plugin or application code.

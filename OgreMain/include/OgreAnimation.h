@@ -183,7 +183,7 @@ namespace Ogre {
 
         /** Applies an animation given a specific time point and weight.
         @remarks
-            Where you have associated animation tracks with objects, you can eaily apply
+            Where you have associated animation tracks with objects, you can easily apply
             an animation to those objects by calling this method.
         @param timePos The time position in the animation to apply.
         @param weight The influence to give to this track, 1.0 for full influence, less to blend with
@@ -195,7 +195,7 @@ namespace Ogre {
 
         /** Applies all node tracks given a specific time point and weight to a given skeleton.
         @remarks
-        Where you have associated animation tracks with Node objects, you can eaily apply
+        Where you have associated animation tracks with Node objects, you can easily apply
         an animation to those nodes by calling this method.
         @param timePos The time position in the animation to apply.
         @param weight The influence to give to this track, 1.0 for full influence, less to blend with

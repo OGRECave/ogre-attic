@@ -129,7 +129,7 @@ namespace Ogre
         */
         virtual bool isClosed(void) const = 0;
         
-        /** Indicates wether the window is the primary window. The
+        /** Indicates whether the window is the primary window. The
         	primary window is special in that it is destroyed when 
         	ogre is shut down, and cannot be destroyed directly.
         	This is the case because it holds the context for vertex,

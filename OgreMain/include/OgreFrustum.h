@@ -98,7 +98,7 @@ namespace Ogre
         mutable Matrix4 mProjMatrix;
         /// Pre-calced view matrix
         mutable Matrix4 mViewMatrix;
-        /// Something's changed in the frustrum shape?
+        /// Something's changed in the frustum shape?
         mutable bool mRecalcFrustum;
         /// Something re the view pos has changed
         mutable bool mRecalcView;
@@ -215,7 +215,7 @@ namespace Ogre
 
         /** Sets the distance to the far clipping plane.
             @remarks
-                The view frustrum is a pyramid created from the frustum position and the edges of the viewport.
+                The view frustum is a pyramid created from the frustum position and the edges of the viewport.
                 This method sets the distance for the far end of that pyramid. 
                 Different applications need different values: e.g. a flight sim
                 needs a much further far clipping plane than a first-person 
@@ -281,7 +281,7 @@ namespace Ogre
         */
         virtual void setFrustumOffset(Real horizontal = 0.0, Real vertical = 0.0);
 
-        /** Retreives the frustum offsets.
+        /** Retrieves the frustum offsets.
         */
         virtual const Vector2& getFrustumOffset() const;
 

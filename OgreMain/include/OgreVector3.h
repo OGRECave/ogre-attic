@@ -39,7 +39,7 @@ namespace Ogre
     /** Standard 3-dimensional vector.
         @remarks
             A direction in 3D space represented as distances along the 3
-            orthoganal axes (x, y, z). Note that positions, directions and
+            orthogonal axes (x, y, z). Note that positions, directions and
             scaling factors can be represented by a vector, depending on how
             you interpret the values.
     */

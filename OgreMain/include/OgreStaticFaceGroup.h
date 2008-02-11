@@ -36,14 +36,14 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    /** A type of face group, ie face list of procedural etc */
+    /** A type of face group, i.e. face list of procedural etc */
     enum FaceGroupType {
         FGT_FACE_LIST,
         FGT_PATCH,
         FGT_UNKNOWN
     };
 
-    /** Collectes a group of static ie immovable faces together which have common
+    /** Collects a group of static i.e. immovable faces together which have common
         properties like the material they use, the plane they lie on.
         @remarks
             Whilst for discrete geometry (i.e. movable objects) groups of faces are

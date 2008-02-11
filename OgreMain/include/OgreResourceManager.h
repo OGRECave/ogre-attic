@@ -46,7 +46,7 @@ namespace Ogre {
         A resource manager is responsible for managing a pool of
         resources of a particular type. It must index them, look
         them up, load and destroy them. It may also need to stay within
-        a defined memory budget, and temporaily unload some resources
+        a defined memory budget, and temporarily unload some resources
         if it needs to to stay within this budget.
     @par
         Resource managers use a priority system to determine what can
@@ -193,7 +193,7 @@ namespace Ogre {
             resources to be reloaded.
 		@remarks
 			This method behaves like reloadAll, except that it only reloads resources
-            which are not in use, ie not referenced by other objects.
+            which are not in use, i.e. not referenced by other objects.
         @par
             Some referenced resource may exists 'weak' pointer to their sub-components
             (e.g. Entity held pointer to SubMesh), in this case, unload or reload that
@@ -295,7 +295,7 @@ namespace Ogre {
 		}
 
 		/** Notify this manager that a resource which it manages has been 
-			'touched', ie used. 
+			'touched', i.e. used. 
 		*/
 		virtual void _notifyResourceTouched(Resource* res);
 

@@ -53,9 +53,9 @@ namespace Ogre {
 			virtual ~Listener();
 
 			/** Notification of when a render target operation involving a material (like
-				rendering a quad) is compiled, so that miscelleneous parameters that are different
+				rendering a quad) is compiled, so that miscellaneous parameters that are different
 				per Compositor instance can be set up.
-				@param pass_id	Pass identifier within Compositor instance, this is speficied 
+				@param pass_id	Pass identifier within Compositor instance, this is specified 
 								by the user by CompositionPass::setIdentifier().
 				@param mat		Material, this may be changed at will and will only affect
 								the current instance of the Compositor, not the global material
@@ -65,7 +65,7 @@ namespace Ogre {
 
 			/** Notification before a render target operation involving a material (like
 				rendering a quad), so that material parameters can be varied.
-				@param pass_id	Pass identifier within Compositor instance, this is speficied 
+				@param pass_id	Pass identifier within Compositor instance, this is specified 
 								by the user by CompositionPass::setIdentifier().
 				@param mat		Material, this may be changed at will and will only affect
 								the current instance of the Compositor, not the global material
@@ -158,7 +158,7 @@ namespace Ogre {
 			which in practice means that the compositor instance is active. Calling
 			it at other times will cause an exception. Note that since textures
 			are cleaned up aggressively, this name is not guaranteed to stay the
-			same if you disable and renable the compositor instance.
+			same if you disable and re-enable the compositor instance.
 		@param name The name of the texture in the original compositor definition
 		@param mrtIndex If name identifies a MRT, which texture attachment to retrieve
 		@returns The instance name for the texture, corresponds to a real texture
@@ -171,7 +171,7 @@ namespace Ogre {
         */
         virtual void _compileTargetOperations(CompiledState &compiledState);
         
-        /** Compile the final (output) operation. This is done seperately because this
+        /** Compile the final (output) operation. This is done separately because this
             is combined with the input in chained filters.
         */
         virtual void _compileOutputOperation(TargetOperation &finalState);

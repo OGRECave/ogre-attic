@@ -124,7 +124,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     /** Predefined controller value for setting a single floating-
-	    point value in a constant paramter of a vertex or fragment program.
+	    point value in a constant parameter of a vertex or fragment program.
     @remarks
 		Any value is accepted, it is propagated into the 'x'
 		component of the constant register identified by the index. If you
@@ -197,7 +197,7 @@ namespace Ogre {
         */
         AnimationControllerFunction(Real sequenceTime, Real timeOffset = 0.0f);
 
-        /** Overriden function.
+        /** Overridden function.
         */
         Real calculate(Real source);
 
@@ -217,14 +217,14 @@ namespace Ogre {
     public:
         /** Constructor, requires a scale factor.
             @param
-                scalefactor The multipier applied to the input to produce the output.
+                scalefactor The multiplier applied to the input to produce the output.
             @param
                 deltaInput If true, signifies that the input will be a delta value such that the function should
                  add it to an internal counter before calculating the output.
         */
         ScaleControllerFunction(Real scalefactor, bool deltaInput);
 
-        /** Overriden method.
+        /** Overridden method.
         */
         Real calculate(Real source);
 
@@ -233,7 +233,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     /** Predefined controller function based on a waveform.
         @remarks
-            A waveform function translates parametric intput to parametric output based on a wave. The factors
+            A waveform function translates parametric input to parametric output based on a wave. The factors
             affecting the function are:
             - wave type - the shape of the wave
             - base - the base value of the output from the wave
@@ -264,7 +264,7 @@ namespace Ogre {
         Real getAdjustedInput(Real input);
 
     public:
-        /** Default contructor, requires at least a wave type, other parameters can be defaulted unless required.
+        /** Default constructor, requires at least a wave type, other parameters can be defaulted unless required.
             @param
                 deltaInput If true, signifies that the input will be a delta value such that the function should
                 add it to an internal counter before calculating the output.
@@ -273,7 +273,7 @@ namespace Ogre {
         */
         WaveformControllerFunction(WaveformType wType, Real base = 0, Real frequency = 1, Real phase = 0, Real amplitude = 1, bool deltaInput = true, Real dutyCycle = 0.5);
 
-        /** Overriden function.
+        /** Overridden function.
         */
         Real calculate(Real source);
 

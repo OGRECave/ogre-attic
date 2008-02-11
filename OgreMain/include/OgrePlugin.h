@@ -66,7 +66,7 @@ namespace Ogre
 			it will be done for you when Root is destroyed, so the Plugin instance must
 			still be valid at that point if you haven't manually uninstalled it.</li></ul>
 		</ul>
-		The install and unninstall methods will be called when the plugin is
+		The install and uninstall methods will be called when the plugin is
 		installed or uninstalled. The initialise and shutdown will be called when
 		there is a system initialisation or shutdown, e.g. when Root::initialise 
 		or Root::shutdown are called.
@@ -97,7 +97,7 @@ namespace Ogre
 			initialisation.
 		@remarks An implementation must be supplied for this method. It is called 
 			just after the system is fully initialised (either after Root::initialise
-			if a window is created then, or after the frist window is created)
+			if a window is created then, or after the first window is created)
 			and therefore all rendersystem functionality is available at this
 			time. You can use this hook to create any resources which are 
 			dependent on a rendersystem or have rendersystem-specific implementations.

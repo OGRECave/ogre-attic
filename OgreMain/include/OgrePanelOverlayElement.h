@@ -82,7 +82,7 @@ namespace Ogre {
         void getUV(Real& u1, Real& v1, Real& u2, Real& v2) const;
 
         /** Sets whether this panel is transparent (used only as a grouping level), or 
-            if it is actually renderred.
+            if it is actually rendered.
         */
         void setTransparent(bool isTransparent);
 

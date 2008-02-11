@@ -1217,10 +1217,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\OgreCodecFactory.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\OgreColourValue.h"
 				>
 			</File>
@@ -1310,10 +1306,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreDefaultHardwareBufferManager.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreDllInteface.h"
 				>
 			</File>
 			<File
@@ -1906,10 +1898,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreStringInterface.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreStringResource.h"
 				>
 			</File>
 			<File

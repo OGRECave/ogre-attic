@@ -319,7 +319,7 @@ namespace Ogre {
  				Equivalent to RenderMonkey's "WorldViewTranspose".
  			*/
  			ACT_TRANSPOSE_WORLDVIEW_MATRIX,
-            /// The current world & view matrices concatenated, then inverted & tranposed
+            /// The current world & view matrices concatenated, then inverted & transposed
             ACT_INVERSE_TRANSPOSE_WORLDVIEW_MATRIX,
 			/// view matrices.
 
@@ -615,7 +615,7 @@ namespace Ogre {
 
             /** provides the current iteration number of the pass. The iteration
                 number is the number of times the current render operation has
-                been drawn for the acitve pass.
+                been drawn for the active pass.
             */
             ACT_PASS_ITERATION_NUMBER,
 
@@ -815,7 +815,7 @@ namespace Ogre {
 		@param index The logical constant index at which to place the parameter (each constant is
             a 4D float).
             Note that since you're passing a Vector3, the last element of the 4-element
-            value will be set to 1 (a homogenous vector)
+            value will be set to 1 (a homogeneous vector)
 		@param vec The value to set
 		*/
 		void setConstant(size_t index, const Vector3& vec);
@@ -1078,7 +1078,7 @@ namespace Ogre {
         size_t getAutoConstantCount(void) const { return mAutoConstants.size(); }
 		/** Gets a specific Auto Constant entry if index is in valid range
 			otherwise returns a NULL
-		@parem index which entry is to be retrieved
+		@param index which entry is to be retrieved
 		*/
 		AutoConstantEntry* getAutoConstantEntry(const size_t index);
         /** Returns true if this instance has any automatic constants. */
@@ -1417,7 +1417,7 @@ namespace Ogre {
         String mSource;
         /// Whether we need to load source from file or not
         bool mLoadFromFile;
-        /// Syntax code eg arbvp1, vs_2_0 etc
+        /// Syntax code e.g. arbvp1, vs_2_0 etc
         String mSyntaxCode;
         /// Does this (vertex) program include skeletal animation?
         bool mSkeletalAnimation;

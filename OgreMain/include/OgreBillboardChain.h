@@ -43,7 +43,7 @@ namespace Ogre {
 
 	/** Allows the rendering of a chain of connected billboards.
 	@remarks
-		A billboard chain operates much like a traditional billboard, ie its
+		A billboard chain operates much like a traditional billboard, i.e. its
 		segments always face the camera; the difference being that instead of
 		a set of disconnected quads, the elements in this class are connected
 		together in a chain which must always stay in a continuous strip. This
@@ -276,7 +276,7 @@ namespace Ogre {
 		/// Material 
 		String mMaterialName;
 		MaterialPtr mMaterial;
-		/// Tetxure coord direction
+		/// Texture coord direction
 		TexCoordDirection mTexCoordDir;
 		/// Other texture coord range
 		Real mOtherTexCoordRange[2];

@@ -49,7 +49,7 @@ namespace Ogre {
 		TU_DYNAMIC_WRITE_ONLY_DISCARDABLE = HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE,
 		/// mipmaps will be automatically generated for this texture
 		TU_AUTOMIPMAP = 0x100,
-		/// this texture will be a render target, ie. used as a target for render to texture
+		/// this texture will be a render target, i.e. used as a target for render to texture
 		/// setting this flag will ignore all other texture usages except TU_AUTOMIPMAP
 		TU_RENDERTARGET = 0x200,
 		/// default to automatic mipmap generation static textures

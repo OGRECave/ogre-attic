@@ -92,9 +92,9 @@ namespace Ogre {
             ENV_PLANAR,
             /// Envmap based on dot of vector from camera to vertex and vertex normal, good for curves
             ENV_CURVED,
-            /// Envmap entended to supply reflection vectors for cube mapping
+            /// Envmap intended to supply reflection vectors for cube mapping
             ENV_REFLECTION,
-            /// Envmap entended to supply normal vectors for cube mapping
+            /// Envmap intended to supply normal vectors for cube mapping
             ENV_NORMAL
         };
 

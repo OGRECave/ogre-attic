@@ -57,13 +57,13 @@ namespace Ogre {
             application.
         @par
             Why would such a class be needed? First of all, because we had some 
-            major issues with memory getting misued (read: deleted) over DLL 
+            major issues with memory getting misused (read: deleted) over DLL 
             boundaries. One thing this memory manager does is solve the problem by
             allocating all the memory in the OgreMain.dll/so process.
         @par
             Another use would be leak detection and memory misuse detection. With
             a custom memory manager, calls to new/delete and *alloc/free could be
-            overseed and logged.
+            overseen and logged.
         @par
             Yet another use is the optimization of memory allocation for certain
             object types. One of the most common examples is a small object 
@@ -211,11 +211,11 @@ namespace Ogre {
                 calling it. The returned unsigned int is then passed to the memory
                 manager every time a re/de/allocation request is made, in order
                 to check that deallocations don't occur in processes other than the 
-                ones in which allcations were made and so on.
+                ones in which allocations were made and so on.
             @par
                 Actually, the problem of re/de/allocating in other processes was
                 solved with the addition of the new memory manager, but you may
-                want to limit the occurence of such events anyway, and this function
+                want to limit the occurrence of such events anyway, and this function
                 helps you do just that.
         */
         unsigned _getProcessID();

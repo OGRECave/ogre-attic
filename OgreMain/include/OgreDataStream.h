@@ -41,7 +41,7 @@ namespace Ogre {
 		This class performs basically the same tasks as std::basic_istream, 
 		except that it does not have any formatting capabilities, and is
 		designed to be subclassed to receive data from multiple sources,
-		including libraries which have no compatiblity with the STL's
+		including libraries which have no compatibility with the STL's
 		stream interfaces. As such, this is an abstraction of a set of 
 		wrapper classes which pretend to be standard stream classes but 
 		can actually be implemented quite differently. 
@@ -180,7 +180,7 @@ namespace Ogre {
 	public:
 		
 		/** Wrap an existing memory chunk in a stream.
-		@param pMem Pointer to the exising memory
+		@param pMem Pointer to the existing memory
 		@param size The size of the memory chunk in bytes
 		@param freeOnClose If true, the memory associated will be destroyed
 			when the stream is destroyed.
@@ -189,7 +189,7 @@ namespace Ogre {
 		
 		/** Wrap an existing memory chunk in a named stream.
 		@param name The name to give the stream
-		@param pMem Pointer to the exising memory
+		@param pMem Pointer to the existing memory
 		@param size The size of the memory chunk in bytes
 		@param freeOnClose If true, the memory associated will be destroyed
 			when the stream is destroyed.

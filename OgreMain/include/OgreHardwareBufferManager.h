@@ -39,7 +39,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    /** Abtract interface representing a 'licensee' of a hardware buffer copy.
+    /** Abstract interface representing a 'licensee' of a hardware buffer copy.
     remarks
         Often it's useful to have temporary buffers which are used for working
         but are not necessarily needed permanently. However, creating and 
@@ -228,7 +228,7 @@ namespace Ogre {
 			bool useShadowBuffer = false) = 0;
 		/** Create a hardware index buffer.
         @remarks Note that because buffers can be shared, they are reference
-            counted so you do not need to worry about destroying themm this will be done
+            counted so you do not need to worry about destroying them this will be done
             automatically.
 		@param itype The type in index, either 16- or 32-bit, depending on how many vertices
 			you need to be able to address

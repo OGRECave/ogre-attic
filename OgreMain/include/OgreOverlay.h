@@ -133,7 +133,7 @@ namespace Ogre {
             could be as simple as a square panel, or something more complex like
             a grid or tree view. Containers group collections of other elements,
             giving them a relative coordinate space and a common z-order.
-            If you want to attach a gui widget to an overlay, you have to do it via
+            If you want to attach a GUI widget to an overlay, you have to do it via
             a container.
         @param cont Pointer to a container to add, created using OverlayManager.
         */

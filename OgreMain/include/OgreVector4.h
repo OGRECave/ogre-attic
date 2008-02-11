@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 namespace Ogre
 {
 
-    /** 4-dimensional homogenous vector.
+    /** 4-dimensional homogeneous vector.
     */
     class _OgreExport Vector4
     {
