@@ -660,9 +660,12 @@ namespace Ogre {
             /** Provides packed texture size of the texture unit (index determined by setAutoConstant
                 call). Packed as float4(width, height, 1 / width, 1 / height)
             */
-            ACT_PACKED_TEXTURE_SIZE
+            ACT_PACKED_TEXTURE_SIZE,
 
-
+			/** Provides the current transform matrix of the texture unit (index determined by setAutoConstant
+				call), as seen by the fixed-function pipeline. 
+			*/
+			ACT_TEXTURE_MATRIX
         };
 
         /** Defines the type of the extra data item used by the auto constant.

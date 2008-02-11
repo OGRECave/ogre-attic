@@ -187,6 +187,7 @@ namespace Ogre {
 		virtual const Matrix4& getTextureWorldViewProjMatrix(size_t index) const;
 		virtual const Matrix4& getSpotlightViewProjMatrix(size_t index) const;
 		virtual const Matrix4& getSpotlightWorldViewProjMatrix(size_t index) const;
+        virtual const Matrix4& getTextureTransformMatrix(size_t index) const;
         virtual const RenderTarget* getCurrentRenderTarget(void) const;
         virtual const Renderable* getCurrentRenderable(void) const;
         virtual const Pass* getCurrentPass(void) const;

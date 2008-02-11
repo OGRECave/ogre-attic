@@ -655,6 +655,23 @@ namespace Ogre {
 		}
 		return mSpotlightWorldViewProjMatrix[index];
 	}
+//-----------------------------------------------------------------------------
+  const Matrix4& AutoParamDataSource::getTextureTransformMatrix(size_t index) const
+  {
+    // make sure the current pass is set
+    assert(mCurrentPass && "current pass is NULL!");
+    // check if there is a texture unit with the given index in the current pass
+    if(index < mCurrentPass->getNumTextureUnitStates())
+    {
+      // texture unit existent, return its currently set transform
+      return mCurrentPass->getTextureUnitState(index)->getTextureTransform();
+    }
+    else
+    {
+      // no such texture unit, return unity
+      return Matrix4::IDENTITY;
+    }
+  }
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentRenderTarget(const RenderTarget* target)
     {
