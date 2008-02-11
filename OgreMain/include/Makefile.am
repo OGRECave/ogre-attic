@@ -94,7 +94,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreNoMemoryMacros.h \
                      OgreNode.h \
                      OgreNumerics.h \
-					 OgreOptimisedUtils.h \ 
+					 OgreOptimisedUtil.h \ 
                      OgreOverlay.h \
                      OgreOverlayContainer.h \
                      OgreOverlayElement.h \
