@@ -52,7 +52,7 @@ namespace Ogre {
 		IS_UNKNOWN
 	};
 
-    /** Class defining a single pass of a Technique (of a Material), ie
+    /** Class defining a single pass of a Technique (of a Material), i.e.
         a single rendering call.
     @remarks
         Rendering can be repeated with many passes for more complex effects.
@@ -233,7 +233,7 @@ namespace Ogre {
         Pass& operator=(const Pass& oth);
         virtual ~Pass();
 
-        /// Returns true if this pass is programmable ie includes either a vertex or fragment program.
+        /// Returns true if this pass is programmable i.e. includes either a vertex or fragment program.
         bool isProgrammable(void) const { return mVertexProgramUsage || mFragmentProgramUsage; }
         /// Returns true if this pass uses a programmable vertex pipeline
         bool hasVertexProgram(void) const { return mVertexProgramUsage != NULL; }
@@ -251,8 +251,8 @@ namespace Ogre {
         unsigned short getIndex(void) const { return mIndex; }
         /* Set the name of the pass
         @remarks
-        The name of the pass is optional.  Its usefull in material scripts where a material could inherit
-        from another material and only want to modify a particalar pass.
+        The name of the pass is optional.  Its useful in material scripts where a material could inherit
+        from another material and only want to modify a particular pass.
         */
         void setName(const String& name);
         /// get the name of the pass
@@ -419,7 +419,7 @@ namespace Ogre {
 			The resulting size is clamped to the minimum and maximum point
 			size.
 		@param enabled Whether point attenuation is enabled
-		@param constant, linear, quadratic Parameters to the attentuation
+		@param constant, linear, quadratic Parameters to the attenuation
 			function defined above
 		*/
 		void setPointAttenuation(bool enabled,
@@ -562,7 +562,7 @@ namespace Ogre {
 
        /** Sets the kind of blending this pass has with the existing contents of the scene, separately for color and alpha channels
         @remarks
-        Wheras the texture blending operations seen in the TextureUnitState class are concerned with
+        Whereas the texture blending operations seen in the TextureUnitState class are concerned with
         blending between texture layers, this blending is about combining the output of the Pass
         as a whole with the existing contents of the rendering target. This blending therefore allows
         object transparency and other special effects. If all passes in a technique have a scene
@@ -582,7 +582,7 @@ namespace Ogre {
 
         /** Allows very fine control of blending this Pass with the existing contents of the scene.
         @remarks
-        Wheras the texture blending operations seen in the TextureUnitState class are concerned with
+        Whereas the texture blending operations seen in the TextureUnitState class are concerned with
         blending between texture layers, this blending is about combining the output of the material
         as a whole with the existing contents of the rendering target. This blending therefore allows
         object transparency and other special effects.
@@ -739,7 +739,7 @@ namespace Ogre {
         CullingMode getCullingMode(void) const;
 
         /** Sets the manual culling mode, performed by CPU rather than hardware.
-        @pemarks
+        @remarks
         In some situations you want to use manual culling of triangles rather than sending the
         triangles to the hardware and letting it cull them. This setting only takes effect on SceneManager's
         that use it (since it is best used on large groups of planar world geometry rather than on movable
@@ -847,7 +847,7 @@ namespace Ogre {
         lets you change the fog behaviour for this pass compared to the standard scene-level fog.
         @param
         overrideScene If true, you authorise this pass to override the scene's fog params with it's own settings.
-        If you specify false, so other parameters are necessary, and this is the default behaviour for passs.
+        If you specify false, so other parameters are necessary, and this is the default behaviour for passes.
         @param
         mode Only applicable if overrideScene is true. You can disable fog which is turned on for the
         rest of the scene by specifying FOG_NONE. Otherwise, set a pass-specific fog mode as
@@ -1102,7 +1102,7 @@ namespace Ogre {
         with only the ambient colour being used (which the engine will ensure
         is bound to the shadow colour).
         @par
-        Therefore, it is up to implemetors of vertex programs to provide an
+        Therefore, it is up to implementors of vertex programs to provide an
         alternative vertex program which can be used to render the object
         to a shadow texture. Do all the same vertex transforms, but set the
         colour of the vertex to the ambient colour, as bound using the
@@ -1117,7 +1117,7 @@ namespace Ogre {
         This is only applicable to programmable passes.
         @par
         The default behaviour is for Ogre to switch to fixed-function
-        rendering if an explict vertex program alternative is not set.
+        rendering if an explicit vertex program alternative is not set.
         */
         void setShadowCasterVertexProgram(const String& name);
         /** Sets the vertex program parameters for rendering as a shadow caster.
@@ -1146,7 +1146,7 @@ namespace Ogre {
             appropriate vertex transformation, but generates projective texture
             coordinates.
         @par
-            Therefore, it is up to implemetors of vertex programs to provide an
+            Therefore, it is up to implementors of vertex programs to provide an
             alternative vertex program which can be used to render the object
             as a shadow receiver. Do all the same vertex transforms, but generate
             <strong>2 sets</strong> of texture coordinates using the auto parameter

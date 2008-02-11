@@ -783,7 +783,7 @@ namespace Ogre {
 		*/
 		void _notifyResourceRemoved(ResourcePtr& res);
 
-		/** Internale method to notify the group manager that a resource has
+		/** Internal method to notify the group manager that a resource has
 			changed group (only applicable for autodetect group) */
 		void _notifyResourceGroupChanged(const String& oldGroup, Resource* res);
 

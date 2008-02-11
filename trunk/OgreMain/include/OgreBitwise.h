@@ -72,7 +72,7 @@ namespace Ogre {
             return (n & (n-1)) == 0;
         }
         /** Returns the number of bits a pattern must be shifted right by to
-            remove right-hand zeroes.
+            remove right-hand zeros.
         */
 		template<typename T>
         static FORCEINLINE unsigned int getBitShift(T mask)
@@ -106,7 +106,7 @@ namespace Ogre {
 			// Get max value possible in source from srcMask
 			const SrcT srcMax = srcBitMask >> srcBitShift;
 
-			// Get max avaiable in dest
+			// Get max available in dest
 			const unsigned int destBitShift = getBitShift(destBitMask);
 			const DestT destMax = destBitMask >> destBitShift;
 

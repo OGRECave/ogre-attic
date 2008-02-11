@@ -71,7 +71,7 @@ namespace Ogre
 		{
 			/** A list of vertex indices which were split off into new vertices
 				because of mirroring. First item in each pair is the source vertex 
-				index, the secon value is the split vertex index.
+				index, the second value is the split vertex index.
 			*/
 			VertexSplits vertexSplits;
 			/** A list of indexes which were affected by splits. You can use this if you have other

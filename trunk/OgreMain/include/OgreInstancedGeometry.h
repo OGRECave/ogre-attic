@@ -688,7 +688,7 @@ namespace Ogre {
 		@remarks
 				This method add a new instance of the whole batch, by creating a new 
 				BatchInstance, containing new lod buckets, material buckets and geometry buckets.
-				The new geometry bukets will use the same buffers as the base bucket.
+				The new geometry buckets will use the same buffers as the base bucket.
 		@note
 			no note
 		*/

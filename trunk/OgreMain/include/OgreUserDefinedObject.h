@@ -38,7 +38,7 @@ namespace Ogre {
         associate their own application objects with MovableObject instances
         in the engine.
     @remarks
-        It's always been suggested that an OGRE application would likley comprise
+        It's always been suggested that an OGRE application would likely comprise
         a number of game objects which would keep pointers to OGRE objects in order
         to maintain the link. However, in some cases it would be very useful to be able to
         navigate directly from an OGRE instance back to a custom application object.

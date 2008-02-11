@@ -71,10 +71,10 @@ namespace Ogre {
         */
         bool getOnlyInitial();
         
-        /** Set the scene visiblity mask used by this pass 
+        /** Set the scene visibility mask used by this pass 
         */
         void setVisibilityMask(uint32 mask);
-        /** Get the scene visiblity mask used by this pass 
+        /** Get the scene visibility mask used by this pass 
         */
         uint32 getVisibilityMask();
 

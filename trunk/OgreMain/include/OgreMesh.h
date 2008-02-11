@@ -69,7 +69,7 @@ namespace Ogre {
             have parts with different materials.
         @par
             As described above, because the mesh may have sections of differing
-            material properties, a mesh is inherently a compound contruct,
+            material properties, a mesh is inherently a compound construct,
             consisting of one or more SubMesh objects.
             However, it strongly 'owns' it's SubMeshes such that they
             are loaded / unloaded at the same time. This is contrary to

@@ -106,14 +106,14 @@ namespace Ogre {
         @remarks
             This initializes all the internal data of the class.
         @warning
-            Do not call this function directly, it is ment to be used
+            Do not call this function directly, it is meant to be used
             only by the ArchiveManager class.
         */
         virtual void load() = 0;
 
         /** Unloads the archive.
         @warning
-            Do not call this function directly, it is ment to be used
+            Do not call this function directly, it is meant to be used
             only by the ArchiveManager class.
         */
         virtual void unload() = 0;

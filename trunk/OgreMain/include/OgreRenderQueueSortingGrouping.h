@@ -67,7 +67,7 @@ namespace Ogre {
 		QueuedRenderableVisitor() {}
 		virtual ~QueuedRenderableVisitor() {}
 		
-		/** Called when visiting a RenderablePass, ie items in a
+		/** Called when visiting a RenderablePass, i.e. items in a
 			sorted collection where items are not grouped by pass.
 		@remarks
 			If this is called, neither of the other 2 visit methods
@@ -177,7 +177,7 @@ namespace Ogre {
 				    }
 				    else
 				    {
-				        // Sort DESCENDING by depth (ie far objects first)
+				        // Sort DESCENDING by depth (i.e. far objects first)
 					    return (adepth > bdepth);
 				    }
                 }
@@ -382,7 +382,7 @@ namespace Ogre {
 
 		/** Reset the organisation modes required for the solids in this group. 
 		@remarks
-			You can only do this when the group is empty, ie after clearing the 
+			You can only do this when the group is empty, i.e. after clearing the 
 			queue.
 		@see QueuedRenderableCollection::OrganisationMode
 		*/
@@ -390,7 +390,7 @@ namespace Ogre {
 		
 		/** Add a required sorting / grouping mode for the solids in this group.
 		@remarks
-			You can only do this when the group is empty, ie after clearing the 
+			You can only do this when the group is empty, i.e. after clearing the 
 			queue.
 		@see QueuedRenderableCollection::OrganisationMode
 		*/
@@ -398,7 +398,7 @@ namespace Ogre {
 
 		/** Set the sorting / grouping mode for the solids in this group to the default.
 		@remarks
-			You can only do this when the group is empty, ie after clearing the 
+			You can only do this when the group is empty, i.e. after clearing the 
 			queue.
 		@see QueuedRenderableCollection::OrganisationMode
 		*/
@@ -523,7 +523,7 @@ namespace Ogre {
         /** Clears this group of renderables. 
         @param destroy
             If false, doesn't delete any priority groups, just empties them. Saves on 
-            memory deallocations since the chances are rougly the same kinds of 
+            memory deallocations since the chances are roughly the same kinds of 
             renderables are going to be sent to the queue again next time. If
 			true, completely destroys.
         */

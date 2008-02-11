@@ -77,7 +77,7 @@ namespace Ogre {
 			retrieve this program later with getByName.
 		@param groupName The name of the resource group
 		@param code A string of assembly code which will form the program to run
-		@param gptype The type of prgram to create.
+		@param gptype The type of program to create.
         @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		*/
 		virtual GpuProgramPtr loadFromString(const String& name, const String& groupName,
@@ -127,7 +127,7 @@ namespace Ogre {
 			retrieve this program later with getByName.
 		@param groupName The name of the resource group
 		@param code A string of assembly code which will form the program to run
-		@param gptype The type of prgram to create.
+		@param gptype The type of program to create.
         @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		*/
 		virtual GpuProgramPtr createProgramFromString(const String& name, 

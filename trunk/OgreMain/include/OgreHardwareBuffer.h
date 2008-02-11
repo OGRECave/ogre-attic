@@ -122,7 +122,7 @@ namespace Ogre {
 			    */
 			    HBL_DISCARD,
 			    /** Lock the buffer for reading only. Not allowed in buffers which are created with HBU_WRITE_ONLY. 
-				Mandatory on statuc buffers, ie those created without the HBU_DYNAMIC flag. 
+				Mandatory on static buffers, i.e. those created without the HBU_DYNAMIC flag. 
 				*/ 
 			    HBL_READ_ONLY,
                 /** As HBL_NORMAL, except the application guarantees not to overwrite any 

@@ -46,11 +46,11 @@ namespace Ogre {
 		CompositorScriptCompiler(void);
 		~CompositorScriptCompiler(void);
 
-        /** gets BNF Grammer for Compositor script.
+        /** gets BNF Grammar for Compositor script.
         */
         virtual const String& getClientBNFGrammer(void) const;
 
-        /** get the name of the Compositor script BNF grammer.
+        /** get the name of the Compositor script BNF grammar.
         */
         virtual const String& getClientGrammerName(void) const;
 
@@ -99,7 +99,7 @@ namespace Ogre {
 
 			// general
 			ID_ON, ID_OFF, ID_TRUE, ID_FALSE,
-            // where auto generated tokens start so donot remove
+            // where auto generated tokens start so do not remove
             ID_AUTOTOKENSTART
 		};
 

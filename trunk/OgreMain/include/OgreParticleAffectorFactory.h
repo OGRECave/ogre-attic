@@ -62,7 +62,7 @@ namespace Ogre {
         */
         virtual ParticleAffector* createAffector(ParticleSystem* psys) = 0;
 
-        /** Destroys the affector pointed to by the parameter (for early clean up if reauired). */
+        /** Destroys the affector pointed to by the parameter (for early clean up if required). */
         virtual void destroyAffector(ParticleAffector* e);
     };
 

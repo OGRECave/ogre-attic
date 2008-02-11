@@ -151,8 +151,8 @@ namespace Ogre {
         */
         virtual void detachAllObjects(void);
 
-		/** Determines whether this node is in the scene graph, ie
-			whether it's ulitimate ancestor is the root scene node.
+		/** Determines whether this node is in the scene graph, i.e.
+			whether it's ultimate ancestor is the root scene node.
 		*/
 		virtual bool isInSceneGraph(void) const { return mIsInSceneGraph; }
 

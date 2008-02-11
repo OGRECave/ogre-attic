@@ -66,7 +66,7 @@ namespace Ogre {
                 The library that contains the data-handling code
             @returns
                 If the function succeeds, a valid pointer to an Archive
-                object is returened.
+                object is returned.
             @par
                 If the function fails, an exception is thrown.
         */

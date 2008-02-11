@@ -207,7 +207,7 @@ namespace Ogre {
 		*/
 		void _restoreBuffersForUnusedAnimation(bool hardwareAnimation);
 
-		/** Overridden from Renderble to provide some custom behaviour. */
+		/** Overridden from Renderable to provide some custom behaviour. */
 		void _updateCustomGpuParameter(
 			const GpuProgramParameters::AutoConstantEntry& constantEntry,
 			GpuProgramParameters* params) const;

@@ -160,7 +160,7 @@ namespace Ogre {
 		This is just a simple data holder class which contains a list of 
 		RenderQueueInvocation objects representing the sequence of invocations
 		made for a viewport. It's only real purpose is to ensure that 
-		RenderQueueInvocation instances are deleted on shudown, since you can
+		RenderQueueInvocation instances are deleted on shutdown, since you can
 		provide your own subclass instances on RenderQueueInvocation. Remember
 		that any invocation instances you give to this class will be deleted
 		by it when it is cleared / destroyed.

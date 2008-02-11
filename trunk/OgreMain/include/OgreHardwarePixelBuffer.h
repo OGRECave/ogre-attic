@@ -117,7 +117,7 @@ namespace Ogre {
          */        
         virtual void blit(const HardwarePixelBufferSharedPtr &src, const Image::Box &srcBox, const Image::Box &dstBox);
 
-		/** Convience function that blits the entire source pixel buffer to this buffer. 
+		/** Convenience function that blits the entire source pixel buffer to this buffer. 
 			If source and destination dimensions don't match, scaling is done.
 			@param src		PixelBox containing the source pixels and format in memory
 			@note Only call this function when the buffer is unlocked. 
@@ -135,7 +135,7 @@ namespace Ogre {
 		*/
 		virtual void blitFromMemory(const PixelBox &src, const Image::Box &dstBox) = 0;
 		
-		/** Convience function that blits a pixelbox from memory to the entire 
+		/** Convenience function that blits a pixelbox from memory to the entire 
 			buffer. The source image is scaled as needed.
 			@param src		PixelBox containing the source pixels and format in memory
 			@note Only call this function when the buffer is unlocked. 

@@ -62,13 +62,13 @@ namespace Ogre {
 
         /** Loads the passed library.
             @param
-                filename The name of the library. The extension can be ommitted
+                filename The name of the library. The extension can be omitted
         */
         DynLib* load(const String& filename);
 
 		/** Unloads the passed library.
 		@param
-		filename The name of the library. The extension can be ommitted
+		filename The name of the library. The extension can be omitted
 		*/
 		void unload(DynLib* lib);
 

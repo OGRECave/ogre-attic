@@ -51,7 +51,7 @@ namespace Ogre {
     class ControllerFunction
     {
     protected:
-        /// If true, function will add imput values together and wrap at 1.0 before evaluating
+        /// If true, function will add input values together and wrap at 1.0 before evaluating
         bool mDeltaInput;
         T mDeltaCount;
 

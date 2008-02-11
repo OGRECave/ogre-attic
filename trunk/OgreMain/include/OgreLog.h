@@ -64,7 +64,7 @@ namespace Ogre {
 
         /**
         @remarks
-            This is called whenever the log recieves a message and is about to write it out
+            This is called whenever the log receives a message and is about to write it out
         @param message
             The message to be logged
         @param lml

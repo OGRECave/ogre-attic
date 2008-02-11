@@ -64,12 +64,12 @@ namespace Ogre
 	};
 
 	/// Enum describing the different hardware capabilities we want to check for
-	/// OGRE_CAPS_VALUE(a, b) defines each capbility
+	/// OGRE_CAPS_VALUE(a, b) defines each capability
 	// a is the category (which can be from 0 to 15)
 	// b is the value (from 0 to 27)
 	enum Capabilities
 	{
-		/// Supporta generating mipmaps in hardware
+		/// Supports generating mipmaps in hardware
 		RSC_AUTOMIPMAP              = OGRE_CAPS_VALUE(CAPS_CATEGORY_COMMON, 0),
 		RSC_BLENDING                = OGRE_CAPS_VALUE(CAPS_CATEGORY_COMMON, 1),
 		/// Supports anisotropic texture filtering
@@ -223,7 +223,7 @@ namespace Ogre
 		static StringVector msGPUVendorStrings;
 		void initVendorStrings() const;
 
-		/// The number of world matricies available
+		/// The number of world matrices available
 		ushort mNumWorldMatrices;
 		/// The number of texture units available
 		ushort mNumTextureUnits;

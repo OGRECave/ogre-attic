@@ -36,7 +36,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 	/** Object representing one pass or operation in a composition sequence. This provides a 
-		method to conviently interleave RenderSystem commands between Render Queues.
+		method to conveniently interleave RenderSystem commands between Render Queues.
 	 */
     class _OgreExport CompositionPass
     {

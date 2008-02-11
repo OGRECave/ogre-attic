@@ -214,7 +214,7 @@ namespace Ogre
         /** Displays a dialog asking the user to choose system settings.
             @remarks
                 This method displays the default dialog allowing the user to
-                choose the renderering system, video mode etc. If there is are
+                choose the rendering system, video mode etc. If there is are
                 any settings saved already, they will be restored automatically
                 before displaying the dialogue. When the user accepts a group of
                 settings, this will automatically call Root::setRenderSystem,
@@ -233,7 +233,7 @@ namespace Ogre
             @remarks
                 Intended for use by advanced users and plugin writers only!
                 Calling this method with a pointer to a valid RenderSystem
-                (sublcass) adds a rendering API implementation to the list of
+                (subclass) adds a rendering API implementation to the list of
                 available ones. Typical examples would be an OpenGL
                 implementation and a Direct3D implementation.
             @note

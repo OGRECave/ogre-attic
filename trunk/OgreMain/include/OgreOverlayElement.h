@@ -154,7 +154,7 @@ namespace Ogre {
         Real mDerivedTop;
         bool mDerivedOutOfDate;
 
-        /// Flag indicating if the vertex positons need recalculating
+        /// Flag indicating if the vertex positions need recalculating
         bool mGeomPositionsOutOfDate;
 		/// Flag indicating if the vertex uvs need recalculating
 		bool mGeomUVsOutOfDate;
@@ -303,7 +303,7 @@ namespace Ogre {
         /** Updates this elements transform based on it's parent. */
         virtual void _updateFromParent(void);
 
-        /** Internal method for notifying the gui element of it's parent and ultimate overlay. */
+        /** Internal method for notifying the GUI element of it's parent and ultimate overlay. */
         virtual void _notifyParent(OverlayContainer* parent, Overlay* overlay);
 
         /** Gets the 'left' position as derived from own left and that of parents. */
@@ -329,7 +329,7 @@ namespace Ogre {
         nested within this to ensure that containers are displayed behind contained
         items. This method is used internally to notify the element of a change in
         final zorder which is used to render the element.
-		@return Return the next zordering number availble. For single elements, this
+		@return Return the next zordering number available. For single elements, this
 		is simply newZOrder + 1, but for containers, they increment it once for each
 		child (more if those children are also containers).
         */

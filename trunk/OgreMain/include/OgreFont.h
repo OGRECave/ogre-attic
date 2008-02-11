@@ -222,7 +222,7 @@ namespace Ogre
         uint getTrueTypeResolution(void) const;
 
 
-        /** Returns the teture coordinates of the associated glyph. 
+        /** Returns the texture coordinates of the associated glyph. 
             @remarks Parameter is a short to allow both ASCII and wide chars.
             @param id The code point (unicode)
             @returns A rectangle with the UV coordinates, or null UVs if the

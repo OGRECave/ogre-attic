@@ -48,19 +48,19 @@ namespace Ogre {
             parameters like type, position, attenuation (how light intensity fades with
             distance), colour etc.
         @par
-            The defaults when a light is created is pure white diffues light, with no
+            The defaults when a light is created is pure white diffuse light, with no
             attenuation (does not decrease with distance) and a range of 1000 world units.
         @par
             Lights are created by using the SceneManager::createLight method. They can subsequently be
             added to a SceneNode if required to allow them to move relative to a node in the scene. A light attached
-            to a SceneNode is assumed to havea base position of (0,0,0) and a direction of (0,0,1) before modification
+            to a SceneNode is assumed to have a base position of (0,0,0) and a direction of (0,0,1) before modification
             by the SceneNode's own orientation. If not attached to a SceneNode,
             the light's position and direction is as set using setPosition and setDirection.
         @par
             Remember also that dynamic lights rely on modifying the colour of vertices based on the position of
             the light compared to an object's vertex normals. Dynamic lighting will only look good if the
-            object being lit has a fair level of tesselation and the normals are properly set. This is particularly
-            true for the spotlight which will only look right on highly tesselated models. In the future OGRE may be
+            object being lit has a fair level of tessellation and the normals are properly set. This is particularly
+            true for the spotlight which will only look right on highly tessellated models. In the future OGRE may be
             extended for certain scene types so an alternative to the standard dynamic lighting may be used, such
             as dynamic lightmaps.
     */
@@ -109,7 +109,7 @@ namespace Ogre {
                 light an object reflects. This value denotes the amount and colour of this type of light the light
                 exudes into the scene. The actual appearance of objects is a combination of the two.
             @par
-                Diffuse light simulates the typical light emenating from light sources and affects the base colour
+                Diffuse light simulates the typical light emanating from light sources and affects the base colour
                 of objects together with ambient light.
         */
         void setDiffuseColour(Real red, Real green, Real blue);
@@ -120,7 +120,7 @@ namespace Ogre {
                 light an object reflects. This value denotes the amount and colour of this type of light the light
                 exudes into the scene. The actual appearance of objects is a combination of the two.
             @par
-                Diffuse light simulates the typical light emenating from light sources and affects the base colour
+                Diffuse light simulates the typical light emanating from light sources and affects the base colour
                 of objects together with ambient light.
         */
         void setDiffuseColour(const ColourValue& colour);
@@ -155,12 +155,12 @@ namespace Ogre {
         */
         const ColourValue& getSpecularColour(void) const;
 
-        /** Sets the attenuation parameters of the light source ie how it diminishes with distance.
+        /** Sets the attenuation parameters of the light source i.e. how it diminishes with distance.
             @remarks
                 Lights normally get fainter the further they are away. Also, each light is given a maximum range
                 beyond which it cannot affect any objects.
             @par
-                Light attentuation is not applicable to directional lights since they have an infinite range and
+                Light attenuation is not applicable to directional lights since they have an infinite range and
                 constant intensity.
             @par
                 This follows a standard attenuation approach - see any good 3D text for the details of what they mean

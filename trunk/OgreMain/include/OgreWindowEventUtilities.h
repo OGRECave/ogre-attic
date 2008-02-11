@@ -88,7 +88,7 @@ namespace Ogre
 
 		/**
 		@Remarks
-			Window has lost/gained focuw
+			Window has lost/gained focus
 		@param rw
 			The RenderWindow which created this events
 		*/

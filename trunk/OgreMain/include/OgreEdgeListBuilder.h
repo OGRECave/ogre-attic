@@ -73,9 +73,9 @@ namespace Ogre {
             bool degenerate;
         };
 
-        // Array of 4D vector of triangle face normal, which is unit vector othogonal
+        // Array of 4D vector of triangle face normal, which is unit vector orthogonal
         // to the triangles, plus distance from origin.
-        // Use aligned allocator here because we are intented to use in SIMD optimised routines .
+        // Use aligned allocator here because we are intended to use in SIMD optimised routines .
         typedef std::vector<Vector4, AlignedAllocator<Vector4> > TriangleFaceNormalList;
 
         // Working vector used when calculating the silhouette.
@@ -123,7 +123,7 @@ namespace Ogre {
 
         /** Calculate the light facing state of the triangles in this edge list
         @remarks
-            This is normally the first stage of calculating a silhouette, ie
+            This is normally the first stage of calculating a silhouette, i.e.
             establishing which tris are facing the light and which are facing
             away. This state is stored in the 'triangleLightFacings'.
         @param lightPos 4D position of the light in object space, note that 

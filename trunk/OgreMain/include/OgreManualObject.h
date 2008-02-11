@@ -75,7 +75,7 @@ namespace Ogre
 		  -# If you want to define triangles (or lines/points) by indexing into the vertex list, 
 			 you can call index() as many times as you need to define them.
 			 If you don't do this, the class will assume you want triangles drawn
-			 directly as defined by the vertex list, ie non-indexed geometry. Note
+			 directly as defined by the vertex list, i.e. non-indexed geometry. Note
 			 that stencil shadows are only supported on indexed geometry, and that
 			 indexed geometry is a little faster; so you should try to use it.
 		  -# Call end() to finish entering data.
@@ -148,7 +148,7 @@ namespace Ogre
 		virtual void begin(const String& materialName, 
 			RenderOperation::OperationType opType = RenderOperation::OT_TRIANGLE_LIST);
 
-		/** Use before defining gometry to indicate that you intend to update the
+		/** Use before defining geometry to indicate that you intend to update the
 			geometry regularly and want the internal structure to reflect that.
 		*/
 		virtual void setDynamic(bool dyn) { mDynamic = dyn; }
@@ -332,7 +332,7 @@ namespace Ogre
 				AxisAlignedBox::setInfinite */
 		void setBoundingBox(const AxisAlignedBox& box) { mAABB = box; }
 
-		/** Gets a pointer to a ManualObjectSection, ie a part of a ManualObject.
+		/** Gets a pointer to a ManualObjectSection, i.e. a part of a ManualObject.
 		*/
 		ManualObjectSection* getSection(unsigned int index) const;
 
@@ -483,7 +483,7 @@ namespace Ogre
 		AxisAlignedBox mAABB;
 		/// Bounding sphere
 		Real mRadius;
-		/// Any indexed geoemtry on any sections?
+		/// Any indexed geometry on any sections?
 		bool mAnyIndexed;
 		/// Edge list, used if stencil shadow casting is enabled 
 		EdgeData* mEdgeList;

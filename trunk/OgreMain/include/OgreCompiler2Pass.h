@@ -46,9 +46,9 @@ namespace Ogre {
 			    checking.
 
 			    During Pass1, if a terminal token is identified as having an action then that action gets triggered
-			    when the next terminal token is uncountered that has an action.
+			    when the next terminal token is encountered that has an action.
 
-	    PASS 2 - generate application specific instructions ie native instructions based on the tokens in the instruction container.
+	    PASS 2 - generate application specific instructions i.e. native instructions based on the tokens in the instruction container.
 
     @par
 	    this class must be subclassed with the subclass providing some implementation details for Pass 2.  The subclass
@@ -257,7 +257,7 @@ namespace Ogre {
 
         TokenState* mClientTokenState;
 
-	    /// Active token que, definitions, rules currntly being used by parser
+	    /// Active token que, definitions, rules currently being used by parser
         TokenState* mActiveTokenState;
         /// the location within the token instruction container where pass 2 is
         mutable size_t mPass2TokenQuePosition;
@@ -277,7 +277,7 @@ namespace Ogre {
 
 	    size_t mCurrentLine; /// current line number in source being tokenized
         size_t mCharPos;     /// position in current line in source being tokenized
-        size_t mErrorCharPos; /// character position in source where last error occured
+        size_t mErrorCharPos; /// character position in source where last error occurred
 
 	    /// storage container for constants defined in source
         /// container uses Token index as a key associated with a float constant
@@ -321,7 +321,7 @@ namespace Ogre {
 	    @remark
 		    Pass 2 takes the token instructions generated in Pass 1 and
 		    builds the application specific instructions along with verifying
-		    symantic and context rules that could not be checked in Pass 1.
+		    semantic and context rules that could not be checked in Pass 1.
         @par
             Pass 2 execution consumes tokens and moves the Pass 2 token instruction position towards the end
             of the token container.  Token execution can insert new tokens into the token container.
@@ -330,8 +330,8 @@ namespace Ogre {
 
         /** execute the action associated with the token pointed to by the Pass 2 token instruction position.
         @remarks
-            Its upto the child class to implement how it will associate a token key with and action.
-            Actions should be placed at positions withing the BNF grammer (instruction que) that indicate
+            It's up to the child class to implement how it will associate a token key with and action.
+            Actions should be placed at positions withing the BNF grammar (instruction que) that indicate
             enough tokens exist for pass 2 processing to take place.
         */
         virtual void executeTokenAction(const size_t tokenID) = 0;
@@ -342,12 +342,12 @@ namespace Ogre {
             the manually set ones.
         */
         virtual size_t getAutoTokenIDStart() const = 0;
-        /** setup client token definitions.  Gets called when BNF grammer is being setup.
+        /** setup client token definitions.  Gets called when BNF grammar is being setup.
         */
         virtual void setupTokenDefinitions(void) = 0;
         /** Gets the next token from the instruction que.
         @remarks
-            If an unkown token is found then an exception is raised but
+            If an unknown token is found then an exception is raised but
             the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
             provide an error message, and attempt recovery.
 
@@ -360,7 +360,7 @@ namespace Ogre {
         }
         /** Gets the current token from the instruction que.
         @remarks
-            If an unkown token is found then an exception is raised.
+            If an unknown token is found then an exception is raised.
             The subclass should catch the exception, provide an error message, and attempt recovery.
 
         @param expectedTokenID if greater than 0 then an exception is raised if tokenID does not match.
@@ -390,7 +390,7 @@ namespace Ogre {
         */
         void replaceToken(void);
         /** Gets the next token's associated floating point value in the instruction que that was parsed from the
-            text source.  If an unkown token is found or no associated value was found then an exception is raised but
+            text source.  If an unknown token is found or no associated value was found then an exception is raised but
             the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
             provide an error message, and attempt recovery.
         */
@@ -402,14 +402,14 @@ namespace Ogre {
         /** Gets the current token's associated floating point value in the instruction que that was parsed from the
             text source.
         @remarks
-            If an unkown token is found or no associated value was found then an exception is raised.
+            If an unknown token is found or no associated value was found then an exception is raised.
             The subclass should catch the exception, provide an error message, and attempt recovery.
         */
         float getCurrentTokenValue(void) const;
         /** Gets the next token's associated text label in the instruction que that was parsed from the
             text source.
         @remarks
-            If an unkown token is found or no associated label was found then an exception is raised but
+            If an unknown token is found or no associated label was found then an exception is raised but
             the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
             provide an error message, and attempt recovery.
         */
@@ -419,7 +419,7 @@ namespace Ogre {
             return getCurrentTokenLabel();
         }
         /** Gets the next token's associated text label in the instruction que that was parsed from the
-            text source.  If an unkown token is found or no associated label was found then an exception is raised.
+            text source.  If an unknown token is found or no associated label was found then an exception is raised.
             The subclass should catch the exception, provide an error message, and attempt recovery.
         */
         const String& getCurrentTokenLabel(void) const;
@@ -445,14 +445,14 @@ namespace Ogre {
         */
         size_t getPass2TokenQueCount(void) const;
         /** Get the number of tokens not processed by action token.
-            Client Actions should use this method to retreive the number of parameters(tokens)
+            Client Actions should use this method to retrieve the number of parameters(tokens)
             remaining to be processed in the action.
         */
         size_t getRemainingTokensForAction(void) const;
-        /** Manualy set the Pass2 Token que position.
+        /** Manually set the Pass2 Token que position.
         @remarks
             This method will also set the position of the next token in the pass2 que that
-            has an action ensuring that getRemainingTokensForAction works currectly.
+            has an action ensuring that getRemainingTokensForAction works correctly.
             This method is useful for when the token que must be reprocessed after
             pass1 and the position in the que must be changed so that an action will be triggered.
         @param pos is the new position within the Pass2 que
@@ -478,7 +478,7 @@ namespace Ogre {
             The backend compiler uses the associations between lexeme and token when
             building the rule base from the BNF script so all associations must  be done
             prior to compiling a source.
-        @param lexeme is the name of the token and use when parsing the source to determin a match for a token.
+        @param lexeme is the name of the token and use when parsing the source to determine a match for a token.
         @param token is the ID associated with the lexeme. If token is 0 then the token ID is auto generated and returned.
         @param hasAction must be set true if the client wants an action triggered when this token is generated
         @param caseSensitive should be set true if lexeme match should use case sensitivity
@@ -486,21 +486,21 @@ namespace Ogre {
         */
         size_t addLexemeToken(const String& lexeme, const size_t token, const bool hasAction = false, const bool caseSensitive = false);
 
-        /** Sets up the parser rules for the client based on the BNF Grammer text passed in.
+        /** Sets up the parser rules for the client based on the BNF Grammar text passed in.
         @remarks
-            Raises an exception if the grammer did not compile successfully.  This method gets called
-            when a call to compile occurs and no compiled BNF grammer exists, otherwise nothing will happen since the compiler has no rules to work
-            with.  The grammer only needs to be set once during the lifetime of the compiler unless the
-            grammer changes.
+            Raises an exception if the grammar did not compile successfully.  This method gets called
+            when a call to compile occurs and no compiled BNF grammar exists, otherwise nothing will happen since the compiler has no rules to work
+            with.  The grammar only needs to be set once during the lifetime of the compiler unless the
+            grammar changes.
         @note
-            BNF Grammer rules are cached once the BNF grammer source is compiled.
+            BNF Grammar rules are cached once the BNF grammar source is compiled.
             The client should never have to call this method directly.
         */
         void setClientBNFGrammer(void);
 
 
 
-        /// find the eol charater
+        /// find the eol character
 	    void findEOL();
 
 	    /** check to see if the text at the present position in the source is a numerical constant
@@ -522,7 +522,7 @@ namespace Ogre {
         */
         bool isCharacterLabel(const size_t rulepathIDX);
 	    /** check to see if the text is in the lexeme text library
-	    @param lexeme points to begining of text where a lexem token might exist
+	    @param lexeme points to beginning of text where a lexer token might exist
 	    @param caseSensitive set to true if match should be case sensitive
 	    @return
 		    true if a matching token could be found in the token type library
@@ -531,7 +531,7 @@ namespace Ogre {
 	    bool isLexemeMatch(const String& lexeme, const bool caseSensitive) const;
 	    /// Check if pass 1 has parsed to the end of the source
 	    bool isEndOfSource() const { return mCharPos >= mEndOfSource; }
-	    /// position to the next possible valid sysmbol
+	    /// position to the next possible valid symbol
 	    bool positionToNextLexeme();
 	    /** process input source text using rulepath to determine allowed tokens
 	    @remarks
@@ -544,9 +544,9 @@ namespace Ogre {
 			    OR: if the previous tokens failed then try these ones
 			    OPTIONAL: the token is optional and does not cause the rule to fail if the token is not found
 			    REPEAT: the token is required but there can be more than one in a sequence
-                DATA: Used by a previous token ie for character sets
-                NOTTEST: performs negative lookahead ie make sure the next token is not of a certain type
-			    END: end of the rule path - the method returns the succuss of the rule
+                DATA: Used by a previous token i.e. for character sets
+                NOTTEST: performs negative lookahead i.e. make sure the next token is not of a certain type
+			    END: end of the rule path - the method returns the success of the rule
 
 	    @param rulepathIDX index into an array of Token Rules that define a rule path to be processed
 	    @return
@@ -581,8 +581,8 @@ namespace Ogre {
 	    bool ValidateToken(const size_t rulepathIDX, const size_t activeRuleID);
 
 	    /** scan through all the rules and initialize token definition with index to rules for non-terminal tokens.
-            Gets called when internal grammer is being verified or after client grammer has been parsed.
-        @param grammerName is the name of the grammer the token rules are for
+            Gets called when internal grammar is being verified or after client grammar has been parsed.
+        @param grammerName is the name of the grammar the token rules are for
 	    */
 	    void verifyTokenRuleLinks(const String& grammerName);
 	    /** Checks the last token instruction and if it has an action then it triggers the action of the previously
@@ -590,7 +590,7 @@ namespace Ogre {
 	    */
 	    void checkTokenActionTrigger(void);
 	    /** Get the text representation of the rule path.  This is a good way to way to visually verify
-	    that the BNF grammer did compile correctly.
+	    that the BNF grammar did compile correctly.
 	    @param ruleID is the index into the rule path.
 	    @param level is the number of levels a non-terminal will expand to. Defaults to 0 if not set which
             will cause non-terminals to not expand.
@@ -603,14 +603,14 @@ namespace Ogre {
         // keep it as static so that only one structure is created
         // no matter how many times this class is instantiated.
         static TokenState mBNFTokenState;
-        // maintain a map of BNF grammer
+        // maintain a map of BNF grammar
         typedef std::map<String, TokenState> TokenStateContainer;
         static TokenStateContainer mClientTokenStates;
         /// if a previous token action was setup then activate it now
         void activatePreviousTokenAction(void);
         /// initialize token definitions and rule paths
         void initBNFCompiler(void);
-        /// Convert BNF grammer token que created in pass 1 into a BNF rule path
+        /// Convert BNF grammar token que created in pass 1 into a BNF rule path
         void buildClientBNFRulePaths(void);
         /// modify the last rule in the container. An end operation is added to the rule path.
         void modifyLastRule(const OperationType pendingRuleOp, const size_t tokenID);
@@ -640,22 +640,22 @@ namespace Ogre {
         virtual ~Compiler2Pass() {}
 
 	    /** compile the source - performs 2 passes.
-		    First pass is to tokinize, check semantics and context.
+		    First pass is to tokenize, check semantics and context.
 		    The second pass is performed by using tokens to look up function implementors and executing
             them which convert tokens to application specific instructions.
 	    @remark
 		    Pass 2 only gets executed if Pass 1 has built enough tokens to complete a rule path and found no errors
 	    @param source a pointer to the source text to be compiled
 	    @return
-		    true if Pass 1 and Pass 2 are successfull
+		    true if Pass 1 and Pass 2 are successful
 		    false if any errors occur in Pass 1 or Pass 2
 	    */
 	    bool compile(const String& source, const String& sourceName);
-        /** gets BNF Grammer.  Gets called when BNF grammer has to be compiled for the first time.
+        /** gets BNF Grammar.  Gets called when BNF grammar has to be compiled for the first time.
         */
         virtual const String& getClientBNFGrammer(void) const = 0;
 
-        /** get the name of the BNF grammer.
+        /** get the name of the BNF grammar.
         */
         virtual const String& getClientGrammerName(void) const = 0;
 

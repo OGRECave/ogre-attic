@@ -44,7 +44,7 @@ namespace Ogre {
 	public:
 		/** Solves a full rank NxN linear system of equations 
 		    @remarks
-			   This implements a naive gaussian elimination algorithm.
+			   This implements a naive Gaussian elimination algorithm.
 			   The algorithm is destructive, so there are side effects in coeff and col.
 	    */
 		static bool solveNxNLinearSysDestr(int n, PreciseReal **coeff, PreciseReal *col);

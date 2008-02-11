@@ -329,7 +329,7 @@ namespace Ogre {
 		virtual bool isEquivalentFormatSupported(TextureType ttype, PixelFormat format, int usage);
 
 		/** Gets the format which will be natively used for a requested format given the
-			contraints of the current device.
+			constraints of the current device.
 		*/
 		virtual PixelFormat getNativeFormat(TextureType ttype, PixelFormat format, int usage) = 0;
 

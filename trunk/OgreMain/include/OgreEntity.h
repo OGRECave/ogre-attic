@@ -629,7 +629,7 @@ namespace Ogre {
 
 		/** Advanced method to perform all the updates required for an animated entity.
 		@remarks
-		You don't normally need to call this, but it's here incase you wish
+		You don't normally need to call this, but it's here in case you wish
 		to manually update the animation of an Entity at a specific point in
 		time. Animation will not be updated more than once a frame no matter
 		how many times you call this method.

@@ -161,7 +161,7 @@ namespace Ogre
 		static Polygon* allocatePolygon();
 		/** Release a polygon back tot he pool. */
 		static void freePolygon(Polygon* poly);
-		/** Inserts a polygon at a partcular point in the body.
+		/** Inserts a polygon at a particular point in the body.
 		@note
 			After this method is called, the ConvexBody 'owns' this Polygon
 			and will be responsible for deleting it.

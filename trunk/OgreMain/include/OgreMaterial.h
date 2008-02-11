@@ -598,7 +598,7 @@ namespace Ogre {
         void setLodLevels(const LodDistanceList& lodDistances);
         /** Gets an iterator over the list of distances at which each LOD comes into effect. 
         @remarks
-            Note that the iterator returned from this method is not totally anagolous to 
+            Note that the iterator returned from this method is not totally analogous to 
             the one passed in by calling setLodLevels - the list includes a zero
             entry at the start (since the highest LOD starts at distance 0), and
             the other distances are held as their squared value for efficiency.

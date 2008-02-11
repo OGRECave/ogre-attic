@@ -72,7 +72,7 @@ namespace Ogre {
             We use this Profile to allow scoping rules to signify the beginning and end of
             the profile. Use the Profiler singleton (through the macro OgreProfileBegin(name)
             and OgreProfileEnd(name)) directly if you want a profile to last
-            outside of a scope (ie the main game loop).
+            outside of a scope (i.e. the main game loop).
         @author Amit Mathew (amitmathew (at) yahoo (dot) com)
     */
     class _OgreExport Profile {
@@ -92,7 +92,7 @@ namespace Ogre {
     /** The profiler allows you to measure the performance of your code
         @remarks
             Do not create profiles directly from this unless you want a profile to last
-            outside of its scope (ie the main game loop). For most cases, use the macro
+            outside of its scope (i.e. the main game loop). For most cases, use the macro
             OgreProfile(name) and braces to limit the scope. You must enable the Profile
             before you can used it with setEnabled(true). If you want to disable profiling
             in Ogre, simply set the macro OGRE_PROFILING to 0.
@@ -118,7 +118,7 @@ namespace Ogre {
                 so that profiling can be ignored in the release version of your app. 
             @remarks 
                 You only use the macro (or this) if you want a profile to last outside
-                of its scope (ie the main game loop). If you use this function, make sure you 
+                of its scope (i.e. the main game loop). If you use this function, make sure you 
                 use a corresponding OgreProfileEnd(name). Usually you would use the macro 
                 OgreProfile(name). This function will be ignored for a profile that has been 
                 disabled or if the profiler is disabled.
@@ -234,7 +234,7 @@ namespace Ogre {
 
         protected:
 
-            /** Initializes the profiler's gui elements */
+            /** Initializes the profiler's GUI elements */
             void initialize();
 
             /** Prints the profiling results of each frame */
@@ -388,7 +388,7 @@ namespace Ogre {
             /// frame display is updated
             uint mUpdateDisplayFrequency;
 
-            /// The number of elasped frame, used with mUpdateDisplayFrequency
+            /// The number of elapsed frame, used with mUpdateDisplayFrequency
             uint mCurrentFrame;
 
             /// The timer used for profiling

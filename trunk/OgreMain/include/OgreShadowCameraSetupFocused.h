@@ -256,7 +256,7 @@ namespace Ogre {
 		virtual void getShadowCamera(const SceneManager *sm, const Camera *cam, 
 			const Viewport *vp, const Light *light, Camera *texCam) const;
 
-		/** Sets whether or not to use the more agressive approach to deciding on
+		/** Sets whether or not to use the more aggressive approach to deciding on
 			the focus region or not.
 		@note
 			There are 2 approaches that can  be used to define the focus region,
@@ -266,8 +266,8 @@ namespace Ogre {
 			glancing angles) can cause some shadow casters to be clipped 
 			incorrectly. By default the more aggressive approach is used since it
 			leads to significantly better results in most cases, but if you experience
-			clipping issues, you can use the less agressive version.
-		@param aggressive True to use the more agressive approach, false otherwise.
+			clipping issues, you can use the less aggressive version.
+		@param aggressive True to use the more aggressive approach, false otherwise.
 		*/
 		void setUseAggressiveFocusRegion(bool aggressive) { mUseAggressiveRegion = aggressive; }
 

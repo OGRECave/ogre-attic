@@ -113,9 +113,9 @@ namespace Ogre {
             @param
                 height The height of the plane in world coordinates
             @param
-                xsegments The number of segements to the plane in the x direction
+                xsegments The number of segments to the plane in the x direction
             @param
-                ysegments The number of segements to the plane in the y direction
+                ysegments The number of segments to the plane in the y direction
             @param
                 normals If true, normals are created perpendicular to the plane
             @param
@@ -169,9 +169,9 @@ namespace Ogre {
                 a smoother effect, lower values are less curved meaning
                 more distortion at the horizons but a better distance effect.
 			@param
-                xsegments The number of segements to the plane in the x direction
+                xsegments The number of segments to the plane in the x direction
             @param
-                ysegments The number of segements to the plane in the y direction
+                ysegments The number of segments to the plane in the y direction
             @param
                 normals If true, normals are created perpendicular to the plane
             @param
@@ -225,11 +225,11 @@ namespace Ogre {
             @param
                 height The height of the plane in world coordinates
 			@param
-				bow The amount of 'bow' in the curved plane.  (Could also be concidered the depth.)
+				bow The amount of 'bow' in the curved plane.  (Could also be considered the depth.)
             @param
-                xsegments The number of segements to the plane in the x direction
+                xsegments The number of segments to the plane in the x direction
             @param
-                ysegments The number of segements to the plane in the y direction
+                ysegments The number of segments to the plane in the y direction
             @param
                 normals If true, normals are created perpendicular to the plane
             @param
@@ -275,7 +275,7 @@ namespace Ogre {
                 just position information, but potentially normals and texture coordinates too. The
                 format of the buffer is defined in the VertexDeclaration parameter
             @param
-                decaration VertexDeclaration describing the contents of the buffer. 
+                declaration VertexDeclaration describing the contents of the buffer. 
                 Note this declaration must _only_ draw on buffer source 0!
             @param
                 width Specifies the width of the patch in control points.
@@ -368,7 +368,7 @@ namespace Ogre {
             const String& group, bool isManual, ManualResourceLoader* loader, 
             const NameValuePairList* createParams);
         
-        /** Utility method for tesselating 2D meshes.
+        /** Utility method for tessellating 2D meshes.
         */
         void tesselate2DMesh(SubMesh* pSub, int meshWidth, int meshHeight, 
 			bool doubleSided = false, 

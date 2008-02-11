@@ -344,7 +344,7 @@ namespace Ogre {
         VertexDeclaration* getAutoOrganisedDeclaration(bool skeletalAnimation,
 			bool vertexAnimation);
 
-        /** Gets the indeex of the highest source value referenced by this declaration. */
+        /** Gets the index of the highest source value referenced by this declaration. */
         unsigned short getMaxSource(void) const;
 
 

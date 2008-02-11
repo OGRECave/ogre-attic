@@ -149,7 +149,7 @@ namespace Ogre {
 
         /** Adds a viewport to the rendering target.
             @remarks
-                A viewport is the rectangle into which redering output is sent. This method adds
+                A viewport is the rectangle into which rendering output is sent. This method adds
                 a viewport to the render target, rendering from the supplied camera. The
                 rest of the parameters are only required if you wish to add more than one viewport
                 to a single rendering target. Note that size information passed to this method is

@@ -42,7 +42,7 @@ namespace Ogre {
 	// Forward declaration
 	class ManualResourceLoader;
 
-	/** Abstract class reprensenting a loadable resource (e.g. textures, sounds etc)
+	/** Abstract class representing a loadable resource (e.g. textures, sounds etc)
         @remarks
             Resources are data objects that must be loaded and managed throughout
 			an application. A resource might be a mesh, a texture, or any other

@@ -48,7 +48,7 @@ namespace Ogre {
             use different vertex formats, such that a rendering state
             change is required between them.
         @par
-            Like the Mesh class, instatiations of 3D objects in the scene
+            Like the Mesh class, instantiations of 3D objects in the scene
             share the SubMesh instances, and have the option of overriding
             their material differences on a per-object basis if required.
             See the SubEntity class for more information.

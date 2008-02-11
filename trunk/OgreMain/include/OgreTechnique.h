@@ -117,7 +117,7 @@ namespace Ogre {
 
         /** Creates a new Pass for this Technique.
         @remarks
-            A Pass is a single rendering pass, ie a single draw of the given material.
+            A Pass is a single rendering pass, i.e. a single draw of the given material.
             Note that if you create a pass without a fragment program, during compilation of the
             material the pass may be split into multiple passes if the graphics card cannot
             handle the number of texture units requested. For passes with fragment programs, however, 

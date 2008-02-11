@@ -65,7 +65,7 @@ namespace Ogre {
             each rendering to a subset of the target, allowing split screen
             and picture-in-picture views.
         @par
-            Cameras maintain their own aspect ratios, field of view, and frustrum,
+            Cameras maintain their own aspect ratios, field of view, and frustum,
             and project co-ordinates into a space measured from -1 to 1 in x and y,
             and 0 to 1 in z. At render time, the camera will be rendering to a
             Viewport which will translate these parametric co-ordinates into real screen
@@ -141,8 +141,8 @@ namespace Ogre {
         mutable bool mRecalcWindow;
         /// The last viewport to be added using this camera
         Viewport* mLastViewport;
-        /** Whether aspect ratio will automaticaally be recalculated 
-            when a vieport changes its size
+        /** Whether aspect ratio will automatically be recalculated 
+            when a viewport changes its size
         */
         bool mAutoAspectRatio;
 		/// Custom culling frustum
@@ -286,7 +286,7 @@ namespace Ogre {
         */
         void rotate(const Vector3& axis, const Radian& angle);
 
-        /** Rotate the camera around an aritrary axis using a Quarternion.
+        /** Rotate the camera around an arbitrary axis using a Quaternion.
         */
         void rotate(const Quaternion& q);
 
@@ -506,7 +506,7 @@ namespace Ogre {
         /** Notifies this camera that a viewport is using it.*/
         void _notifyViewport(Viewport* viewport) {mLastViewport = viewport;}
 
-        /** If set to true a vieport that owns this frustum will be able to 
+        /** If set to true a viewport that owns this frustum will be able to 
             recalculate the aspect ratio whenever the frustum is resized.
         @remarks
             You should set this to true only if the frustum / camera is used by 
@@ -515,7 +515,7 @@ namespace Ogre {
         */    
         void setAutoAspectRatio(bool autoratio);
 
-        /** Retreives if AutoAspectRatio is currently set or not
+        /** Retrieves if AutoAspectRatio is currently set or not
         */
         bool getAutoAspectRatio(void) const;
 

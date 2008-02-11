@@ -94,7 +94,7 @@ namespace Ogre {
         LBX_BLEND_CURRENT_ALPHA,
         /// as LBX_BLEND_DIFFUSE_ALPHA but use a constant manual blend value (0.0-1.0)
         LBX_BLEND_MANUAL,
-        /// dotproduct of color1 and color2 
+        /// dot product of color1 and color2 
         LBX_DOTPRODUCT,
         /// use interpolated color values from vertices to scale source1, then add source2 scaled by (1-color)
         LBX_BLEND_DIFFUSE_COLOUR

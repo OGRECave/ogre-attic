@@ -388,7 +388,7 @@ namespace Ogre
             c The triangle's third vertex.
 		@param 
 			normal The triangle plane's normal (passed in rather than calculated
-				on demand since the callermay already have it)
+				on demand since the caller may already have it)
         @returns
             If the point resides in the triangle, <b>true</b> is
             returned.
@@ -444,7 +444,7 @@ namespace Ogre
             c The triangle's third vertex.
 		@param 
 			normal The triangle plane's normal (passed in rather than calculated
-				on demand since the callermay already have it), doesn't need
+				on demand since the caller may already have it), doesn't need
                 normalised since we don't care.
         @param
             positiveSide Intersect with "positive side" of the triangle
@@ -534,7 +534,7 @@ namespace Ogre
         /** Calculate a face normal without normalize, no w-information. */
         static Vector3 calculateBasicFaceNormalWithoutNormalize(const Vector3& v1, const Vector3& v2, const Vector3& v3);
 
-		/** Generates a value based on the gaussian (normal) distribution function
+		/** Generates a value based on the Gaussian (normal) distribution function
 			with the given offset and scale parameters.
 		*/
 		static Real gaussianDistribution(Real x, Real offset = 0.0f, Real scale = 1.0f);
