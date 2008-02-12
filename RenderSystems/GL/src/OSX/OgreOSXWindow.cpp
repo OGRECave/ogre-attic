@@ -163,13 +163,16 @@ void OSXWindow::createCGLFullscreen(unsigned int width, unsigned int height, uns
 				attribs[10] = (CGLPixelFormatAttribute)fsaa;
 		}
 		
-		// Storage for our pixel format
+        
+        CGLError err;
 		CGLPixelFormatObj pixelFormatObj;
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+        GLint numPixelFormats = 0;
+        err = CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
+#else
 		long numPixelFormats = 0;
-		
-		// Get a pixelFormatObj from our atributes
-		CGLError err;
-		err = CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats); 
+		err = CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
+#endif
 		if(err != 0)
 		{
 			CGReleaseAllDisplays();
@@ -185,7 +188,7 @@ void OSXWindow::createCGLFullscreen(unsigned int width, unsigned int height, uns
 		}
 				
 		// Once we have the context we can destroy the pixel format
-        // In order to share contexts you must keep a pointer to the context objext around
+        // In order to share contexts you must keep a pointer to the context object around
         // Our context class will now manage the life of the pixelFormatObj
 		//CGLDestroyPixelFormat(pixelFormatObj); 
 				
@@ -198,8 +201,13 @@ void OSXWindow::createCGLFullscreen(unsigned int width, unsigned int height, uns
 		// This synchronizes CGL with the vertical retrace
 		// Apple docs suggest that OpenGL blocks rendering calls when waiting for
 		// a vertical retrace anyhow.
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+        GLint swapInterval = 1;
+        CGLSetParameter(mCGLContext, kCGLCPSwapInterval, &swapInterval);
+#else
 		long swapInterval = 1;
 		CGLSetParameter(mCGLContext, kCGLCPSwapInterval, &swapInterval);
+#endif
 		
 		// Give a copy of our context to the rendersystem
 		mContext = new OSXCGLContext(mCGLContext, pixelFormatObj);
