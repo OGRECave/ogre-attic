@@ -26,30 +26,43 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef __D3D10DRIVERLIST_H__
-#define __D3D10DRIVERLIST_H__
+#ifndef __D3D10DEVICE_H__
+#define __D3D10DEVICE_H__
+
 
 #include "OgreD3D10Prerequisites.h"
 
-
-
-namespace Ogre 
+namespace Ogre
 {
-	class D3D10DriverList
+	class D3D10Device
 	{
 	private:
-		std::vector<D3D10Driver*> mDriverList;
-		IDXGIFactory*	mpDXGIFactory;
+		ID3D10Device * mD3D10Device;
 
 	public:
-		D3D10DriverList( );
-		~D3D10DriverList();
+		D3D10Device();
+		D3D10Device(ID3D10Device * device);
+		ID3D10Device * operator->() const;
+		ID3D10Device * operator=(ID3D10Device * device);
+		const bool isNull();
+		const void clearStoredErrorMessages(  ) const;
+		const String getErrorDescription(const HRESULT hr = NO_ERROR) const;
+		const bool isError( ) const;
+		void release();
+		ID3D10Device * get();
 
-		BOOL enumerate();
-		size_t count() const;
-		D3D10Driver* item( size_t index );
+		enum eExceptionsErrorLevel
+		{
+			D3D_NO_EXCEPTION,
+			D3D_CORRUPTION,
+			D3D_ERROR,
+			D3D_WARNING,
+			D3D_INFO,
+		};
 
-		D3D10Driver* item( const String &name );
+		static eExceptionsErrorLevel mExceptionsErrorLevel;
+		static void setExceptionsErrorLevel(const eExceptionsErrorLevel exceptionsErrorLevel);
+		static const eExceptionsErrorLevel getExceptionsErrorLevel();
 
 
 	};

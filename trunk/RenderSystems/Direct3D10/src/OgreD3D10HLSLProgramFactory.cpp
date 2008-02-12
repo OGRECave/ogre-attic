@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -28,37 +28,37 @@ Torus Knot Software Ltd.
 */
 
 #include "OgreD3D10HLSLProgramFactory.h"
-#include "OgreString.h"
 #include "OgreD3D10HLSLProgram.h"
+#include "OgreD3D10Device.h"
 
 namespace Ogre {
-    //-----------------------------------------------------------------------
-    String D3D10HLSLProgramFactory::sLanguageName = "hlsl";
-    //-----------------------------------------------------------------------
-    D3D10HLSLProgramFactory::D3D10HLSLProgramFactory()
-    {
-    }
-    //-----------------------------------------------------------------------
-    D3D10HLSLProgramFactory::~D3D10HLSLProgramFactory()
-    {
-    }
-    //-----------------------------------------------------------------------
-    const String& D3D10HLSLProgramFactory::getLanguage(void) const
-    {
-        return sLanguageName;
-    }
-    //-----------------------------------------------------------------------
-    HighLevelGpuProgram* D3D10HLSLProgramFactory::create(ResourceManager* creator, 
-        const String& name, ResourceHandle handle,
-        const String& group, bool isManual, ManualResourceLoader* loader)
-    {
-        return new D3D10HLSLProgram(creator, name, handle, group, isManual, loader);
-    }
-    //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	String D3D10HLSLProgramFactory::sLanguageName = "hlsl";
+	//-----------------------------------------------------------------------
+	D3D10HLSLProgramFactory::D3D10HLSLProgramFactory(D3D10Device & device) :  mDevice(device)
+	{
+	}
+	//-----------------------------------------------------------------------
+	D3D10HLSLProgramFactory::~D3D10HLSLProgramFactory()
+	{
+	}
+	//-----------------------------------------------------------------------
+	const String& D3D10HLSLProgramFactory::getLanguage(void) const
+	{
+		return sLanguageName;
+	}
+	//-----------------------------------------------------------------------
+	HighLevelGpuProgram* D3D10HLSLProgramFactory::create(ResourceManager* creator, 
+		const String& name, ResourceHandle handle,
+		const String& group, bool isManual, ManualResourceLoader* loader)
+	{
+		return new D3D10HLSLProgram(creator, name, handle, group, isManual, loader, mDevice);
+	}
+	//-----------------------------------------------------------------------
 	void D3D10HLSLProgramFactory::destroy(HighLevelGpuProgram* prog)
-    {
-        delete prog;
-    }
-    //-----------------------------------------------------------------------
+	{
+		delete prog;
+	}
+	//-----------------------------------------------------------------------
 
 }

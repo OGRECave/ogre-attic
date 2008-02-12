@@ -32,7 +32,7 @@ Torus Knot Software Ltd.
 
 #include "OgreD3D10Prerequisites.h"
 #include "OgreHardwareOcclusionQuery.h"
-
+#include "OgreD3D10Device.h"
 
 namespace Ogre {
 
@@ -62,7 +62,7 @@ namespace Ogre {
 		* Default object constructor
 		* 
 		*/
-		D3D10HardwareOcclusionQuery( ID3D10Device* pD3DDevice );
+		D3D10HardwareOcclusionQuery( D3D10Device & device );
 
 		/**
 		* Object destructor
@@ -86,7 +86,7 @@ namespace Ogre {
 		//--
 	private:	
 		ID3D10Query*	mpQuery;
-		ID3D10Device*   mpDevice;
+		D3D10Device &   mDevice;
 	};
 
 

@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -30,11 +30,6 @@ Torus Knot Software Ltd.
 #define __D3D10VIDEOMODE_H__
 
 #include "OgreD3D10Prerequisites.h"
-#include "OgreString.h"
-
-#include "OgreNoMemoryMacros.h"
-#include <d3d10.h>
-#include "OgreMemoryMacros.h"
 
 namespace Ogre 
 {
@@ -48,22 +43,19 @@ namespace Ogre
 		unsigned int modeNumber;
 
 	public:
-		D3D10VideoMode() { modeNumber = ++modeCount; ZeroMemory( &mDisplayMode, sizeof(DXGI_OUTPUT_DESC) );ZeroMemory( &mModeDesc, sizeof(DXGI_MODE_DESC) ); }
-		D3D10VideoMode( const D3D10VideoMode &ob ) { modeNumber = ++modeCount; mDisplayMode = ob.mDisplayMode;mModeDesc=ob.mModeDesc; }
-		D3D10VideoMode( DXGI_OUTPUT_DESC d3ddm,DXGI_MODE_DESC ModeDesc ) { modeNumber = ++modeCount; mDisplayMode = d3ddm;mModeDesc=ModeDesc; }
-		~D3D10VideoMode()
-		{
-			modeCount--;
-		}
+		D3D10VideoMode();
+		D3D10VideoMode( const D3D10VideoMode &ob );
+		D3D10VideoMode( DXGI_OUTPUT_DESC d3ddm,DXGI_MODE_DESC ModeDesc );
+		~D3D10VideoMode();
 
-		unsigned int getWidth() const { return mModeDesc.Width; }
-		unsigned int getHeight() const { return mModeDesc.Height; }
-		DXGI_FORMAT getFormat() const { return mModeDesc.Format; }
-		DXGI_RATIONAL getRefreshRate() const { return mModeDesc.RefreshRate; }
+		unsigned int getWidth() const;
+		unsigned int getHeight() const;
+		DXGI_FORMAT getFormat() const;
+		DXGI_RATIONAL getRefreshRate() const;
 		unsigned int getColourDepth() const;
-		DXGI_OUTPUT_DESC getDisplayMode() const { return mDisplayMode; }
-		DXGI_MODE_DESC getModeDesc() const { return mModeDesc; }
-		void increaseRefreshRate(DXGI_RATIONAL rr) { mModeDesc.RefreshRate = rr; } 
+		DXGI_OUTPUT_DESC getDisplayMode() const;
+		DXGI_MODE_DESC getModeDesc() const;
+		void increaseRefreshRate(DXGI_RATIONAL rr); 
 		String getDescription() const;
 	};
 }

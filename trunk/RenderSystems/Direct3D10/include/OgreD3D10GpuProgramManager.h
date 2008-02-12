@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -32,24 +32,25 @@ Torus Knot Software Ltd.
 #include "OgreD3D10Prerequisites.h"
 #include "OgreGpuProgramManager.h"
 
+
 namespace Ogre {
 
-    class D3D10GpuProgramManager : public GpuProgramManager
-    {
-    protected:
-        ID3D10Device * mpDevice;
-        /// @copydoc ResourceManager::createImpl
-        Resource* createImpl(const String& name, ResourceHandle handle, 
-            const String& group, bool isManual, ManualResourceLoader* loader,
-            const NameValuePairList* params);
-        /// Specialised create method with specific parameters
-        Resource* createImpl(const String& name, ResourceHandle handle, 
-            const String& group, bool isManual, ManualResourceLoader* loader,
-            GpuProgramType gptype, const String& syntaxCode);
-    public:
-        D3D10GpuProgramManager(ID3D10Device * device);
+	class D3D10GpuProgramManager : public GpuProgramManager
+	{
+	protected:
+		D3D10Device & mDevice;
+		/// @copydoc ResourceManager::createImpl
+		Resource* createImpl(const String& name, ResourceHandle handle, 
+			const String& group, bool isManual, ManualResourceLoader* loader,
+			const NameValuePairList* params);
+		/// Specialised create method with specific parameters
+		Resource* createImpl(const String& name, ResourceHandle handle, 
+			const String& group, bool isManual, ManualResourceLoader* loader,
+			GpuProgramType gptype, const String& syntaxCode);
+	public:
+		D3D10GpuProgramManager(D3D10Device & device);
 		~D3D10GpuProgramManager();
-    };
+	};
 
 }
 

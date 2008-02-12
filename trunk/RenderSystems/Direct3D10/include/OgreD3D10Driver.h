@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -30,13 +30,6 @@ Torus Knot Software Ltd.
 #define __D3D10DRIVER_H__
 
 #include "OgreD3D10Prerequisites.h"
-#include "OgreString.h"
-
-#include "OgreNoMemoryMacros.h"
-#include <d3d10.h>
-#include <d3dx10.h>
-#include <dxerr.h>
-#include "OgreMemoryMacros.h"
 
 namespace Ogre
 {
@@ -47,41 +40,36 @@ namespace Ogre
 	class D3D10Driver
 	{
 	private:
-	//	int mpD3D;
 		// D3D only allows one device per adapter, so it can safely be stored
 		// here as well.
-		ID3D10Device * mpD3DDevice;
+		D3D10Device & mDevice;
 		unsigned int mAdapterNumber;
 		DXGI_ADAPTER_DESC mAdapterIdentifier;
 		DXGI_MODE_DESC mDesktopDisplayMode;
 		D3D10VideoModeList* mpVideoModeList;
 		unsigned int tempNo;
-        static unsigned int driverCount;
+		static unsigned int driverCount;
 		IDXGIAdapter*	mpDXGIAdapter;
-//DXGI_ADAPTER_DESC mAdapterDesc;
-		
-			
+		//DXGI_ADAPTER_DESC mAdapterDesc;
+
+
 	public:
 		// Constructors
-		D3D10Driver();						// Default
+		D3D10Driver(D3D10Device & device);		// Default
 		D3D10Driver( const D3D10Driver &ob );	// Copy
-		D3D10Driver(  unsigned int adapterNumber,  IDXGIAdapter* pDXGIAdapter );
+		D3D10Driver(D3D10Device & device,  unsigned int adapterNumber,  IDXGIAdapter* pDXGIAdapter );
 		~D3D10Driver();
 
 		// Information accessors
 		String DriverName() const;
 		String DriverDescription() const;
 
-		//int getD3D() { return mpD3D; }
-		// return the device
-		ID3D10Device * getD3DDevice() { return mpD3DDevice; }
 		// change the device
-		void setD3DDevice(ID3D10Device * pD3DDevice) { mpD3DDevice = pD3DDevice; }
-		unsigned int getAdapterNumber() const { return mAdapterNumber; }
-		const DXGI_ADAPTER_DESC& getAdapterIdentifier() const { return mAdapterIdentifier; }
-		const DXGI_MODE_DESC& getDesktopMode() const { return mDesktopDisplayMode; }
-		IDXGIAdapter* getDeviceAdapter() const { return mpDXGIAdapter; }
-
+		void setDevice(D3D10Device & device);
+		unsigned int getAdapterNumber() const;
+		const DXGI_ADAPTER_DESC& getAdapterIdentifier() const;
+		const DXGI_MODE_DESC& getDesktopMode() const;
+		IDXGIAdapter* getDeviceAdapter() const;
 		D3D10VideoModeList* getVideoModeList();
 	};
 }

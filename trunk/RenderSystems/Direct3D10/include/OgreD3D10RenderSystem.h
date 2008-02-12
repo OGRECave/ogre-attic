@@ -30,16 +30,9 @@ Torus Knot Software Ltd.
 #define __D3D10RENDERSYSTEM_H__
 
 #include "OgreD3D10Prerequisites.h"
-#include "OgreString.h"
-#include "OgreStringConverter.h"
 #include "OgreRenderSystem.h"
+#include "OgreD3D10Device.h"
 #include "OgreD3D10Mappings.h"
-
-#include "OgreNoMemoryMacros.h"
-#include <d3d10.h>
-#include <d3dx10.h>
-#include <dxerr.h>
-#include "OgreMemoryMacros.h"
 
 namespace Ogre 
 {
@@ -57,7 +50,7 @@ namespace Ogre
 		/// Direct3D
 		//int			mpD3D;
 		/// Direct3D rendering device
-		ID3D10Device *	mpD3DDevice;
+		D3D10Device 	mDevice;
 		
 		// Stored options
 		ConfigOptionMap mOptions;
@@ -151,11 +144,76 @@ namespace Ogre
         void convertPixelShaderCaps(RenderSystemCapabilities* rsc) const;
 		bool checkVertexTextureFormats(void);
 
-        unsigned short mCurrentLights;
-        /// Saved last view matrix
-        Matrix4 mViewMatrix;
 
-		D3DXMATRIX mDxViewMat, mDxProjMat, mDxWorldMat;
+		CompareFunction mSceneAlphaRejectFunc; // should be merged with - mBlendDesc
+		unsigned char mSceneAlphaRejectValue; // should be merged with - mBlendDesc
+
+		D3D10_BLEND_DESC mBlendDesc;
+		D3D10_BLEND_DESC mCurrentBlendDesc;
+		ID3D10BlendState * mCurrentBlendState;
+
+		D3D10_RASTERIZER_DESC mRasterizerDesc;
+		D3D10_RASTERIZER_DESC mCurrentRasterizerDesc;
+		ID3D10RasterizerState * mCurrentRasterizer;
+
+		D3D10_DEPTH_STENCIL_DESC mDepthStencilDesc; 
+		D3D10_DEPTH_STENCIL_DESC mCurrentDepthStencilDesc;
+		ID3D10DepthStencilState * mCurrentDepthStencilState;
+
+		FogMode mFogMode;
+		ColourValue mFogColour;
+		Real mFogDensitiy;
+		Real mFogStart;
+		Real mFogEnd;
+		PolygonMode mPolygonMode;
+
+		FilterOptions FilterMinification;
+		FilterOptions FilterMagnification;
+		FilterOptions FilterMips;
+
+		D3D10_RECT mScissorRect;
+
+
+		D3D10HLSLProgram* mBoundVertexProgram;
+		D3D10HLSLProgram* mBoundFragmentProgram;
+
+		/// structure holding texture unit settings for every stage
+		struct sD3DTextureStageDesc
+		{
+			/// the type of the texture
+			D3D10Mappings::eD3DTexType texType;
+			/// wich texCoordIndex to use
+			size_t coordIndex;
+			/// type of auto tex. calc. used
+			TexCoordCalcMethod autoTexCoordType;
+			/// Frustum, used if the above is projection
+			const Frustum *frustum; 
+
+			LayerBlendModeEx layerBlendMode;
+
+			/// texture 
+			ID3D10ShaderResourceView  *pTex;
+			D3D10_SAMPLER_DESC	samplerDesc;
+			D3D10_SAMPLER_DESC currentSamplerDesc;
+			//ID3D10SamplerState * pSampler;
+			bool used;
+		} mTexStageDesc[OGRE_MAX_TEXTURE_LAYERS];
+
+		ID3D10SamplerState * mSamplerStates[OGRE_MAX_TEXTURE_LAYERS];
+		ID3D10ShaderResourceView  * mActiveTextures[OGRE_MAX_TEXTURE_LAYERS];
+
+        unsigned short mCurrentLights;
+
+		struct MainMatrixsShaderBuffer
+		{
+			Matrix4 mWorldMatrix;
+			Matrix4 mViewMatrix;
+			Matrix4 mProjectionMatrix;
+		};
+
+		MainMatrixsShaderBuffer mMainMatrixsShaderBuffer;
+
+		//D3DXMATRIX mDxViewMat, mDxProjMat, mDxWorldMat;
 
 		// What follows is a set of duplicated lists just to make it
 		// easier to deal with lost devices
@@ -214,7 +272,6 @@ namespace Ogre
 		/// @copydoc RenderSystem::createMultiRenderTarget
 		virtual MultiRenderTarget * createMultiRenderTarget(const String & name);
 
-		String getErrorDescription( long errorNumber ) const;
 		const String& getName(void) const;
 		// Low-level overridden members
 		void setConfigOption( const String &name, const String &value );
@@ -233,6 +290,8 @@ namespace Ogre
             StencilOperation passOp = SOP_KEEP, 
             bool twoSidedOperation = false);
         void setNormaliseNormals(bool normalise);
+
+		virtual String getErrorDescription(long errorNumber) const;
 
 		// Low-level overridden members, mainly for internal use
         void _useLights(const LightList& lights, unsigned short limit);
@@ -343,7 +402,6 @@ namespace Ogre
         with the given usage options.
         */
         bool _checkTextureFilteringSupported(TextureType ttype, PixelFormat format, int usage);
-
 	};
 }
 #endif

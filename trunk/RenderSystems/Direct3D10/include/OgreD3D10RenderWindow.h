@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -31,7 +31,7 @@ Torus Knot Software Ltd.
 
 #include "OgreD3D10Prerequisites.h"
 #include "OgreRenderWindow.h"
-#include "OgreD3D10Driver.h"
+
 
 namespace Ogre 
 {
@@ -42,12 +42,12 @@ namespace Ogre
 		@param instance The application instance
 		@param driver The root driver
 		@param deviceIfSwapChain The existing D3D device to create an additional swap chain from, if this is not
-			the first window.
+		the first window.
 		*/
-		D3D10RenderWindow(HINSTANCE instance, D3D10Driver *driver, ID3D10Device * deviceIfSwapChain = 0);
+		D3D10RenderWindow(HINSTANCE instance, D3D10Device & device);
 		~D3D10RenderWindow();
 		void create(const String& name, unsigned int width, unsigned int height,
-	            bool fullScreen, const NameValuePairList *miscParams);
+			bool fullScreen, const NameValuePairList *miscParams);
 		void setFullscreen(bool fullScreen, unsigned int width, unsigned int height);
 		void destroy(void);
 		bool isVisible() const;
@@ -55,46 +55,48 @@ namespace Ogre
 		void reposition(int left, int top);
 		void resize(unsigned int width, unsigned int height);
 		void swapBuffers( bool waitForVSync = true );
-		HWND getWindowHandle() const { return mHWnd; }
-
-		D3D10Driver* getDirectD3DDriver() { return mDriver; }
-		// changed to access driver member
-		ID3D10Device * getD3DDevice() { return mDriver->getD3DDevice(); }
+		HWND getWindowHandle() const;
 
 		void getCustomAttribute( const String& name, void* pData );
 		/** Overridden - see RenderTarget.
 		*/
 		virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
-		bool requiresTextureFlipping() const { return false; }
+		bool requiresTextureFlipping() const;
 
 		// Method for dealing with resize / move & 3d library
 		void windowMovedOrResized();
 
 		/// Get the presentation parameters used with this window
-		DXGI_SWAP_CHAIN_DESC* getPresentationParameters(void) 
-		{ return &md3dpp; }
+		DXGI_SWAP_CHAIN_DESC* getPresentationParameters(void);
 
 		/// @copydoc RenderTarget::update
 		void update(bool swap);
-		
+
 		/** Create (or recreate) the D3D device or SwapChain for this window.
 		*/
 		void createD3DResources();
-	
+
 		/** Destroy the D3D device or SwapChain for this window.
 		*/
 		void destroyD3DResources();
-	
+
 		/// Accessor for render surface
-	//	IDXGISurface * getRenderSurface() { return mpRenderSurface; }
+		//	IDXGISurface * getRenderSurface() { return mpRenderSurface; }
 
 		/// Are we in the middle of switching between fullscreen and windowed
-		bool _getSwitchingFullscreen() const { return mSwitchingFullscreen; }
+		bool _getSwitchingFullscreen() const;
 		/// Indicate that fullscreen / windowed switching has finished
 		void _finishSwitchingFullscreen();
+
+
+		void clearRenderTargetView(const ColourValue& colour);
+		void clearDepthView(Real depth);
+		void clearStencilView(unsigned short stencil);
+		void clearDepthAndStencilView(Real depth, unsigned short stencil);
+
 	protected:
 		HINSTANCE mInstance;			// Process instance
-		D3D10Driver *mDriver;			// D3D10 driver
+		D3D10Device & mDevice;			// D3D10 driver
 		HWND	mHWnd;					// Win32 Window handle
 		bool	mIsExternal;			// window not created by Ogre
 		bool	mSizing;
@@ -109,8 +111,8 @@ namespace Ogre
 		// Pointer to swap chain, only valid if mIsSwapChain
 		IDXGISwapChain * mpSwapChain;
 		DXGI_SWAP_CHAIN_DESC md3dpp;
-	//	IDXGISurface * mpRenderSurface;
-	//	IDXGISurface * mpRenderZBuffer;
+		//	IDXGISurface * mpRenderSurface;
+		//	IDXGISurface * mpRenderZBuffer;
 		DXGI_SAMPLE_DESC mFSAAType;
 		//DWORD mFSAAQuality;
 		UINT mDisplayFrequency;
@@ -118,7 +120,7 @@ namespace Ogre
 		bool mUseNVPerfHUD;
 		ID3D10RenderTargetView*		mRenderTargetView;
 		ID3D10DepthStencilView*		mDepthStencilView;
-   
+
 		// just check if the multisampling requested is supported by the device
 		bool _checkMultiSampleQuality(UINT SampleCount, UINT *outQuality, DXGI_FORMAT format);
 

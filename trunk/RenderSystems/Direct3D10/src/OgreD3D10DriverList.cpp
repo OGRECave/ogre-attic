@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -28,16 +28,18 @@ Torus Knot Software Ltd.
 */
 #include "OgreD3D10DriverList.h"
 #include "OgreLogManager.h"
-#include "OgreException.h"
+#include "OgreD3D10Device.h"
+#include "OgreD3D10Driver.h"
 
 namespace Ogre 
 {
+	//-----------------------------------------------------------------------
 	D3D10DriverList::D3D10DriverList(  ) 
 	{
 		mpDXGIFactory = NULL;
 		enumerate();
 	}
-
+	//-----------------------------------------------------------------------
 	D3D10DriverList::~D3D10DriverList(void)
 	{
 		for(int i=0;i<0;i++)
@@ -46,70 +48,70 @@ namespace Ogre
 		}
 		mDriverList.clear();
 		SAFE_RELEASE(mpDXGIFactory)
-		
-	}
 
+	}
+	//-----------------------------------------------------------------------
 	BOOL D3D10DriverList::enumerate()
 	{
 		LogManager::getSingleton().logMessage( "D3D10: Driver Detection Starts" );
-	    // Create the DXGI Factory
+		// Create the DXGI Factory
 		HRESULT hr;
 		hr = CreateDXGIFactory( IID_IDXGIFactory, (void**)&mpDXGIFactory );
-	    if( FAILED(hr) )
-        return false;
+		if( FAILED(hr) )
+			return false;
 
-/*		for( UINT iAdapter=0; iAdapter < mpD3D->GetAdapterCount(); ++iAdapter )
+		/*		for( UINT iAdapter=0; iAdapter < mpD3D->GetAdapterCount(); ++iAdapter )
 		{
-			D3DADAPTER_IDENTIFIER9 adapterIdentifier;
-			DXGI_OUTPUT_DESC d3ddm;
-			mpD3D->GetAdapterIdentifier( iAdapter, 0, &adapterIdentifier );
-			mpD3D->GetAdapterDisplayMode( iAdapter, &d3ddm );
+		D3DADAPTER_IDENTIFIER9 adapterIdentifier;
+		DXGI_OUTPUT_DESC d3ddm;
+		mpD3D->GetAdapterIdentifier( iAdapter, 0, &adapterIdentifier );
+		mpD3D->GetAdapterDisplayMode( iAdapter, &d3ddm );
 
-			mDriverList.push_back( D3D10Driver( mpD3D, iAdapter, adapterIdentifier, d3ddm ) );
+		mDriverList.push_back( D3D10Driver( mpD3D, iAdapter, adapterIdentifier, d3ddm ) );
 		}
-*/
+		*/
 		for( UINT iAdapter=0; ; iAdapter++ )
 		{
 			IDXGIAdapter*					pDXGIAdapter;
 			hr = mpDXGIFactory->EnumAdapters( iAdapter, &pDXGIAdapter );
 			if( DXGI_ERROR_NOT_FOUND == hr )
-	        {
-	            hr = S_OK;
-	            break;
-	        }
-	        if( FAILED(hr) )
-	        {
+			{
+				hr = S_OK;
+				break;
+			}
+			if( FAILED(hr) )
+			{
 				delete pDXGIAdapter;
-	            return false;
-	        }
-/*			// get the description of the adapter
-	        DXGI_ADAPTER_DESC AdapterDesc;
-	        hr = pDXGIAdapter->GetDesc( &AdapterDesc );
-	        if( FAILED(hr) )
-	        {
-				delete pDXGIAdapter;
-	            return hr;
-	        }
-*/
-			mDriverList.push_back(new D3D10Driver(  iAdapter,pDXGIAdapter) );
-			
+				return false;
+			}
+			/*			// get the description of the adapter
+			DXGI_ADAPTER_DESC AdapterDesc;
+			hr = pDXGIAdapter->GetDesc( &AdapterDesc );
+			if( FAILED(hr) )
+			{
+			delete pDXGIAdapter;
+			return hr;
+			}
+			*/
+			mDriverList.push_back(new D3D10Driver( D3D10Device(),  iAdapter,pDXGIAdapter) );
+
 		}
-		
+
 		LogManager::getSingleton().logMessage( "D3D10: Driver Detection Ends" );
 
 		return TRUE;
 	}
-
+	//-----------------------------------------------------------------------
 	size_t D3D10DriverList::count() const 
 	{
 		return mDriverList.size();
 	}
-
+	//-----------------------------------------------------------------------
 	D3D10Driver* D3D10DriverList::item( size_t index )
 	{
 		return mDriverList.at( index );
 	}
-
+	//-----------------------------------------------------------------------
 	D3D10Driver* D3D10DriverList::item( const String &name )
 	{
 		std::vector<D3D10Driver*>::iterator it = mDriverList.begin();
@@ -124,4 +126,5 @@ namespace Ogre
 
 		return NULL;
 	}
+	//-----------------------------------------------------------------------
 }
