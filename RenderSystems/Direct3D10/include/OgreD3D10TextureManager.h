@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -32,42 +32,38 @@ Torus Knot Software Ltd.
 #include "OgreD3D10Prerequisites.h"
 #include "OgreTextureManager.h"
 
-#include "OgreNoMemoryMacros.h"
-#include <d3d9.h>
-#include "OgreMemoryMacros.h"
-
 namespace Ogre 
 {
 	class D3D10TextureManager : public TextureManager
 	{
 	protected:
-		ID3D10Device * mpD3DDevice;
-        /// @copydoc ResourceManager::createImpl
-        Resource* createImpl(const String& name, ResourceHandle handle, 
-            const String& group, bool isManual, ManualResourceLoader* loader, 
-            const NameValuePairList* createParams);
+		D3D10Device & mDevice;
+		/// @copydoc ResourceManager::createImpl
+		Resource* createImpl(const String& name, ResourceHandle handle, 
+			const String& group, bool isManual, ManualResourceLoader* loader, 
+			const NameValuePairList* createParams);
 
 	public:
-		D3D10TextureManager( ID3D10Device * pD3DDevice );
+		D3D10TextureManager( D3D10Device & device );
 		~D3D10TextureManager();
 
 		/** Release all textures in the default memory pool. 
 		@remarks
-			Method for dealing with lost devices.
+		Method for dealing with lost devices.
 		*/
 		void releaseDefaultPoolResources(void);
 		/** Recreate all textures in the default memory pool. 
 		@remarks
-			Method for dealing with lost devices.
+		Method for dealing with lost devices.
 		*/
 		void recreateDefaultPoolResources(void);
 
 		/// @copydoc TextureManager::getNativeFormat
 		PixelFormat getNativeFormat(TextureType ttype, PixelFormat format, int usage);
 
-        /// @copydoc TextureManager::isHardwareFilteringSupported
-        bool isHardwareFilteringSupported(TextureType ttype, PixelFormat format, int usage,
-            bool preciseFormatOnly = false);
+		/// @copydoc TextureManager::isHardwareFilteringSupported
+		bool isHardwareFilteringSupported(TextureType ttype, PixelFormat format, int usage,
+			bool preciseFormatOnly = false);
 
 	};
 }

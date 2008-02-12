@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -31,13 +31,12 @@ Torus Knot Software Ltd.
 
 #include "OgreD3D10Prerequisites.h"
 #include "OgreHardwareVertexBuffer.h"
-#include "OgreD3D10HardwareBuffer.h"
 
 namespace Ogre {
 
-    /// Specialisation of HardwareVertexBuffer for D3D10
-    class D3D10HardwareVertexBuffer : public HardwareVertexBuffer 
-    {
+	/// Specialisation of HardwareVertexBuffer for D3D10
+	class D3D10HardwareVertexBuffer : public HardwareVertexBuffer 
+	{
 	protected:
 		D3D10HardwareBuffer* mBufferImpl;
 		// have to implement these, but do nothing as overridden lock/unlock
@@ -46,7 +45,7 @@ namespace Ogre {
 
 	public:
 		D3D10HardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
-			HardwareBuffer::Usage usage, ID3D10Device * pDev, bool useSystemMem, bool useShadowBuffer);
+			HardwareBuffer::Usage usage, D3D10Device & device, bool useSystemMem, bool useShadowBuffer);
 		~D3D10HardwareVertexBuffer();
 
 		// override all data-gathering methods
@@ -63,13 +62,13 @@ namespace Ogre {
 		/// For dealing with lost devices - release the resource if in the default pool
 		bool releaseIfDefaultPool(void);
 		/// For dealing with lost devices - recreate the resource if in the default pool
-		bool recreateIfDefaultPool(ID3D10Device * pDev);
+		bool recreateIfDefaultPool(D3D10Device & device);
 
 		/// Get the D3D-specific vertex buffer
-		ID3D10Buffer * getD3DVertexBuffer(void) const { return mBufferImpl->getD3DBuffer(); }
+		ID3D10Buffer * getD3DVertexBuffer(void) const;
 
 
-    };
+	};
 
 }
 #endif

@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -30,17 +30,7 @@ Torus Knot Software Ltd.
 #define __D3D10MULTIRENDERTARGET_H__
 
 #include "OgreD3D10Prerequisites.h"
-#include "OgreTexture.h"
 #include "OgreRenderTexture.h"
-#include "OgreImage.h"
-#include "OgreException.h"
-#include "OgreD3D10HardwarePixelBuffer.h"
-
-#include "OgreNoMemoryMacros.h"
-#include <d3d10.h>
-#include <d3dx10.h>
-#include <dxerr.h>
-#include "OgreMemoryMacros.h"
 
 namespace Ogre {
 	class D3D10MultiRenderTarget : public MultiRenderTarget
@@ -49,7 +39,7 @@ namespace Ogre {
 		D3D10MultiRenderTarget(const String &name);
 		~D3D10MultiRenderTarget();
 
-        virtual void update(void);
+		virtual void update(void);
 
 		virtual void getCustomAttribute( const String& name, void *pData );
 

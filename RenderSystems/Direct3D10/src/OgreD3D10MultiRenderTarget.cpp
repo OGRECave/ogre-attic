@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -27,18 +27,17 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 #include "OgreD3D10MultiRenderTarget.h"
-#include "OgreD3D10HardwarePixelBuffer.h"
-#include "OgreException.h"
-#include "OgreLogManager.h"
-#include "OgreStringConverter.h"
-#include "OgreBitwise.h"
 #include "OgreD3D10RenderSystem.h"
 #include "OgreRoot.h"
+#include "OgreD3D10Texture.h"
+#include "OgreD3D10HardwarePixelBuffer.h"
 
 namespace Ogre 
 {
-	D3D10MultiRenderTarget::D3D10MultiRenderTarget(const String &name):
-		MultiRenderTarget(name)
+	//---------------------------------------------------------------------
+	D3D10MultiRenderTarget::D3D10MultiRenderTarget(const String &name) :
+	//---------------------------------------------------------------------
+	MultiRenderTarget(name)
 	{
 		/// Clear targets
 		for(size_t x=0; x<OGRE_MAX_MULTIPLE_RENDER_TARGETS; ++x)
@@ -46,10 +45,11 @@ namespace Ogre
 			targets[x] = 0;
 		}
 	}
+	//---------------------------------------------------------------------
 	D3D10MultiRenderTarget::~D3D10MultiRenderTarget()
 	{
 	}
-
+	//---------------------------------------------------------------------
 	void D3D10MultiRenderTarget::bindSurfaceImpl(size_t attachment, RenderTexture *target)
 	{
 		assert(attachment<OGRE_MAX_MULTIPLE_RENDER_TARGETS);
@@ -61,65 +61,65 @@ namespace Ogre
 		/// Find first non-null target
 		int y;
 		for(y=0; y<OGRE_MAX_MULTIPLE_RENDER_TARGETS && !targets[y]; ++y) ;
-		
+
 		if(y!=OGRE_MAX_MULTIPLE_RENDER_TARGETS)
 		{
 			/// If there is another target bound, compare sizes
 			if(targets[y]->getWidth() != buffer->getWidth() ||
 				targets[y]->getHeight() != buffer->getHeight() ||
 				PixelUtil::getNumElemBits(targets[y]->getFormat()) != 
-					PixelUtil::getNumElemBits(buffer->getFormat()))
+				PixelUtil::getNumElemBits(buffer->getFormat()))
 			{
 				OGRE_EXCEPT(
 					Exception::ERR_INVALIDPARAMS, 
 					"MultiRenderTarget surfaces are not of same size or bit depth", 
 					"D3D10MultiRenderTarget::bindSurface"
-				);
+					);
 			}
 		}
 
 		targets[attachment] = buffer;
 		checkAndUpdate();
 	}
-
+	//---------------------------------------------------------------------
 	void D3D10MultiRenderTarget::unbindSurfaceImpl(size_t attachment)
 	{
 		assert(attachment<OGRE_MAX_MULTIPLE_RENDER_TARGETS);
 		targets[attachment] = 0;
 		checkAndUpdate();
 	}
+	//---------------------------------------------------------------------
+	void D3D10MultiRenderTarget::update(void)
+	{
+		D3D10RenderSystem* rs = static_cast<D3D10RenderSystem*>(
+			Root::getSingleton().getRenderSystem());
+		if (rs->isDeviceLost())
+			return;
 
-    void D3D10MultiRenderTarget::update(void)
-    {
-        D3D10RenderSystem* rs = static_cast<D3D10RenderSystem*>(
-            Root::getSingleton().getRenderSystem());
-        if (rs->isDeviceLost())
-            return;
-
-        MultiRenderTarget::update();
-    }
-
+		MultiRenderTarget::update();
+	}
+	//---------------------------------------------------------------------
 	void D3D10MultiRenderTarget::getCustomAttribute(const String& name, void *pData)
-    {
+	{
 		if(name == "DDBACKBUFFER")
-        {
-            ID3D10Texture2D ** pSurf = (ID3D10Texture2D **)pData;
+		{
+			ID3D10Texture2D ** pSurf = (ID3D10Texture2D **)pData;
 			/// Transfer surfaces
 			for(size_t x=0; x<OGRE_MAX_MULTIPLE_RENDER_TARGETS; ++x)
 			{
 				if(targets[x])
-					pSurf[x] = targets[x]->getTexture2D();
+					pSurf[x] = targets[x]->getParentTexture()->GetTex2D();
 			}
 			return;
-        }
+		}
 	}
-
+	//---------------------------------------------------------------------
 	void D3D10MultiRenderTarget::checkAndUpdate()
 	{
 		if(targets[0])
 		{
-			mWidth = targets[0]->getWidth();
-			mHeight = targets[0]->getHeight();
+			mWidth = static_cast<unsigned int>(targets[0]->getWidth());
+			mHeight = static_cast<unsigned int>(targets[0]->getHeight());
 		}
 		else
 		{
@@ -127,6 +127,7 @@ namespace Ogre
 			mHeight = 0;
 		}
 	}
+	//---------------------------------------------------------------------
 
 
 }

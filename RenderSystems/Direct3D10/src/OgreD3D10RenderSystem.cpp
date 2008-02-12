@@ -36,8 +36,6 @@ Torus Knot Software Ltd.
 #include "OgreD3D10TextureManager.h"
 #include "OgreD3D10Texture.h"
 #include "OgreLogManager.h"
-#include "OgreLight.h"
-#include "OgreMath.h"
 #include "OgreD3D10HardwareBufferManager.h"
 #include "OgreD3D10HardwareIndexBuffer.h"
 #include "OgreD3D10HardwareVertexBuffer.h"
@@ -45,18 +43,22 @@ Torus Knot Software Ltd.
 #include "OgreD3D10GpuProgram.h"
 #include "OgreD3D10GpuProgramManager.h"
 #include "OgreD3D10HLSLProgramFactory.h"
-#include "OgreHighLevelGpuProgramManager.h"
+
 #include "OgreD3D10HardwareOcclusionQuery.h"
 #include "OgreFrustum.h"
 #include "OgreD3D10MultiRenderTarget.h"
+#include "OgreD3D10HLSLProgram.h"
+#include "OgreD3D10VertexDeclaration.h"
 
+//---------------------------------------------------------------------
 #define FLOAT2DWORD(f) *((DWORD*)&f)
+//---------------------------------------------------------------------
 
 namespace Ogre 
 {
 
 	//---------------------------------------------------------------------
-	D3D10RenderSystem::D3D10RenderSystem( HINSTANCE hInstance )
+	D3D10RenderSystem::D3D10RenderSystem( HINSTANCE hInstance ) 
 	{
 		LogManager::getSingleton().logMessage( "D3D10 : " + getName() + " created." );
 
@@ -64,8 +66,6 @@ namespace Ogre
 		mhInstance = hInstance;
 
 		// set pointers to NULL
-		//mpD3D = NULL;
-		mpD3DDevice = NULL;
 		mDriverList = NULL;
 		mActiveD3DDriver = NULL;
         mTextureManager = NULL;
@@ -77,6 +77,43 @@ namespace Ogre
 		mUseNVPerfHUD = false;
         mHLSLProgramFactory = NULL;
 
+		mBoundVertexProgram = NULL;
+		mBoundFragmentProgram = NULL;
+
+		ZeroMemory( &mBlendDesc, sizeof(mBlendDesc));
+		ZeroMemory( &mCurrentBlendDesc, sizeof(mCurrentBlendDesc));
+		mCurrentBlendState = 0;
+
+		ZeroMemory( &mRasterizerDesc, sizeof(mRasterizerDesc));
+		mRasterizerDesc.FrontCounterClockwise = true;
+		mRasterizerDesc.DepthClipEnable = true;
+		mRasterizerDesc.MultisampleEnable = true;
+
+		ZeroMemory( &mCurrentRasterizerDesc, sizeof(mCurrentRasterizerDesc));
+		mCurrentRasterizer = 0;
+
+		ZeroMemory( &mDepthStencilDesc, sizeof(mDepthStencilDesc));
+		ZeroMemory( &mCurrentDepthStencilDesc, sizeof(mCurrentDepthStencilDesc));
+		mCurrentDepthStencilState = 0;
+
+		ZeroMemory( &mDepthStencilDesc, sizeof(mDepthStencilDesc));
+		ZeroMemory( &mScissorRect, sizeof(mScissorRect));
+
+		FilterMinification = FO_NONE;
+		FilterMagnification = FO_NONE;
+		FilterMips = FO_NONE;
+
+		mFogMode = FOG_NONE;
+		// mFogColour = no need;
+		mFogDensitiy = 0.0f;
+		mFogStart = 0.0f;
+		mFogEnd = 0.0f;
+		mPolygonMode = PM_SOLID;
+
+		ZeroMemory(mTexStageDesc, OGRE_MAX_TEXTURE_LAYERS * sizeof(sD3DTextureStageDesc));
+		ZeroMemory(mSamplerStates, OGRE_MAX_TEXTURE_LAYERS * sizeof(ID3D10SamplerState *));
+		ZeroMemory(mActiveTextures, OGRE_MAX_TEXTURE_LAYERS * sizeof(ID3D10ShaderResourceView *));
+
 		// init lights
 		for(int i = 0; i < MAX_LIGHTS; i++ )
 			mLights[i] = 0;
@@ -84,12 +121,20 @@ namespace Ogre
 		// Create our Direct3D object
 	//	if( NULL == (mpD3D = Direct3DCreate9(D3D_SDK_VERSION)) )
 	//		OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D9 object", "D3D10RenderSystem::D3D10RenderSystem" );
-
-		if(FAILED(D3D10CreateDevice(NULL,D3D10_DRIVER_TYPE_HARDWARE ,0,0,D3D10_SDK_VERSION, &mpD3DDevice)))
+		UINT deviceFlags = 0;
+		if (D3D10Device::D3D_NO_EXCEPTION != D3D10Device::getExceptionsErrorLevel())
 		{
-OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object", "D3D10RenderSystem::D3D10RenderSystem" );
-
+			deviceFlags = D3D10_CREATE_DEVICE_DEBUG;
 		}
+
+		ID3D10Device * device;
+		if(FAILED(D3D10CreateDevice(NULL,D3D10_DRIVER_TYPE_HARDWARE ,0,deviceFlags,D3D10_SDK_VERSION, &device)))
+		{
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, 
+				"Failed to create Direct3D10 object", 
+				"D3D10RenderSystem::D3D10RenderSystem" );
+		}
+		mDevice = D3D10Device(device) ;
 		// set config options defaults
 		initConfigOptions();
 
@@ -153,8 +198,9 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	//---------------------------------------------------------------------
 	bool D3D10RenderSystem::_checkMultiSampleQuality(UINT SampleCount, UINT *outQuality, DXGI_FORMAT format)
 	{
+		// TODO: check if we need this function
 		HRESULT hr;
-		hr = mpD3DDevice->CheckMultisampleQualityLevels( 
+		hr = mDevice->CheckMultisampleQualityLevels( 
 				format,
 			SampleCount,
 			outQuality);
@@ -178,6 +224,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		ConfigOption optFPUMode;
 		ConfigOption optNVPerfHUD;
 		ConfigOption optSRGB;
+		ConfigOption optExceptionsErrorLevel;
 
 		driverList = this->getDirect3DDrivers();
 
@@ -241,6 +288,22 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
  		optSRGB.immutable = false;
 
 
+		// Exceptions Error Level
+		optExceptionsErrorLevel.name = "Information Queue Exceptions Bottom Level";
+		optExceptionsErrorLevel.possibleValues.push_back("No information queue exceptions");
+		optExceptionsErrorLevel.possibleValues.push_back("Corruption");
+		optExceptionsErrorLevel.possibleValues.push_back("Error");
+		optExceptionsErrorLevel.possibleValues.push_back("Warning");
+		optExceptionsErrorLevel.possibleValues.push_back("Info (exception on any message)");
+#ifdef _DEBUG
+		optExceptionsErrorLevel.currentValue = "Info (exception on any message)";
+#else
+		optExceptionsErrorLevel.currentValue = "No information queue exceptions";
+#endif
+		optExceptionsErrorLevel.immutable = false;
+		
+
+
 		mOptions[optDevice.name] = optDevice;
 		mOptions[optVideoMode.name] = optVideoMode;
 		mOptions[optFullScreen.name] = optFullScreen;
@@ -249,6 +312,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		mOptions[optFPUMode.name] = optFPUMode;
 		mOptions[optNVPerfHUD.name] = optNVPerfHUD;
 		mOptions[optSRGB.name] = optSRGB;
+		mOptions[optExceptionsErrorLevel.name] = optExceptionsErrorLevel;
 
 		refreshD3DSettings();
 
@@ -510,12 +574,26 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 
 		//AIZ:recreate the device for the selected adapter
 		{
-			SAFE_RELEASE(mpD3DDevice);
-			if(FAILED(D3D10CreateDevice(mActiveD3DDriver->getDeviceAdapter(),D3D10_DRIVER_TYPE_HARDWARE ,0,0,D3D10_SDK_VERSION, &mpD3DDevice)))
+			if (!mDevice.isNull())
 			{
-				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object", "D3D10RenderSystem::D3D10RenderSystem" );
+				mDevice.release();
 			}
-			mActiveD3DDriver->setD3DDevice(mpD3DDevice);
+			UINT deviceFlags = 0;
+			if (D3D10Device::D3D_NO_EXCEPTION != D3D10Device::getExceptionsErrorLevel())
+			{
+				deviceFlags = D3D10_CREATE_DEVICE_DEBUG;
+			}
+			
+			ID3D10Device * device;
+			if(FAILED(D3D10CreateDevice(mActiveD3DDriver->getDeviceAdapter(),D3D10_DRIVER_TYPE_HARDWARE ,0,deviceFlags,D3D10_SDK_VERSION, &device)))			
+			{
+				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, 
+					"Failed to create Direct3D10 object", 
+					"D3D10RenderSystem::D3D10RenderSystem" );
+			}
+			mDevice = D3D10Device(device) ;
+
+			mActiveD3DDriver->setDevice(mDevice);
 		}
 
 		// get driver version
@@ -601,6 +679,37 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
             {
                 mWBuffer = false;
             }
+			opt = mOptions.find( "Information Queue Exceptions Bottom Level" );
+			if( opt == mOptions.end() )
+				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't find Information Queue Exceptions Bottom Level option!", "D3D10RenderSystem::initialise" );
+			String infoQType = opt->second.currentValue;
+
+			if ("No information queue exceptions" == infoQType)
+			{
+				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_NO_EXCEPTION);
+			}
+			else if ("Corruption" == infoQType)
+			{
+				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_CORRUPTION);
+			}
+			else if ("Error" == infoQType)
+			{
+				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_ERROR);
+			}
+			else if ("Warning" == infoQType)
+			{
+				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_WARNING);
+			}
+			else if ("Info (exception on any message)" == infoQType)
+			{
+				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_INFO);
+			}
+
+
+
+
+
+			
 		}
 
 		LogManager::getSingleton().logMessage("***************************************");
@@ -616,7 +725,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setFSAA(DXGI_SAMPLE_DESC type, DWORD qualityLevel)
 	{
-/*		if (!mpD3DDevice)
+/*		if (!mDevice)
 		{
 			mFSAAType = type;
 			mFSAAQuality = qualityLevel;
@@ -627,7 +736,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	{
 		LogManager::getSingleton().logMessage( "D3D10 : Reinitialising" );
 		this->shutdown();
-		this->initialise( true );
+	//	this->initialise( true );
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::shutdown()
@@ -637,7 +746,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		freeDevice();
 		SAFE_DELETE( mDriverList );
 		mActiveD3DDriver = NULL;
-		mpD3DDevice = NULL;
+		mDevice = NULL;
 		mBasicStatesInitialised = false;
 		LogManager::getSingleton().logMessage("D3D10 : Shutting down cleanly.");
 		SAFE_DELETE( mTextureManager );
@@ -695,8 +804,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, msg, "D3D10RenderSystem::_createRenderWindow" );
 		}
 
-		RenderWindow* win = new D3D10RenderWindow(mhInstance, mActiveD3DDriver, 
-			mPrimaryWindow ? mpD3DDevice : 0);
+		RenderWindow* win = new D3D10RenderWindow(mhInstance, mDevice);
 
 		win->create( name, width, height, fullScreen, miscParams);
 
@@ -706,21 +814,27 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		if( !mPrimaryWindow )
 		{
 			mPrimaryWindow = (D3D10RenderWindow *)win;
-			win->getCustomAttribute( "D3DDEVICE", &mpD3DDevice );
+			win->getCustomAttribute( "D3DDEVICE", &mDevice );
 
 			// Create the texture manager for use by others
-			mTextureManager = new D3D10TextureManager( mpD3DDevice );
+			mTextureManager = new D3D10TextureManager( mDevice );
             // Also create hardware buffer manager
-            mHardwareBufferManager = new D3D10HardwareBufferManager(mpD3DDevice);
+            mHardwareBufferManager = new D3D10HardwareBufferManager(mDevice);
 
 			// Create the GPU program manager
-			mGpuProgramManager = new D3D10GpuProgramManager(mpD3DDevice);
+			mGpuProgramManager = new D3D10GpuProgramManager(mDevice);
             // create & register HLSL factory
 			if (mHLSLProgramFactory == NULL)
-				mHLSLProgramFactory = new D3D10HLSLProgramFactory();
+				mHLSLProgramFactory = new D3D10HLSLProgramFactory(mDevice);
 			mRealCapabilities = createRenderSystemCapabilities();							
 			mRealCapabilities->addShaderProfile("hlsl");
 
+			// if we are using custom capabilities, then 
+			// mCurrentCapabilities has already been loaded
+			if(!mUseCustomCapabilities)
+				mCurrentCapabilities = mRealCapabilities;
+
+			initialiseFromRenderSystemCapabilities(mCurrentCapabilities, mPrimaryWindow);
 
 		}
 		else
@@ -1033,31 +1147,25 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	//-----------------------------------------------------------------------
 	void D3D10RenderSystem::freeDevice(void)
 	{
-		if (mpD3DDevice)
+		if (!mDevice.isNull() && mCurrentCapabilities)
 		{
 			// Set all texture units to nothing to release texture surfaces
 			_disableTextureUnitsFrom(0);
 			// Unbind any vertex streams to avoid memory leaks
 			/*for (unsigned int i = 0; i < mLastVertexSourceCount; ++i)
 			{
-				HRESULT hr = mpD3DDevice->SetStreamSource(i, NULL, 0, 0);
+				HRESULT hr = mDevice->SetStreamSource(i, NULL, 0, 0);
 			}
 			*/
 			// Clean up depth stencil surfaces
 			_cleanupDepthStencils();
-			SAFE_RELEASE(mpD3DDevice);
-			mActiveD3DDriver->setD3DDevice(NULL);
-			mpD3DDevice = 0;
+			mDevice.release();
+			mActiveD3DDriver->setDevice(D3D10Device(NULL));
+			mDevice = 0;
 
 		}
 
 
-	}
-	//---------------------------------------------------------------------
-	String D3D10RenderSystem::getErrorDescription( long errorNumber ) const
-	{
-		const String errMsg = DXGetErrorDescription( errorNumber );
-		return errMsg;
 	}
     //---------------------------------------------------------------------
 	VertexElementType D3D10RenderSystem::getColourVertexElementType(void) const
@@ -1070,6 +1178,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
     {
         dest = matrix;
 
+		/*
         // Convert depth range from [-1,+1] to [0,1]
         dest[2][0] = (dest[2][0] + dest[3][0]) / 2;
         dest[2][1] = (dest[2][1] + dest[3][1]) / 2;
@@ -1084,6 +1193,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
             dest[2][2] = -dest[2][2];
             dest[3][2] = -dest[3][2];
         }
+		*/
     }
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, 
@@ -1209,7 +1319,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 
         if (!lt)
         {
-            if( FAILED( hr = mpD3DDevice->LightEnable( index, FALSE) ) )
+            if( FAILED( hr = mDevice->LightEnable( index, FALSE) ) )
 			    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
 				"Unable to disable light", "D3D10RenderSystem::setD3D10Light" );
         }
@@ -1257,10 +1367,10 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 			d3dLight.Attenuation1 = lt->getAttenuationLinear();
 			d3dLight.Attenuation2 = lt->getAttenuationQuadric();
 
-			if( FAILED( hr = mpD3DDevice->SetLight( index, &d3dLight ) ) )
+			if( FAILED( hr = mDevice->SetLight( index, &d3dLight ) ) )
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set light details", "D3D10RenderSystem::setD3D10Light" );
 
-            if( FAILED( hr = mpD3DDevice->LightEnable( index, TRUE ) ) )
+            if( FAILED( hr = mDevice->LightEnable( index, TRUE ) ) )
 			    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to enable light", "D3D10RenderSystem::setD3D10Light" );
         }
 
@@ -1269,57 +1379,20 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setViewMatrix( const Matrix4 &m )
 	{
- /*       // save latest view matrix
-        mViewMatrix = m;
-        mViewMatrix[2][0] = -mViewMatrix[2][0];
-        mViewMatrix[2][1] = -mViewMatrix[2][1];
-        mViewMatrix[2][2] = -mViewMatrix[2][2];
-        mViewMatrix[2][3] = -mViewMatrix[2][3];
-
-        mDxViewMat = D3D10Mappings::makeD3DXMatrix( mViewMatrix );
-
-		HRESULT hr;
-		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_VIEW, &mDxViewMat ) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Cannot set D3D10 view matrix", "D3D10RenderSystem::_setViewMatrix" );
-
-		// also mark clip planes dirty
-		if (!mClipPlanes.empty())
-			mClipPlanesDirty = true;
-*/	}
+		// save latest view matrix
+		mMainMatrixsShaderBuffer.mViewMatrix = m.transpose();
+	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setProjectionMatrix( const Matrix4 &m )
 	{
-/*		// save latest matrix
-		mDxProjMat = D3D10Mappings::makeD3DXMatrix( m );
-
-		if( mActiveRenderTarget->requiresTextureFlipping() )
-        {
-            // Invert transformed y
-            mDxProjMat._12 = - mDxProjMat._12;
-			mDxProjMat._22 = - mDxProjMat._22;
-            mDxProjMat._32 = - mDxProjMat._32;
-            mDxProjMat._42 = - mDxProjMat._42;
-        }
-
-		HRESULT hr;
-		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_PROJECTION, &mDxProjMat ) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Cannot set D3D10 projection matrix", "D3D10RenderSystem::_setProjectionMatrix" );
-
-		// also mark clip planes dirty
-		if (!mClipPlanes.empty())
-			mClipPlanesDirty = true;
-*/
+		 // save latest projection matrix
+		mMainMatrixsShaderBuffer.mProjectionMatrix = m.transpose();
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setWorldMatrix( const Matrix4 &m )
 	{
-	/*	// save latest matrix
-		mDxWorldMat = D3D10Mappings::makeD3DXMatrix( m );
-
-		HRESULT hr;
-		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_WORLD, &mDxWorldMat ) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Cannot set D3D10 world matrix", "D3D10RenderSystem::_setWorldMatrix" );
-	*/
+		// save latest world matrix
+		mMainMatrixsShaderBuffer.mWorldMatrix = m;
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse,
@@ -1334,7 +1407,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		material.Emissive = D3DXCOLOR( emissive.r, emissive.g, emissive.b, emissive.a );
 		material.Power = shininess;
 
-		HRESULT hr = mpD3DDevice->SetMaterial( &material );
+		HRESULT hr = mDevice->SetMaterial( &material );
 		if( FAILED( hr ) )
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting D3D material", "D3D10RenderSystem::_setSurfaceParams" );
 
@@ -1395,111 +1468,26 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setTexture( size_t stage, bool enabled, const TexturePtr& tex )
 	{
-	//	HRESULT hr;
 		D3D10TexturePtr dt = tex;
-
-	/*	if (enabled && !dt.isNull())
+		if (enabled && !dt.isNull())
 		{
-            // note used
-            dt->touch();
-
-			ID3D10Resource *pTex = dt->getTexture();
-			if (mTexStageDesc[stage].pTex != pTex)
-			{
-				hr = mpD3DDevice->SetTexture(stage, pTex);
-				if( hr != S_OK )
-				{
-					String str = "Unable to set texture '" + tex->getName() + "' in D3D10";
-					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, str, "D3D10RenderSystem::_setTexture" );
-				}
-				
-				// set stage desc.
-				mTexStageDesc[stage].pTex = pTex;
-				mTexStageDesc[stage].texType = D3D10Mappings::get(dt->getTextureType());
-			}
+			// note used
+			dt->touch();
+			ID3D10ShaderResourceView * pTex = dt->getTexture();
+			mTexStageDesc[stage].pTex = pTex;
+			mTexStageDesc[stage].used = true;
 		}
 		else
 		{
-			if (mTexStageDesc[stage].pTex != 0)
-			{
-				hr = mpD3DDevice->SetTexture(stage, 0);
-				if( hr != S_OK )
-				{
-					String str = "Unable to disable texture '" + StringConverter::toString(stage) + "' in D3D10";
-					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, str, "D3D10RenderSystem::_setTexture" );
-				}
-			}
-
-			hr = this->__SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_DISABLE);
-			if( hr != S_OK )
-			{
-				String str = "Unable to disable texture '" + StringConverter::toString(stage) + "' in D3D10";
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, str, "D3D10RenderSystem::_setTexture" );
-			}
-
-			// set stage desc. to defaults
-			mTexStageDesc[stage].pTex = 0;
-			mTexStageDesc[stage].autoTexCoordType = TEXCALC_NONE;
-			mTexStageDesc[stage].coordIndex = 0;
-			mTexStageDesc[stage].texType = D3D10Mappings::D3D_TEX_TYPE_NORMAL;
-
-			// Set gamma now too
-			if (dt->isHardwareGammaEnabled())
-			{
-			__SetSamplerState(stage, D3DSAMP_SRGBTEXTURE, TRUE);
-			}
-			else
-			{
-			__SetSamplerState(stage, D3DSAMP_SRGBTEXTURE, FALSE);
-			}
-	
+			mTexStageDesc[stage].used = false;
 		}
-		*/
 
 
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setVertexTexture(size_t stage, const TexturePtr& tex)
 	{
-	/*	if (tex.isNull())
-		{
-
-			if (mTexStageDesc[stage].pVertexTex != 0)
-			{
-				HRESULT hr = mpD3DDevice->SetTexture(D3DVERTEXTEXTURESAMPLER0 + stage, 0);
-				if( hr != S_OK )
-				{
-					String str = "Unable to disable vertex texture '" 
-						+ StringConverter::toString(stage) + "' in D3D10";
-					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, str, "D3D10RenderSystem::_setVertexTexture" );
-				}
-			}
-
-			// set stage desc. to defaults
-			mTexStageDesc[stage].pVertexTex = 0;
-		}
-		else
-		{
-			D3D10TexturePtr dt = tex;
-			// note used
-			dt->touch();
-
-			ID3D10Resource *pTex = dt->getTexture();
-			if (mTexStageDesc[stage].pVertexTex != pTex)
-			{
-				HRESULT hr = mpD3DDevice->SetTexture(D3DVERTEXTEXTURESAMPLER0 + stage, pTex);
-				if( hr != S_OK )
-				{
-					String str = "Unable to set vertex texture '" + tex->getName() + "' in D3D10";
-					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, str, "D3D10RenderSystem::_setVertexTexture" );
-				}
-
-				// set stage desc.
-				mTexStageDesc[stage].pVertexTex = pTex;
-			}
-
-		}
-*/
+		_setTexture(stage,true, tex);
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_disableTextureUnit(size_t texUnit)
@@ -1525,15 +1513,10 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	void D3D10RenderSystem::_setTextureCoordCalculation( size_t stage, TexCoordCalcMethod m,
         const Frustum* frustum)
 	{
-/*		HRESULT hr;
 		// record the stage state
 		mTexStageDesc[stage].autoTexCoordType = m;
-        mTexStageDesc[stage].frustum = frustum;
-
-		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D10Mappings::get(m, mCaps) | mTexStageDesc[stage].coordIndex );
-		if(FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set texture auto tex.coord. generation mode", "D3D10RenderSystem::_setTextureCoordCalculation" );
-*/	}
+		mTexStageDesc[stage].frustum = frustum;
+	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setTextureMipmapBias(size_t unit, float bias)
 	{
@@ -1721,7 +1704,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 			if (FAILED(hr))
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set texture coord. dimension", "D3D10RenderSystem::_setTextureMatrix" );
 
-			hr = mpD3DDevice->SetTransform( (D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + stage), &d3dMat );
+			hr = mDevice->SetTransform( (D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + stage), &d3dMat );
 			if (FAILED(hr))
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set texture matrix", "D3D10RenderSystem::_setTextureMatrix" );
 		}
@@ -1740,168 +1723,34 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	void D3D10RenderSystem::_setTextureAddressingMode( size_t stage, 
 		const TextureUnitState::UVWAddressingMode& uvw )
 	{
-	/*	HRESULT hr;
-		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSU, D3D10Mappings::get(uvw.u, mCaps) ) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set texture addressing mode for U", "D3D10RenderSystem::_setTextureAddressingMode" );
-		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSV, D3D10Mappings::get(uvw.v, mCaps) ) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set texture addressing mode for V", "D3D10RenderSystem::_setTextureAddressingMode" );
-		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSW, D3D10Mappings::get(uvw.w, mCaps) ) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set texture addressing mode for W", "D3D10RenderSystem::_setTextureAddressingMode" );
-	*/
+		// record the stage state
+		mTexStageDesc[stage].samplerDesc.AddressU = D3D10Mappings::get(uvw.u);
+		mTexStageDesc[stage].samplerDesc.AddressV = D3D10Mappings::get(uvw.v);
+		mTexStageDesc[stage].samplerDesc.AddressW = D3D10Mappings::get(uvw.w);
 	}
     //-----------------------------------------------------------------------------
     void D3D10RenderSystem::_setTextureBorderColour(size_t stage,
         const ColourValue& colour)
     {
-	/*	HRESULT hr;
-		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_BORDERCOLOR, colour.getAsARGB()) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set texture border colour", "D3D10RenderSystem::_setTextureBorderColour" );
-    */}
+		D3D10Mappings::get(colour, mTexStageDesc[stage].samplerDesc.BorderColor);
+	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setTextureBlendMode( size_t stage, const LayerBlendModeEx& bm )
 	{
-/*		HRESULT hr = S_OK;
-		D3DTEXTURESTAGESTATETYPE tss;
-		D3DCOLOR manualD3D;
-
-		// choose type of blend.
-		if( bm.blendType == LBT_COLOUR )
-			tss = D3DTSS_COLOROP;
-		else if( bm.blendType == LBT_ALPHA )
-			tss = D3DTSS_ALPHAOP;
-		else
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-			"Invalid blend type", "D3D10RenderSystem::_setTextureBlendMode");
-
-		// set manual factor if required by operation
-		if (bm.operation == LBX_BLEND_MANUAL)
-		{
-			hr = __SetRenderState( D3DRS_TEXTUREFACTOR, D3DXCOLOR(0.0, 0.0, 0.0,  bm.factor) );
-			if (FAILED(hr))
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set manual factor", "D3D10RenderSystem::_setTextureBlendMode" );
-		}
-		// set operation
-		hr = __SetTextureStageState( stage, tss, D3D10Mappings::get(bm.operation, mCaps) );
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set operation", "D3D10RenderSystem::_setTextureBlendMode" );
-
-		// choose source 1
-		if( bm.blendType == LBT_COLOUR )
-		{
-			tss = D3DTSS_COLORARG1;
-			manualD3D = D3DXCOLOR( bm.colourArg1.r, bm.colourArg1.g, bm.colourArg1.b, bm.colourArg1.a );
-			mManualBlendColours[stage][0] = bm.colourArg1;
-		}
-		else if( bm.blendType == LBT_ALPHA )
-		{
-			tss = D3DTSS_ALPHAARG1;
-			manualD3D = D3DXCOLOR( mManualBlendColours[stage][0].r, 
-				mManualBlendColours[stage][0].g, 
-				mManualBlendColours[stage][0].b, bm.alphaArg1 );
-		}
-		else
-		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"Invalid blend type", "D3D10RenderSystem::_setTextureBlendMode");
-		}
-		// Set manual factor if required
-		if (bm.source1 == LBS_MANUAL)
-		{
-			if (mPerStageConstantSupport)
-			{
-				// Per-stage state
-				hr = __SetTextureStageState(stage, D3DTSS_CONSTANT, manualD3D);
-			}
-			else
-			{
-				// Global state
-				hr = __SetRenderState( D3DRS_TEXTUREFACTOR, manualD3D );
-			}
-			if (FAILED(hr))
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set manual factor", "D3D10RenderSystem::_setTextureBlendMode" );
-		}
-		// set source 1
-		hr = __SetTextureStageState( stage, tss, D3D10Mappings::get(bm.source1, mPerStageConstantSupport) );
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set source1", "D3D10RenderSystem::_setTextureBlendMode" );
-		
-		// choose source 2
-		if( bm.blendType == LBT_COLOUR )
-		{
-			tss = D3DTSS_COLORARG2;
-			manualD3D = D3DXCOLOR( bm.colourArg2.r, bm.colourArg2.g, bm.colourArg2.b, bm.colourArg2.a );
-			mManualBlendColours[stage][1] = bm.colourArg1;
-		}
-		else if( bm.blendType == LBT_ALPHA )
-		{
-			tss = D3DTSS_ALPHAARG2;
-			manualD3D = D3DXCOLOR( mManualBlendColours[stage][1].r, 
-				mManualBlendColours[stage][1].g, 
-				mManualBlendColours[stage][1].b, 
-				bm.alphaArg2 );
-		}
-		// Set manual factor if required
-		if (bm.source2 == LBS_MANUAL)
-		{
-			if (mPerStageConstantSupport)
-			{
-				// Per-stage state
-				hr = __SetTextureStageState(stage, D3DTSS_CONSTANT, manualD3D);
-			}
-			else
-			{
-				hr = __SetRenderState( D3DRS_TEXTUREFACTOR, manualD3D );
-			}
-			if (FAILED(hr))
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set manual factor", "D3D10RenderSystem::_setTextureBlendMode" );
-		}
-		// Now set source 2
-		hr = __SetTextureStageState( stage, tss, D3D10Mappings::get(bm.source2, mPerStageConstantSupport) );
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set source 2", "D3D10RenderSystem::_setTextureBlendMode" );
-
-		// Set interpolation factor if lerping
-		if (bm.operation == LBX_BLEND_DIFFUSE_COLOUR && 
-			mCaps.TextureOpCaps & D3DTEXOPCAPS_LERP)
-		{
-			// choose source 0 (lerp factor)
-			if( bm.blendType == LBT_COLOUR )
-			{
-				tss = D3DTSS_COLORARG0;
-			}
-			else if( bm.blendType == LBT_ALPHA )
-			{
-				tss = D3DTSS_ALPHAARG0;
-			}
-			hr = __SetTextureStageState(stage, tss, D3DTA_DIFFUSE);
-
-			if (FAILED(hr))
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set lerp source 0", 
-					"D3D10RenderSystem::_setTextureBlendMode" );
-
-		}
-*/	}
+		mTexStageDesc[stage].layerBlendMode = bm;
+	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setSceneBlending( SceneBlendFactor sourceFactor, SceneBlendFactor destFactor )
 	{
-	/*	HRESULT hr;
-		if( sourceFactor == SBF_ONE && destFactor == SBF_ZERO)
-		{
-			if (FAILED(hr = __SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE)))
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set alpha blending option", "D3D10RenderSystem::_setSceneBlending" );
-		}
-		else
-		{
-			if (FAILED(hr = __SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE)))
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set alpha blending option", "D3D10RenderSystem::_setSceneBlending" );
-			if (FAILED(hr = __SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, FALSE)))
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set separate alpha blending option", "D3D10RenderSystem::_setSceneBlending" );
-			if( FAILED( hr = __SetRenderState( D3DRS_SRCBLEND, D3D10Mappings::get(sourceFactor) ) ) )
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set source blend", "D3D10RenderSystem::_setSceneBlending" );
-			if( FAILED( hr = __SetRenderState( D3DRS_DESTBLEND, D3D10Mappings::get(destFactor) ) ) )
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set destination blend", "D3D10RenderSystem::_setSceneBlending" );
-		}
-		*/
+		mBlendDesc.BlendEnable[0] = TRUE;
+		mBlendDesc.SrcBlend = D3D10Mappings::get(sourceFactor);
+		mBlendDesc.DestBlend = D3D10Mappings::get(destFactor);
+		mBlendDesc.BlendOp = D3D10_BLEND_OP_ADD ;
+		mBlendDesc.BlendOpAlpha = D3D10_BLEND_OP_ADD ;
+		mBlendDesc.SrcBlendAlpha = D3D10_BLEND_ZERO;
+		mBlendDesc.DestBlendAlpha = D3D10_BLEND_ZERO;
+
+		mBlendDesc.RenderTargetWriteMask[0] = 0x0F;
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setSeparateSceneBlending( SceneBlendFactor sourceFactor, SceneBlendFactor destFactor, SceneBlendFactor sourceFactorAlpha, SceneBlendFactor destFactorAlpha )
@@ -1933,37 +1782,13 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setAlphaRejectSettings( CompareFunction func, unsigned char value )
 	{
-	/*	HRESULT hr;
-        if (func != CMPF_ALWAYS_PASS)
-        {
-            if( FAILED( hr = __SetRenderState( D3DRS_ALPHATESTENABLE,  TRUE ) ) )
-    			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to enable alpha testing", 
-                "D3D10RenderSystem::_setAlphaRejectSettings" );
-        }
-        else
-        {
-            if( FAILED( hr = __SetRenderState( D3DRS_ALPHATESTENABLE,  FALSE ) ) )
-    			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to disable alpha testing", 
-                "D3D10RenderSystem::_setAlphaRejectSettings" );
-        }
-        // Set always just be sure
-		if( FAILED( hr = __SetRenderState( D3DRS_ALPHAFUNC, D3D10Mappings::get(func) ) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set alpha reject function", "D3D10RenderSystem::_setAlphaRejectSettings" );
-		if( FAILED( hr = __SetRenderState( D3DRS_ALPHAREF, value ) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set render state D3DRS_ALPHAREF", "D3D10RenderSystem::_setAlphaRejectSettings" );
-	*/
+		mSceneAlphaRejectFunc	= func;
+		mSceneAlphaRejectValue	= value;
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setCullingMode( CullingMode mode )
 	{
-	/*	HRESULT hr;
-        bool flip = ((mActiveRenderTarget->requiresTextureFlipping() && !mInvertVertexWinding) ||
-                (!mActiveRenderTarget->requiresTextureFlipping() && mInvertVertexWinding));
-
-		if( FAILED (hr = __SetRenderState(D3DRS_CULLMODE, 
-            D3D10Mappings::get(mode, flip))) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set culling mode", "D3D10RenderSystem::_setCullingMode" );
-	*/
+		mRasterizerDesc.CullMode = D3D10Mappings::get(mode);
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setDepthBufferParams( bool depthTest, bool depthWrite, CompareFunction depthFunction )
@@ -1975,144 +1800,68 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setDepthBufferCheckEnabled( bool enabled )
 	{
-	/*	HRESULT hr;
-
-		if( enabled )
-		{
-			// Use w-buffer if available and enabled
-			if( mWBuffer && mCaps.RasterCaps & D3DPRASTERCAPS_WBUFFER )
-				hr = __SetRenderState( D3DRS_ZENABLE, D3DZB_USEW );
-			else
-				hr = __SetRenderState( D3DRS_ZENABLE, D3DZB_TRUE );
-		}
-		else
-			hr = __SetRenderState( D3DRS_ZENABLE, D3DZB_FALSE );
-
-		if( FAILED( hr ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting depth buffer test state", "D3D10RenderSystem::_setDepthBufferCheckEnabled" );
-	*/
+		mDepthStencilDesc.DepthEnable = enabled;
+		mRasterizerDesc.DepthClipEnable = enabled;
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setDepthBufferWriteEnabled( bool enabled )
 	{
-	/*	HRESULT hr;
-
-		if( FAILED( hr = __SetRenderState( D3DRS_ZWRITEENABLE, enabled ) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting depth buffer write state", "D3D10RenderSystem::_setDepthBufferWriteEnabled" );
-	*/
+		if (enabled)
+		{
+			mDepthStencilDesc.DepthWriteMask = D3D10_DEPTH_WRITE_MASK_ALL;
+		}
+		else
+		{
+			mDepthStencilDesc.DepthWriteMask = D3D10_DEPTH_WRITE_MASK_ZERO;
+		}
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setDepthBufferFunction( CompareFunction func )
 	{
-	/*	HRESULT hr;
-		if( FAILED( hr = __SetRenderState( D3DRS_ZFUNC, D3D10Mappings::get(func) ) ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting depth buffer test function", "D3D10RenderSystem::_setDepthBufferFunction" );
-	*/
+		mDepthStencilDesc.DepthFunc = D3D10Mappings::get(func);
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setDepthBias(float constantBias, float slopeScaleBias)
 	{
-	/*
-		if ((mCaps.RasterCaps & D3DPRASTERCAPS_DEPTHBIAS) != 0)
-		{
-			// Negate bias since D3D is backward
-			// D3D also expresses the constant bias as an absolute value, rather than 
-			// relative to minimum depth unit, so scale to fit
-			constantBias = -constantBias / 250000.0f;
-			HRESULT hr = __SetRenderState(D3DRS_DEPTHBIAS, FLOAT2DWORD(constantBias));
-			if (FAILED(hr))
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting constant depth bias", 
-				"D3D10RenderSystem::_setDepthBias");
-		}
-
-		if ((mCaps.RasterCaps & D3DPRASTERCAPS_SLOPESCALEDEPTHBIAS) != 0)
-		{
-			// Negate bias since D3D is backward
-			slopeScaleBias = -slopeScaleBias;
-			HRESULT hr = __SetRenderState(D3DRS_SLOPESCALEDEPTHBIAS, FLOAT2DWORD(slopeScaleBias));
-			if (FAILED(hr))
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting slope scale depth bias", 
-				"D3D10RenderSystem::_setDepthBias");
-		}
-*/
+		mRasterizerDesc.DepthBiasClamp = constantBias;
+		mRasterizerDesc.SlopeScaledDepthBias = slopeScaleBias;
 
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setColourBufferWriteEnabled(bool red, bool green, 
 		bool blue, bool alpha)
 	{
-	/*	DWORD val = 0;
+		UINT8 val = 0;
 		if (red) 
-			val |= D3DCOLORWRITEENABLE_RED;
+			val |= D3D10_COLOR_WRITE_ENABLE_RED;
 		if (green)
-			val |= D3DCOLORWRITEENABLE_GREEN;
+			val |= D3D10_COLOR_WRITE_ENABLE_GREEN;
 		if (blue)
-			val |= D3DCOLORWRITEENABLE_BLUE;
+			val |= D3D10_COLOR_WRITE_ENABLE_BLUE;
 		if (alpha)
-			val |= D3DCOLORWRITEENABLE_ALPHA;
-		HRESULT hr = __SetRenderState(D3DRS_COLORWRITEENABLE, val); 
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting colour write enable flags", 
-			"D3D10RenderSystem::_setColourBufferWriteEnabled");
-	*/
+			val |= D3D10_COLOR_WRITE_ENABLE_ALPHA;
+
+		mBlendDesc.RenderTargetWriteMask[0] = val; 
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setFog( FogMode mode, const ColourValue& colour, Real densitiy, Real start, Real end )
 	{
-/*		HRESULT hr;
-
-		D3DRENDERSTATETYPE fogType, fogTypeNot;
-
-		if (mCaps.RasterCaps & D3DPRASTERCAPS_FOGTABLE)
-		{
-			fogType = D3DRS_FOGTABLEMODE;
-			fogTypeNot = D3DRS_FOGVERTEXMODE;
-		}
-		else
-		{
-			fogType = D3DRS_FOGVERTEXMODE;
-			fogTypeNot = D3DRS_FOGTABLEMODE;
-		}
-
-		if( mode == FOG_NONE)
-		{
-			// just disable
-			hr = __SetRenderState(fogType, D3DFOG_NONE );
-			hr = __SetRenderState(D3DRS_FOGENABLE, FALSE);
-		}
-		else
-		{
-			// Allow fog
-			hr = __SetRenderState( D3DRS_FOGENABLE, TRUE );
-			hr = __SetRenderState( fogTypeNot, D3DFOG_NONE );
-			hr = __SetRenderState( fogType, D3D10Mappings::get(mode) );
-
-			hr = __SetRenderState( D3DRS_FOGCOLOR, colour.getAsARGB() );
-			hr = __SetFloatRenderState( D3DRS_FOGSTART, start );
-			hr = __SetFloatRenderState( D3DRS_FOGEND, end );
-			hr = __SetFloatRenderState( D3DRS_FOGDENSITY, densitiy );
-		}
-
-		if( FAILED( hr ) )
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting render state", "D3D10RenderSystem::_setFog" );
-*/
+		mFogMode		= mode;
+		mFogColour		= colour;
+		mFogDensitiy	= densitiy;
+		mFogStart		= start;
+		mFogEnd			= end;
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setPolygonMode(PolygonMode level)
 	{
-/*		HRESULT hr = __SetRenderState(D3DRS_FILLMODE, D3D10Mappings::get(level));
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting polygon mode.", "D3D10RenderSystem::setPolygonMode");
-*/	}
+		mRasterizerDesc.FillMode = D3D10Mappings::get(level);
+		mPolygonMode = level;
+	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::setStencilCheckEnabled(bool enabled)
 	{
-	/*	// Allow stencilling
-		HRESULT hr = __SetRenderState(D3DRS_STENCILENABLE, enabled);
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error enabling / disabling stencilling.",
-			"D3D10RenderSystem::setStencilCheckEnabled");
-	*/
+		mDepthStencilDesc.StencilEnable = enabled;
 	}
     //---------------------------------------------------------------------
     void D3D10RenderSystem::setStencilBufferParams(CompareFunction func, 
@@ -2120,105 +1869,51 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
         StencilOperation depthFailOp, StencilOperation passOp, 
         bool twoSidedOperation)
     {
-    /*    HRESULT hr;
-        bool flip;
+		mDepthStencilDesc.FrontFace.StencilFunc = D3D10Mappings::get(func);
+		mDepthStencilDesc.BackFace.StencilFunc = D3D10Mappings::get(func);
 
-        // 2-sided operation
-        if (twoSidedOperation)
-        {
-            if (!mCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
-                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
-                    "D3D10RenderSystem::setStencilBufferParams");
-            hr = __SetRenderState(D3DRS_TWOSIDEDSTENCILMODE, TRUE);
-		    if (FAILED(hr))
-			    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting 2-sided stencil mode.",
-			    "D3D10RenderSystem::setStencilBufferParams");
-            // NB: We should always treat CCW as front face for consistent with default
-            // culling mode. Therefore, we must take care with two-sided stencil settings.
-            flip = (mInvertVertexWinding && mActiveRenderTarget->requiresTextureFlipping()) ||
-                   (!mInvertVertexWinding && !mActiveRenderTarget->requiresTextureFlipping());
+		mDepthStencilDesc.StencilReadMask = refValue;
+		mDepthStencilDesc.StencilWriteMask = mask;
 
-            // Set alternative versions of ops
-            // fail op
-            hr = __SetRenderState(D3DRS_CCW_STENCILFAIL, D3D10Mappings::get(stencilFailOp, !flip));
-            if (FAILED(hr))
-                OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting stencil fail operation (2-sided).",
-                "D3D10RenderSystem::setStencilBufferParams");
+		mDepthStencilDesc.FrontFace.StencilFailOp = D3D10Mappings::get(stencilFailOp);
+		mDepthStencilDesc.BackFace.StencilFailOp = D3D10Mappings::get(stencilFailOp);
 
-            // depth fail op
-            hr = __SetRenderState(D3DRS_CCW_STENCILZFAIL, D3D10Mappings::get(depthFailOp, !flip));
-            if (FAILED(hr))
-                OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting stencil depth fail operation (2-sided).",
-                "D3D10RenderSystem::setStencilBufferParams");
+		mDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D10Mappings::get(stencilFailOp);
+		mDepthStencilDesc.BackFace.StencilDepthFailOp = D3D10Mappings::get(stencilFailOp);
 
-            // pass op
-            hr = __SetRenderState(D3DRS_CCW_STENCILPASS, D3D10Mappings::get(passOp, !flip));
-            if (FAILED(hr))
-                OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting stencil pass operation (2-sided).",
-                "D3D10RenderSystem::setStencilBufferParams");
-        }
-        else
-        {
-            hr = __SetRenderState(D3DRS_TWOSIDEDSTENCILMODE, FALSE);
-		    if (FAILED(hr))
-			    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting 1-sided stencil mode.",
-			    "D3D10RenderSystem::setStencilBufferParams");
-            flip = false;
-        }
+		mDepthStencilDesc.FrontFace.StencilPassOp = D3D10Mappings::get(passOp);
+		mDepthStencilDesc.BackFace.StencilPassOp = D3D10Mappings::get(passOp);
 
-        // func
-        hr = __SetRenderState(D3DRS_STENCILFUNC, D3D10Mappings::get(func));
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting stencil buffer test function.",
-			"D3D10RenderSystem::setStencilBufferParams");
+		if (!twoSidedOperation)
+		{
+			mDepthStencilDesc.BackFace.StencilFunc = D3D10_COMPARISON_NEVER;
+		}
 
-        // reference value
-        hr = __SetRenderState(D3DRS_STENCILREF, refValue);
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting stencil buffer reference value.",
-			"D3D10RenderSystem::setStencilBufferParams");
-
-        // mask
-        hr = __SetRenderState(D3DRS_STENCILMASK, mask);
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting stencil buffer mask.",
-			"D3D10RenderSystem::setStencilBufferParams");
-
-		// fail op
-        hr = __SetRenderState(D3DRS_STENCILFAIL, D3D10Mappings::get(stencilFailOp, flip));
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting stencil fail operation.",
-			"D3D10RenderSystem::setStencilBufferParams");
-
-        // depth fail op
-        hr = __SetRenderState(D3DRS_STENCILZFAIL, D3D10Mappings::get(depthFailOp, flip));
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting stencil depth fail operation.",
-			"D3D10RenderSystem::setStencilBufferParams");
-
-        // pass op
-        hr = __SetRenderState(D3DRS_STENCILPASS, D3D10Mappings::get(passOp, flip));
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error setting stencil pass operation.",
-			"D3D10RenderSystem::setStencilBufferParams");
-	*/
 	}
 	//---------------------------------------------------------------------
     void D3D10RenderSystem::_setTextureUnitFiltering(size_t unit, FilterType ftype, 
         FilterOptions filter)
 	{
-/*		HRESULT hr;
-		D3D10Mappings::eD3DTexType texType = mTexStageDesc[unit].texType;
-        hr = __SetSamplerState( unit, D3D10Mappings::get(ftype), 
-            D3D10Mappings::get(ftype, filter, mCaps, texType));
-		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set texture filter ", "D3D10RenderSystem::_setTextureUnitFiltering");
-*/	}
+		switch(ftype) {
+		case FT_MIN:
+			FilterMinification = filter;
+			break;
+		case FT_MAG:
+			FilterMagnification = filter;
+			break;
+		case FT_MIP:
+			FilterMips = filter;
+			break;
+		}
+
+		mTexStageDesc[unit].samplerDesc.Filter = D3D10Mappings::get(FilterMinification, FilterMagnification, FilterMips);
+
+	}
     //---------------------------------------------------------------------
 	DWORD D3D10RenderSystem::_getCurrentAnisotropy(size_t unit)
 	{
 	/*	DWORD oldVal;
-		mpD3DDevice->GetSamplerState(unit, D3DSAMP_MAXANISOTROPY, &oldVal);
+		mDevice->GetSamplerState(unit, D3DSAMP_MAXANISOTROPY, &oldVal);
 			return oldVal;
 	*/
 		return 0;
@@ -2238,12 +1933,12 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		HRESULT hr;
 		DWORD oldVal;
 
-		if ( FAILED( hr = mpD3DDevice->GetRenderState(state, &oldVal) ) )
+		if ( FAILED( hr = mDevice->GetRenderState(state, &oldVal) ) )
 			return hr;
 		if ( oldVal == value )
 			return D3D_OK;
 		else
-			return mpD3DDevice->SetRenderState(state, value);
+			return mDevice->SetRenderState(state, value);
 	
 	}*/
 	//---------------------------------------------------------------------
@@ -2252,12 +1947,12 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		HRESULT hr;
 		DWORD oldVal;
 
-		if ( FAILED( hr = mpD3DDevice->GetSamplerState(sampler, type, &oldVal) ) )
+		if ( FAILED( hr = mDevice->GetSamplerState(sampler, type, &oldVal) ) )
 			return hr;
 		if ( oldVal == value )
 			return D3D_OK;
 		else
-			return mpD3DDevice->SetSamplerState(sampler, type, value);
+			return mDevice->SetSamplerState(sampler, type, value);
 	}*/
 	//---------------------------------------------------------------------
 	/*HRESULT D3D10RenderSystem::__SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value)
@@ -2265,12 +1960,12 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		HRESULT hr;
 		DWORD oldVal;
 		
-		if ( FAILED( hr = mpD3DDevice->GetTextureStageState(stage, type, &oldVal) ) )
+		if ( FAILED( hr = mDevice->GetTextureStageState(stage, type, &oldVal) ) )
 			return hr;
 		if ( oldVal == value )
 			return D3D_OK;
 		else
-			return mpD3DDevice->SetTextureStageState(stage, type, value);
+			return mDevice->SetTextureStageState(stage, type, value);
 	
 	}*/
 	//---------------------------------------------------------------------
@@ -2312,7 +2007,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 			uint count = mCapabilities->numMultiRenderTargets();
 			for(uint x=0; x<count; ++x)
 			{
-				hr = mpD3DDevice->SetRenderTarget(x, pBack[x]);
+				hr = mDevice->SetRenderTarget(x, pBack[x]);
 				if (FAILED(hr))
 				{
 					String msg ;//= DXGetErrorDescription9(hr);
@@ -2324,13 +2019,21 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 			target->getCustomAttribute( "D3D10RenderTargetView", &pRTView );
 			ID3D10DepthStencilView * pRTDepthView;
 			target->getCustomAttribute( "D3D10RenderTargetDepthView", &pRTDepthView );
-			mpD3DDevice->OMSetRenderTargets(1,
-				(ID3D10RenderTargetView *const *)pRTView,
+			mDevice->OMSetRenderTargets(1,
+				&pRTView,
 				pRTDepthView);
+
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set render target\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_setViewport");
+			}
 
 			// TODO - support MRT
 
-		/*	hr = mpD3DDevice->SetDepthStencilSurface(pDepth);
+		/*	hr = mDevice->SetDepthStencilSurface(pDepth);
 			if (FAILED(hr))
 			{
 				String msg ;//= DXGetErrorDescription9(hr);
@@ -2354,7 +2057,14 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 			d3dvp.MinDepth = 0.0f;
 			d3dvp.MaxDepth = 1.0f;
 
-			mpD3DDevice->RSSetViewports(1, &d3dvp);
+			mDevice->RSSetViewports(1, &d3dvp);
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set viewports\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_setViewport");
+			}
 
 			// Set sRGB write mode
 			//__SetRenderState(D3DRS_SRGBWRITEENABLE, target->isHardwareGammaEnabled());
@@ -2370,7 +2080,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		if( !mActiveViewport )
 			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Cannot begin frame - no viewport selected.", "D3D10RenderSystem::_beginFrame" );
 /*
-		if( FAILED( hr = mpD3DDevice->BeginScene() ) )
+		if( FAILED( hr = mDevice->BeginScene() ) )
 		{
 			String msg = DXGetErrorDescription9(hr);
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error beginning frame :" + msg, "D3D10RenderSystem::_beginFrame" );
@@ -2396,7 +2106,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	{
 /*
 		HRESULT hr;
-		if( FAILED( hr = mpD3DDevice->EndScene() ) )
+		if( FAILED( hr = mDevice->EndScene() ) )
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error ending frame", "D3D10RenderSystem::_endFrame" );
 */
 	}
@@ -2421,11 +2131,10 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 */    //---------------------------------------------------------------------
 	void D3D10RenderSystem::setVertexDeclaration(VertexDeclaration* decl)
 	{
-      
-        D3D10VertexDeclaration* d3ddecl = 
-            static_cast<D3D10VertexDeclaration*>(decl);
+      	D3D10VertexDeclaration* d3ddecl = 
+			static_cast<D3D10VertexDeclaration*>(decl);
 
-        mpD3DDevice->IASetInputLayout(d3ddecl->getD3DVertexDeclaration());
+		d3ddecl->bindToShader(mBoundVertexProgram);
        
 
 	}
@@ -2433,70 +2142,289 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 	void D3D10RenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
 	{
      
-        // TODO: attempt to detect duplicates
-        const VertexBufferBinding::VertexBufferBindingMap& binds = binding->getBindings();
-        VertexBufferBinding::VertexBufferBindingMap::const_iterator i, iend;
-        size_t source = 0;
-        iend = binds.end();
-        for (i = binds.begin(); i != iend; ++i, ++source)
-        {
-            // Unbind gap sources
-            for ( ; source < i->first; ++source)
-            {
-                 mpD3DDevice->IASetVertexBuffers(static_cast<UINT>(source),1, NULL, 0, 0);
-                
-            }
+		//HRESULT hr;
 
-           const D3D10HardwareVertexBuffer* d3d9buf = 
-                static_cast<const D3D10HardwareVertexBuffer*>(i->second.get());
-            UINT offsets[1] = {0};
-			UINT strides[1] ={static_cast<UINT>(d3d9buf->getVertexSize())};
-			  mpD3DDevice->IASetVertexBuffers(
-                static_cast<UINT>(source),
-				1,
-                (ID3D10Buffer *const *)d3d9buf->getD3DVertexBuffer(),
-                strides, // stride
-				offsets // no stream offset, this is handled in _render instead
-                );
-            
+		// TODO: attempt to detect duplicates
+		const VertexBufferBinding::VertexBufferBindingMap& binds = binding->getBindings();
+		VertexBufferBinding::VertexBufferBindingMap::const_iterator i, iend;
+		iend = binds.end();
+		for (i = binds.begin(); i != iend; ++i)
+		{
+			const D3D10HardwareVertexBuffer* d3d10buf = 
+				static_cast<const D3D10HardwareVertexBuffer*>(i->second.get());
+
+			UINT stride = static_cast<UINT>(d3d10buf->getVertexSize());
+			UINT offset = 0; // no stream offset, this is handled in _render instead
+			UINT slot = static_cast<UINT>(i->first);
+			ID3D10Buffer * pVertexBuffers = d3d10buf->getD3DVertexBuffer();
+			mDevice->IASetVertexBuffers(
+				slot, // The first input slot for binding.
+				1, // The number of vertex buffers in the array.
+				&pVertexBuffers,
+				&stride,
+				&offset 
+				);
+
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set vertex buffers\nError Description:" + errorDescription,
+					"D3D10RenderSystem::setVertexBufferBinding");
+			}
+			/*
+			if (FAILED(hr))
+			{
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set D3D10 stream source for buffer binding", 
+			"D3D10RenderSystem::setVertexBufferBinding");
+			}*/
 
 
-        }
+		}
 
 		// Unbind any unused sources
-		for (size_t unused = source; unused < mLastVertexSourceCount; ++unused)
+		/*for (size_t unused = binds.size(); unused < mLastVertexSourceCount; ++unused)
 		{
-			
-            mpD3DDevice->IASetVertexBuffers(static_cast<UINT>(unused),0, NULL, 0, 0);
-            
-			
+
+		hr = mDevice->SetStreamSource(static_cast<UINT>(unused), NULL, 0, 0);
+		if (FAILED(hr))
+		{
+		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to reset unused D3D10 stream source", 
+		"D3D10RenderSystem::setVertexBufferBinding");
 		}
-		mLastVertexSourceCount = source;
+
+		}*/
+		mLastVertexSourceCount = binds.size();
 		
 	}
+
     //---------------------------------------------------------------------
     void D3D10RenderSystem::_render(const RenderOperation& op)
 	{
-        // Exit immediately if there is nothing to render
-        // This caused a problem on FireGL 8800
-        if (op.vertexData->vertexCount == 0)
-            return;
 
-        // Call super class
+		// Exit immediately if there is nothing to render
+		// This caused a problem on FireGL 8800
+		if (op.vertexData->vertexCount == 0)
+			return;
+
+
+		// Call super class
 		RenderSystem::_render(op);
 
-        // To think about: possibly remove setVertexDeclaration and 
-        // setVertexBufferBinding from RenderSystem since the sequence is
-        // a bit too D3D10-specific?
+
+
+		// well, in D3D10 we have to make sure that we have a vertex and fagmant shader
+		// bound before we start rendering, so we do that first...
+		bool needToUnmapVS = false;
+		bool needToUnmapFS = false;
+	 	if (!mBoundVertexProgram) // I know this is bad code - but I want to get things going
+		{
+
+			HighLevelGpuProgramPtr fixedFuncVsProgram = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncVs();
+			needToUnmapVS = true;
+			bindGpuProgram(fixedFuncVsProgram.get());
+
+			GpuProgramParametersSharedPtr params = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncVsParams();
+			{
+				const GpuConstantDefinition& def = params->getConstantDefinition("World");
+				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainMatrixsShaderBuffer.mWorldMatrix ,sizeof(float) * def.elementSize * def.arraySize);
+			}
+			{
+				const GpuConstantDefinition& def = params->getConstantDefinition("Projection");
+				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainMatrixsShaderBuffer.mProjectionMatrix ,sizeof(float) * def.elementSize * def.arraySize);
+			}
+			{
+				const GpuConstantDefinition& def = params->getConstantDefinition("View");
+				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainMatrixsShaderBuffer.mViewMatrix ,sizeof(float) * def.elementSize * def.arraySize);
+			}
+			bindGpuProgramParameters(GPT_VERTEX_PROGRAM, params);
+			/*
+			char * pConstData;
+			mMainMatrixsConstantBuffer->Map( D3D10_MAP_WRITE_DISCARD, NULL, (void **) &pConstData );
+			memcpy(pConstData, &mMainMatrixsShaderBuffer, sizeof(MainMatrixsShaderBuffer));
+			mMainMatrixsConstantBuffer->Unmap();*/
+
+			//ID3D10Buffer* pBuffers[1] ;
+			//pBuffers[0] = mMainMatrixsConstantBuffer;
+			//mDevice->VSSetConstantBuffers( 0, 1, pBuffers );
+		}
+
+		if (!mBoundFragmentProgram)
+		{
+
+			HighLevelGpuProgramPtr fixedFuncPsProgram = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncFs();
+			needToUnmapFS = true;
+			bindGpuProgram(fixedFuncPsProgram.get());
+
+		}
+
+		mDevice->GSSetShader( NULL );
+		if (mDevice.isError())
+		{
+			// this will never happen but we want to be consistent with the error checks... 
+			String errorDescription = mDevice.getErrorDescription();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"D3D10 device cannot set geometry shader to null\nError Description:" + errorDescription,
+				"D3D10RenderSystem::_render");
+		}
+
+
+
+		// Blend State  - only if changed - we reset
+		if ( 0 != memcmp(&mBlendDesc, &mCurrentBlendDesc, sizeof(D3D10_BLEND_DESC)))
+		{
+			ID3D10BlendState * tempSoNoWarning = mCurrentBlendState; 
+
+			mCurrentBlendDesc = mBlendDesc;
+
+
+			HRESULT hr = mDevice->CreateBlendState(&mCurrentBlendDesc, &mCurrentBlendState) ;
+			if (FAILED(hr))
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"Failed to create blend state\nError Description:" + errorDescription, 
+					"D3D10RenderSystem::_render" );
+			}
+
+			mDevice->OMSetBlendState(mCurrentBlendState, 0, 0xffffffff); // TODO - find out where to get the parameters
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set blend state\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_render");
+			}
+
+			SAFE_RELEASE( tempSoNoWarning );
+
+		}
+
+		// Rasterizer  - only if changed - we reset
+		if ( 0 != memcmp(&mRasterizerDesc, &mCurrentRasterizerDesc, sizeof(D3D10_RASTERIZER_DESC)))
+		{
+			ID3D10RasterizerState * tempSoNoWarning = mCurrentRasterizer; 
+
+			mCurrentRasterizerDesc = mRasterizerDesc;
+
+			HRESULT hr = mDevice->CreateRasterizerState(&mCurrentRasterizerDesc, &mCurrentRasterizer) ;
+			if (FAILED(hr))
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"Failed to create rasterizer state\nError Description:" + errorDescription, 
+					"D3D10RenderSystem::_render" );
+			}
+			mDevice->RSSetState(mCurrentRasterizer);
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set rasterizer state\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_render");
+			}
+
+			SAFE_RELEASE( tempSoNoWarning );
+		}
+
+		// depth stencil state  - only if changed - we reset
+		if ( 0 != memcmp(&mDepthStencilDesc, &mCurrentDepthStencilDesc, sizeof(D3D10_DEPTH_STENCIL_DESC)))
+		{
+			ID3D10DepthStencilState * tempSoNoWarning = mCurrentDepthStencilState;
+
+			mCurrentDepthStencilDesc = mDepthStencilDesc;
+			HRESULT hr = mDevice->CreateDepthStencilState(&mCurrentDepthStencilDesc, &mCurrentDepthStencilState) ;
+			if (FAILED(hr))
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"Failed to create depth stencil state\nError Description:" + errorDescription, 
+					"D3D10RenderSystem::_render" );
+			}
+			mDevice->OMSetDepthStencilState(mCurrentDepthStencilState, 0); // TODO - find out where to get the parameter
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set depth stencil state\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_render");
+			}
+
+			SAFE_RELEASE( tempSoNoWarning );
+		}
+
+		// samplers mapping
+		size_t numberOfSamplers = 0;
+
+		size_t numberOfsamplerStatesToDelete = 0;
+		ID3D10SamplerState * samplerStatesToDelete[OGRE_MAX_TEXTURE_LAYERS];
+		for (size_t n = 0; n < OGRE_MAX_TEXTURE_LAYERS; n++)
+		{
+			sD3DTextureStageDesc & stage = mTexStageDesc[n];
+			if(!stage.used)
+			{
+				break;
+			}
+
+			numberOfSamplers++;
+
+			mActiveTextures[n] = stage.pTex;
+
+			stage.samplerDesc.ComparisonFunc = D3D10Mappings::get(mSceneAlphaRejectFunc);
+			stage.samplerDesc.MaxLOD = D3D10_FLOAT32_MAX;
+
+			if ( 0 != memcmp(&stage.samplerDesc, &stage.currentSamplerDesc, sizeof(D3D10_RASTERIZER_DESC)))
+			{
+				samplerStatesToDelete[numberOfsamplerStatesToDelete] = mSamplerStates[n];
+
+				stage.currentSamplerDesc = stage.samplerDesc;
+				HRESULT hr = mDevice->CreateSamplerState(&stage.samplerDesc, &mSamplerStates[n]) ;
+				if (FAILED(hr))
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
+						"Failed to create sampler state\nError Description:" + errorDescription,
+						"D3D10RenderSystem::_render" );
+				}
+			}			
+		}
+
+
+		if (numberOfSamplers > 0) //  if the NumSamplers is 0, the operation effectively does nothing.
+		{
+			mDevice->PSSetSamplers(static_cast<UINT>(0), static_cast<UINT>(numberOfSamplers), mSamplerStates);
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set pixel shader samplers\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_render");
+			}
+			mDevice->PSSetShaderResources(static_cast<UINT>(0), static_cast<UINT>(numberOfSamplers), mActiveTextures);
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set pixel shader resources\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_render");
+			}
+		}
+
+		for ( size_t i = 0 ; i < numberOfsamplerStatesToDelete ; i++ )
+		{
+			SAFE_RELEASE( samplerStatesToDelete[i] );
+		}
+
 		setVertexDeclaration(op.vertexData->vertexDeclaration);
-        setVertexBufferBinding(op.vertexData->vertexBufferBinding);
+		setVertexBufferBinding(op.vertexData->vertexBufferBinding);
+
 
 		// Determine rendering operation
-		D3D10_PRIMITIVE_TOPOLOGY primType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST ;
+		D3D10_PRIMITIVE_TOPOLOGY primType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		DWORD primCount = 0;
-        switch( op.operationType )
+		switch( op.operationType )
 		{
-        case RenderOperation::OT_POINT_LIST:
+		case RenderOperation::OT_POINT_LIST:
 			primType = D3D10_PRIMITIVE_TOPOLOGY_POINTLIST;
 			primCount = (DWORD)(op.useIndexes ? op.indexData->indexCount : op.vertexData->vertexCount);
 			break;
@@ -2522,289 +2450,245 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 			break;
 
 		case RenderOperation::OT_TRIANGLE_FAN:
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Triangle Fans are not Supported", "D3D10RenderSystem::_render" );
+			primType = D3D10_PRIMITIVE_TOPOLOGY_UNDEFINED; // todo - no TRIANGLE_FAN in DX 10
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error - DX10 render - no support for triangle fan (OT_TRIANGLE_FAN)", "D3D10RenderSystem::_render");
+
+			primCount = (DWORD)(op.useIndexes ? op.indexData->indexCount : op.vertexData->vertexCount) - 2;
 			break;
 		}
 
-        if (!primCount)
-			return;
-
-		// Issue the op
-       // HRESULT hr;
-		if( op.useIndexes )
+		if (primCount)
 		{
-            D3D10HardwareIndexBuffer* d3dIdxBuf = 
-                static_cast<D3D10HardwareIndexBuffer*>(op.indexData->indexBuffer.get());
-			 mpD3DDevice->IASetIndexBuffer( d3dIdxBuf->getD3DIndexBuffer(),D3D10Mappings::get(d3dIdxBuf->getType()),0 );
-			
 
-            do
-            {
-				// Update derived depth bias
-				if (mDerivedDepthBias && mCurrentPassIterationNum > 0)
+			// Issue the op
+			//HRESULT hr;
+			if( op.useIndexes  )
+			{
+				D3D10HardwareIndexBuffer* d3dIdxBuf = 
+					static_cast<D3D10HardwareIndexBuffer*>(op.indexData->indexBuffer.get());
+				mDevice->IASetIndexBuffer( d3dIdxBuf->getD3DIndexBuffer(), D3D10Mappings::getFormat(d3dIdxBuf->getType()), 0 );
+				if (mDevice.isError())
 				{
-					_setDepthBias(mDerivedDepthBiasBase + 
-						mDerivedDepthBiasMultiplier * mCurrentPassIterationNum, 
-						mDerivedDepthBiasSlopeScale);
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot set index buffer\nError Description:" + errorDescription,
+						"D3D10RenderSystem::_render");
 				}
-                // do indexed draw operation
-			   /* hr = mpD3DDevice->DrawIndexedPrimitive(//DrawIndexed
-                    primType, 
-                    static_cast<INT>(op.vertexData->vertexStart), 
-                    0, // Min vertex index - assume we can go right down to 0 
-                    static_cast<UINT>(op.vertexData->vertexCount), 
-                    static_cast<UINT>(op.indexData->indexStart), 
-                    static_cast<UINT>(primCount)
-                    );
-*/
-				
-				mpD3DDevice->IASetPrimitiveTopology( primType );
-				 mpD3DDevice->DrawIndexed(
-                    static_cast<UINT>(op.vertexData->vertexCount),
-                    static_cast<UINT>(op.indexData->indexStart), 
-                    0 // Min vertex index - assume we can go right down to 0 
-                    );
 
-            } while (updatePassIterationRenderState());
+				do
+				{
+					// do indexed draw operation
+					mDevice->IASetPrimitiveTopology( primType );
+					if (mDevice.isError())
+					{
+						String errorDescription = mDevice.getErrorDescription();
+						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+							"D3D10 device cannot set primitive topology\nError Description:" + errorDescription,
+							"D3D10RenderSystem::_render");
+					}
+
+					mDevice->DrawIndexed(    
+						static_cast<UINT>(op.indexData->indexCount), 
+						static_cast<UINT>(op.indexData->indexStart), 
+						static_cast<INT>(op.vertexData->vertexStart)
+						);
+					if (mDevice.isError())
+					{
+						String errorDescription = mDevice.getErrorDescription();
+						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+							"D3D10 device cannot draw indexed\nError Description:" + errorDescription,
+							"D3D10RenderSystem::_render");
+					}
+
+				} while (updatePassIterationRenderState());
+			}
+			else
+			{
+				// nfz: gpu_iterate
+				do
+				{
+					// Unindexed, a little simpler!
+					mDevice->IASetPrimitiveTopology( primType );
+					if (mDevice.isError())
+					{
+						String errorDescription = mDevice.getErrorDescription();
+						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+							"D3D10 device cannot set primitive topology\nError Description:" + errorDescription,
+							"D3D10RenderSystem::_render");
+					}		
+
+					mDevice->Draw(
+						static_cast<UINT>(op.vertexData->vertexCount), 
+						static_cast<INT>(op.vertexData->vertexStart)
+						); 
+					if (mDevice.isError())
+					{
+						String errorDescription = mDevice.getErrorDescription();
+						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+							"D3D10 device cannot draw\nError Description:" + errorDescription,
+							"D3D10RenderSystem::_render");
+					}		
+
+
+				} while (updatePassIterationRenderState());
+			} 
+
 		}
-		else
-        {
-            // nfz: gpu_iterate
-            do
-            {
-				// Update derived depth bias
-				if (mDerivedDepthBias && mCurrentPassIterationNum > 0)
-				{
-					_setDepthBias(mDerivedDepthBiasBase + 
-						mDerivedDepthBiasMultiplier * mCurrentPassIterationNum, 
-						mDerivedDepthBiasSlopeScale);
-				}
-                // Unindexed, a little simpler!
-			   /* hr = mpD3DDevice->DrawPrimitive(
-                    primType, 
-                    static_cast<UINT>(op.vertexData->vertexStart), 
-                    static_cast<UINT>(primCount)
-                    ); 
-				*/
-				mpD3DDevice->IASetPrimitiveTopology( primType );
-				mpD3DDevice->Draw(
-                    static_cast<UINT>(primCount),
-					static_cast<UINT>(op.vertexData->vertexStart)
-                    ); 
 
-            } while (updatePassIterationRenderState());
-        } 
-/*
-		if( FAILED( hr ) )
+		if (needToUnmapVS)
 		{
-			String msg ;//= DXGetErrorDescription9(hr);
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to DrawPrimitive : " + msg, "D3D10RenderSystem::_render" );
+			unbindGpuProgram(GPT_VERTEX_PROGRAM);
 		}
-  */      
+
+		if (needToUnmapFS)
+		{
+			unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
+		} 
 	}
     //---------------------------------------------------------------------
     void D3D10RenderSystem::setNormaliseNormals(bool normalise)
     {
-    /*    __SetRenderState(D3DRS_NORMALIZENORMALS, 
-            normalise ? TRUE : FALSE);
-    */}
+    //    __SetRenderState(D3DRS_NORMALIZENORMALS, 
+    //      normalise ? TRUE : FALSE);
+	}
 	//---------------------------------------------------------------------
     void D3D10RenderSystem::bindGpuProgram(GpuProgram* prg)
     {
-        switch (prg->getType())
-        {
-        case GPT_VERTEX_PROGRAM:
-             mpD3DDevice->VSSetShader(
-                static_cast<D3D10GpuVertexProgram*>(prg)->getVertexShader());
-           
-            break;
-        case GPT_FRAGMENT_PROGRAM:
-            mpD3DDevice->PSSetShader(
-                static_cast<D3D10GpuFragmentProgram*>(prg)->getPixelShader());
-            
-            break;
-        };
-        
-        RenderSystem::bindGpuProgram(prg);
+		switch (prg->getType())
+		{
+		case GPT_VERTEX_PROGRAM:
+			{
+				// get the shader
+				mBoundVertexProgram = static_cast<D3D10HLSLProgram*>(prg);
+				ID3D10VertexShader * vsShaderToSet = mBoundVertexProgram->getVertexShader();
 
-    }
+				// set the shader
+				mDevice->VSSetShader(vsShaderToSet);
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot set vertex shader\nError Description:" + errorDescription,
+						"D3D10RenderSystem::bindGpuProgram");
+				}		
+			}
+			break;
+		case GPT_FRAGMENT_PROGRAM:
+			{
+				mBoundFragmentProgram = static_cast<D3D10HLSLProgram*>(prg);
+				ID3D10PixelShader* psShaderToSet = mBoundFragmentProgram->getPixelShader();
+
+				mDevice->PSSetShader(psShaderToSet);
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot set fragment shader\nError Description:" + errorDescription,
+						"D3D10RenderSystem::bindGpuProgram");
+				}		
+			}
+			break;
+		};
+
+		RenderSystem::bindGpuProgram(prg);
+   }
 	//---------------------------------------------------------------------
     void D3D10RenderSystem::unbindGpuProgram(GpuProgramType gptype)
     {
-        switch(gptype)
-        {
-        case GPT_VERTEX_PROGRAM:
-            mActiveVertexGpuProgramParameters.setNull();
-             mpD3DDevice->VSSetShader(NULL);
-            break;
-        case GPT_FRAGMENT_PROGRAM:
-            mActiveFragmentGpuProgramParameters.setNull();
-            mpD3DDevice->PSSetShader(NULL);
-            
-            break;
-        };
-        RenderSystem::unbindGpuProgram(gptype);
+
+		switch(gptype)
+		{
+		case GPT_VERTEX_PROGRAM:
+			{
+				mActiveVertexGpuProgramParameters.setNull();
+				mBoundVertexProgram = NULL;
+				//mDevice->VSSetShader(NULL);
+			}
+			break;
+		case GPT_FRAGMENT_PROGRAM:
+			{
+				mActiveFragmentGpuProgramParameters.setNull();
+				mBoundFragmentProgram = NULL;
+				//mDevice->PSSetShader(NULL);
+			}
+			break;
+		};
+		RenderSystem::unbindGpuProgram(gptype);
     }
 	//---------------------------------------------------------------------
     void D3D10RenderSystem::bindGpuProgramParameters(GpuProgramType gptype, 
         GpuProgramParametersSharedPtr params)
     {
-    /*    HRESULT hr;
-		const GpuLogicalBufferStruct* floatLogical = params->getFloatLogicalBufferStruct();
-		const GpuLogicalBufferStruct* intLogical = params->getIntLogicalBufferStruct();
 
-        switch(gptype)
-        {
-        case GPT_VERTEX_PROGRAM:
-            mActiveVertexGpuProgramParameters = params;
+		ID3D10Buffer* pBuffers[1] ;
+		switch(gptype)
+		{
+		case GPT_VERTEX_PROGRAM:
 			{
-				OGRE_LOCK_MUTEX(floatLogical->mutex)
-
-				for (GpuLogicalIndexUseMap::const_iterator i = floatLogical->map.begin();
-					i != floatLogical->map.end(); ++i)
+				//	if (params->getAutoConstantCount() > 0)
+				//{
+				pBuffers[0] = mBoundVertexProgram->getConstantBuffer(params);
+				mDevice->VSSetConstantBuffers( 0, 1, pBuffers );
+				if (mDevice.isError())
 				{
-					size_t logicalIndex = i->first;
-					const float* pFloat = params->getFloatPointer(i->second.physicalIndex);
-					size_t slotCount = i->second.currentSize / 4;
-					assert (i->second.currentSize % 4 == 0 && "Should not have any "
-						"elements less than 4 wide for D3D10");
-
-					if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
-						logicalIndex, pFloat, slotCount)))
-					{
-						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-							"Unable to upload vertex shader float parameters", 
-							"D3D10RenderSystem::bindGpuProgramParameters");
-					}
-
-				}
-
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot set vertex shader constant buffers\nError Description:" + errorDescription,
+						"D3D10RenderSystem::bindGpuProgramParameters");
+				}		
+				//}
+				//else
+				//{
+				//	mDevice->VSSetConstantBuffers( 0, 1, NULL);
+				//}
 			}
-			// bind ints
+			break;
+		case GPT_FRAGMENT_PROGRAM:
 			{
-				OGRE_LOCK_MUTEX(intLogical->mutex)
-
-				for (GpuLogicalIndexUseMap::const_iterator i = intLogical->map.begin();
-					i != intLogical->map.end(); ++i)
+				//if (params->getAutoConstantCount() > 0)
+				//{
+				pBuffers[0] = mBoundFragmentProgram->getConstantBuffer(params);
+				mDevice->PSSetConstantBuffers( 0, 1, pBuffers );
+				if (mDevice.isError())
 				{
-					size_t logicalIndex = i->first;
-					const int* pInt = params->getIntPointer(i->second.physicalIndex);
-					size_t slotCount = i->second.currentSize / 4;
-					assert (i->second.currentSize % 4 == 0 && "Should not have any "
-						"elements less than 4 wide for D3D10");
-
-					if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantI(
-						logicalIndex, pInt, slotCount)))
-					{
-						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-							"Unable to upload vertex shader int parameters", 
-							"D3D10RenderSystem::bindGpuProgramParameters");
-					}
-
-				}
-
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot set fragment shader constant buffers\nError Description:" + errorDescription,
+						"D3D10RenderSystem::bindGpuProgramParameters");
+				}		
+				//}
+				//else
+				//{
+				// if I do this:
+				//mDevice->PSSetConstantBuffers( 0, 0, NULL);
+				// I get this info message that I don't want: 
+				//  Since NumBuffers is 0, the operation effectively does nothing. 
+				//  This is probably not intentional, nor is the most efficient way 
+				//  to achieve this operation. Avoid calling the routine at all. 
+				//  [ STATE_SETTING INFO #257: DEVICE_PSSETCONSTANTBUFFERS_BUFFERS_EMPTY ]
+				// 
+				// so - I don't want to do it for now
+				//}
 			}
-
-            break;
-        case GPT_FRAGMENT_PROGRAM:
-            mActiveFragmentGpuProgramParameters = params;
-			{
-				OGRE_LOCK_MUTEX(floatLogical->mutex)
-
-				for (GpuLogicalIndexUseMap::const_iterator i = floatLogical->map.begin();
-					i != floatLogical->map.end(); ++i)
-				{
-					size_t logicalIndex = i->first;
-					const float* pFloat = params->getFloatPointer(i->second.physicalIndex);
-					size_t slotCount = i->second.currentSize / 4;
-					assert (i->second.currentSize % 4 == 0 && "Should not have any "
-						"elements less than 4 wide for D3D10");
-
-					if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
-						logicalIndex, pFloat, slotCount)))
-					{
-						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-							"Unable to upload pixel shader float parameters", 
-							"D3D10RenderSystem::bindGpuProgramParameters");
-					}
-
-				}
-
-			}
-			// bind ints
-			{
-				OGRE_LOCK_MUTEX(intLogical->mutex)
-
-				for (GpuLogicalIndexUseMap::const_iterator i = intLogical->map.begin();
-					i != intLogical->map.end(); ++i)
-				{
-					size_t logicalIndex = i->first;
-					const int* pInt = params->getIntPointer(i->second.physicalIndex);
-					size_t slotCount = i->second.currentSize / 4;
-					assert (i->second.currentSize % 4 == 0 && "Should not have any "
-						"elements less than 4 wide for D3D10");
-
-					if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantI(
-						logicalIndex, pInt, slotCount)))
-					{
-						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-							"Unable to upload pixel shader int parameters", 
-							"D3D10RenderSystem::bindGpuProgramParameters");
-					}
-
-				}
-
-			}
-            break;
-        };
-		*/
+			break;
+		};
     }
 	//---------------------------------------------------------------------
     void D3D10RenderSystem::bindGpuProgramPassIterationParameters(GpuProgramType gptype)
     {
-/*
-        HRESULT hr;
-		size_t physicalIndex = 0;
-		size_t logicalIndex = 0;
-		const float* pFloat;
 
-        switch(gptype)
-        {
-        case GPT_VERTEX_PROGRAM:
-			if (mActiveVertexGpuProgramParameters->hasPassIterationNumber())
-			{
-	            physicalIndex = mActiveVertexGpuProgramParameters->getPassIterationNumberIndex();
-				logicalIndex = mActiveVertexGpuProgramParameters->getFloatLogicalIndexForPhysicalIndex(physicalIndex);
-				pFloat = mActiveVertexGpuProgramParameters->getFloatPointer(physicalIndex);
-				
-                if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
-                        logicalIndex, pFloat, 1)))
-				{
-                    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-						"Unable to upload vertex shader multi pass parameters", 
-						"D3D10RenderSystem::bindGpuProgramMultiPassParameters");
-                }
-            }
-            break;
+		GpuProgramParametersSharedPtr activeParams;
+		switch(gptype)
+		{
+		case GPT_VERTEX_PROGRAM:
+			activeParams = mActiveVertexGpuProgramParameters;
+			break;
 
-        case GPT_FRAGMENT_PROGRAM:
-            if (mActiveFragmentGpuProgramParameters->hasPassIterationNumber())
-            {
-				physicalIndex = mActiveFragmentGpuProgramParameters->getPassIterationNumberIndex();
-				logicalIndex = mActiveFragmentGpuProgramParameters->getFloatLogicalIndexForPhysicalIndex(physicalIndex);
-				pFloat = mActiveFragmentGpuProgramParameters->getFloatPointer(physicalIndex);
-                if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
-                        logicalIndex, pFloat, 1)))
-                {
-                    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-						"Unable to upload pixel shader multi pass parameters", 
-						"D3D10RenderSystem::bindGpuProgramMultiPassParameters");
-                }
-            }
-            break;
-
-        }
-		*/
+		case GPT_FRAGMENT_PROGRAM:
+			activeParams = mActiveFragmentGpuProgramParameters;
+			break;
+		}
+		bindGpuProgramParameters(gptype, activeParams);
     }
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::setClipPlanesImpl(const PlaneList& clipPlanes)
@@ -2836,7 +2720,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 				D3DXPlaneTransform(&dx9ClipPlane, &dx9ClipPlane, &xform);
 			}
 
-            hr = mpD3DDevice->SetClipPlane(i, dx9ClipPlane);
+            hr = mDevice->SetClipPlane(i, dx9ClipPlane);
             if (FAILED(hr))
             {
                 OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set clip plane", 
@@ -2858,82 +2742,49 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
     void D3D10RenderSystem::setScissorTest(bool enabled, size_t left, size_t top, size_t right,
         size_t bottom)
     {
-    /*    HRESULT hr;
-        if (enabled)
-        {
-            if (FAILED(hr = __SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE)))
-            {
-                OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to enable scissor rendering state; " + getErrorDescription(hr), 
-                    "D3D10RenderSystem::setScissorTest");
-            }
-            RECT rect;
-            rect.left = left;
-            rect.top = top;
-            rect.bottom = bottom;
-            rect.right = right;
-            if (FAILED(hr = mpD3DDevice->SetScissorRect(&rect)))
-            {
-                OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set scissor rectangle; " + getErrorDescription(hr), 
-                    "D3D10RenderSystem::setScissorTest");
-            }
-        }
-        else
-        {
-            if (FAILED(hr = __SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE)))
-            {
-                OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to disable scissor rendering state; " + getErrorDescription(hr), 
-                    "D3D10RenderSystem::setScissorTest");
-            }
-        }
-	*/
-    }
+		mRasterizerDesc.ScissorEnable = enabled;
+		mScissorRect.left = static_cast<LONG>(left);
+		mScissorRect.top = static_cast<LONG>(top);
+		mScissorRect.right = static_cast<LONG>(right);
+		mScissorRect.bottom =static_cast<LONG>( bottom);
+
+		mDevice->RSSetScissorRects(1, &mScissorRect);
+		if (mDevice.isError())
+		{
+			String errorDescription = mDevice.getErrorDescription();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"D3D10 device cannot set scissor rects\nError Description:" + errorDescription,
+				"D3D10RenderSystem::setScissorTest");
+		}	
+	}
     //---------------------------------------------------------------------
     void D3D10RenderSystem::clearFrameBuffer(unsigned int buffers, 
         const ColourValue& colour, Real depth, unsigned short stencil)
     {
-		float ColorRGBA[ 4 ];
-		ColorRGBA[0]=colour.r;
-		ColorRGBA[1]=colour.g;
-		ColorRGBA[2]=colour.b;
-		ColorRGBA[3]=colour.a;
-		if(mActiveRenderTarget)
+		if (mActiveRenderTarget)
 		{
-			ID3D10RenderTargetView * pRTView;
-			mActiveRenderTarget->getCustomAttribute("D3D10RenderTargetView",&pRTView);
-		 		mpD3DDevice->ClearRenderTargetView(pRTView,ColorRGBA);
+			D3D10RenderWindow* pRT = static_cast<D3D10RenderWindow *>(mActiveRenderTarget);
+			if (buffers & FBT_COLOUR)
+			{
+				pRT->clearRenderTargetView(colour);		
+			}
+			if((buffers & FBT_DEPTH) && (buffers & FBT_STENCIL))
+			{
+				pRT->clearDepthAndStencilView(depth, stencil);
+			}
+			else
+			{
+				if (buffers & FBT_DEPTH)
+				{
+					pRT->clearDepthView(depth);
+				}
+				if (buffers & FBT_STENCIL)
+				{
+					pRT->clearStencilView(stencil);
+				}
+			}
 		}
-		
-		// TODO clear depth stencil view
-
-     /*   DWORD flags = 0;
-        if (buffers & FBT_COLOUR)
-        {
-            flags |= D3DCLEAR_TARGET;
-        }
-        if (buffers & FBT_DEPTH)
-        {
-            flags |= D3DCLEAR_ZBUFFER;
-        }
-        // Only try to clear the stencil buffer if supported
-        if (buffers & FBT_STENCIL && mCapabilities->hasCapability(RSC_HWSTENCIL))
-        {
-            flags |= D3DCLEAR_STENCIL;
-        }
-        HRESULT hr;
-        if( FAILED( hr = mpD3DDevice->Clear( 
-            0, 
-            NULL, 
-            flags,
-            colour.getAsARGB(), 
-            depth, 
-            stencil ) ) )
-        {
-            String msg = DXGetErrorDescription9(hr);
-            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error clearing frame buffer : " 
-                + msg, "D3D10RenderSystem::clearFrameBuffer" );
-        }
-		*/
-    }
+	}
     //---------------------------------------------------------------------
     void D3D10RenderSystem::_makeProjectionMatrix(Real left, Real right, 
         Real bottom, Real top, Real nearPlane, Real farPlane, Matrix4& dest,
@@ -2986,14 +2837,14 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
     void D3D10RenderSystem::setClipPlane (ushort index, Real A, Real B, Real C, Real D)
     {
     //    float plane[4] = { A, B, C, D };
-    //    mpD3DDevice->SetClipPlane (index, plane);
+    //    mDevice->SetClipPlane (index, plane);
     }
 
     // ------------------------------------------------------------------
     void D3D10RenderSystem::enableClipPlane (ushort index, bool enable)
     {
     /*    DWORD prev;
-        mpD3DDevice->GetRenderState(D3DRS_CLIPPLANEENABLE, &prev);
+        mDevice->GetRenderState(D3DRS_CLIPPLANEENABLE, &prev);
         __SetRenderState(D3DRS_CLIPPLANEENABLE, enable?
 			(prev | (1 << index)) : (prev & ~(1 << index)));
 	*/
@@ -3001,7 +2852,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
     //---------------------------------------------------------------------
     HardwareOcclusionQuery* D3D10RenderSystem::createHardwareOcclusionQuery(void)
     {
-		D3D10HardwareOcclusionQuery* ret = new D3D10HardwareOcclusionQuery (mpD3DDevice); 
+		D3D10HardwareOcclusionQuery* ret = new D3D10HardwareOcclusionQuery (mDevice); 
 		mHwOcclusionQueries.push_back(ret);
 		return ret;
     }
@@ -3091,7 +2942,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		// Unbind any vertex streams
 		for (size_t i = 0; i < mLastVertexSourceCount; ++i)
 		{
-			mpD3DDevice->SetStreamSource(i, NULL, 0, 0);
+			mDevice->SetStreamSource(i, NULL, 0, 0);
 		}
         mLastVertexSourceCount = 0;
 
@@ -3117,7 +2968,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 
 		DXGI_SWAP_CHAIN_DESC* presParams = mPrimaryWindow->getPresentationParameters();
 		// Reset the device, using the primary window presentation params
-		HRESULT hr = mpD3DDevice->Reset(presParams);
+		HRESULT hr = mDevice->Reset(presParams);
 
 		if (hr == D3DERR_DEVICELOST)
 		{
@@ -3182,7 +3033,6 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 
 		fireEvent("DeviceLost");
 	}
-
 	//---------------------------------------------------------------------
 	// Formats to try, in decreasing order of preference
 /*	DXGI_FORMAT ddDepthStencilFormats[]={
@@ -3242,6 +3092,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		return dsfmt;
 	}
 	*/
+	//---------------------------------------------------------------------
 	IDXGISurface* D3D10RenderSystem::_getDepthStencilFor(DXGI_FORMAT fmt, DXGI_SAMPLE_DESC multisample, size_t width, size_t height)
 	{
 	IDXGISurface *surface = 0;
@@ -3271,7 +3122,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		if(!surface)
 		{
 			/// If not, create the depthstencil surface
-			HRESULT hr = mpD3DDevice->CreateDepthStencilSurface( 
+			HRESULT hr = mDevice->CreateDepthStencilSurface( 
 				width, 
 				height, 
 				dsfmt, 
@@ -3294,6 +3145,7 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		}
 		return surface;
 */	}
+	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_cleanupDepthStencils()
 	{
 		for(ZBufferHash::iterator i = mZBufferHash.begin(); i != mZBufferHash.end(); ++i)
@@ -3303,21 +3155,29 @@ OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D10 object"
 		}
 		mZBufferHash.clear();
 	}
+	//---------------------------------------------------------------------
 	void D3D10RenderSystem::registerThread()
 	{
 		// nothing to do - D3D10 shares rendering context already
 	}
+	//---------------------------------------------------------------------
 	void D3D10RenderSystem::unregisterThread()
 	{
 		// nothing to do - D3D10 shares rendering context already
 	}
+	//---------------------------------------------------------------------
 	void D3D10RenderSystem::preExtraThreadsStarted()
 	{
 		// nothing to do - D3D10 shares rendering context already
 	}
+	//---------------------------------------------------------------------
 	void D3D10RenderSystem::postExtraThreadsStarted()
 	{
 		// nothing to do - D3D10 shares rendering context already
 	}
-
+	//---------------------------------------------------------------------
+	Ogre::String D3D10RenderSystem::getErrorDescription( long errorNumber ) const
+	{
+		return mDevice.getErrorDescription(errorNumber);
+	}
 }

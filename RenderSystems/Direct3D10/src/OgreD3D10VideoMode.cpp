@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -30,6 +30,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre 
 {
+	//---------------------------------------------------------------------
 	String D3D10VideoMode::getDescription() const
 	{
 		char tmp[128];
@@ -49,7 +50,7 @@ namespace Ogre
 		sprintf( tmp, "%d x %d @ %d-bit colour", mModeDesc.Width, mModeDesc.Height, colourDepth );
 		return String(tmp);
 	}
-
+	//---------------------------------------------------------------------
 	unsigned int D3D10VideoMode::getColourDepth() const
 	{
 		unsigned int colourDepth = 16;
@@ -66,4 +67,60 @@ namespace Ogre
 
 		return colourDepth;
 	}
+	//---------------------------------------------------------------------
+	unsigned int D3D10VideoMode::getWidth() const
+	{
+		return mModeDesc.Width;
+	}
+	//---------------------------------------------------------------------
+	unsigned int D3D10VideoMode::getHeight() const
+	{
+		return mModeDesc.Height;
+	}
+	//---------------------------------------------------------------------
+	DXGI_FORMAT D3D10VideoMode::getFormat() const
+	{
+		return mModeDesc.Format;
+	}
+	//---------------------------------------------------------------------
+	DXGI_RATIONAL D3D10VideoMode::getRefreshRate() const
+	{
+		return mModeDesc.RefreshRate;
+	}
+	//---------------------------------------------------------------------
+	DXGI_OUTPUT_DESC D3D10VideoMode::getDisplayMode() const
+	{
+		return mDisplayMode;
+	}
+	//---------------------------------------------------------------------
+	DXGI_MODE_DESC D3D10VideoMode::getModeDesc() const
+	{
+		return mModeDesc;
+	}
+	//---------------------------------------------------------------------
+	void D3D10VideoMode::increaseRefreshRate( DXGI_RATIONAL rr )
+	{
+		mModeDesc.RefreshRate = rr;
+	}
+	//---------------------------------------------------------------------
+	D3D10VideoMode::D3D10VideoMode( DXGI_OUTPUT_DESC d3ddm,DXGI_MODE_DESC ModeDesc )
+	{
+		modeNumber = ++modeCount; mDisplayMode = d3ddm;mModeDesc=ModeDesc;
+	}
+	//---------------------------------------------------------------------
+	D3D10VideoMode::D3D10VideoMode( const D3D10VideoMode &ob )
+	{
+		modeNumber = ++modeCount; mDisplayMode = ob.mDisplayMode;mModeDesc=ob.mModeDesc;
+	}
+	//---------------------------------------------------------------------
+	D3D10VideoMode::D3D10VideoMode()
+	{
+		modeNumber = ++modeCount; ZeroMemory( &mDisplayMode, sizeof(DXGI_OUTPUT_DESC) );ZeroMemory( &mModeDesc, sizeof(DXGI_MODE_DESC) );
+	}
+	//---------------------------------------------------------------------
+	D3D10VideoMode::~D3D10VideoMode()
+	{
+		modeCount--;
+	}
+	//---------------------------------------------------------------------
 }

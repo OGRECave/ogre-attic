@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -34,40 +34,40 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    /** Implementation of HardwareBufferManager for D3D10. */
-    class D3D10HardwareBufferManager : public HardwareBufferManager
-    {
-    protected:
-        ID3D10Device * mlpD3DDevice;
+	/** Implementation of HardwareBufferManager for D3D10. */
+	class D3D10HardwareBufferManager : public HardwareBufferManager
+	{
+	protected:
+		D3D10Device & mlpD3DDevice;
 
-        /// Internal method for creates a new vertex declaration, may be overridden by certain rendering APIs
-        VertexDeclaration* createVertexDeclarationImpl(void);
-        /// Internal method for destroys a vertex declaration, may be overridden by certain rendering APIs
-        void destroyVertexDeclarationImpl(VertexDeclaration* decl);
+		/// Internal method for creates a new vertex declaration, may be overridden by certain rendering APIs
+		VertexDeclaration* createVertexDeclarationImpl(void);
+		/// Internal method for destroys a vertex declaration, may be overridden by certain rendering APIs
+		void destroyVertexDeclarationImpl(VertexDeclaration* decl);
 
-    public:
-        D3D10HardwareBufferManager(ID3D10Device * device);
-        ~D3D10HardwareBufferManager();
-        /// Creates a vertex buffer
+	public:
+		D3D10HardwareBufferManager(D3D10Device & device);
+		~D3D10HardwareBufferManager();
+		/// Creates a vertex buffer
 		HardwareVertexBufferSharedPtr 
-            createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage, bool useShadowBuffer = false);
+			createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage, bool useShadowBuffer = false);
 		/// Create a hardware vertex buffer
 		HardwareIndexBufferSharedPtr 
-            createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, HardwareBuffer::Usage usage, bool useShadowBuffer = false);
+			createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, HardwareBuffer::Usage usage, bool useShadowBuffer = false);
 
 		/** Release all buffers in the default memory pool. 
 		@remarks
-			Method for dealing with lost devices.
+		Method for dealing with lost devices.
 		*/
 		void releaseDefaultPoolResources(void);
 		/** Recreate all buffers in the default memory pool. 
 		@remarks
-			Method for dealing with lost devices.
+		Method for dealing with lost devices.
 		*/
 		void recreateDefaultPoolResources(void);
 
 
-    };
+	};
 
 }
 

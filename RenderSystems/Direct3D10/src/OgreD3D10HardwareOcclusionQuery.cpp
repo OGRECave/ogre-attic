@@ -29,7 +29,7 @@ Torus Knot Software Ltd.
 #include "OgreD3D10HardwareOcclusionQuery.h"
 #include "OgreRenderSystemCapabilities.h"
 #include "OgreException.h"
-
+#include "OgreD3D10Device.h"
 namespace Ogre {
 
 	/**
@@ -45,22 +45,20 @@ namespace Ogre {
 	/**
 	* Default object constructor
 	*/
-    D3D10HardwareOcclusionQuery::D3D10HardwareOcclusionQuery( ID3D10Device* pD3DDevice ) :
-        mpDevice(pD3DDevice)
+    D3D10HardwareOcclusionQuery::D3D10HardwareOcclusionQuery( D3D10Device & device ) :
+        mDevice(device)
 	{ 
 		D3D10_QUERY_DESC queryDesc;
 		queryDesc.Query = D3D10_QUERY_OCCLUSION;
 		// create the occlusion query
-		const HRESULT hr = mpDevice->CreateQuery(&queryDesc, &mpQuery);
+		const HRESULT hr = mDevice->CreateQuery(&queryDesc, &mpQuery);
 
-		if ( hr != S_OK  ) 
+		if (FAILED(hr) || mDevice.isError()) 
 		{	
-         //   if( D3DERR_NOTAVAILABLE == hr)
-	        {
-                OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, 
-                    "Cannot allocate a Hardware query. This video card doesn't supports it, sorry.", 
-                    "D3D10HardwareOcclusionQuery::D3D10HardwareOcclusionQuery" );
-            }			
+			String errorDescription = mDevice.getErrorDescription(hr);
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, 
+				"Cannot allocate a Hardware query. This video card doesn't supports it, sorry.\nError Description:" + errorDescription, 
+				"D3D10HardwareOcclusionQuery::D3D10HardwareOcclusionQuery");
 		}
 	}
 
@@ -115,7 +113,7 @@ namespace Ogre {
                     mPixelCount = 100000;
 					D3D10_QUERY_DESC queryDesc;
 					queryDesc.Query = D3D10_QUERY_OCCLUSION;
-					mpDevice->CreateQuery(%queryDesc, &mpQuery);
+					mDevice->CreateQuery(%queryDesc, &mpQuery);
                     break;
                 }
 				*/
@@ -147,7 +145,7 @@ namespace Ogre {
             mPixelCount = 100000;
             D3D10_QUERY_DESC queryDesc;
 			queryDesc.Query = D3D10_QUERY_OCCLUSION;
-			mpDevice->CreateQuery(&queryDesc, &mpQuery);
+			mDevice->CreateQuery(&queryDesc, &mpQuery);
         }
 		*/
         mPixelCount = pixels;

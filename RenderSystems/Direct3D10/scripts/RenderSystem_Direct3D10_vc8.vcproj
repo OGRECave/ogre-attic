@@ -359,6 +359,10 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
+				RelativePath="..\src\OgreD3D10Device.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreD3D10Driver.cpp"
 				>
 			</File>
@@ -455,6 +459,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
+			<File
+				RelativePath="..\include\OgreD3D10Device.h"
+				>
+			</File>
 			<File
 				RelativePath="..\include\OgreD3D10Driver.h"
 				>

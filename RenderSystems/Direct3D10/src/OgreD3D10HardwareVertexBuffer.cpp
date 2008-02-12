@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -27,28 +27,27 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 #include "OgreD3D10HardwareVertexBuffer.h"
-#include "OgreD3D10Mappings.h"
-#include "OgreException.h"
-#include "OgreD3D10HardwareBufferManager.h"
+#include "OgreD3D10HardwareBuffer.h"
+#include "OgreD3D10Device.h"
 
 namespace Ogre {
 
 	//---------------------------------------------------------------------
-    D3D10HardwareVertexBuffer::D3D10HardwareVertexBuffer(size_t vertexSize, 
-        size_t numVertices, HardwareBuffer::Usage usage, ID3D10Device * pDev, 
-        bool useSystemMemory, bool useShadowBuffer)
-        : HardwareVertexBuffer(vertexSize, numVertices, usage, useSystemMemory, useShadowBuffer)
-    {
+	D3D10HardwareVertexBuffer::D3D10HardwareVertexBuffer(size_t vertexSize, 
+		size_t numVertices, HardwareBuffer::Usage usage, D3D10Device & device, 
+		bool useSystemMemory, bool useShadowBuffer)
+		: HardwareVertexBuffer(vertexSize, numVertices, usage, useSystemMemory, useShadowBuffer)
+	{
 		// everything is done via internal generalisation
 		mBufferImpl = new D3D10HardwareBuffer(D3D10HardwareBuffer::VERTEX_BUFFER, 
-			mSizeInBytes, mUsage, pDev, useSystemMemory, useShadowBuffer);
+			mSizeInBytes, mUsage, device, useSystemMemory, useShadowBuffer);
 
-    }
+	}
 	//---------------------------------------------------------------------
-    D3D10HardwareVertexBuffer::~D3D10HardwareVertexBuffer()
-    {
-        delete mBufferImpl;
-    }
+	D3D10HardwareVertexBuffer::~D3D10HardwareVertexBuffer()
+	{
+		delete mBufferImpl;
+	}
 	//---------------------------------------------------------------------
 	void* D3D10HardwareVertexBuffer::lock(size_t offset, size_t length, LockOptions options)
 	{
@@ -86,43 +85,48 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	bool D3D10HardwareVertexBuffer::releaseIfDefaultPool(void)
 	{
-/*		if (mD3DPool == D3DPOOL_DEFAULT)
+		/*		if (mD3DPool == D3DPOOL_DEFAULT)
 		{
-			SAFE_RELEASE(mlpD3DBuffer);
-			return true;
-		}
-		return false;
-*/
+		SAFE_RELEASE(mlpD3DBuffer);
 		return true;
-	}
-	//---------------------------------------------------------------------
-	bool D3D10HardwareVertexBuffer::recreateIfDefaultPool(ID3D10Device * pDev)
-	{
-	/*	if (mD3DPool == D3DPOOL_DEFAULT)
-		{
-			// Create the Index buffer
-			HRESULT hr = pDev->CreateIndexBuffer(
-				static_cast<UINT>(mSizeInBytes),
-				D3D10Mappings::get(mUsage),
-				D3D10Mappings::get(mIndexType),
-				mD3DPool,
-				&mlpD3DBuffer,
-				NULL
-				);
-
-			if (FAILED(hr))
-			{
-				String msg = DXGetErrorDescription9(hr);
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"Cannot create D3D10 Index buffer: " + msg, 
-					"D3D10HardwareVertexBuffer::D3D10HardwareVertexBuffer");
-			}
-
-			return true;
 		}
 		return false;
 		*/
 		return true;
+	}
+	//---------------------------------------------------------------------
+	bool D3D10HardwareVertexBuffer::recreateIfDefaultPool(D3D10Device & device)
+	{
+		/*	if (mD3DPool == D3DPOOL_DEFAULT)
+		{
+		// Create the Index buffer
+		HRESULT hr = device->CreateIndexBuffer(
+		static_cast<UINT>(mSizeInBytes),
+		D3D10Mappings::get(mUsage),
+		D3D10Mappings::get(mIndexType),
+		mD3DPool,
+		&mlpD3DBuffer,
+		NULL
+		);
+
+		if (FAILED(hr))
+		{
+		String msg = DXGetErrorDescription9(hr);
+		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+		"Cannot create D3D10 Index buffer: " + msg, 
+		"D3D10HardwareVertexBuffer::D3D10HardwareVertexBuffer");
+		}
+
+		return true;
+		}
+		return false;
+		*/
+		return true;
+	}
+	//---------------------------------------------------------------------
+	ID3D10Buffer * D3D10HardwareVertexBuffer::getD3DVertexBuffer( void ) const
+	{
+		return mBufferImpl->getD3DBuffer();
 	}
 	//---------------------------------------------------------------------
 

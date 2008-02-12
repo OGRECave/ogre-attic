@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -30,8 +30,7 @@ Torus Knot Software Ltd.
 #define __D3D10VIDEOMODELIST_H__
 
 #include "OgreD3D10Prerequisites.h"
-#include "OgreD3D10Driver.h"
-#include "OgreD3D10VideoMode.h"
+
 
 namespace Ogre 
 {

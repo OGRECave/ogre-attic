@@ -27,34 +27,47 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 #include "OgreD3D10HardwareBuffer.h"
+#include "OgreD3D10Mappings.h"
+#include "OgreD3D10Device.h"
 #include "OgreException.h"
-
 namespace Ogre {
 
 	//---------------------------------------------------------------------
 	D3D10HardwareBuffer::D3D10HardwareBuffer(
 		BufferType btype, size_t sizeBytes,
-		HardwareBuffer::Usage usage, ID3D10Device* pDev, 
+		HardwareBuffer::Usage usage, D3D10Device & device, 
 		bool useSystemMemory, bool useShadowBuffer)
-		: HardwareBuffer(usage, useSystemMemory, useShadowBuffer),
+		: HardwareBuffer(usage, useSystemMemory,  false /* TODO: useShadowBuffer*/),
 		mlpD3DBuffer(0),
 		mpTempStagingBuffer(0),
 		mBufferType(btype),
-		mDev(pDev)
+		mDevice(device)
 	{
+		mSizeInBytes = sizeBytes;
+		mDesc.ByteWidth = static_cast<UINT>(sizeBytes);
+		mDesc.CPUAccessFlags = D3D10Mappings::_getAccessFlags(mUsage); 
 
+		if (useSystemMemory)
+		{
+			mDesc.Usage = D3D10_USAGE_STAGING;
+			//A D3D10_USAGE_STAGING Resource cannot be bound to any parts of the graphics pipeline, so therefore cannot have any BindFlags bits set.
+			mDesc.BindFlags = 0;
+			mDesc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE | D3D10_CPU_ACCESS_READ ;// A D3D10_USAGE_STAGING Resource must have at least one CPUAccessFlag bit set.
 
-		D3D10_BUFFER_DESC dsc;
-		dsc.BindFlags = btype == VERTEX_BUFFER ? D3D10_BIND_VERTEX_BUFFER : D3D10_BIND_INDEX_BUFFER;
-		dsc.ByteWidth = static_cast<UINT>(sizeBytes);
-		dsc.CPUAccessFlags = 0;
-		dsc.Usage = useSystemMemory? D3D10_USAGE_STAGING : D3D10_USAGE_DEFAULT; 
-		dsc.MiscFlags = 0;
+		}
+		else
+		{
+			mDesc.Usage = D3D10Mappings::_getUsage(mUsage);
+			mDesc.BindFlags = btype == VERTEX_BUFFER ? D3D10_BIND_VERTEX_BUFFER : D3D10_BIND_INDEX_BUFFER;
+
+		}
+
+		mDesc.MiscFlags = 0;
 		if (!useSystemMemory && (usage | HardwareBuffer::HBU_DYNAMIC))
 		{
 			// We want to be able to map this buffer
-			dsc.CPUAccessFlags |= D3D10_CPU_ACCESS_WRITE;
-			dsc.Usage = D3D10_USAGE_DYNAMIC;
+			mDesc.CPUAccessFlags |= D3D10_CPU_ACCESS_WRITE;
+			mDesc.Usage = D3D10_USAGE_DYNAMIC;
 		}
 
 		// Note that in D3D10 you can only directly lock (map) a dynamic resource
@@ -67,30 +80,47 @@ namespace Ogre {
 
 		// TODO: we can explicitly initialise the buffer contents here if we like
 		// not doing this since OGRE doesn't support this model yet
-		HRESULT hr = pDev->CreateBuffer( &dsc, 0, &mlpD3DBuffer );
-		if(FAILED(hr))
+		HRESULT hr = device->CreateBuffer( &mDesc, 0, &mlpD3DBuffer );
+		if (FAILED(hr) || mDevice.isError())
 		{
-			String msg = DXGetErrorDescription(hr);
+			String msg = device.getErrorDescription(hr);
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
 				"Cannot create D3D10 buffer: " + msg, 
 				"D3D10HardwareBuffer::D3D10HardwareBuffer");
 		}
 
+
 	}
 	//---------------------------------------------------------------------
 	D3D10HardwareBuffer::~D3D10HardwareBuffer()
 	{
-		delete mpTempStagingBuffer; // should never be nonzero unless destroyed while locked
 		SAFE_RELEASE(mlpD3DBuffer);
+		SAFE_DELETE(mpTempStagingBuffer); // should never be nonzero unless destroyed while locked
+
 	}
 	//---------------------------------------------------------------------
 	void* D3D10HardwareBuffer::lockImpl(size_t offset, 
 		size_t length, LockOptions options)
 	{
+		if (length > mSizeInBytes)
+		{
+			// need to realloc
+			mDesc.ByteWidth = static_cast<UINT>(mSizeInBytes);
+			HRESULT hr = mDevice->CreateBuffer( &mDesc, 0, &mlpD3DBuffer );
+			if (FAILED(hr) || mDevice.isError())
+			{
+				String msg = mDevice.getErrorDescription(hr);
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"Cannot create D3D10 buffer: " + msg, 
+					"D3D10HardwareBuffer::D3D10HardwareBuffer");
+			}
+		}
+
+
 		if (mSystemMemory ||
 			(mUsage & HardwareBuffer::HBU_DYNAMIC && 
 			options == HardwareBuffer::HBL_DISCARD &&
-			offset == 0 && length == mSizeInBytes))
+			offset == 0))
 		{
 			// Staging (system memory) buffers or dynamic, write-only buffers 
 			// are the only case where we can lock directly
@@ -103,10 +133,33 @@ namespace Ogre {
 			switch(options)
 			{
 			case HBL_DISCARD:
-				mapType = D3D10_MAP_WRITE_DISCARD;
+				if (!mSystemMemory && (mUsage | HardwareBuffer::HBU_DYNAMIC))
+				{
+					// Map cannot be called with MAP_WRITE access, 
+					// because the Resource was created as D3D10_USAGE_DYNAMIC. 
+					// D3D10_USAGE_DYNAMIC Resources must use either MAP_WRITE_DISCARD 
+					// or MAP_WRITE_NO_OVERWRITE with Map.
+					mapType = D3D10_MAP_WRITE_DISCARD;
+				}
+				else
+				{
+					// Map cannot be called with MAP_WRITE_DISCARD access, 
+					// because the Resource was not created as D3D10_USAGE_DYNAMIC. 
+					// D3D10_USAGE_DYNAMIC Resources must use either MAP_WRITE_DISCARD 
+					// or MAP_WRITE_NO_OVERWRITE with Map.
+					mapType = D3D10_MAP_WRITE;
+				}
 				break;
 			case HBL_NO_OVERWRITE:
-				mapType = D3D10_MAP_WRITE_NO_OVERWRITE;
+				if (mSystemMemory)
+				{
+					// map cannot be called with MAP_WRITE_NO_OVERWRITE access, because the Resource was not created as D3D10_USAGE_DYNAMIC. D3D10_USAGE_DYNAMIC Resources must use either MAP_WRITE_DISCARD or MAP_WRITE_NO_OVERWRITE with Map.
+					mapType = D3D10_MAP_READ_WRITE;
+				}
+				else
+				{
+					mapType = D3D10_MAP_WRITE_NO_OVERWRITE;
+				}
 				break;
 			case HBL_NORMAL:
 				mapType = D3D10_MAP_READ_WRITE;
@@ -115,12 +168,15 @@ namespace Ogre {
 				mapType = D3D10_MAP_READ;
 				break;
 			}
+
 			void* pRet;
+			mDevice.clearStoredErrorMessages();
 			HRESULT hr = mlpD3DBuffer->Map(mapType, 0, &pRet);
-			if(FAILED(hr))
+			if (FAILED(hr) || mDevice.isError())
 			{
+				String msg = mDevice.getErrorDescription(hr);
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"Error calling Map: " + String(DXGetErrorDescription(hr)), 
+					"Error calling Map: " + msg, 
 					"D3D10HardwareBuffer::lockImpl");
 			}
 
@@ -141,7 +197,7 @@ namespace Ogre {
 
 			// create another buffer instance but use system memory
 			mpTempStagingBuffer = new D3D10HardwareBuffer(mBufferType, 
-				mSizeInBytes, mUsage, mDev, true, false);
+				mSizeInBytes, mUsage, mDevice, true, false);
 
 			// schedule a copy to the staging
 			if (options != HBL_DISCARD)
@@ -150,15 +206,15 @@ namespace Ogre {
 			// register whether we'll need to upload on unlock
 			mStagingUploadNeeded = (options != HBL_READ_ONLY);
 
-			return mpTempStagingBuffer->lockImpl(offset, length, options);
+			return mpTempStagingBuffer->lock(offset, length, options);
 
 
 		}
-
 	}
 	//---------------------------------------------------------------------
 	void D3D10HardwareBuffer::unlockImpl(void)
 	{
+
 		if (mpTempStagingBuffer)
 		{
 			// ok, we locked the staging buffer
@@ -171,7 +227,7 @@ namespace Ogre {
 
 			// delete
 			// not that efficient, but we should not be locking often
-			delete mpTempStagingBuffer;
+			SAFE_DELETE(mpTempStagingBuffer);
 		}
 		else
 		{
@@ -188,34 +244,46 @@ namespace Ogre {
 			length == mSizeInBytes && mSizeInBytes == srcBuffer.getSizeInBytes())
 		{
 			// schedule hardware buffer copy
-			mDev->CopyResource(mlpD3DBuffer, static_cast<D3D10HardwareBuffer&>(srcBuffer).getD3DBuffer());
+			mDevice->CopyResource(mlpD3DBuffer, static_cast<D3D10HardwareBuffer&>(srcBuffer).getD3DBuffer());
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"Cannot copy D3D10 resource\nError Description:" + errorDescription,
+					"D3D10HardwareBuffer::copyData");
+			}
 		}
 		else
 		{
 			// copy subregion
 			D3D10_BOX srcBox;
-			srcBox.left = srcOffset;
-			srcBox.right = srcOffset + length;
+			srcBox.left = (UINT)srcOffset;
+			srcBox.right = (UINT)srcOffset + length;
 			srcBox.top = 0;
 			srcBox.bottom = 1;
 			srcBox.front = 0;
 			srcBox.back = 1;
 
-			mDev->CopySubresourceRegion(mlpD3DBuffer, 0, dstOffset, 0, 0, 
+			mDevice->CopySubresourceRegion(mlpD3DBuffer, 0, (UINT)dstOffset, 0, 0, 
 				static_cast<D3D10HardwareBuffer&>(srcBuffer).getD3DBuffer(), 0, &srcBox);
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"Cannot copy D3D10 subresource region\nError Description:" + errorDescription,
+					"D3D10HardwareBuffer::copyData");
+			}
 		}
 	}
 	//---------------------------------------------------------------------
 	void D3D10HardwareBuffer::readData(size_t offset, size_t length, 
 		void* pDest)
 	{
-		/*
 		// There is no functional interface in D3D, just do via manual 
 		// lock, copy & unlock
 		void* pSrc = this->lock(offset, length, HardwareBuffer::HBL_READ_ONLY);
 		memcpy(pDest, pSrc, length);
 		this->unlock();
-		*/
 
 	}
 	//---------------------------------------------------------------------
@@ -223,14 +291,12 @@ namespace Ogre {
 		const void* pSource,
 		bool discardWholeBuffer)
 	{
-		/*
 		// There is no functional interface in D3D, just do via manual 
 		// lock, copy & unlock
 		void* pDst = this->lock(offset, length, 
 			discardWholeBuffer ? HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
 		memcpy(pDst, pSource, length);
-		this->unlock();   
-		*/
+		this->unlock();
 	}
 	//---------------------------------------------------------------------
 

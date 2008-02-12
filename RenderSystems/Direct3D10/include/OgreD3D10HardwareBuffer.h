@@ -36,7 +36,7 @@ namespace Ogre {
 
 
 	/** Base implementation of a D3D10 buffer, dealing with all the common
-		aspects.
+	aspects.
 	*/
 	class D3D10HardwareBuffer : public HardwareBuffer
 	{
@@ -51,7 +51,11 @@ namespace Ogre {
 		D3D10HardwareBuffer* mpTempStagingBuffer;
 		bool mStagingUploadNeeded;
 		BufferType mBufferType;
-		ID3D10Device* mDev;
+		D3D10Device & mDevice;
+
+		D3D10_BUFFER_DESC mDesc;
+
+
 		/** See HardwareBuffer. */
 		void* lockImpl(size_t offset, size_t length, LockOptions options);
 		/** See HardwareBuffer. */
@@ -59,7 +63,7 @@ namespace Ogre {
 
 	public:
 		D3D10HardwareBuffer(BufferType btype, size_t sizeBytes, HardwareBuffer::Usage usage, 
-			ID3D10Device* pDev, bool useSystemMem, bool useShadowBuffer);
+			D3D10Device & device, bool useSystemMem, bool useShadowBuffer);
 		~D3D10HardwareBuffer();
 		/** See HardwareBuffer. */
 		void readData(size_t offset, size_t length, void* pDest);
@@ -72,9 +76,6 @@ namespace Ogre {
 
 		/// Get the D3D-specific buffer
 		ID3D10Buffer* getD3DBuffer(void) { return mlpD3DBuffer; }
-
-
-
 	};
 
 

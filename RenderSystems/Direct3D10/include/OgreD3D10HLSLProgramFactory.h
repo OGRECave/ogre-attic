@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -34,22 +34,23 @@ Torus Knot Software Ltd.
 
 namespace Ogre
 {
-    /** Factory class for D3D10 HLSL programs. */
-    class D3D10HLSLProgramFactory : public HighLevelGpuProgramFactory
-    {
-    protected:
+	/** Factory class for D3D10 HLSL programs. */
+	class D3D10HLSLProgramFactory : public HighLevelGpuProgramFactory
+	{
+	protected:
 		static String sLanguageName;
-    public:
-        D3D10HLSLProgramFactory();
-        ~D3D10HLSLProgramFactory();
+		D3D10Device & mDevice;
+	public:
+		D3D10HLSLProgramFactory(D3D10Device & device);
+		~D3D10HLSLProgramFactory();
 		/// Get the name of the language this factory creates programs for
 		const String& getLanguage(void) const;
-        HighLevelGpuProgram* create(ResourceManager* creator, 
-            const String& name, ResourceHandle handle,
-            const String& group, bool isManual, ManualResourceLoader* loader);
+		HighLevelGpuProgram* create(ResourceManager* creator, 
+			const String& name, ResourceHandle handle,
+			const String& group, bool isManual, ManualResourceLoader* loader);
 		void destroy(HighLevelGpuProgram* prog);
 
-    };
+	};
 }
 
 #endif

@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -32,88 +32,88 @@ Torus Knot Software Ltd.
 #include "OgreD3D10VertexDeclaration.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
-
+#include "OgreD3D10Device.h"
 
 namespace Ogre {
-    //-----------------------------------------------------------------------
-    D3D10HardwareBufferManager::D3D10HardwareBufferManager(ID3D10Device * device)
-        : mlpD3DDevice(device)
-    {
-    }
-    //-----------------------------------------------------------------------
-    D3D10HardwareBufferManager::~D3D10HardwareBufferManager()
-    {
-        destroyAllDeclarations();
-        destroyAllBindings();
-    }
-    //-----------------------------------------------------------------------
-    HardwareVertexBufferSharedPtr 
-    D3D10HardwareBufferManager::
-    createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage,
+	//-----------------------------------------------------------------------
+	D3D10HardwareBufferManager::D3D10HardwareBufferManager(D3D10Device & device)
+		: mlpD3DDevice(device)
+	{
+	}
+	//-----------------------------------------------------------------------
+	D3D10HardwareBufferManager::~D3D10HardwareBufferManager()
+	{
+		destroyAllDeclarations();
+		destroyAllBindings();
+	}
+	//-----------------------------------------------------------------------
+	HardwareVertexBufferSharedPtr 
+		D3D10HardwareBufferManager::
+		createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage,
 		bool useShadowBuffer)
-    {
+	{
 		assert (numVerts > 0);
 		D3D10HardwareVertexBuffer* vbuf = new D3D10HardwareVertexBuffer(
 			vertexSize, numVerts, usage, mlpD3DDevice, false, useShadowBuffer);
 		{
 			OGRE_LOCK_MUTEX(mVertexBuffersMutex)
-			mVertexBuffers.insert(vbuf);
+				mVertexBuffers.insert(vbuf);
 		}
-        return HardwareVertexBufferSharedPtr(vbuf);
-    }
-    //-----------------------------------------------------------------------
+		return HardwareVertexBufferSharedPtr(vbuf);
+	}
+	//-----------------------------------------------------------------------
 	HardwareIndexBufferSharedPtr 
-    D3D10HardwareBufferManager::
-    createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
-        HardwareBuffer::Usage usage, bool useShadowBuffer)
-    {
+		D3D10HardwareBufferManager::
+		createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
+		HardwareBuffer::Usage usage, bool useShadowBuffer)
+	{
 		assert (numIndexes > 0);
 #if OGRE_D3D_MANAGE_BUFFERS
-        // Override shadow buffer setting; managed buffers are automatically
-        // backed by system memory
-        if (useShadowBuffer)
-        {
-            useShadowBuffer = false;
-            // Also drop any WRITE_ONLY so we can read direct
-            if (usage == HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY)
-            {
-                usage = HardwareBuffer::HBU_DYNAMIC;
-            }
-            else if (usage == HardwareBuffer::HBU_STATIC_WRITE_ONLY)
-            {
-                usage = HardwareBuffer::HBU_STATIC;
-            }
-        }
+		// Override shadow buffer setting; managed buffers are automatically
+		// backed by system memory
+		if (useShadowBuffer)
+		{
+			useShadowBuffer = false;
+			// Also drop any WRITE_ONLY so we can read direct
+			if (usage == HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY)
+			{
+				usage = HardwareBuffer::HBU_DYNAMIC;
+			}
+			else if (usage == HardwareBuffer::HBU_STATIC_WRITE_ONLY)
+			{
+				usage = HardwareBuffer::HBU_STATIC;
+			}
+		}
 #endif
 		D3D10HardwareIndexBuffer* idx = new D3D10HardwareIndexBuffer(
 			itype, numIndexes, usage, mlpD3DDevice, false, useShadowBuffer);
 		{
 			OGRE_LOCK_MUTEX(mIndexBuffersMutex)
-			mIndexBuffers.insert(idx);
+				mIndexBuffers.insert(idx);
 		}
 		return HardwareIndexBufferSharedPtr(idx);
-            
-    }
-    //-----------------------------------------------------------------------
-    VertexDeclaration* D3D10HardwareBufferManager::createVertexDeclarationImpl(void)
-    {
-        return new D3D10VertexDeclaration(mlpD3DDevice);
-    }
-    //-----------------------------------------------------------------------
-    void D3D10HardwareBufferManager::destroyVertexDeclarationImpl(VertexDeclaration* decl)
-    {
-        delete decl;
-    }
+
+	}
+	//-----------------------------------------------------------------------
+	VertexDeclaration* D3D10HardwareBufferManager::createVertexDeclarationImpl(void)
+	{
+		return new D3D10VertexDeclaration(mlpD3DDevice);
+	}
+	//-----------------------------------------------------------------------
+	void D3D10HardwareBufferManager::destroyVertexDeclarationImpl(VertexDeclaration* decl)
+	{
+		delete decl;
+	}
 	//-----------------------------------------------------------------------
 	void D3D10HardwareBufferManager::releaseDefaultPoolResources(void)
 	{
 		size_t iCount = 0;
 		size_t vCount = 0;
 
-		
+
 		{
 			OGRE_LOCK_MUTEX(mVertexBuffersMutex)
-			VertexBufferList::iterator v, vend;
+				VertexBufferList::iterator v, vend;
 			vend = mVertexBuffers.end();
 			for (v = mVertexBuffers.begin(); v != vend; ++v)
 			{
@@ -126,7 +126,7 @@ namespace Ogre {
 
 		{
 			OGRE_LOCK_MUTEX(mIndexBuffersMutex)
-			IndexBufferList::iterator i, iend;
+				IndexBufferList::iterator i, iend;
 			iend = mIndexBuffers.end();
 			for (i = mIndexBuffers.begin(); i != iend; ++i)
 			{
@@ -152,7 +152,7 @@ namespace Ogre {
 
 		{
 			OGRE_LOCK_MUTEX(mVertexBuffersMutex)
-			VertexBufferList::iterator v, vend;
+				VertexBufferList::iterator v, vend;
 			vend = mVertexBuffers.end();
 			for (v = mVertexBuffers.begin(); v != vend; ++v)
 			{
@@ -165,7 +165,7 @@ namespace Ogre {
 
 		{
 			OGRE_LOCK_MUTEX(mIndexBuffersMutex)
-			IndexBufferList::iterator i, iend;
+				IndexBufferList::iterator i, iend;
 			iend = mIndexBuffers.end();
 			for (i = mIndexBuffers.begin(); i != iend; ++i)
 			{
