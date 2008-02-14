@@ -48,35 +48,11 @@ namespace Ogre {
 		mDevice(device),
 		mSubresourceIndex(subresourceIndex)
 	{
+		//-----------------------------------------------------------------------------  
 	}
 	D3D10HardwarePixelBuffer::~D3D10HardwarePixelBuffer()
 	{
-		destroyRenderTextures();
 	}
-	//-----------------------------------------------------------------------------  
-	/*void D3D10HardwarePixelBuffer::bind(D3D10Driver *dev, IDXGISurface *surface, bool update)
-	{
-	mDevice = dev;
-	mSurface = surface;
-	/*
-	DXGI_SURFACE_DESC desc;
-	if(FAILED(mSurface->GetDesc(&desc)))
-	OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
-	"D3D10HardwarePixelBuffer::D3D10HardwarePixelBuffer");
-	mWidth = desc.Width;
-	mHeight = desc.Height;
-	mDepth = 1;
-	mFormat = D3D10Mappings::_getPF(desc.Format);
-	// Default
-	mRowPitch = mWidth;
-	mSlicePitch = mHeight*mWidth;
-	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
-
-	if(mUsage & TU_RENDERTARGET)
-	createRenderTextures(update);
-	}*/
-	//-----------------------------------------------------------------------------
-
 	//-----------------------------------------------------------------------------  
 	// Util functions to convert a D3D locked box to a pixel box
 	void fromD3DLock(PixelBox &rval, const DXGI_MAPPED_RECT &lrect)
@@ -86,60 +62,6 @@ namespace Ogre {
 		assert((lrect.Pitch % PixelUtil::getNumElemBytes(rval.format))==0);
 		rval.data = lrect.pBits;
 	}
-	/*void fromD3DLock(PixelBox &rval, const D3DLOCKED_BOX &lbox)
-	{
-	rval.rowPitch = lbox.RowPitch / PixelUtil::getNumElemBytes(rval.format);
-	rval.slicePitch = lbox.SlicePitch / PixelUtil::getNumElemBytes(rval.format);
-	assert((lbox.RowPitch % PixelUtil::getNumElemBytes(rval.format))==0);
-	assert((lbox.SlicePitch % PixelUtil::getNumElemBytes(rval.format))==0);
-	rval.data = lbox.pBits;
-	}*/
-	// Convert Ogre integer Box to D3D rectangle
-	/*RECT toD3DRECT(const Box &lockBox)
-	{
-	RECT prect;
-	assert(lockBox.getDepth() == 1);
-	prect.left = lockBox.left;
-	prect.right = lockBox.right;
-	prect.top = lockBox.top;
-	prect.bottom = lockBox.bottom;
-	return prect;
-	}
-	// Convert Ogre integer Box to D3D box
-	D3D10_BOX toD3DBOX(const Box &lockBox)
-	{
-	D3D10_BOX pbox;
-	pbox.left = lockBox.left;
-	pbox.right = lockBox.right;
-	pbox.top = lockBox.top;
-	pbox.bottom = lockBox.bottom;
-	pbox.front = lockBox.front;
-	pbox.back = lockBox.back;
-	return pbox;
-	}
-	// Convert Ogre pixelbox extent to D3D rectangle
-	RECT toD3DRECTExtent(const PixelBox &lockBox)
-	{
-	RECT prect;
-	assert(lockBox.getDepth() == 1);
-	prect.left = 0;
-	prect.right = lockBox.getWidth();
-	prect.top = 0;
-	prect.bottom = lockBox.getHeight();
-	return prect;
-	}
-	// Convert Ogre pixelbox extent to D3D box
-	D3D10_BOX toD3DBOXExtent(const PixelBox &lockBox)
-	{
-	D3D10_BOX pbox;
-	pbox.left = 0;
-	pbox.right = lockBox.getWidth();
-	pbox.top = 0;
-	pbox.bottom = lockBox.getHeight();
-	pbox.front = 0;
-	pbox.back = lockBox.getDepth();
-	return pbox;
-	}*/
 	//-----------------------------------------------------------------------------  
 	PixelBox D3D10HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOptions options)
 	{
@@ -216,49 +138,114 @@ namespace Ogre {
 			break;
 		}
 	}
+
+	//-----------------------------------------------------------------------------  
+
+	D3D10_BOX D3D10HardwarePixelBuffer::OgreImageBoxToDx10Box(const Image::Box &inBox) const
+	{
+		D3D10_BOX res;
+		res.left	= static_cast<UINT>(inBox.left);
+		res.top		= static_cast<UINT>(inBox.top);
+		res.front	= static_cast<UINT>(inBox.front);
+		res.right	= static_cast<UINT>(inBox.right);
+		res.bottom	= static_cast<UINT>(inBox.bottom);
+		res.back	= static_cast<UINT>(inBox.back);
+
+		return res;
+	}
+	
 	//-----------------------------------------------------------------------------  
 
 	void D3D10HardwarePixelBuffer::blit(const HardwarePixelBufferSharedPtr &rsrc, const Image::Box &srcBox, const Image::Box &dstBox)
 	{
-		/*
-		D3D10HardwarePixelBuffer *src = static_cast<D3D10HardwarePixelBuffer*>(rsrc.getPointer());
-		if(mSurface && src->mSurface)
+		if (
+			(srcBox.getWidth() != dstBox.getWidth())
+			|| (srcBox.getHeight() != dstBox.getHeight())
+			|| (srcBox.getDepth() != dstBox.getDepth())
+			)
 		{
-		// Surface-to-surface
-		RECT dsrcRect = toD3DRECT(srcBox);
-		RECT ddestRect = toD3DRECT(dstBox);
-		// D3DXLoadSurfaceFromSurface
-		if(D3DXLoadSurfaceFromSurface(
-		mSurface, NULL, &ddestRect, 
-		src->mSurface, NULL, &dsrcRect,
-		D3DX_DEFAULT, 0) != D3D_OK)
-		{
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromSurface failed",
-		"D3D10HardwarePixelBuffer::blit");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"D3D10 device cannot copy a subresource - source and dest size are not the same and they have to be the same in DX10.",
+				"D3D10HardwarePixelBuffer::blit");
 		}
-		}
-		else if(mVolume && src->mVolume)
-		{
-		// Volume-to-volume
-		D3D10_BOX dsrcBox = toD3DBOX(srcBox);
-		D3D10_BOX ddestBox = toD3DBOX(dstBox);
+		
+		D3D10_BOX srcBoxDx10 = OgreImageBoxToDx10Box(srcBox);
 
-		// D3DXLoadVolumeFromVolume
-		if(D3DXLoadVolumeFromVolume(
-		mVolume, NULL, &ddestBox, 
-		src->mVolume, NULL, &dsrcBox,
-		D3DX_DEFAULT, 0) != D3D_OK)
+
+		D3D10HardwarePixelBuffer * rsrcDx10 = static_cast<D3D10HardwarePixelBuffer *>(rsrc.get());
+
+		switch(mParentTexture->getTextureType()) {
+		case TEX_TYPE_1D:
+			{
+
+				mDevice->CopySubresourceRegion(
+					mParentTexture->GetTex1D(), 
+					static_cast<UINT>(mSubresourceIndex),
+					static_cast<UINT>(dstBox.left),
+					0,
+					0,
+					rsrcDx10->mParentTexture->GetTex1D(),
+					static_cast<UINT>(rsrcDx10->mSubresourceIndex),
+					&srcBoxDx10);
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot copy 1d subresource Region\nError Description:" + errorDescription,
+						"D3D10HardwarePixelBuffer::blit");
+				}			
+			}
+			break;
+		case TEX_TYPE_2D:
+			{
+				mDevice->CopySubresourceRegion(
+					mParentTexture->GetTex2D(), 
+					static_cast<UINT>(mSubresourceIndex),
+					static_cast<UINT>(dstBox.left),
+					static_cast<UINT>(dstBox.top),
+					0,
+					rsrcDx10->mParentTexture->GetTex2D(),
+					static_cast<UINT>(rsrcDx10->mSubresourceIndex),
+					&srcBoxDx10);
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot copy 2d subresource Region\nError Description:" + errorDescription,
+						"D3D10HardwarePixelBuffer::blit");
+				}
+			}
+			break;
+		case TEX_TYPE_3D:
+			{
+				mDevice->CopySubresourceRegion(
+					mParentTexture->GetTex2D(), 
+					static_cast<UINT>(mSubresourceIndex),
+					static_cast<UINT>(dstBox.left),
+					static_cast<UINT>(dstBox.top),
+					static_cast<UINT>(dstBox.front),
+					rsrcDx10->mParentTexture->GetTex2D(),
+					static_cast<UINT>(rsrcDx10->mSubresourceIndex),
+					&srcBoxDx10);
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot copy 3d subresource Region\nError Description:" + errorDescription,
+						"D3D10HardwarePixelBuffer::blit");
+				}
+			}
+			break;
+		}
+
+		mDevice->GenerateMips(mParentTexture->getTexture()); // TODO - DO WE NEED THIS?
+		if (mDevice.isError())
 		{
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadVolumeFromVolume failed",
-		"D3D10HardwarePixelBuffer::blit");
+			String errorDescription = mDevice.getErrorDescription();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"D3D10 device cannot generate mips\nError Description:" + errorDescription,
+				"D3D10HardwarePixelBuffer::blitFromMemory");
 		}
-		}
-		else
-		{
-		// Software fallback   
-		HardwarePixelBuffer::blit(rsrc, srcBox, dstBox);
-		}
-		*/
 	}
 	//-----------------------------------------------------------------------------  
 	void D3D10HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box &dstBox)
@@ -266,6 +253,11 @@ namespace Ogre {
 		// for scoped deletion of conversion buffer
 		MemoryDataStreamPtr buf;
 		PixelBox converted = src;
+
+
+
+		D3D10_BOX dstBoxDx10 = OgreImageBoxToDx10Box(dstBox);
+
 
 		// convert to pixelbuffer's native format if necessary
 		if (src.format != mFormat)
@@ -282,15 +274,28 @@ namespace Ogre {
 		case TEX_TYPE_1D:
 			{
 
-				//mParentTexture->GetTex1D()->Map(mSubresourceIndex, flags, 0, &rval.data);
+				mDevice->UpdateSubresource( 
+					mParentTexture->GetTex1D(), 
+					0,
+					&dstBoxDx10,
+					converted.data,
+					0,
+					0 );
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot update 1d subresource\nError Description:" + errorDescription,
+						"D3D10HardwarePixelBuffer::blitFromMemory");
+				}
 			}
-			break;
+		break;
 		case TEX_TYPE_2D:
 			{
 				mDevice->UpdateSubresource( 
 					mParentTexture->GetTex2D(), 
 					static_cast<UINT>(mSubresourceIndex),
-					NULL,
+					&dstBoxDx10,
 					converted.data,
 					static_cast<UINT>(converted.rowPitch),
 					0 );
@@ -298,16 +303,28 @@ namespace Ogre {
 				{
 					String errorDescription = mDevice.getErrorDescription();
 					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-						"D3D10 device cannot update subresource\nError Description:" + errorDescription,
+						"D3D10 device cannot update 2d subresource\nError Description:" + errorDescription,
 						"D3D10HardwarePixelBuffer::blitFromMemory");
 				}
 			}
 			break;
 		case TEX_TYPE_3D:
 			{
-				//D3D10_MAPPED_TEXTURE3D mappedTex3D;
-				//mParentTexture->GetTex3D()->Map(mSubresourceIndex, flags, 0, &mappedTex3D);
-				//rval.data = mappedTex3D.pData;
+				mDevice->UpdateSubresource( 
+					mParentTexture->GetTex2D(), 
+					static_cast<UINT>(mSubresourceIndex),
+					&dstBoxDx10,
+					converted.data,
+					static_cast<UINT>(converted.rowPitch),
+					static_cast<UINT>(converted.slicePitch)
+					);
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot update 3d subresource\nError Description:" + errorDescription,
+						"D3D10HardwarePixelBuffer::blitFromMemory");
+				}
 			}
 			break;
 		}
@@ -323,64 +340,11 @@ namespace Ogre {
 
 		/*if(mDoMipmapGen)
 		{
-		mDevice->GenerateMips(mParentTexture->getTexture();
+		_genMipmaps();
 
 		}*/
 
 
-		//D3DX10CreateTextureFromMemory
-		//PixelBox lockedBuffer = lockImpl(dstBox, HBL_DISCARD);
-		//	memcpy(lockedBuffer.data, src.data, src.slicePitch);
-		//	unlockImpl();
-		/*
-		// for scoped deletion of conversion buffer
-		MemoryDataStreamPtr buf;
-		PixelBox converted = src;
-
-		// convert to pixelbuffer's native format if necessary
-		if (D3D10Mappings::_getPF(src.format) == D3DFMT_UNKNOWN)
-		{
-		buf.bind(new MemoryDataStream(
-		PixelUtil::getMemorySize(src.getWidth(), src.getHeight(), src.getDepth(),
-		mFormat)));
-		converted = PixelBox(src.getWidth(), src.getHeight(), src.getDepth(), mFormat, buf->getPtr());
-		PixelUtil::bulkPixelConversion(src, converted);
-		}
-
-		if(mSurface)
-		{
-		RECT destRect, srcRect;
-		srcRect = toD3DRECTExtent(converted);
-		destRect = toD3DRECT(dstBox);
-
-		if(D3DXLoadSurfaceFromMemory(mSurface, NULL, &destRect, 
-		converted.data, D3D10Mappings::_getPF(converted.format),
-		converted.rowPitch * PixelUtil::getNumElemBytes(converted.format),
-		NULL, &srcRect, D3DX_DEFAULT, 0) != D3D_OK)
-		{
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromMemory failed",
-		"D3D10HardwarePixelBuffer::blitFromMemory");
-		}
-		}
-		else
-		{
-		D3D10_BOX destBox, srcBox;
-		srcBox = toD3DBOXExtent(converted);
-		destBox = toD3DBOX(dstBox);
-
-		if(D3DXLoadVolumeFromMemory(mVolume, NULL, &destBox, 
-		converted.data, D3D10Mappings::_getPF(converted.format),
-		converted.rowPitch * PixelUtil::getNumElemBytes(converted.format),
-		converted.slicePitch * PixelUtil::getNumElemBytes(converted.format),
-		NULL, &srcBox, D3DX_DEFAULT, 0) != D3D_OK)
-		{
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromMemory failed",
-		"D3D10HardwarePixelBuffer::blitFromMemory");
-		}
-		}
-		if(mDoMipmapGen)
-		_genMipmaps();
-		*/
 	}
 	//-----------------------------------------------------------------------------  
 	void D3D10HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const PixelBox &dst)
@@ -510,31 +474,16 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------  
 	void D3D10HardwarePixelBuffer::_genMipmaps()
 	{
-		//	assert(mMipTex);
-		// Mipmapping
-		//if (mHWMipmaps)
+		mDevice->GenerateMips(mParentTexture->getTexture());
+		if (mDevice.isError())
 		{
-			// Hardware mipmaps
-			//	mDevice->getD3DDevice()->CreateTexture2D()  (mMipTex);
-		}
-		/*else
-		{
-		// Software mipmaps
-		if( D3DXFilterTexture( mMipTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) != D3D_OK )
-		{
-		OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, 
-		"Failed to filter texture (generate mipmaps)",
-		"D3D10HardwarePixelBuffer::_genMipmaps" );
-		}
-		}*/
+			String errorDescription = mDevice.getErrorDescription();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"D3D10 device cannot generate mips\nError Description:" + errorDescription,
+				"D3D10HardwarePixelBuffer::_genMipmaps");
+		}	
 
-	}
-	//----------------------------------------------------------------------------- 
-	void D3D10HardwarePixelBuffer::_setMipmapping(bool doMipmapGen, bool HWMipmaps, ID3D10Resource *mipTex)
-	{
-		//	mDoMipmapGen = doMipmapGen;
-		//	mHWMipmaps = HWMipmaps;
-		//	mMipTex = mipTex;
+
 	}
 	//-----------------------------------------------------------------------------    
 	RenderTexture *D3D10HardwarePixelBuffer::getRenderTarget(size_t zoffset)
@@ -542,53 +491,6 @@ namespace Ogre {
 		assert(mUsage & TU_RENDERTARGET);
 		assert(zoffset < mDepth);
 		return mSliceTRT[zoffset];
-	}
-	//-----------------------------------------------------------------------------    
-	void D3D10HardwarePixelBuffer::createRenderTextures(bool update)
-	{
-		/*    if (update)
-		{
-		assert(mSliceTRT.size() == mDepth);
-		for (SliceTRT::const_iterator it = mSliceTRT.begin(); it != mSliceTRT.end(); ++it)
-		{
-		D3D10RenderTexture *trt = static_cast<D3D10RenderTexture*>(*it);
-		trt->rebind(this);
-		}
-		return;
-		}
-
-		destroyRenderTextures();
-		if(!mSurface)
-		{
-		OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, 
-		"Rendering to 3D slices not supported yet for Direct3D",
-		"D3D10HardwarePixelBuffer::createRenderTexture");
-		}
-		// Create render target for each slice
-		mSliceTRT.reserve(mDepth);
-		assert(mDepth==1);
-		for(size_t zoffset=0; zoffset<mDepth; ++zoffset)
-		{
-		String name;
-		name = "rtt/"+Ogre::StringConverter::toString((size_t)mSurface);
-
-		RenderTexture *trt = new D3D10RenderTexture(name, this);
-		mSliceTRT.push_back(trt);
-		Root::getSingleton().getRenderSystem()->attachRenderTarget(*trt);
-		}
-		*/
-	}
-	//-----------------------------------------------------------------------------    
-	void D3D10HardwarePixelBuffer::destroyRenderTextures()
-	{
-		/*if(mSliceTRT.empty())
-		return;
-		// Delete all render targets that are not yet deleted via _clearSliceRTT
-		for(size_t zoffset=0; zoffset<mDepth; ++zoffset)
-		{
-		if(mSliceTRT[zoffset])
-		Root::getSingleton().getRenderSystem()->destroyRenderTarget(mSliceTRT[zoffset]->getName());
-		}*/
 	}
 
 	D3D10Texture * D3D10HardwarePixelBuffer::getParentTexture() const
