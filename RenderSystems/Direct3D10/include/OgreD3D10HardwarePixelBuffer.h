@@ -40,29 +40,13 @@ namespace Ogre {
 		/// Unlock a box
 		void unlockImpl(void);
 
-		/// Create (or update) render textures for slices
-		void createRenderTextures(bool update);
-		/// Destroy render textures for slices
-		void destroyRenderTextures();
-
 		/// D3DDevice pointer
 		D3D10Device & mDevice;
 
 		D3D10Texture * mParentTexture;
 		size_t mSubresourceIndex;
-		/// Surface abstracted by this buffer
-		//IDXGISurface *mSurface;
-		/// Volume abstracted by this buffer
-		//IDirect3DVolume9 *mVolume;
-		/// Temporary surface in main memory if direct locking of mSurface is not possible
-		//IDXGISurface *mTempSurface;
-		/// Temporary volume in main memory if direct locking of mVolume is not possible
-		//IDirect3DVolume9 *mTempVolume;
 
-		/// Mipmapping
-		//bool mDoMipmapGen;
-		//bool mHWMipmaps;
-		//ID3D10Resource *mMipTex;
+		D3D10_BOX OgreImageBoxToDx10Box(const Image::Box &inBox) const;
 
 		/// Render targets
 		typedef std::vector<RenderTexture*> SliceTRT;
@@ -70,10 +54,6 @@ namespace Ogre {
 	public:
 		D3D10HardwarePixelBuffer(D3D10Texture * parentTexture, D3D10Device & device, size_t subresourceIndex,
 			size_t width, size_t height, size_t depth,PixelFormat format, HardwareBuffer::Usage usage);
-
-		/// Call this to associate a D3D surface or volume with this pixel buffer
-		//void bind(D3D10Driver *dev, IDXGISurface *mSurface, bool update);
-		//void bind(D3D10Driver *dev, IDirect3DVolume9 *mVolume, bool update);
 
 		/// @copydoc HardwarePixelBuffer::blit
 		void blit(const HardwarePixelBufferSharedPtr &src, const Image::Box &srcBox, const Image::Box &dstBox);
@@ -87,8 +67,6 @@ namespace Ogre {
 		/// Internal function to update mipmaps on update of level 0
 		void _genMipmaps();
 
-		/// Function to set mipmap generation
-		void _setMipmapping(bool doMipmapGen, bool HWMipmaps, ID3D10Resource  *mipTex);
 
 		~D3D10HardwarePixelBuffer();
 
