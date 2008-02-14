@@ -69,8 +69,6 @@ namespace Ogre {
 		typedef std::vector<HardwarePixelBufferSharedPtr> SurfaceList;
 		SurfaceList						mSurfaceList;
 
-		/// Initialise the device and get formats
-		void _initDevice(void);
 		/// internal method, load a normal texture
 		void _loadTex();
 

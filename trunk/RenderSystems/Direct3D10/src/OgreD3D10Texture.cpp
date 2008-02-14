@@ -44,7 +44,6 @@ namespace Ogre
 		mp3DTex(NULL),
 		mDynamicTextures(false)
 	{
-		_initDevice();
 	}
 	//---------------------------------------------------------------------
 	D3D10Texture::~D3D10Texture()
@@ -463,46 +462,6 @@ namespace Ogre
 				"D3D10 device can't create shader resource view.\nError Description:" + errorDescription,
 				"D3D10Texture::_create3DTex");
 		}
-	}
-	//---------------------------------------------------------------------
-	void D3D10Texture::_initDevice(void)
-	{ 
-		//assert(mDevice);
-		//HRESULT hr;
-
-		// get device caps
-		//hr = mDevice->GetDeviceCaps(&mDevCaps);
-		//if (FAILED(hr) || mDevice.isError())
-		//	OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't get device description", "D3D10Texture::_setDevice" );
-
-		// get D3D pointer
-		//hr = mDevice->GetDirect3D(&mpD3D);
-		// decrement reference count
-		//mpD3D->Release();
-		//if (FAILED(hr) || mDevice.isError())
-		//	OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D10 pointer", "D3D10Texture::_setDevice" );
-
-		// get our device creation parameters
-		//hr = mDevice->GetCreationParameters(&mDevCreParams);
-		//if (FAILED(hr) || mDevice.isError())
-		//	OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D10 device creation parameters", "D3D10Texture::_setDevice" );
-
-		// get our back buffer pixel format
-		//IDirect3DSurface9 *pSrf;
-		//D3DSURFACE_DESC srfDesc;
-		//hr = mDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSrf);
-		// decrement reference count
-		//pSrf->Release();
-		//if (FAILED(hr) || mDevice.isError())
-		//	OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D10 device pixel format", "D3D10Texture::_setDevice" );
-
-		//hr = pSrf->GetDesc(&srfDesc);
-		//if (FAILED(hr) || mDevice.isError())
-		//{
-		//	OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D10 device pixel format", "D3D10Texture::_setDevice" );
-		//}
-
-		//mBBPixelFormat = srfDesc.Format;
 	}
 	//---------------------------------------------------------------------
 	void D3D10Texture::_setFinalAttributes(unsigned long width, unsigned long height, 
