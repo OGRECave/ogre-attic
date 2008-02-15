@@ -483,33 +483,40 @@ namespace Ogre {
 
 		if (hwGamma && !mHasHardwareGamma)
 			return false;
-			
-		// Use WGL to test extended caps (multisample, sRGB)
-		std::vector<int> attribList;
-		attribList.push_back(WGL_DRAW_TO_WINDOW_ARB); attribList.push_back(GL_TRUE);
-		attribList.push_back(WGL_SUPPORT_OPENGL_ARB); attribList.push_back(GL_TRUE);
-		attribList.push_back(WGL_DOUBLE_BUFFER_ARB); attribList.push_back(GL_TRUE);
-		attribList.push_back(WGL_SAMPLE_BUFFERS_ARB); attribList.push_back(GL_TRUE);
-		attribList.push_back(WGL_ACCELERATION_ARB); attribList.push_back(WGL_FULL_ACCELERATION_ARB);
-		attribList.push_back(WGL_COLOR_BITS_ARB); attribList.push_back(pfd.cColorBits);
-		attribList.push_back(WGL_ALPHA_BITS_ARB); attribList.push_back(pfd.cAlphaBits);
-		attribList.push_back(WGL_DEPTH_BITS_ARB); attribList.push_back(24);
-		attribList.push_back(WGL_STENCIL_BITS_ARB); attribList.push_back(8);
-		attribList.push_back(WGL_SAMPLES_ARB); attribList.push_back(multisample);
-		if (useHwGamma && checkExtension("WGL_EXT_framebuffer_sRGB"))
+		
+		if ((multisample || hwGamma) && __wglewChoosePixelFormatARB)
 		{
-			attribList.push_back(WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT); attribList.push_back(GL_TRUE);
+
+			// Use WGL to test extended caps (multisample, sRGB)
+			std::vector<int> attribList;
+			attribList.push_back(WGL_DRAW_TO_WINDOW_ARB); attribList.push_back(GL_TRUE);
+			attribList.push_back(WGL_SUPPORT_OPENGL_ARB); attribList.push_back(GL_TRUE);
+			attribList.push_back(WGL_DOUBLE_BUFFER_ARB); attribList.push_back(GL_TRUE);
+			attribList.push_back(WGL_SAMPLE_BUFFERS_ARB); attribList.push_back(GL_TRUE);
+			attribList.push_back(WGL_ACCELERATION_ARB); attribList.push_back(WGL_FULL_ACCELERATION_ARB);
+			attribList.push_back(WGL_COLOR_BITS_ARB); attribList.push_back(pfd.cColorBits);
+			attribList.push_back(WGL_ALPHA_BITS_ARB); attribList.push_back(pfd.cAlphaBits);
+			attribList.push_back(WGL_DEPTH_BITS_ARB); attribList.push_back(24);
+			attribList.push_back(WGL_STENCIL_BITS_ARB); attribList.push_back(8);
+			attribList.push_back(WGL_SAMPLES_ARB); attribList.push_back(multisample);
+			if (useHwGamma && checkExtension("WGL_EXT_framebuffer_sRGB"))
+			{
+				attribList.push_back(WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT); attribList.push_back(GL_TRUE);
+			}
+			// terminator
+			attribList.push_back(0);
+
+
+			UINT nformats;
+			// ChoosePixelFormatARB proc address was obtained when setting up a dummy GL context in initialiseWGL()
+			// since glew hasn't been initialized yet, we have to cheat and use the previously obtained address
+			if (!__wglewChoosePixelFormatARB(hdc, &(attribList[0]), NULL, 1, &format, &nformats) || nformats <= 0)
+				return false;
 		}
-		// terminator
-		attribList.push_back(0);
-
-
-		UINT nformats;
-        assert(__wglewChoosePixelFormatARB && "failed to get proc address for ChoosePixelFormatARB");
-        // ChoosePixelFormatARB proc address was obtained when setting up a dummy GL context in initialiseWGL()
-        // since glew hasn't been initialized yet, we have to cheat and use the previously obtained address
-		if (!__wglewChoosePixelFormatARB(hdc, &(attribList[0]), NULL, 1, &format, &nformats) || nformats <= 0)
-            return false;
+		else
+		{
+			format = ChoosePixelFormat(hdc, &pfd);
+		}
 
 
 		return (format && SetPixelFormat(hdc, format, &pfd));
