@@ -4540,6 +4540,15 @@ namespace Ogre
 						getCompiler()->addError(CE_STRINGEXPECTED, prop->file, prop->line);
 					}
 				}
+				else if(prop->name == "attach")
+				{
+					String value;
+					if(!prop->values.empty() && prop->values.front()->type == ANT_ATOM)
+						value = ((AtomAbstractNode*)prop->values.front().get())->value;
+					if(getCompilerListener())
+						getCompilerListener()->getGpuProgramName(&value);
+					customParameters.push_back(std::make_pair(prop->name, value));
+				}
 				else
 				{
 					String name = prop->name, value;
