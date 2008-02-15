@@ -272,75 +272,74 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderWindow::setFullscreen(bool fullScreen, unsigned int width, unsigned int height)
 	{
-		/*	if (fullScreen != mIsFullScreen || width != mWidth || height != mHeight)
+		if (fullScreen != mIsFullScreen || width != mWidth || height != mHeight)
 		{
 
-		if (fullScreen != mIsFullScreen)
-		mSwitchingFullscreen = true;
+			if (fullScreen != mIsFullScreen)
+				mSwitchingFullscreen = true;
 
-		DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN;
+			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN;
 
-		bool oldFullscreen = mIsFullScreen;
-		mIsFullScreen = fullScreen;
+			bool oldFullscreen = mIsFullScreen;
+			mIsFullScreen = fullScreen;
 
-		if (fullScreen)
-		{
-		dwStyle |= WS_POPUP;
-		mTop = mLeft = 0;
-		mWidth = width;
-		mHeight = height;
-		// need different ordering here
+			if (fullScreen)
+			{
+				dwStyle |= WS_POPUP;
+				mTop = mLeft = 0;
+				mWidth = width;
+				mHeight = height;
+				// need different ordering here
 
-		if (oldFullscreen)
-		{
-		// was previously fullscreen, just changing the resolution
-		SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height, SWP_NOACTIVATE);
+				if (oldFullscreen)
+				{
+					// was previously fullscreen, just changing the resolution
+					SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height, SWP_NOACTIVATE);
+				}
+				else
+				{
+					SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height, SWP_NOACTIVATE);
+					//MoveWindow(mHWnd, mLeft, mTop, mWidth, mHeight, FALSE);
+					SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
+					SetWindowPos(mHWnd, 0, 0,0, 0,0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
+				}
+			}
+			else
+			{
+				dwStyle |= WS_OVERLAPPEDWINDOW;
+				// Calculate window dimensions required
+				// to get the requested client area
+				RECT rc;
+				SetRect(&rc, 0, 0, width, height);
+				AdjustWindowRect(&rc, dwStyle, false);
+				unsigned int winWidth = rc.right - rc.left;
+				unsigned int winHeight = rc.bottom - rc.top;
+
+				SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
+				SetWindowPos(mHWnd, HWND_NOTOPMOST, 0, 0, winWidth, winHeight,
+					SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOACTIVATE);
+				// Note that we also set the position in the restoreLostDevice method
+				// via _finishSwitchingFullScreen
+			}
+
+			md3dpp.Windowed = !fullScreen;
+			md3dpp.BufferDesc.RefreshRate.Numerator=1;
+			md3dpp.BufferDesc.RefreshRate.Denominator= mIsFullScreen ? mDisplayFrequency : 0;
+			md3dpp.BufferDesc.Height = height;
+			md3dpp.BufferDesc.Width = width;
+
+			if ((oldFullscreen && fullScreen) || mIsExternal)
+			{
+				// Have to release & trigger device reset
+				// NB don't use windowMovedOrResized since Win32 doesn't know
+				// about the size change yet
+				//	SAFE_RELEASE(mpRenderSurface);
+				// Notify viewports of resize
+				ViewportList::iterator it = mViewportList.begin();
+				while(it != mViewportList.end()) (*it++).second->_updateDimensions();
+			}
 		}
-		else
-		{
-		SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height, SWP_NOACTIVATE);
-		//MoveWindow(mHWnd, mLeft, mTop, mWidth, mHeight, FALSE);
-		SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
-		SetWindowPos(mHWnd, 0, 0,0, 0,0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
-		}
-		}
-		else
-		{
-		dwStyle |= WS_OVERLAPPEDWINDOW;
-		// Calculate window dimensions required
-		// to get the requested client area
-		RECT rc;
-		SetRect(&rc, 0, 0, width, height);
-		AdjustWindowRect(&rc, dwStyle, false);
-		unsigned int winWidth = rc.right - rc.left;
-		unsigned int winHeight = rc.bottom - rc.top;
 
-		SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
-		SetWindowPos(mHWnd, HWND_NOTOPMOST, 0, 0, winWidth, winHeight,
-		SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOACTIVATE);
-		// Note that we also set the position in the restoreLostDevice method
-		// via _finishSwitchingFullScreen
-		}
-
-		md3dpp.Windowed = !fullScreen;
-		md3dpp.BufferDesc.RefreshRate.Numerator=1;
-		md3dpp.BufferDesc.RefreshRate.Denominator= mIsFullScreen ? mDisplayFrequency : 0;
-		md3dpp.BufferDesc.Height = height;
-		md3dpp.BufferDesc.Width = width;
-
-		if ((oldFullscreen && fullScreen) || mIsExternal)
-		{
-		// Have to release & trigger device reset
-		// NB don't use windowMovedOrResized since Win32 doesn't know
-		// about the size change yet
-		//	SAFE_RELEASE(mpRenderSurface);
-		static_cast<D3D10RenderSystem*>(Root::getSingleton().getRenderSystem())->_notifyDeviceLost();
-		// Notify viewports of resize
-		ViewportList::iterator it = mViewportList.begin();
-		while(it != mViewportList.end()) (*it++).second->_updateDimensions();
-		}
-		}
-		*/
 	} 
 	//---------------------------------------------------------------------
 	void D3D10RenderWindow::_finishSwitchingFullscreen()
@@ -369,6 +368,7 @@ namespace Ogre
 				SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOACTIVATE);
 
 		}
+		mpSwapChain->SetFullscreenState(mIsFullScreen, NULL);
 		mSwitchingFullscreen = false;
 	}
 	//---------------------------------------------------------------------
@@ -388,17 +388,23 @@ namespace Ogre
 		//	D3DDEVTYPE devType = D3DDEVTYPE_HAL;
 
 		ZeroMemory( &md3dpp, sizeof(DXGI_SWAP_CHAIN_DESC) );
-		md3dpp.Windowed					= !mIsFullScreen;
-		md3dpp.SwapEffect				= DXGI_SWAP_EFFECT_DISCARD ;
+		md3dpp.Windowed				= !mIsFullScreen;
+		md3dpp.SwapEffect			= DXGI_SWAP_EFFECT_DISCARD ;
 		// triple buffer if VSync is on
 		md3dpp.BufferCount			= mVSync ? 2 : 1;
-		md3dpp.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		//	md3dpp.EnableAutoDepthStencil	= mIsDepthBuffered;
-		md3dpp.OutputWindow 			= mHWnd;
-		md3dpp.BufferDesc.Width			= mWidth;
-		md3dpp.BufferDesc.Height			= mHeight;
+		md3dpp.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		md3dpp.OutputWindow 		= mHWnd;
+		md3dpp.BufferDesc.Width		= mWidth;
+		md3dpp.BufferDesc.Height	= mHeight;
 		md3dpp.BufferDesc.RefreshRate.Numerator=1;
 		md3dpp.BufferDesc.RefreshRate.Denominator = mIsFullScreen ? mDisplayFrequency : 0;
+		if (mIsFullScreen)
+		{
+			md3dpp.BufferDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
+			md3dpp.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UPPER_FIELD_FIRST;
+			md3dpp.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH ;
+		}
+		md3dpp.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 
 
@@ -421,7 +427,6 @@ namespace Ogre
 			}
 			//	md3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 		}
-		md3dpp.BufferDesc.Format=DXGI_FORMAT_R8G8B8A8_UNORM;
 		/*
 		md3dpp.BufferDesc.Format= BackBufferFormat		= D3DFMT_R5G6B5;
 		if( mColourDepth > 16 )
@@ -474,6 +479,7 @@ namespace Ogre
 					"Unable to create a DXGIFactory for the swap chain",
 					"D3D10RenderWindow::createD3DResources");
 			}
+
 			// get the dxgi device
 			IDXGIDevice* pDXGIDevice = NULL;
 			hr = mDevice->QueryInterface( IID_IDXGIDevice, (void**)&pDXGIDevice );
@@ -500,6 +506,14 @@ namespace Ogre
 					"Unable to create an additional swap chain",
 					"D3D10RenderWindow::createD3DResources");
 			}
+
+		
+
+		
+			
+	
+			
+
 			// Store references to buffers for convenience
 			//mpSwapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &mpRenderSurface );
 			// Additional swap chains need their own depth buffer
@@ -761,6 +775,26 @@ namespace Ogre
 		unsigned int height = rc.bottom;
 		if (mWidth == width && mHeight == height)
 			return;
+
+		md3dpp.Windowed				= !mIsFullScreen;
+		md3dpp.SwapEffect			= DXGI_SWAP_EFFECT_DISCARD ;
+		// triple buffer if VSync is on
+		md3dpp.BufferCount			= mVSync ? 2 : 1;
+		md3dpp.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		md3dpp.OutputWindow 		= mHWnd;
+		md3dpp.BufferDesc.Width		= mWidth;
+		md3dpp.BufferDesc.Height	= mHeight;
+		md3dpp.BufferDesc.RefreshRate.Numerator=1;
+		md3dpp.BufferDesc.RefreshRate.Denominator = mIsFullScreen ? mDisplayFrequency : 0;
+
+		mWidth = width;
+		mHeight = height;
+
+
+		UINT Flags = 0;
+		if( mIsFullScreen )
+			Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+		mpSwapChain->ResizeBuffers(md3dpp.BufferCount, width, height, md3dpp.BufferDesc.Format, Flags);
 		/*
 		SAFE_RELEASE( mpRenderSurface );
 
