@@ -324,14 +324,21 @@ namespace Ogre {
     void OverlayElement::setMaterialName(const String& matName)
     {
         mMaterialName = matName;
-        mpMaterial = MaterialManager::getSingleton().getByName(matName);
-		if (mpMaterial.isNull())
-			OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + matName,
-				"OverlayElement::setMaterialName" );
-        mpMaterial->load();
-        // Set some prerequisites to be sure
-        mpMaterial->setLightingEnabled(false);
-        mpMaterial->setDepthCheckEnabled(false);
+		if (matName != StringUtil::BLANK)
+		{
+			mpMaterial = MaterialManager::getSingleton().getByName(matName);
+			if (mpMaterial.isNull())
+				OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + matName,
+					"OverlayElement::setMaterialName" );
+			mpMaterial->load();
+			// Set some prerequisites to be sure
+			mpMaterial->setLightingEnabled(false);
+			mpMaterial->setDepthCheckEnabled(false);
+		}
+		else
+		{
+			mpMaterial.setNull();
+		}
 
     }
     //---------------------------------------------------------------------
