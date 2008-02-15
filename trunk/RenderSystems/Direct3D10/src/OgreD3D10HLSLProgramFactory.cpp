@@ -59,6 +59,11 @@ namespace Ogre {
 	{
 		delete prog;
 	}
+
+	void D3D10HLSLProgramFactory::setLanguageName( Ogre::String val )
+	{
+		sLanguageName = val;
+	}
 	//-----------------------------------------------------------------------
 
 }

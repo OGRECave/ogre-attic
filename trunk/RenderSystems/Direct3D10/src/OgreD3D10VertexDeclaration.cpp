@@ -366,17 +366,30 @@ namespace Ogre {
 			bool bHasTexcoord = hasTexcoord();
 
 			String shaderSource = "";
+			shaderSource = shaderSource + "float4x4  TextureMatrix;\n";
+			shaderSource = shaderSource + "float  LightingEnabled;\n";
+
 			if(bHasColor &bHasTexcoord)
 			{
 				shaderSource = shaderSource + "sampler tex0 : register(s0);\n";
 				shaderSource = shaderSource + "float4 PS( float4 Pos : SV_POSITION, float2 tCord : TEXCOORD, float4 col : COLOR ) : SV_Target\n";
-				shaderSource = shaderSource + "{\nreturn tex2D(tex0,tCord) * col;\n}";
+				shaderSource = shaderSource + "{\n";
+				shaderSource = shaderSource + "float4 texCordWithMatrix = float4(tCord.x, tCord.y, 0, 1);\n";
+				shaderSource = shaderSource + "texCordWithMatrix = mul( texCordWithMatrix, TextureMatrix );\n";
+				shaderSource = shaderSource + "float4 finalColor = max((float4(1.0,1.0,1.0,1.0) * (LightingEnabled)), col);\n";
+				shaderSource = shaderSource + "return tex2D(tex0,texCordWithMatrix.xy) * finalColor;\n";
+				shaderSource = shaderSource + "}";
 			}
 			else if(bHasTexcoord)
 			{
 				shaderSource = shaderSource + "sampler tex0 : register(s0);\n";
 				shaderSource = shaderSource + "float4 PS( float4 Pos : SV_POSITION, float2 tCord : TEXCOORD) : SV_Target\n";
-				shaderSource = shaderSource + "{\nreturn tex2D(tex0,tCord);\n}";
+				shaderSource = shaderSource + "{\n";
+				shaderSource = shaderSource + "float4 texCordWithMatrix = float4(tCord.x, tCord.y, 0, 1);\n";
+				shaderSource = shaderSource + "texCordWithMatrix = mul( texCordWithMatrix, TextureMatrix );\n";
+				shaderSource = shaderSource + "\n";
+				shaderSource = shaderSource + "return tex2D(tex0,texCordWithMatrix.xy);\n";
+				shaderSource = shaderSource + "}";
 			}
 			else if(bHasColor)
 			{
@@ -397,7 +410,10 @@ namespace Ogre {
 			mFs->setSource(shaderSource);
 			static_cast<D3D10HLSLProgram*>(mFs.get())->setEntryPoint("PS");
 			static_cast<D3D10HLSLProgram*>(mFs.get())->loadFromSource();
+		
+			mFsParams = mFs->createParameters();
 		}
+
 
 		return mFs;
 	}
@@ -435,6 +451,11 @@ namespace Ogre {
 	Ogre::GpuProgramParametersSharedPtr D3D10VertexDeclaration::getFixFuncVsParams()
 	{
 		return mVsParams;
+	}
+	//-----------------------------------------------------------------------
+	Ogre::GpuProgramParametersSharedPtr D3D10VertexDeclaration::getFixFuncFsParams()
+	{
+		return mFsParams;
 	}
 	//-----------------------------------------------------------------------
 }
