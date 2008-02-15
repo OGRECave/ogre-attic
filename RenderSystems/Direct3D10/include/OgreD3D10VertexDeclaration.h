@@ -47,6 +47,7 @@ namespace Ogre {
 		HighLevelGpuProgramPtr mVs;
 		GpuProgramParametersSharedPtr mVsParams;
 		HighLevelGpuProgramPtr mFs;
+		GpuProgramParametersSharedPtr mFsParams;
 
 		/** Gets the D3D10-specific vertex declaration. */
 
@@ -89,7 +90,8 @@ namespace Ogre {
 
 		HighLevelGpuProgramPtr getFixFuncVs();
 		HighLevelGpuProgramPtr getFixFuncFs();
-		GpuProgramParametersSharedPtr getFixFuncVsParams();;
+		GpuProgramParametersSharedPtr getFixFuncVsParams();
+		GpuProgramParametersSharedPtr getFixFuncFsParams();
 
 	};
 

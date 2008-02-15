@@ -80,6 +80,7 @@ namespace Ogre {
 		}
 
 		D3D10Texture * getParentTexture() const;
+		size_t getSubresourceIndex() const;
 	};
 };
 #endif

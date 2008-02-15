@@ -166,26 +166,26 @@ namespace Ogre
 		pTemp->GetDesc( &desc );
 
 
-		D3D10_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-		ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
-		SRVDesc.Format = imageInfo.Format;
+		
+		ZeroMemory( &mSRVDesc, sizeof(mSRVDesc) );
+		mSRVDesc.Format = imageInfo.Format;
 		switch (info.ResourceDimension)
 		{
 		case D3D10_RESOURCE_DIMENSION_TEXTURE1D:
-		SRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE1D;
+		mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE1D;
 		break;
 		case D3D10_RESOURCE_DIMENSION_TEXTURE2D:
-		SRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+		mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
 		break;
 		case D3D10_RESOURCE_DIMENSION_TEXTURE3D:
-		SRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE3D;
+		mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE3D;
 		break;
 		}
-		SRVDesc.Texture1D.MipLevels = imageInfo.MipLevels;
+		mSRVDesc.Texture1D.MipLevels = imageInfo.MipLevels;
 
 
 
-		hr = mDevice->CreateShaderResourceView( mpTex, &SRVDesc, &mpShaderResourceView );
+		hr = mDevice->CreateShaderResourceView( mpTex, &mSRVDesc, &mpShaderResourceView );
 		*/
 
 
@@ -288,14 +288,11 @@ namespace Ogre
 
 		mp1DTex->GetDesc(&desc);
 
-		this->_setFinalAttributes(desc.Width, 1, 1, D3D10Mappings::_getPF(desc.Format));
-
-		D3D10_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-		ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
-		SRVDesc.Format = desc.Format;
-		SRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE1D;
-		SRVDesc.Texture1D.MipLevels = desc.MipLevels;
-		hr = mDevice->CreateShaderResourceView( mp1DTex, &SRVDesc, &mpShaderResourceView );
+		ZeroMemory( &mSRVDesc, sizeof(mSRVDesc) );
+		mSRVDesc.Format = desc.Format;
+		mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE1D;
+		mSRVDesc.Texture1D.MipLevels = desc.MipLevels;
+		hr = mDevice->CreateShaderResourceView( mp1DTex, &mSRVDesc, &mpShaderResourceView );
 		if (FAILED(hr) || mDevice.isError())
 		{
 			String errorDescription = mDevice.getErrorDescription(hr);
@@ -305,6 +302,7 @@ namespace Ogre
 
 		}
 
+		this->_setFinalAttributes(desc.Width, 1, 1, D3D10Mappings::_getPF(desc.Format));
 
 	}
 	//---------------------------------------------------------------------
@@ -375,14 +373,12 @@ namespace Ogre
 		// set final tex. attributes from tex. description
 		// they may differ from the source image !!!
 		mp2DTex->GetDesc(&desc);
-		this->_setFinalAttributes(desc.Width, desc.Height, 1, D3D10Mappings::_getPF(desc.Format));
-
-		D3D10_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-		ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
-		SRVDesc.Format = desc.Format;
-		SRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
-		SRVDesc.Texture2D.MipLevels = desc.MipLevels;
-		hr = mDevice->CreateShaderResourceView( mp2DTex, &SRVDesc, &mpShaderResourceView );
+		
+		ZeroMemory( &mSRVDesc, sizeof(mSRVDesc) );
+		mSRVDesc.Format = desc.Format;
+		mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+		mSRVDesc.Texture2D.MipLevels = desc.MipLevels;
+		hr = mDevice->CreateShaderResourceView( mp2DTex, &mSRVDesc, &mpShaderResourceView );
 		if (FAILED(hr) || mDevice.isError())
 		{
 			String errorDescription = mDevice.getErrorDescription(hr);
@@ -391,6 +387,7 @@ namespace Ogre
 				"D3D10Texture::_create2DTex");
 		}
 
+		this->_setFinalAttributes(desc.Width, desc.Height, 1, D3D10Mappings::_getPF(desc.Format));
 	}
 	//---------------------------------------------------------------------
 	void D3D10Texture::_create3DTex()
@@ -447,14 +444,12 @@ namespace Ogre
 		// they may differ from the source image !!!
 		mp3DTex->GetDesc(&desc);
 
-		this->_setFinalAttributes(desc.Width, desc.Height, desc.Depth, D3D10Mappings::_getPF(desc.Format));
-
-		D3D10_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-		ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
-		SRVDesc.Format = desc.Format;
-		SRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE3D;
-		SRVDesc.Texture3D.MipLevels = desc.MipLevels;
-		hr = mDevice->CreateShaderResourceView( mp3DTex, &SRVDesc, &mpShaderResourceView );
+	
+		ZeroMemory( &mSRVDesc, sizeof(mSRVDesc) );
+		mSRVDesc.Format = desc.Format;
+		mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE3D;
+		mSRVDesc.Texture3D.MipLevels = desc.MipLevels;
+		hr = mDevice->CreateShaderResourceView( mp3DTex, &mSRVDesc, &mpShaderResourceView );
 		if (FAILED(hr) || mDevice.isError())
 		{
 			String errorDescription = mDevice.getErrorDescription(hr);
@@ -462,6 +457,8 @@ namespace Ogre
 				"D3D10 device can't create shader resource view.\nError Description:" + errorDescription,
 				"D3D10Texture::_create3DTex");
 		}
+
+		this->_setFinalAttributes(desc.Width, desc.Height, desc.Depth, D3D10Mappings::_getPF(desc.Format));
 	}
 	//---------------------------------------------------------------------
 	void D3D10Texture::_setFinalAttributes(unsigned long width, unsigned long height, 
@@ -596,11 +593,6 @@ namespace Ogre
 
 		// do we need to bind?
 
-
-
-
-
-
 	}
 	//---------------------------------------------------------------------
 	HardwarePixelBufferSharedPtr D3D10Texture::getBuffer(size_t face, size_t mipmap) 
@@ -671,12 +663,102 @@ namespace Ogre
 
 	}
 	//---------------------------------------------------------------------
+	D3D10_SHADER_RESOURCE_VIEW_DESC D3D10Texture::getShaderResourceViewDesc() const
+	{
+		return mSRVDesc;
+	}
+	//---------------------------------------------------------------------
+	// D3D10RenderTexture
+	//---------------------------------------------------------------------
 	void D3D10RenderTexture::rebind( D3D10HardwarePixelBuffer *buffer )
 	{
 		mBuffer = buffer;
 		mWidth = (unsigned int) mBuffer->getWidth();
 		mHeight = (unsigned int) mBuffer->getHeight();
 		mColourDepth = (unsigned int) Ogre::PixelUtil::getNumElemBits(mBuffer->getFormat());
+		
+		ID3D10Resource * pBackBuffer = buffer->getParentTexture()->getTextureResource();
+
+		D3D10_RENDER_TARGET_VIEW_DESC RTVDesc;
+		RTVDesc.Format = buffer->getParentTexture()->getShaderResourceViewDesc().Format;
+		switch(buffer->getParentTexture()->getShaderResourceViewDesc().ViewDimension)
+		{
+		case D3D10_SRV_DIMENSION_BUFFER:
+			RTVDesc.ViewDimension = D3D10_RTV_DIMENSION_BUFFER;
+			break;
+		case D3D10_SRV_DIMENSION_TEXTURE1D:
+			RTVDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE1D;
+				break;
+		case D3D10_SRV_DIMENSION_TEXTURE1DARRAY:
+			RTVDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE1DARRAY;
+				break;
+		case D3D10_SRV_DIMENSION_TEXTURE2D:
+			RTVDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2D;
+				break;
+		case D3D10_SRV_DIMENSION_TEXTURE2DARRAY:
+			RTVDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2DARRAY;
+				break;
+		case D3D10_SRV_DIMENSION_TEXTURE2DMS:
+			RTVDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2DMS;
+			break;
+		case D3D10_SRV_DIMENSION_TEXTURE2DMSARRAY:
+			RTVDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2DMSARRAY;
+			break;
+		case D3D10_SRV_DIMENSION_TEXTURE3D:
+			RTVDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE3D;
+			break;
+		default:
+			assert(false);
+		}
+		RTVDesc.Texture2D.MipSlice = static_cast<uint>(buffer->getSubresourceIndex());
+		HRESULT hr = mDevice->CreateRenderTargetView( pBackBuffer, &RTVDesc, &mRenderTargetView );
+
+		if (FAILED(hr) || mDevice.isError())
+		{
+			String errorDescription = mDevice.getErrorDescription();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error creating Render Target View\nError Description:" + errorDescription, 
+				"D3D10RenderTexture::rebind" );
+		}
+		// Create depth stencil texture
+		ID3D10Texture2D* pDepthStencil = NULL;
+		D3D10_TEXTURE2D_DESC descDepth;
+
+		descDepth.Width = mWidth;
+		descDepth.Height = mHeight;
+		descDepth.MipLevels = 1;
+		descDepth.ArraySize = 1;
+		descDepth.Format = DXGI_FORMAT_D16_UNORM;
+		descDepth.SampleDesc.Count = 1;
+		descDepth.SampleDesc.Quality = 0;
+		descDepth.Usage = D3D10_USAGE_DEFAULT;
+		descDepth.BindFlags = D3D10_BIND_DEPTH_STENCIL;
+		descDepth.CPUAccessFlags = 0;
+		descDepth.MiscFlags = 0;
+
+		hr = mDevice->CreateTexture2D( &descDepth, NULL, &pDepthStencil );
+		if( FAILED(hr) || mDevice.isError())
+		{
+			String errorDescription = mDevice.getErrorDescription(hr);
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"Unable to create depth texture\nError Description:" + errorDescription,
+				"D3D10RenderTexture::rebind");
+		}
+
+		// Create the depth stencil view
+		D3D10_DEPTH_STENCIL_VIEW_DESC descDSV;
+		descDSV.Format = descDepth.Format;
+		descDSV.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
+		descDSV.Texture2D.MipSlice = 0;
+		hr = mDevice->CreateDepthStencilView( pDepthStencil, &descDSV, &mDepthStencilView );
+		SAFE_RELEASE( pDepthStencil );
+		if( FAILED(hr) )
+		{
+			String errorDescription = mDevice.getErrorDescription();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"Unable to create depth stencil view\nError Description:" + errorDescription,
+				"D3D10RenderTexture::rebind");
+		}
+
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderTexture::getCustomAttribute( const String& name, void *pData )
@@ -698,11 +780,26 @@ namespace Ogre
 			*static_cast<HardwarePixelBuffer**>(pData) = mBuffer;
 			return;
 		}
+		else if(name == "ID3D10RenderTargetView")
+		{
+			*static_cast<ID3D10RenderTargetView**>(pData) = mRenderTargetView;
+			return;
+		}		
+		else if(name == "ID3D10DepthStencilView")
+		{
+			*static_cast<ID3D10DepthStencilView**>(pData) = mDepthStencilView;
+			return;
+		}
+
+
 	}
 	//---------------------------------------------------------------------
-	D3D10RenderTexture::D3D10RenderTexture( const String &name, D3D10HardwarePixelBuffer *buffer ) :
+	D3D10RenderTexture::D3D10RenderTexture( const String &name, D3D10HardwarePixelBuffer *buffer,  D3D10Device & device ) : mDevice(device),
 	RenderTexture(buffer, 0)
 	{
+
 		mName = name;
+
+		rebind(buffer);
 	}
 }

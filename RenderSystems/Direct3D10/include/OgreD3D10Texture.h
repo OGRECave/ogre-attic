@@ -69,6 +69,7 @@ namespace Ogre {
 		typedef std::vector<HardwarePixelBufferSharedPtr> SurfaceList;
 		SurfaceList						mSurfaceList;
 
+		D3D10_SHADER_RESOURCE_VIEW_DESC mSRVDesc;
 		/// internal method, load a normal texture
 		void _loadTex();
 
@@ -140,6 +141,9 @@ namespace Ogre {
 		ID3D10Texture1D * GetTex1D() {return mp1DTex;};
 		ID3D10Texture2D * GetTex2D() {return mp2DTex;};
 		ID3D10Texture3D	* GetTex3D() {return mp3DTex;};
+
+		D3D10_SHADER_RESOURCE_VIEW_DESC getShaderResourceViewDesc() const;
+
 
 	};
 
@@ -216,8 +220,11 @@ namespace Ogre {
 	/// RenderTexture implementation for D3D10
 	class D3D10RenderTexture : public RenderTexture
 	{
+		D3D10Device & mDevice;
+		ID3D10RenderTargetView * mRenderTargetView;
+		ID3D10DepthStencilView * mDepthStencilView;
 	public:
-		D3D10RenderTexture(const String &name, D3D10HardwarePixelBuffer *buffer);
+		D3D10RenderTexture(const String &name, D3D10HardwarePixelBuffer *buffer, D3D10Device & device );
 		~D3D10RenderTexture() {}
 
 		void rebind(D3D10HardwarePixelBuffer *buffer);

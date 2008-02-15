@@ -31,6 +31,10 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	D3D10HLSLProgram::CmdEntryPoint D3D10HLSLProgram::msCmdEntryPoint;
 	D3D10HLSLProgram::CmdTarget D3D10HLSLProgram::msCmdTarget;
+	D3D10HLSLProgram::CmdPreprocessorDefines D3D10HLSLProgram::msCmdPreprocessorDefines;
+	D3D10HLSLProgram::CmdColumnMajorMatrices D3D10HLSLProgram::msCmdColumnMajorMatrices;
+
+	D3D10HLSLProgram::CmdProfiles D3D10HLSLProgram::msCmdProfiles; // PATCH - for cg support
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	void D3D10HLSLProgram::createConstantBuffer(const UINT ByteWidth)
@@ -114,18 +118,6 @@ namespace Ogre {
 			profile = "ps_4_0";
 			break;
 		}
-		/*HRESULT hr = D3D10CompileShader(
-		mSource.c_str(),
-		static_cast<UINT>(mSource.length()),
-		NULL,
-		NULL, //no preprocessor defines
-		NULL, //no includes
-		mEntryPoint.c_str(),
-		mTarget.c_str(),
-		D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY, // This enables older shaders to compile to 4_0 targets.
-		&mpMicroCode,
-		&errors
-		);*/
 
 		HRESULT hr = D3DX10CompileFromMemory(
 			mSource.c_str(),	// [in] Pointer to the shader in memory. 
@@ -164,7 +156,7 @@ namespace Ogre {
 
 		}
 
-		if (FAILED(hr)) // if fails - try this is an assembly shader - compile it with the right target version
+		/*if (FAILED(hr)) // if fails - try this is an assembly shader - compile it with the right target version
 		{
 			hr = D3DX10CompileFromMemory(
 				mSource.c_str(),	// [in] Pointer to the shader in memory. 
@@ -182,7 +174,7 @@ namespace Ogre {
 				NULL				// [out] A pointer to the return value. May be NULL. If pPump is not NULL, then pHResult must be a valid memory location until the asynchronous execution completes. 
 				);
 
-		}
+		}*/
 
 
 #if 0 // this is how you disassemble
@@ -541,6 +533,18 @@ namespace Ogre {
 			dict->addParameter(ParameterDef("target", 
 				"Name of the assembler target to compile down to.",
 				PT_STRING),&msCmdTarget);
+			dict->addParameter(ParameterDef("preprocessor_defines", 
+				"Preprocessor defines use to compile the program.",
+				PT_STRING),&msCmdPreprocessorDefines);
+			dict->addParameter(ParameterDef("column_major_matrices", 
+				"Whether matrix packing in column-major order.",
+				PT_BOOL),&msCmdColumnMajorMatrices);;
+
+			// PATCH - this is so cg programs will nt throw an error
+			dict->addParameter(ParameterDef("profiles",  
+				"Space-separated list of Cg profiles supported by this profile.",
+				PT_STRING),&msCmdProfiles);
+
 		}
 
 	}
@@ -612,6 +616,33 @@ namespace Ogre {
 	void D3D10HLSLProgram::CmdTarget::doSet(void *target, const String& val)
 	{
 		static_cast<D3D10HLSLProgram*>(target)->setTarget(val);
+	}
+	//-----------------------------------------------------------------------
+	String D3D10HLSLProgram::CmdPreprocessorDefines::doGet(const void *target) const
+	{
+		return static_cast<const D3D10HLSLProgram*>(target)->getPreprocessorDefines();
+	}
+	void D3D10HLSLProgram::CmdPreprocessorDefines::doSet(void *target, const String& val)
+	{
+		static_cast<D3D10HLSLProgram*>(target)->setPreprocessorDefines(val);
+	}
+	//-----------------------------------------------------------------------
+	String D3D10HLSLProgram::CmdColumnMajorMatrices::doGet(const void *target) const
+	{
+		return StringConverter::toString(static_cast<const D3D10HLSLProgram*>(target)->getColumnMajorMatrices());
+	}
+	void D3D10HLSLProgram::CmdColumnMajorMatrices::doSet(void *target, const String& val)
+	{
+		static_cast<D3D10HLSLProgram*>(target)->setColumnMajorMatrices(StringConverter::parseBool(val));
+	}
+	//-----------------------------------------------------------------------
+	String D3D10HLSLProgram::CmdProfiles::doGet(const void *target) const
+	{
+		return "not supported";
+	}
+	void D3D10HLSLProgram::CmdProfiles::doSet(void *target, const String& val)
+	{
+		// not supported	
 	}
 	//-----------------------------------------------------------------------
 	void D3D10HLSLProgram::CreateVertexShader()

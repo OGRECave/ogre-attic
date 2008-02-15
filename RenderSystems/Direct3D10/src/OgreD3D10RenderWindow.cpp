@@ -586,18 +586,10 @@ namespace Ogre
 				descDepth.CPUAccessFlags = 0;
 				descDepth.MiscFlags = 0;
 
-				if (mDevice.isError())
-				{
-					String errorDescription = mDevice.getErrorDescription();
-					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-						"D3D10 device cannot set scissor rects\nError Description:" + errorDescription,
-						"D3D10RenderSystem::setScissorTest");
-				}	
-
 				hr = mDevice->CreateTexture2D( &descDepth, NULL, &pDepthStencil );
-				if( FAILED(hr) )
+				if( FAILED(hr) || mDevice.isError())
 				{
-					String errorDescription = mDevice.getErrorDescription();
+					String errorDescription = mDevice.getErrorDescription(hr);
 					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
 						"Unable to create depth texture\nError Description:" + errorDescription,
 						"D3D10RenderWindow::createD3DResources");
@@ -920,13 +912,13 @@ namespace Ogre
 
 			return;
 		}
-		else if( name == "D3D10RenderTargetView" )
+		else if( name == "ID3D10RenderTargetView" )
 		{
 			ID3D10RenderTargetView * *pRTView = (ID3D10RenderTargetView **)pData;
 			*pRTView = mRenderTargetView;
 			return;
 		}
-		else if( name == "D3D10RenderTargetDepthView" )
+		else if( name == "ID3D10DepthStencilView" )
 		{
 			ID3D10DepthStencilView * *pRTDepthView = (ID3D10DepthStencilView **)pData;
 			*pRTDepthView = mDepthStencilView;
@@ -1249,31 +1241,6 @@ namespace Ogre
 		}
 		*/
 		RenderWindow::update(swap);
-	}
-	//---------------------------------------------------------------------
-	void D3D10RenderWindow::clearRenderTargetView( const ColourValue& colour )
-	{
-		float ClearColor[4];
-		D3D10Mappings::get(colour, ClearColor);
-		mDevice->ClearRenderTargetView( mRenderTargetView, ClearColor );
-	}
-	//---------------------------------------------------------------------
-	void D3D10RenderWindow::clearDepthView( Real depth )
-	{
-		mDevice->ClearDepthStencilView( mDepthStencilView, D3D10_CLEAR_DEPTH, depth, 0 );
-
-	}
-	//---------------------------------------------------------------------
-	void D3D10RenderWindow::clearStencilView( unsigned short stencil )
-	{
-		mDevice->ClearDepthStencilView( mDepthStencilView, D3D10_CLEAR_STENCIL, 0, stencil );
-
-	}
-	//---------------------------------------------------------------------
-	void D3D10RenderWindow::clearDepthAndStencilView( Real depth, unsigned short stencil )
-	{
-		mDevice->ClearDepthStencilView( mDepthStencilView, D3D10_CLEAR_DEPTH | D3D10_CLEAR_STENCIL, depth, stencil );
-
 	}
 	//---------------------------------------------------------------------
 	bool D3D10RenderWindow::requiresTextureFlipping() const

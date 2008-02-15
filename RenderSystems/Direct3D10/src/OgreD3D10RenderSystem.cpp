@@ -828,6 +828,7 @@ namespace Ogre
 				mHLSLProgramFactory = new D3D10HLSLProgramFactory(mDevice);
 			mRealCapabilities = createRenderSystemCapabilities();							
 			mRealCapabilities->addShaderProfile("hlsl");
+			mRealCapabilities->addShaderProfile("cg"); // PATCH so we will compile cg as hlsl
 
 			// if we are using custom capabilities, then 
 			// mCurrentCapabilities has already been loaded
@@ -951,8 +952,38 @@ namespace Ogre
 				"Trying to initialize GLRenderSystem from RenderSystemCapabilities that do not support Direct3D10",
 				"D3D10RenderSystem::initialiseFromRenderSystemCapabilities");
 		}
-		if(caps->isShaderProfileSupported("hlsl"))
-			HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
+		
+		// add hlsl
+		HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
+
+
+		// PATCH START
+
+		// DX10 doesn't support assembly shaders - so it doesn't support the cg compiler
+		// that compiles cg to assembly, so - in order to solve this the solution
+		// is to compile cg as hlsl, the languages are almost the same so -
+		// it will work in a lot of the cases.
+		// Also – if the cg plugin registers – it starts to compile shaders and to 		
+		// create assembly shaders that we don't want.
+		// So – here is a little patch that unregister the cg plugin factory
+		// and register the DX10 hlsl factory instead.
+		// That is the best choice I can see for now (feb 2008 – Assaf R.)   
+
+		// remove the cg plugin factory (the cg plugin will not work with dx 10)
+		mHLSLProgramFactory->setLanguageName("cg");
+		HighLevelGpuProgramManager::getSingleton().removeFactory(mHLSLProgramFactory);
+
+		// add the cg so if it compile as hlsl we will have some of the shaders...
+		HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
+
+		// return back the factory to hlsl
+		mHLSLProgramFactory->setLanguageName("hlsl");
+
+		// PATCH END
+
+
+
+
 
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
 		if (defaultLog)
@@ -1304,6 +1335,14 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::setLightingEnabled( bool enabled )
 	{
+		if (enabled)
+		{
+			mMainFregmentShaderMatrixsBuffer.mLightingEnabled = 1.0;
+		}
+		else
+		{
+			mMainFregmentShaderMatrixsBuffer.mLightingEnabled = 0.0;
+		}
 	/*	HRESULT hr;
 		if( FAILED( hr = __SetRenderState( D3DRS_LIGHTING, enabled ) ) )
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
@@ -1380,19 +1419,19 @@ namespace Ogre
 	void D3D10RenderSystem::_setViewMatrix( const Matrix4 &m )
 	{
 		// save latest view matrix
-		mMainMatrixsShaderBuffer.mViewMatrix = m.transpose();
+		mMainVertexShaderMatrixsBuffer.mViewMatrix = m.transpose();
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setProjectionMatrix( const Matrix4 &m )
 	{
 		 // save latest projection matrix
-		mMainMatrixsShaderBuffer.mProjectionMatrix = m.transpose();
+		mMainVertexShaderMatrixsBuffer.mProjectionMatrix = m.transpose();
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setWorldMatrix( const Matrix4 &m )
 	{
 		// save latest world matrix
-		mMainMatrixsShaderBuffer.mWorldMatrix = m;
+		mMainVertexShaderMatrixsBuffer.mWorldMatrix = m.transpose();
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse,
@@ -1535,6 +1574,7 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setTextureMatrix( size_t stage, const Matrix4& xForm )
 	{
+		mMainFregmentShaderMatrixsBuffer.mTextureMatrix = xForm.transpose();
 	/*	HRESULT hr;
 		D3DXMATRIX d3dMat; // the matrix we'll maybe apply
 		Matrix4 newMat = xForm; // the matrix we'll apply after conv. to D3D format
@@ -2016,9 +2056,9 @@ namespace Ogre
 			}
 			*/
 			ID3D10RenderTargetView * pRTView;
-			target->getCustomAttribute( "D3D10RenderTargetView", &pRTView );
+			target->getCustomAttribute( "ID3D10RenderTargetView", &pRTView );
 			ID3D10DepthStencilView * pRTDepthView;
-			target->getCustomAttribute( "D3D10RenderTargetDepthView", &pRTDepthView );
+			target->getCustomAttribute( "ID3D10DepthStencilView", &pRTDepthView );
 			mDevice->OMSetRenderTargets(1,
 				&pRTView,
 				pRTDepthView);
@@ -2220,28 +2260,33 @@ namespace Ogre
 	 	if (!mBoundVertexProgram) // I know this is bad code - but I want to get things going
 		{
 
-			HighLevelGpuProgramPtr fixedFuncVsProgram = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncVs();
-			needToUnmapVS = true;
-			bindGpuProgram(fixedFuncVsProgram.get());
 
-			GpuProgramParametersSharedPtr params = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncVsParams();
 			{
-				const GpuConstantDefinition& def = params->getConstantDefinition("World");
-				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainMatrixsShaderBuffer.mWorldMatrix ,sizeof(float) * def.elementSize * def.arraySize);
-			}
-			{
-				const GpuConstantDefinition& def = params->getConstantDefinition("Projection");
-				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainMatrixsShaderBuffer.mProjectionMatrix ,sizeof(float) * def.elementSize * def.arraySize);
-			}
-			{
-				const GpuConstantDefinition& def = params->getConstantDefinition("View");
-				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainMatrixsShaderBuffer.mViewMatrix ,sizeof(float) * def.elementSize * def.arraySize);
-			}
-			bindGpuProgramParameters(GPT_VERTEX_PROGRAM, params);
+				HighLevelGpuProgramPtr fixedFuncVsProgram = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncVs();
+				needToUnmapVS = true;
+				bindGpuProgram(fixedFuncVsProgram.get());
+
+				GpuProgramParametersSharedPtr params = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncVsParams();
+				{
+					const GpuConstantDefinition& def = params->getConstantDefinition("World");
+					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mWorldMatrix ,sizeof(float) * def.elementSize * def.arraySize);
+				}
+				{
+					const GpuConstantDefinition& def = params->getConstantDefinition("Projection");
+					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mProjectionMatrix ,sizeof(float) * def.elementSize * def.arraySize);
+				}
+				{
+					const GpuConstantDefinition& def = params->getConstantDefinition("View");
+					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mViewMatrix ,sizeof(float) * def.elementSize * def.arraySize);
+				}
+				bindGpuProgramParameters(GPT_VERTEX_PROGRAM, params);
+
+		}
+
 			/*
 			char * pConstData;
 			mMainMatrixsConstantBuffer->Map( D3D10_MAP_WRITE_DISCARD, NULL, (void **) &pConstData );
-			memcpy(pConstData, &mMainMatrixsShaderBuffer, sizeof(MainMatrixsShaderBuffer));
+			memcpy(pConstData, &mMainVertexShaderMatrixsBuffer, sizeof(MainVertexShaderMatrixsBuffer));
 			mMainMatrixsConstantBuffer->Unmap();*/
 
 			//ID3D10Buffer* pBuffers[1] ;
@@ -2255,6 +2300,20 @@ namespace Ogre
 			HighLevelGpuProgramPtr fixedFuncPsProgram = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncFs();
 			needToUnmapFS = true;
 			bindGpuProgram(fixedFuncPsProgram.get());
+
+			GpuProgramParametersSharedPtr params = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncFsParams();
+			{
+				const GpuConstantDefinition& def = params->getConstantDefinition("TextureMatrix");
+				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mTextureMatrix ,sizeof(float) * def.elementSize * def.arraySize);
+			}
+			{
+				const GpuConstantDefinition& def = params->getConstantDefinition("LightingEnabled");
+				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mLightingEnabled ,sizeof(float));
+			}
+
+			bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, params);
+
+
 
 		}
 
@@ -2763,26 +2822,33 @@ namespace Ogre
     {
 		if (mActiveRenderTarget)
 		{
-			D3D10RenderWindow* pRT = static_cast<D3D10RenderWindow *>(mActiveRenderTarget);
+			ID3D10RenderTargetView * pRTView;
+			mActiveRenderTarget->getCustomAttribute( "ID3D10RenderTargetView", &pRTView );
+			ID3D10DepthStencilView * pRTDepthView;
+			mActiveRenderTarget->getCustomAttribute( "ID3D10DepthStencilView", &pRTDepthView );
+
 			if (buffers & FBT_COLOUR)
 			{
-				pRT->clearRenderTargetView(colour);		
+				float ClearColor[4];
+				D3D10Mappings::get(colour, ClearColor);
+				mDevice->ClearRenderTargetView( pRTView, ClearColor );
+
 			}
-			if((buffers & FBT_DEPTH) && (buffers & FBT_STENCIL))
+			UINT ClearFlags = 0;
+			if (buffers & FBT_DEPTH)
 			{
-				pRT->clearDepthAndStencilView(depth, stencil);
+				ClearFlags |= D3D10_CLEAR_DEPTH;
 			}
-			else
+			if (buffers & FBT_STENCIL)
 			{
-				if (buffers & FBT_DEPTH)
-				{
-					pRT->clearDepthView(depth);
-				}
-				if (buffers & FBT_STENCIL)
-				{
-					pRT->clearStencilView(stencil);
-				}
+				ClearFlags |= D3D10_CLEAR_STENCIL;
 			}
+
+			if (ClearFlags)
+			{
+				mDevice->ClearDepthStencilView( pRTDepthView, D3D10_CLEAR_DEPTH | D3D10_CLEAR_STENCIL, depth, stencil );
+			}
+
 		}
 	}
     //---------------------------------------------------------------------

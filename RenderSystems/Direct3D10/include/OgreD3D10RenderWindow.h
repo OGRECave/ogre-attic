@@ -89,11 +89,6 @@ namespace Ogre
 		void _finishSwitchingFullscreen();
 
 
-		void clearRenderTargetView(const ColourValue& colour);
-		void clearDepthView(Real depth);
-		void clearStencilView(unsigned short stencil);
-		void clearDepthAndStencilView(Real depth, unsigned short stencil);
-
 	protected:
 		HINSTANCE mInstance;			// Process instance
 		D3D10Device & mDevice;			// D3D10 driver

@@ -204,14 +204,25 @@ namespace Ogre
 
         unsigned short mCurrentLights;
 
-		struct MainMatrixsShaderBuffer
+		struct MainVertexShaderMatrixsBuffer
 		{
 			Matrix4 mWorldMatrix;
 			Matrix4 mViewMatrix;
 			Matrix4 mProjectionMatrix;
 		};
 
-		MainMatrixsShaderBuffer mMainMatrixsShaderBuffer;
+		MainVertexShaderMatrixsBuffer mMainVertexShaderMatrixsBuffer;
+
+		struct MainFregmentShaderMatrixsBuffer
+		{
+			Matrix4 mTextureMatrix;
+			float	mLightingEnabled;
+		};
+
+		MainFregmentShaderMatrixsBuffer mMainFregmentShaderMatrixsBuffer;
+
+
+		
 
 		//D3DXMATRIX mDxViewMat, mDxProjMat, mDxWorldMat;
 

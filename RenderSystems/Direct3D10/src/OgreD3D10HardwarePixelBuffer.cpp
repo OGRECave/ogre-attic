@@ -42,13 +42,25 @@ namespace Ogre {
 	D3D10HardwarePixelBuffer::D3D10HardwarePixelBuffer(D3D10Texture * parentTexture, D3D10Device & device, size_t subresourceIndex,
 		size_t width, size_t height, size_t depth,PixelFormat format, HardwareBuffer::Usage usage):
 	HardwarePixelBuffer(width, height, depth, format, usage, false, false),
-		//mSurface(0), /*mVolume(0),*/ /*mTempSurface(0),*/ /*mTempVolume(0),*/
-		//mDoMipmapGen(0), mHWMipmaps(0), mMipTex(0)
 		mParentTexture(parentTexture),
 		mDevice(device),
 		mSubresourceIndex(subresourceIndex)
 	{
-		//-----------------------------------------------------------------------------  
+		if(mUsage & TU_RENDERTARGET)
+		{
+			// Create render target for each slice
+			mSliceTRT.reserve(mDepth);
+			assert(mDepth==1);
+			for(size_t zoffset=0; zoffset<mDepth; ++zoffset)
+			{
+				String name;
+				name = "rtt/"+Ogre::StringConverter::toString((size_t)mParentTexture) + "/" + Ogre::StringConverter::toString(mSubresourceIndex) + "/" + parentTexture->getName();
+
+				RenderTexture *trt = new D3D10RenderTexture(name, this, mDevice);
+				mSliceTRT.push_back(trt);
+				Root::getSingleton().getRenderSystem()->attachRenderTarget(*trt);
+			}
+		}
 	}
 	D3D10HardwarePixelBuffer::~D3D10HardwarePixelBuffer()
 	{
@@ -492,9 +504,14 @@ namespace Ogre {
 		assert(zoffset < mDepth);
 		return mSliceTRT[zoffset];
 	}
-
+	//-----------------------------------------------------------------------------    
 	D3D10Texture * D3D10HardwarePixelBuffer::getParentTexture() const
 	{
 		return mParentTexture;
+	}
+	//-----------------------------------------------------------------------------    
+	size_t D3D10HardwarePixelBuffer::getSubresourceIndex() const
+	{
+		return mSubresourceIndex;
 	}
 };
