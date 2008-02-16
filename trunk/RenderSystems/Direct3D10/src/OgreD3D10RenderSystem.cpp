@@ -2066,6 +2066,19 @@ namespace Ogre
 			target->getCustomAttribute( "ID3D10DepthStencilView", &pRTDepthView );
 
 
+			// we need to clear the state 
+			mDevice->ClearState();
+
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot Clear State\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_setViewport");
+			}
+
+
+
 			// now switch to the new render target
 			mDevice->OMSetRenderTargets(1,
 				&pRTView,
@@ -2153,17 +2166,6 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_endFrame()
 	{
-		// we need to clear the state 
-		mDevice->ClearState();
-
-		if (mDevice.isError())
-		{
-			String errorDescription = mDevice.getErrorDescription();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"D3D10 device cannot Clear State\nError Description:" + errorDescription,
-				"D3D10RenderSystem::_setViewport");
-		}
-
 /*
 		HRESULT hr;
 		if( FAILED( hr = mDevice->EndScene() ) )
