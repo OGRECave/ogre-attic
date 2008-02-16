@@ -51,10 +51,14 @@ namespace Ogre
 		mDisplayFrequency = 0;
 		mRenderTargetView = 0;
 		mDepthStencilView = 0;
+		mpBackBuffer = 0;
 	}
 	//---------------------------------------------------------------------
 	D3D10RenderWindow::~D3D10RenderWindow()
 	{
+		mpBackBuffer->Release();
+		mpBackBuffer = NULL;
+
 		destroy();
 	}
 	//---------------------------------------------------------------------
@@ -518,8 +522,8 @@ namespace Ogre
 			//mpSwapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &mpRenderSurface );
 			// Additional swap chains need their own depth buffer
 			// to support resizing them
-			ID3D10Texture2D* pBackBuffer = NULL;
-			hr = mpSwapChain->GetBuffer( 0,  __uuidof( ID3D10Texture2D ), (LPVOID*)&pBackBuffer  );
+
+			hr = mpSwapChain->GetBuffer( 0,  __uuidof( ID3D10Texture2D ), (LPVOID*)&mpBackBuffer  );
 			if( FAILED(hr) )
 			{
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
@@ -529,16 +533,14 @@ namespace Ogre
 
 			// get the backbuffer desc
 			D3D10_TEXTURE2D_DESC BBDesc;
-			pBackBuffer->GetDesc( &BBDesc );
+			mpBackBuffer->GetDesc( &BBDesc );
 
 			// create the render target view
 			D3D10_RENDER_TARGET_VIEW_DESC RTVDesc;
 			RTVDesc.Format = BBDesc.Format;
 			RTVDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2D;
 			RTVDesc.Texture2D.MipSlice = 0;
-			hr = mDevice->CreateRenderTargetView( pBackBuffer, &RTVDesc, &mRenderTargetView );
-			pBackBuffer->Release();
-			pBackBuffer = NULL;
+			hr = mDevice->CreateRenderTargetView( mpBackBuffer, &RTVDesc, &mRenderTargetView );
 
 			if( FAILED(hr) )
 			{
@@ -948,233 +950,43 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderWindow::copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer)
 	{
-		/*	if ((dst.left < 0) || (dst.right > mWidth) ||
-		(dst.top < 0) || (dst.bottom > mHeight) ||
-		(dst.front != 0) || (dst.back != 1))
-		{
-		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-		"Invalid box.",
-		"D3D10RenderWindow::copyContentsToMemory" );
-		}
+		
 
-		HRESULT hr;
-		IDXGISurface * pSurf = 0, pTempSurf = 0;
-		D3DSURFACE_DESC desc;
-		D3DLOCKED_RECT lockedRect;
+		// get the backbuffer desc
+		D3D10_TEXTURE2D_DESC BBDesc;
+		mpBackBuffer->GetDesc( &BBDesc );
 
-		D3D10Device & mDevice = mDriver->mDevice;
+		// change  the paramters of the texture so we can read it
+		BBDesc.Usage = D3D10_USAGE_STAGING;
+		BBDesc.CPUAccessFlags = D3D10_CPU_ACCESS_READ;
+		BBDesc.BindFlags = 0;
 
-		if (buffer == FB_AUTO)
-		{
-		//buffer = mIsFullScreen? FB_FRONT : FB_BACK;
-		buffer = FB_FRONT;
-		}
+		// create a temp buffer to copy to
+		ID3D10Texture2D * pTempTexture2D;
+		mDevice->CreateTexture2D(
+			&BBDesc,
+			0,
+			&pTempTexture2D);
 
-		if (buffer == FB_FRONT)
-		{
-		DXGI_OUTPUT_DESC dm;
+		// copy the back buffer
+		mDevice->CopyResource(pTempTexture2D, mpBackBuffer);
 
-		D3D10Device & mDevice = mDriver->mDevice;
 
-		if (FAILED(hr = mDevice->GetDisplayMode(0, &dm)))
-		{
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't get display mode: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
+		// map the copied texture
+		D3D10_MAPPED_TEXTURE2D mappedTex2D;
+		pTempTexture2D->Map(0,D3D10_MAP_READ, 0, &mappedTex2D);
 
-		desc.Width = dm.Width;
-		desc.Height = dm.Height;
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM ;
-		if (FAILED(hr = mDevice->CreateOffscreenPlainSurface(desc.Width, desc.Height,
-		desc.Format,
-		D3DPOOL_SYSTEMMEM,
-		&pTempSurf,
-		0)))
-		{
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't create offscreen buffer: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
+		// copy the the texture to the dest
+		PixelUtil::bulkPixelConversion(
+			PixelBox(mWidth, mHeight, 1, PF_A8B8G8R8, mappedTex2D.pData), 
+			dst);
 
-		if (FAILED(hr = mDevice->GetFrontBufferData(0, pTempSurf)))
-		{
-		SAFE_RELEASE(pTempSurf);
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't get front buffer: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
+		// unmap the temp buffer
+		pTempTexture2D->Unmap(0);
 
-		if(mIsFullScreen)
-		{
-		if ((dst.left == 0) && (dst.right == mWidth) && (dst.top == 0) && (dst.bottom == mHeight))
-		{
-		hr = pTempSurf->LockRect(&lockedRect, 0, D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK);
-		}
-		else
-		{
-		RECT rect;
-
-		rect.left = (LONG)dst.left;
-		rect.right = (LONG)dst.right;
-		rect.top = (LONG)dst.top;
-		rect.bottom = (LONG)dst.bottom;
-
-		hr = pTempSurf->LockRect(&lockedRect, &rect, D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK);
-		}
-		if (FAILED(hr))
-		{
-		SAFE_RELEASE(pTempSurf);
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't lock rect: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		} 
-		}
-		else
-		{
-		RECT srcRect;
-		//GetClientRect(mHWnd, &srcRect);
-		srcRect.left = (LONG)dst.left;
-		srcRect.top = (LONG)dst.top;
-		srcRect.right = (LONG)dst.right;
-		srcRect.bottom = (LONG)dst.bottom;
-		POINT point;
-		point.x = srcRect.left;
-		point.y = srcRect.top;
-		ClientToScreen(mHWnd, &point);
-		srcRect.top = point.y;
-		srcRect.left = point.x;
-		srcRect.bottom += point.y;
-		srcRect.right += point.x;
-
-		desc.Width = srcRect.right - srcRect.left;
-		desc.Height = srcRect.bottom - srcRect.top;
-
-		if (FAILED(hr = pTempSurf->LockRect(&lockedRect, &srcRect, D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK)))
-		{
-		SAFE_RELEASE(pTempSurf);
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't lock rect: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		} 
-		}
-		}
-		else
-		{
-		if(FAILED(hr = mDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurf)))
-		{
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't get back buffer: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
-
-		if(FAILED(hr = pSurf->GetDesc(&desc)))
-		{
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't get description: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
-
-		if (FAILED(hr = mDevice->CreateOffscreenPlainSurface(desc.Width, desc.Height,
-		desc.Format,
-		D3DPOOL_SYSTEMMEM,
-		&pTempSurf,
-		0)))
-		{
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't create offscreen surface: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
-
-		if (desc.MultiSampleType == D3DMULTISAMPLE_NONE)
-		{
-		if (FAILED(hr = mDevice->GetRenderTargetData(pSurf, pTempSurf)))
-		{
-		SAFE_RELEASE(pTempSurf);
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't get render target data: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
-		}
-		else
-		{
-		IDXGISurface * pStretchSurf = 0;
-
-		if (FAILED(hr = mDevice->CreateRenderTarget(desc.Width, desc.Height,
-		desc.Format,
-		D3DMULTISAMPLE_NONE,
-		0,
-		false,
-		&pStretchSurf,
-		0)))
-		{
-		SAFE_RELEASE(pTempSurf);
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't create render target: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
-
-		if (FAILED(hr = mDevice->StretchRect(pSurf, 0, pStretchSurf, 0, D3DTEXF_NONE)))
-		{
-		SAFE_RELEASE(pTempSurf);
-		SAFE_RELEASE(pStretchSurf);
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't stretch rect: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
-		if (FAILED(hr = mDevice->GetRenderTargetData(pStretchSurf, pTempSurf)))
-		{
-		SAFE_RELEASE(pTempSurf);
-		SAFE_RELEASE(pStretchSurf);
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't get render target data: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
-		SAFE_RELEASE(pStretchSurf);
-		}
-
-		if ((dst.left == 0) && (dst.right == mWidth) && (dst.top == 0) && (dst.bottom == mHeight))
-		{
-		hr = pTempSurf->LockRect(&lockedRect, 0, D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK);
-		}
-		else
-		{
-		RECT rect;
-
-		rect.left = (LONG)dst.left;
-		rect.right = (LONG)dst.right;
-		rect.top = (LONG)dst.top;
-		rect.bottom = (LONG)dst.bottom;
-
-		hr = pTempSurf->LockRect(&lockedRect, &rect, D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK);
-		}
-		if (FAILED(hr))
-		{
-		SAFE_RELEASE(pTempSurf);
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Can't lock rect: " + Root::getSingleton().getErrorDescription(hr),
-		"D3D10RenderWindow::copyContentsToMemory");
-		}
-		}
-
-		PixelFormat format = Ogre::D3D10Mappings::_getPF(desc.Format);
-
-		if (format == PF_UNKNOWN)
-		{
-		SAFE_RELEASE(pTempSurf);
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-		"Unsupported format", "D3D10RenderWindow::copyContentsToMemory");
-		}
-
-		PixelBox src(dst.getWidth(), dst.getHeight(), 1, format, lockedRect.pBits);
-		src.rowPitch = lockedRect.Pitch / PixelUtil::getNumElemBytes(format);
-		src.slicePitch = desc.Height * src.rowPitch;
-
-		PixelUtil::bulkPixelConversion(src, dst);
-
-		SAFE_RELEASE(pTempSurf);
-		SAFE_RELEASE(pSurf);
-		*/
+		// Release the temp buffer
+		pTempTexture2D->Release();
+		pTempTexture2D = NULL;
 	}
 	//-----------------------------------------------------------------------------
 	void D3D10RenderWindow::update(bool swap)
