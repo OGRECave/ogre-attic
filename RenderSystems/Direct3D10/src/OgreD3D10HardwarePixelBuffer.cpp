@@ -266,10 +266,7 @@ namespace Ogre {
 		MemoryDataStreamPtr buf;
 		PixelBox converted = src;
 
-
-
 		D3D10_BOX dstBoxDx10 = OgreImageBoxToDx10Box(dstBox);
-
 
 		// convert to pixelbuffer's native format if necessary
 		if (src.format != mFormat)

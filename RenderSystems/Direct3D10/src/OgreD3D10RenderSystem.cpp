@@ -833,7 +833,6 @@ namespace Ogre
 				mHLSLProgramFactory = new D3D10HLSLProgramFactory(mDevice);
 			mRealCapabilities = createRenderSystemCapabilities();							
 			mRealCapabilities->addShaderProfile("hlsl");
-			mRealCapabilities->addShaderProfile("cg"); // PATCH so we will compile cg as hlsl
 
 			// if we are using custom capabilities, then 
 			// mCurrentCapabilities has already been loaded
@@ -961,35 +960,6 @@ namespace Ogre
 		// add hlsl
 		HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
 
-
-		// PATCH START
-
-		// DX10 doesn't support assembly shaders - so it doesn't support the cg compiler
-		// that compiles cg to assembly, so - in order to solve this the solution
-		// is to compile cg as hlsl, the languages are almost the same so -
-		// it will work in a lot of the cases.
-		// Also – if the cg plugin registers – it starts to compile shaders and to 		
-		// create assembly shaders that we don't want.
-		// So – here is a little patch that unregister the cg plugin factory
-		// and register the DX10 hlsl factory instead.
-		// That is the best choice I can see for now (feb 2008 – Assaf R.)   
-
-		// remove the cg plugin factory (the cg plugin will not work with dx 10)
-		mHLSLProgramFactory->setLanguageName("cg");
-		HighLevelGpuProgramManager::getSingleton().removeFactory(mHLSLProgramFactory);
-
-		// add the cg so if it compile as hlsl we will have some of the shaders...
-		HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
-
-		// return back the factory to hlsl
-		mHLSLProgramFactory->setLanguageName("hlsl");
-
-		// PATCH END
-
-
-
-
-
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
 		if (defaultLog)
 		{
@@ -1005,11 +975,14 @@ namespace Ogre
     {
 
 		rsc->addShaderProfile("vs_4_0");
-		rsc->addShaderProfile("vs_3_0");
-		rsc->addShaderProfile("vs_2_x");
-		rsc->addShaderProfile("vs_2_a");
-		rsc->addShaderProfile("vs_2_0");
-		rsc->addShaderProfile("vs_1_1");
+		// Documentation\dx10help\d3d10.chm::/D3D10CompileShader.htm
+		// The Direct3D 10 currently supports only "vs_4_0", "ps_4_0", and "gs_4_0". 
+
+		//rsc->addShaderProfile("vs_3_0");
+		//rsc->addShaderProfile("vs_2_x");
+		//rsc->addShaderProfile("vs_2_a");
+		//rsc->addShaderProfile("vs_2_0");
+		//rsc->addShaderProfile("vs_1_1");
 
 		rsc->setCapability(RSC_VERTEX_PROGRAM);
 
@@ -1027,20 +1000,20 @@ namespace Ogre
     {
 		
 		rsc->addShaderProfile("ps_4_0");
-		rsc->addShaderProfile("ps_3_x");
-		rsc->addShaderProfile("ps_3_0");
-		rsc->addShaderProfile("ps_2_x");
-		rsc->addShaderProfile("ps_2_a");
-		rsc->addShaderProfile("ps_2_b");
-		rsc->addShaderProfile("ps_2_0");
-		// Dx10's HLSL compiler officially removes support for ps_1_x
-		// however we choose to enable D3DXSHADER_ENABLE_BACKWARDS_COMPATIBILITY
-		// which supports automatically compiling these shaders as ps_2_0
-		// so officially we still support them
-		rsc->addShaderProfile("ps_1_4");
-		rsc->addShaderProfile("ps_1_3");
-		rsc->addShaderProfile("ps_1_2");
-		rsc->addShaderProfile("ps_1_1");
+
+		// Documentation\dx10help\d3d10.chm::/D3D10CompileShader.htm
+		// The Direct3D 10 currently supports only "vs_4_0", "ps_4_0", and "gs_4_0". 
+
+		//rsc->addShaderProfile("ps_3_x");
+		//rsc->addShaderProfile("ps_3_0");
+		//rsc->addShaderProfile("ps_2_x");
+		//rsc->addShaderProfile("ps_2_a");
+		//rsc->addShaderProfile("ps_2_b");
+		//rsc->addShaderProfile("ps_2_0");
+		//rsc->addShaderProfile("ps_1_4");
+		//rsc->addShaderProfile("ps_1_3");
+		//rsc->addShaderProfile("ps_1_2");
+		//rsc->addShaderProfile("ps_1_1");
 
 		rsc->setCapability(RSC_FRAGMENT_PROGRAM);
 
