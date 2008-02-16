@@ -2064,9 +2064,13 @@ namespace Ogre
 			target->getCustomAttribute( "ID3D10RenderTargetView", &pRTView );
 			ID3D10DepthStencilView * pRTDepthView;
 			target->getCustomAttribute( "ID3D10DepthStencilView", &pRTDepthView );
+
+
+			// now switch to the new render target
 			mDevice->OMSetRenderTargets(1,
 				&pRTView,
 				pRTDepthView);
+
 
 			if (mDevice.isError())
 			{
@@ -2149,6 +2153,17 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_endFrame()
 	{
+		// we need to clear the state 
+		mDevice->ClearState();
+
+		if (mDevice.isError())
+		{
+			String errorDescription = mDevice.getErrorDescription();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"D3D10 device cannot Clear State\nError Description:" + errorDescription,
+				"D3D10RenderSystem::_setViewport");
+		}
+
 /*
 		HRESULT hr;
 		if( FAILED( hr = mDevice->EndScene() ) )
@@ -2240,6 +2255,8 @@ namespace Ogre
 
 		}*/
 		mLastVertexSourceCount = binds.size();
+
+
 		
 	}
 
@@ -2609,7 +2626,8 @@ namespace Ogre
 		if (needToUnmapFS)
 		{
 			unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
-		} 
+		} 	
+
 	}
     //---------------------------------------------------------------------
     void D3D10RenderSystem::setNormaliseNormals(bool normalise)
