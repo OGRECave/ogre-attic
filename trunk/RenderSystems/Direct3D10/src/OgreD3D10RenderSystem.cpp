@@ -578,6 +578,36 @@ namespace Ogre
 			{
 				mDevice.release();
 			}
+
+		
+			opt = mOptions.find( "Information Queue Exceptions Bottom Level" );
+			if( opt == mOptions.end() )
+				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't find Information Queue Exceptions Bottom Level option!", "D3D10RenderSystem::initialise" );
+			String infoQType = opt->second.currentValue;
+
+			if ("No information queue exceptions" == infoQType)
+			{
+				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_NO_EXCEPTION);
+			}
+			else if ("Corruption" == infoQType)
+			{
+				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_CORRUPTION);
+			}
+			else if ("Error" == infoQType)
+			{
+				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_ERROR);
+			}
+			else if ("Warning" == infoQType)
+			{
+				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_WARNING);
+			}
+			else if ("Info (exception on any message)" == infoQType)
+			{
+				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_INFO);
+			}
+
+
+
 			UINT deviceFlags = 0;
 			if (D3D10Device::D3D_NO_EXCEPTION != D3D10Device::getExceptionsErrorLevel())
 			{
@@ -679,31 +709,6 @@ namespace Ogre
             {
                 mWBuffer = false;
             }
-			opt = mOptions.find( "Information Queue Exceptions Bottom Level" );
-			if( opt == mOptions.end() )
-				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't find Information Queue Exceptions Bottom Level option!", "D3D10RenderSystem::initialise" );
-			String infoQType = opt->second.currentValue;
-
-			if ("No information queue exceptions" == infoQType)
-			{
-				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_NO_EXCEPTION);
-			}
-			else if ("Corruption" == infoQType)
-			{
-				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_CORRUPTION);
-			}
-			else if ("Error" == infoQType)
-			{
-				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_ERROR);
-			}
-			else if ("Warning" == infoQType)
-			{
-				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_WARNING);
-			}
-			else if ("Info (exception on any message)" == infoQType)
-			{
-				D3D10Device::setExceptionsErrorLevel(D3D10Device::D3D_INFO);
-			}
 
 
 

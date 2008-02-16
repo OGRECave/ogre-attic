@@ -115,6 +115,7 @@ namespace Ogre
 		bool mUseNVPerfHUD;
 		ID3D10RenderTargetView*		mRenderTargetView;
 		ID3D10DepthStencilView*		mDepthStencilView;
+		ID3D10Texture2D*			mpBackBuffer;
 
 		// just check if the multisampling requested is supported by the device
 		bool _checkMultiSampleQuality(UINT SampleCount, UINT *outQuality, DXGI_FORMAT format);
