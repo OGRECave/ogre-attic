@@ -394,7 +394,10 @@ namespace Ogre {
 			else if(bHasColor)
 			{
 				shaderSource = shaderSource + "float4 PS( float4 Pos : SV_POSITION, float4 col : COLOR) : SV_Target\n";
-				shaderSource = shaderSource + "{\nreturn col;\n}";
+				shaderSource = shaderSource + "{\n";
+				shaderSource = shaderSource + "float4 finalColor = max((float4(1.0,1.0,1.0,1.0) * (LightingEnabled)), col);\n";
+				shaderSource = shaderSource + "{\nreturn finalColor;\n}";
+				shaderSource = shaderSource + "}\n";
 			}
 			else 
 			{
