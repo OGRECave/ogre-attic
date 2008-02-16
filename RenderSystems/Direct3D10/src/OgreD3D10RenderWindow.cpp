@@ -956,7 +956,7 @@ namespace Ogre
 		D3D10_TEXTURE2D_DESC BBDesc;
 		mpBackBuffer->GetDesc( &BBDesc );
 
-		// change  the paramters of the texture so we can read it
+		// change the parameters of the texture so we can read it
 		BBDesc.Usage = D3D10_USAGE_STAGING;
 		BBDesc.CPUAccessFlags = D3D10_CPU_ACCESS_READ;
 		BBDesc.BindFlags = 0;

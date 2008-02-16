@@ -2307,10 +2307,12 @@ namespace Ogre
 			bindGpuProgram(fixedFuncPsProgram.get());
 
 			GpuProgramParametersSharedPtr params = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncFsParams();
+			if ((static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->hasTexcoord())
 			{
 				const GpuConstantDefinition& def = params->getConstantDefinition("TextureMatrix");
 				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mTextureMatrix ,sizeof(float) * def.elementSize * def.arraySize);
 			}
+			if ((static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->hasColor())
 			{
 				const GpuConstantDefinition& def = params->getConstantDefinition("LightingEnabled");
 				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mLightingEnabled ,sizeof(float));

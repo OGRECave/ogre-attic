@@ -53,8 +53,6 @@ namespace Ogre {
 
 		ID3D10InputLayout	*  getILayoutByShader(D3D10HLSLProgram* boundVertexProgram);
 
-		bool hasColor();
-		bool hasTexcoord();
 		unsigned short numberOfTexcoord();
 		unsigned short countVertexElementSemantic(VertexElementSemantic semantic);
 	public:
@@ -92,6 +90,9 @@ namespace Ogre {
 		HighLevelGpuProgramPtr getFixFuncFs();
 		GpuProgramParametersSharedPtr getFixFuncVsParams();
 		GpuProgramParametersSharedPtr getFixFuncFsParams();
+
+		bool hasColor();
+		bool hasTexcoord();
 
 	};
 
