@@ -69,13 +69,6 @@ namespace Ogre {
 			String doGet(const void* target) const;
 			void doSet(void* target, const String& val);
 		};
-		/// PATCH - Command object for setting profiles - for cg
-		class CmdProfiles : public ParamCommand
-		{
-		public:
-			String doGet(const void* target) const;
-			void doSet(void* target, const String& val);
-		};
 
 	protected:
 
@@ -83,7 +76,6 @@ namespace Ogre {
 		static CmdTarget msCmdTarget;
 		static CmdPreprocessorDefines msCmdPreprocessorDefines;
 		static CmdColumnMajorMatrices msCmdColumnMajorMatrices;
-		static CmdProfiles msCmdProfiles; // PATCH - for cg support
 
 		/** Internal method for creating an appropriate low-level program from this
 		high-level program, must be implemented by subclasses. */

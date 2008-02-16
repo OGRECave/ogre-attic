@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreRenderSystem.h"
 #include "OgreD3D10Device.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 	//-----------------------------------------------------------------------
@@ -33,8 +34,6 @@ namespace Ogre {
 	D3D10HLSLProgram::CmdTarget D3D10HLSLProgram::msCmdTarget;
 	D3D10HLSLProgram::CmdPreprocessorDefines D3D10HLSLProgram::msCmdPreprocessorDefines;
 	D3D10HLSLProgram::CmdColumnMajorMatrices D3D10HLSLProgram::msCmdColumnMajorMatrices;
-
-	D3D10HLSLProgram::CmdProfiles D3D10HLSLProgram::msCmdProfiles; // PATCH - for cg support
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	void D3D10HLSLProgram::createConstantBuffer(const UINT ByteWidth)
@@ -108,7 +107,7 @@ namespace Ogre {
 
 		ID3D10Blob * errors = 0;
 
-		String profile; // Instruction set to be used when generating code. Possible values: "vs_4_0", "ps_4_0", or "gs_4_0".
+		/*String profile; // Instruction set to be used when generating code. Possible values: "vs_4_0", "ps_4_0", or "gs_4_0".
 		switch(mType)
 		{
 		case GPT_VERTEX_PROGRAM:
@@ -117,7 +116,7 @@ namespace Ogre {
 		case GPT_FRAGMENT_PROGRAM:
 			profile = "ps_4_0";
 			break;
-		}
+		}*/
 
 		HRESULT hr = D3DX10CompileFromMemory(
 			mSource.c_str(),	// [in] Pointer to the shader in memory. 
@@ -126,7 +125,7 @@ namespace Ogre {
 			NULL,				// [in] Optional. Pointer to a NULL-terminated array of macro definitions. See D3D10_SHADER_MACRO. If not used, set this to NULL. 
 			&includeHandler,	// [in] Optional. Pointer to an ID3D10Include Interface interface for handling include files. Setting this to NULL will cause a compile error if a shader contains a #include. 
 			mEntryPoint.c_str(), // [in] Name of the shader-entrypoint function where shader execution begins. 
-			profile.c_str(),			// [in] A string that specifies the shader model; can be any profile in shader model 2, shader model 3, or shader model 4. 
+			mTarget.c_str(),			// [in] A string that specifies the shader model; can be any profile in shader model 2, shader model 3, or shader model 4. 
 			D3D10_SHADER_PACK_MATRIX_ROW_MAJOR,				// [in] Effect compile flags - no D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY at the first try...
 			NULL,				// [in] Effect compile flags
 			NULL,				// [in] A pointer to a thread pump interface (see ID3DX10ThreadPump Interface). Use NULL to specify that this function should not return until it is completed. 
@@ -145,7 +144,7 @@ namespace Ogre {
 				NULL,				// [in] Optional. Pointer to a NULL-terminated array of macro definitions. See D3D10_SHADER_MACRO. If not used, set this to NULL. 
 				&includeHandler,	// [in] Optional. Pointer to an ID3D10Include Interface interface for handling include files. Setting this to NULL will cause a compile error if a shader contains a #include. 
 				mEntryPoint.c_str(), // [in] Name of the shader-entrypoint function where shader execution begins. 
-				profile.c_str(),			// [in] A string that specifies the shader model; can be any profile in shader model 2, shader model 3, or shader model 4. 
+				mTarget.c_str(),			// [in] A string that specifies the shader model; can be any profile in shader model 2, shader model 3, or shader model 4. 
 				D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY | D3D10_SHADER_PACK_MATRIX_ROW_MAJOR,				// [in] Effect compile flags - D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY enables older shaders to compile to 4_0 targets
 				NULL,				// [in] Effect compile flags
 				NULL,				// [in] A pointer to a thread pump interface (see ID3DX10ThreadPump Interface). Use NULL to specify that this function should not return until it is completed. 
@@ -538,13 +537,7 @@ namespace Ogre {
 				PT_STRING),&msCmdPreprocessorDefines);
 			dict->addParameter(ParameterDef("column_major_matrices", 
 				"Whether matrix packing in column-major order.",
-				PT_BOOL),&msCmdColumnMajorMatrices);;
-
-			// PATCH - this is so cg programs will nt throw an error
-			dict->addParameter(ParameterDef("profiles",  
-				"Space-separated list of Cg profiles supported by this profile.",
-				PT_STRING),&msCmdProfiles);
-
+				PT_BOOL),&msCmdColumnMajorMatrices);
 		}
 
 	}
@@ -571,7 +564,12 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	bool D3D10HLSLProgram::isSupported(void) const
 	{
-		return !mErrorsInCompile;
+		// Use the current render system
+		RenderSystem* rs = Root::getSingleton().getRenderSystem();
+
+		// Get the supported syntaxed from RenderSystemCapabilities 
+		return rs->getCapabilities()->isShaderProfileSupported(mTarget) && GpuProgram::isSupported();
+
 	}
 	//-----------------------------------------------------------------------
 	GpuProgramParametersSharedPtr D3D10HLSLProgram::createParameters(void)
@@ -636,15 +634,6 @@ namespace Ogre {
 		static_cast<D3D10HLSLProgram*>(target)->setColumnMajorMatrices(StringConverter::parseBool(val));
 	}
 	//-----------------------------------------------------------------------
-	String D3D10HLSLProgram::CmdProfiles::doGet(const void *target) const
-	{
-		return "not supported";
-	}
-	void D3D10HLSLProgram::CmdProfiles::doSet(void *target, const String& val)
-	{
-		// not supported	
-	}
-	//-----------------------------------------------------------------------
 	void D3D10HLSLProgram::CreateVertexShader()
 	{
 		if (isSupported())
@@ -654,6 +643,8 @@ namespace Ogre {
 				static_cast<DWORD*>(mpMicroCode->GetBufferPointer()), 
 				mpMicroCode->GetBufferSize(),
 				&mpVertexShader);
+
+			assert(mpVertexShader);
 
 			if (FAILED(hr) || mDevice.isError())
 			{
@@ -665,6 +656,7 @@ namespace Ogre {
 		}
 		else
 		{
+			assert(false);
 			LogManager::getSingleton().logMessage(
 				"Unsupported D3D10 vertex shader '" + mName + "' was not loaded.");
 		}

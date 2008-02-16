@@ -209,8 +209,8 @@ namespace Ogre {
 
 			shaderSource = shaderSource + "struct VS_INPUT { ";
 
-			uint8 semanticCount[9];
-			ZeroMemory(semanticCount, sizeof(uint8) * 9);
+			uint8 semanticCount[100];
+			ZeroMemory(semanticCount, sizeof(uint8) * 100);
 			for (unsigned short i = 0 ; i < getElementCount() ; i++)
 			{
 				VertexElementSemantic semantic = getElement(i)->getSemantic();
@@ -351,6 +351,7 @@ namespace Ogre {
 				"hlsl", GPT_VERTEX_PROGRAM);	
 			mVs->setSource(shaderSource);
 			static_cast<D3D10HLSLProgram*>(mVs.get())->setEntryPoint("VS");
+			static_cast<D3D10HLSLProgram*>(mVs.get())->setTarget("vs_4_0");
 			static_cast<D3D10HLSLProgram*>(mVs.get())->loadFromSource();
 
 			mVsParams = mVs->createParameters();
@@ -412,6 +413,7 @@ namespace Ogre {
 				"hlsl", GPT_FRAGMENT_PROGRAM);	
 			mFs->setSource(shaderSource);
 			static_cast<D3D10HLSLProgram*>(mFs.get())->setEntryPoint("PS");
+			static_cast<D3D10HLSLProgram*>(mFs.get())->setTarget("ps_4_0");
 			static_cast<D3D10HLSLProgram*>(mFs.get())->loadFromSource();
 		
 			mFsParams = mFs->createParameters();
