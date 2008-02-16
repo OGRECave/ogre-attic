@@ -127,6 +127,7 @@ namespace Ogre
 		AutoConstantDefinition(ACT_LIGHT_DISTANCE_OBJECT_SPACE_ARRAY,   "light_distance_object_space_array",  1, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_POWER_SCALE_ARRAY,   		  "light_power_array",  1, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_NUMBER,   					  "light_number",  1, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_CASTS_SHADOWS, 			  "light_casts_shadows",  1, ET_INT, ACDT_INT),
 		AutoConstantDefinition(ACT_SPOTLIGHT_PARAMS_ARRAY,              "spotlight_params_array",             4, ET_REAL, ACDT_INT),
 
         AutoConstantDefinition(ACT_DERIVED_AMBIENT_LIGHT_COLOUR,    "derived_ambient_light_colour",     4, ET_REAL, ACDT_NONE),
@@ -1429,6 +1430,8 @@ namespace Ogre
 			case ACT_LIGHT_NUMBER:
 				_writeRawConstant(i->physicalIndex, source->getLightNumber(i->data));
 				break;
+			case ACT_LIGHT_CASTS_SHADOWS:
+				_writeRawConstant(i->physicalIndex, source->getLightCastsShadows(i->data));
             case ACT_LIGHT_ATTENUATION:
 				_writeRawConstant(i->physicalIndex, source->getLightAttenuation(i->data), i->elementCount);
                 break;

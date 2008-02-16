@@ -481,6 +481,8 @@ namespace Ogre {
 				This binding provides the global light index for a local index.
 			*/
 			ACT_LIGHT_NUMBER,
+			/// Returns (int) 1 if the  given light casts shadows, 0 otherwise (index set in extra param)
+			ACT_LIGHT_CASTS_SHADOWS,
 
 
 			/** The distance a shadow volume should be extruded when using
