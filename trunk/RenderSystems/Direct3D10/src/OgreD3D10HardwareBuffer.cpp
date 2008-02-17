@@ -40,6 +40,7 @@ namespace Ogre {
 		: HardwareBuffer(usage, useSystemMemory,  false /* TODO: useShadowBuffer*/),
 		mlpD3DBuffer(0),
 		mpTempStagingBuffer(0),
+		mUseTempStagingBuffer(false),
 		mBufferType(btype),
 		mDevice(device)
 	{
@@ -119,8 +120,7 @@ namespace Ogre {
 
 		if (mSystemMemory ||
 			(mUsage & HardwareBuffer::HBU_DYNAMIC && 
-			options == HardwareBuffer::HBL_DISCARD &&
-			offset == 0))
+			(options == HardwareBuffer::HBL_DISCARD)))
 		{
 			// Staging (system memory) buffers or dynamic, write-only buffers 
 			// are the only case where we can lock directly
@@ -162,7 +162,14 @@ namespace Ogre {
 				}
 				break;
 			case HBL_NORMAL:
-				mapType = D3D10_MAP_READ_WRITE;
+				if (mDesc.CPUAccessFlags & D3D10_CPU_ACCESS_READ)
+				{
+					mapType = D3D10_MAP_READ_WRITE;
+				}
+				else
+				{
+					mapType = D3D10_MAP_WRITE_DISCARD;
+				}
 				break;
 			case HBL_READ_ONLY:
 				mapType = D3D10_MAP_READ;
@@ -192,12 +199,13 @@ namespace Ogre {
 		}
 		else
 		{
-			// we need to make a staging buffer copy
-			assert (!mpTempStagingBuffer);
-
-			// create another buffer instance but use system memory
-			mpTempStagingBuffer = new D3D10HardwareBuffer(mBufferType, 
-				mSizeInBytes, mUsage, mDevice, true, false);
+			mUseTempStagingBuffer = true;
+			if (!mpTempStagingBuffer)
+			{
+				// create another buffer instance but use system memory
+				mpTempStagingBuffer = new D3D10HardwareBuffer(mBufferType, 
+					mSizeInBytes, mUsage, mDevice, true, false);
+			}
 
 			// schedule a copy to the staging
 			if (options != HBL_DISCARD)
@@ -215,8 +223,10 @@ namespace Ogre {
 	void D3D10HardwareBuffer::unlockImpl(void)
 	{
 
-		if (mpTempStagingBuffer)
+		if (mUseTempStagingBuffer)
 		{
+			mUseTempStagingBuffer = false;
+
 			// ok, we locked the staging buffer
 			mpTempStagingBuffer->unlock();
 

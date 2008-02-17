@@ -48,12 +48,13 @@ namespace Ogre {
 		};
 	protected:
 		ID3D10Buffer* mlpD3DBuffer;
+		bool mUseTempStagingBuffer;
 		D3D10HardwareBuffer* mpTempStagingBuffer;
 		bool mStagingUploadNeeded;
 		BufferType mBufferType;
 		D3D10Device & mDevice;
-
 		D3D10_BUFFER_DESC mDesc;
+
 
 
 		/** See HardwareBuffer. */
