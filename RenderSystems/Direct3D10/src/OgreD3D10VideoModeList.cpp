@@ -73,9 +73,9 @@ namespace Ogre
 				{
 					DXGI_FORMAT_R8G8B8A8_UNORM,			//This is DXUT's preferred mode
 
-					DXGI_FORMAT_R16G16B16A16_FLOAT,
-					DXGI_FORMAT_R10G10B10A2_UNORM,
-					DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+					//DXGI_FORMAT_R16G16B16A16_FLOAT,
+					//DXGI_FORMAT_R10G10B10A2_UNORM,
+					//DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
 				};
 				int allowedAdapterFormatArrayCount  = sizeof(allowedAdapterFormatArray) / sizeof(allowedAdapterFormatArray[0]);
 
@@ -101,10 +101,11 @@ namespace Ogre
 					{
 						DXGI_OUTPUT_DESC oldOutput= it->getDisplayMode();
 						DXGI_MODE_DESC oldDisp = it->getModeDesc();
-						if(oldOutput.Monitor==OutputDesc.Monitor &&
+						if(//oldOutput.Monitor==OutputDesc.Monitor &&
 							oldDisp.Width == displayMode.Width &&
-							oldDisp.Height == displayMode.Height &&
-							oldDisp.Format == displayMode.Format )
+							oldDisp.Height == displayMode.Height// &&
+							//oldDisp.Format == displayMode.Format
+							)
 						{
 							// Check refresh rate and favour higher if poss
 							//if (oldDisp.RefreshRate < displayMode.RefreshRate)

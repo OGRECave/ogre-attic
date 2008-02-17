@@ -250,14 +250,9 @@ namespace Ogre {
 			break;
 		}
 
-		mDevice->GenerateMips(mParentTexture->getTexture()); // TODO - DO WE NEED THIS?
-		if (mDevice.isError())
-		{
-			String errorDescription = mDevice.getErrorDescription();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"D3D10 device cannot generate mips\nError Description:" + errorDescription,
-				"D3D10HardwarePixelBuffer::blitFromMemory");
-		}
+
+		_genMipmaps();
+		
 	}
 	//-----------------------------------------------------------------------------  
 	void D3D10HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box &dstBox)
@@ -338,21 +333,7 @@ namespace Ogre {
 			break;
 		}
 
-		mDevice->GenerateMips(mParentTexture->getTexture()); // TODO - DO WE NEED THIS?
-		if (mDevice.isError())
-		{
-			String errorDescription = mDevice.getErrorDescription();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"D3D10 device cannot generate mips\nError Description:" + errorDescription,
-				"D3D10HardwarePixelBuffer::blitFromMemory");
-		}
-
-		/*if(mDoMipmapGen)
-		{
 		_genMipmaps();
-
-		}*/
-
 
 	}
 	//-----------------------------------------------------------------------------  

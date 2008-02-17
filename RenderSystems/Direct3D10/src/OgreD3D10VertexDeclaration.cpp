@@ -310,9 +310,12 @@ namespace Ogre {
 
 
 
-			shaderSource = shaderSource + "float4x4  World;\n";
-			shaderSource = shaderSource + "float4x4  View;\n";
-			shaderSource = shaderSource + "float4x4  Projection;\n";
+			shaderSource = shaderSource + "float4x4  FullPosTransMatrix;\n";
+			//shaderSource = shaderSource + "float4x4  World;\n";
+			//shaderSource = shaderSource + "float4x4  View;\n";
+			//shaderSource = shaderSource + "float4x4  Projection;\n";
+
+			
 			shaderSource = shaderSource + "struct VS_OUTPUT\n";
 			shaderSource = shaderSource + "{\n";
 			shaderSource = shaderSource + "float4 Pos : SV_POSITION;\n";
@@ -328,9 +331,10 @@ namespace Ogre {
 			shaderSource = shaderSource + "VS_OUTPUT VS( VS_INPUT input )\n";
 			shaderSource = shaderSource + "{\n";
 			shaderSource = shaderSource + "VS_OUTPUT output = (VS_OUTPUT)0;\n";
-			shaderSource = shaderSource + "output.Pos = mul( input.Position0, World );\n";
-			shaderSource = shaderSource + "output.Pos = mul( output.Pos, View );\n";
-			shaderSource = shaderSource + "output.Pos = mul( output.Pos, Projection );\n";	
+			shaderSource = shaderSource + "output.Pos = mul( input.Position0, FullPosTransMatrix );\n";
+			//shaderSource = shaderSource + "output.Pos = mul( input.Position0, World );\n";
+			//shaderSource = shaderSource + "output.Pos = mul( output.Pos, View );\n";
+			//shaderSource = shaderSource + "output.Pos = mul( output.Pos, Projection );\n";	
 			if(bHasTexcoord)
 			{
 				shaderSource = shaderSource + "output.tCord = input.Texcoord0;\n";		

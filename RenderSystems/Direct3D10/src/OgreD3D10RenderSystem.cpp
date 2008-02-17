@@ -2265,6 +2265,13 @@ namespace Ogre
 
 				GpuProgramParametersSharedPtr params = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncVsParams();
 				{
+					const GpuConstantDefinition& def = params->getConstantDefinition("FullPosTransMatrix");
+					Matrix4 FullPosTransMatrix =  mMainVertexShaderMatrixsBuffer.mWorldMatrix * mMainVertexShaderMatrixsBuffer.mViewMatrix * mMainVertexShaderMatrixsBuffer.mProjectionMatrix ;
+					memcpy((params->getFloatPointer(def.physicalIndex)), &FullPosTransMatrix ,sizeof(float) * def.elementSize * def.arraySize);
+				}
+
+				/*
+				{
 					const GpuConstantDefinition& def = params->getConstantDefinition("World");
 					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mWorldMatrix ,sizeof(float) * def.elementSize * def.arraySize);
 				}
@@ -2276,6 +2283,7 @@ namespace Ogre
 					const GpuConstantDefinition& def = params->getConstantDefinition("View");
 					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mViewMatrix ,sizeof(float) * def.elementSize * def.arraySize);
 				}
+				*/
 				bindGpuProgramParameters(GPT_VERTEX_PROGRAM, params);
 
 		}
