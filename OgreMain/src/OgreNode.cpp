@@ -647,13 +647,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::getRenderOperation(RenderOperation& op)
     {
-        static SubMesh* pSubMesh = 0;
-        if (!pSubMesh)
+        SubMesh* pSubMesh = 0;
+        MeshPtr pMesh = MeshManager::getSingleton().getByName("axes.mesh");
+        if (pMesh.isNull())
         {
-            MeshPtr pMesh = MeshManager::getSingleton().load("axes.mesh",
-				ResourceGroupManager::BOOTSTRAP_RESOURCE_GROUP_NAME);
-            pSubMesh = pMesh->getSubMesh(0);
+            pMesh = MeshManager::getSingleton().load("axes.mesh",
+				ResourceGroupManager::BOOTSTRAP_RESOURCE_GROUP_NAME);            
         }
+        pSubMesh = pMesh->getSubMesh(0);
         pSubMesh->_getRenderOperation(op);
     }
     //-----------------------------------------------------------------------
