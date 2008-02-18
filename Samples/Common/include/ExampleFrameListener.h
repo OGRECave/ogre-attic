@@ -329,20 +329,11 @@ public:
 			if (mTimeUntilNextToggle >= 0)
 				mTimeUntilNextToggle -= evt.timeSinceLastFrame;
 
-			// If this is the first frame, pick a speed
-			if (evt.timeSinceLastFrame == 0)
-			{
-				mMoveScale = 1;
-				mRotScale = 0.1;
-			}
-			// Otherwise scale movement units by time passed since last frame
-			else
-			{
-				// Move about 100 units per second,
-				mMoveScale = mMoveSpeed * evt.timeSinceLastFrame;
-				// Take about 10 seconds for full rotation
-				mRotScale = mRotateSpeed * evt.timeSinceLastFrame;
-			}
+			// Move about 100 units per second
+			mMoveScale = mMoveSpeed * evt.timeSinceLastFrame;
+			// Take about 10 seconds for full rotation
+			mRotScale = mRotateSpeed * evt.timeSinceLastFrame;
+
 			mRotX = 0;
 			mRotY = 0;
 			mTranslateVector = Ogre::Vector3::ZERO;
