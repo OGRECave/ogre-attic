@@ -69,7 +69,7 @@ namespace Ogre {
 		"<VisibilityMask> ::= 'visibility_mask' <#mask> \n"
 		"<LodBias> ::= 'lod_bias' <#lodbias> \n"
 		"<MaterialScheme> ::= 'material_scheme' <Label> \n"
-		"<TargetOutput> ::= 'target_output' '{' [<TargetInput>] {<Pass>} '}' \n"
+		"<TargetOutput> ::= 'target_output' '{' [<TargetOptions>] {<Pass>} '}' \n"
 		// Pass
 		"<Pass> ::= 'pass' <PassTypes> '{' {<PassOptions>} '}' \n"
 		"<PassTypes> ::= 'render_quad' | 'clear' | 'stencil' | 'render_scene' \n"
