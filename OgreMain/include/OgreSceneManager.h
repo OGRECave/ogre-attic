@@ -74,6 +74,8 @@ namespace Ogre {
 	{
 		/// The axis-aligned bounds of the visible objects
 		AxisAlignedBox aabb;
+		/// The axis-aligned bounds of the visible shadow receiver objects
+		AxisAlignedBox receiverAabb;
 		/// The closest a visible object is to the camera
 		Real minDistance;
 		/// The farthest a visible objects is from the camera
@@ -87,14 +89,17 @@ namespace Ogre {
 		void reset()
 		{
 			aabb.setNull();
+			receiverAabb.setNull();
 			minDistance = std::numeric_limits<Real>::infinity();
 			maxDistance = 0;
 		}
 
 		void merge(const AxisAlignedBox& boxBounds, const Sphere& sphereBounds, 
-			const Camera* cam)
+			const Camera* cam, bool receiver=true)
 		{
 			aabb.merge(boxBounds);
+			if (receiver)
+				receiverAabb.merge(boxBounds);
 			Real camDistToCenter = 
 				(cam->getDerivedPosition() - sphereBounds.getCenter()).length();
 			minDistance = (std::min)(minDistance, (std::max)((Real)0, camDistToCenter - sphereBounds.getRadius()));

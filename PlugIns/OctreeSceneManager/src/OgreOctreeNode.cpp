@@ -191,7 +191,8 @@ void OctreeNode::_addToRenderQueue( Camera* cam, RenderQueue *queue,
 			if (visibleBounds)
 			{
 				visibleBounds->merge(mo->getWorldBoundingBox(true), 
-					mo->getWorldBoundingSphere(true), cam);
+					mo->getWorldBoundingSphere(true), cam, 
+					queue->getQueueGroup(mo->getRenderQueueGroup())->getShadowsEnabled());
 			}
         }
 
