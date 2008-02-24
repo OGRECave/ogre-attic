@@ -302,7 +302,8 @@ namespace Ogre {
 				if (visibleBounds)
 				{
 					visibleBounds->merge(iobj->second->getWorldBoundingBox(true), 
-						iobj->second->getWorldBoundingSphere(true), cam);
+						iobj->second->getWorldBoundingSphere(true), cam, 
+						queue->getQueueGroup(iobj->second->getRenderQueueGroup())->getShadowsEnabled());
 				}
             }
         }
