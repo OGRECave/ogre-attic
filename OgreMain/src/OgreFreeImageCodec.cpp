@@ -256,6 +256,23 @@ namespace Ogre {
 		bool conversionRequired = false;
 
 		unsigned char* srcData = input->getPtr();
+
+		// Check BPP
+		unsigned bpp = static_cast<unsigned>(PixelUtil::getNumElemBits(requiredFormat));
+		if (!FreeImage_FIFSupportsExportBPP((FREE_IMAGE_FORMAT)mFreeImageType, (int)bpp))
+		{
+			if (bpp == 32 && PixelUtil::hasAlpha(pImgData->format) && FreeImage_FIFSupportsExportBPP((FREE_IMAGE_FORMAT)mFreeImageType, 24))
+			{
+				// drop to 24 bit (lose alpha)
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+				requiredFormat = PF_BYTE_RGB;
+#else
+				requiredFormat = PF_BYTE_BGR;
+#endif
+				bpp = 24;
+			}
+		}
+
 		PixelBox convBox(pImgData->width, pImgData->height, 1, requiredFormat);
 		if (requiredFormat != pImgData->format)
 		{
@@ -269,7 +286,6 @@ namespace Ogre {
 
 		}
 
-		unsigned bpp = static_cast<unsigned>(PixelUtil::getNumElemBits(requiredFormat));
 
 		ret = FreeImage_AllocateT(
 			imageType, 
