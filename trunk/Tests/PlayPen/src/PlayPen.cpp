@@ -2639,16 +2639,17 @@ protected:
 	}
 
 
-    void testTextureShadows(ShadowTechnique tech)
+    void testTextureShadows(ShadowTechnique tech, bool directional)
     {
         mSceneMgr->setShadowTextureSize(1024);
         mSceneMgr->setShadowTechnique(tech);
 
-		FocusedShadowCameraSetup* lispsmSetup = new FocusedShadowCameraSetup();
-		//lispsmSetup->setOptimalAdjustFactor(2);
-		mSceneMgr->setShadowCameraSetup(ShadowCameraSetupPtr(lispsmSetup));
+		//FocusedShadowCameraSetup* lispsmSetup = new FocusedShadowCameraSetup();
+		//LiSPSMShadowCameraSetup* lispsmSetup = new LiSPSMShadowCameraSetup();
+		//lispsmSetup->setOptimalAdjustFactor(1.5);
+		//mSceneMgr->setShadowCameraSetup(ShadowCameraSetupPtr(lispsmSetup));
 
-        mSceneMgr->setShadowFarDistance(10000);
+        mSceneMgr->setShadowFarDistance(1000);
         mSceneMgr->setShadowColour(ColourValue(0.35, 0.35, 0.35));
         //mSceneMgr->setShadowFarDistance(800);
         // Set ambient light
@@ -2658,22 +2659,24 @@ protected:
 
 		
         // Directional test
-		
-        mLight->setType(Light::LT_DIRECTIONAL);
-        Vector3 vec(-1,-1,0);
-        vec.normalise();
-        mLight->setDirection(vec);
-				
-		
+		if (directional)
+		{
+			mLight->setType(Light::LT_DIRECTIONAL);
+			Vector3 vec(-1,-1,0);
+			vec.normalise();
+			mLight->setDirection(vec);
+		}
         // Spotlight test
-		/*
-        mLight->setType(Light::LT_SPOTLIGHT);
-        mLight->setDiffuseColour(1.0, 1.0, 0.8);
-        mTestNode[0] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-        mTestNode[0]->setPosition(800,600,0);
-        mTestNode[0]->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
-        mTestNode[0]->attachObject(mLight);
-		*/		
+		else
+		{
+			mLight->setType(Light::LT_SPOTLIGHT);
+			mLight->setAttenuation(1500, 1, 0, 0);
+			mLight->setDiffuseColour(1.0, 1.0, 0.8);
+			mTestNode[0] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+			mTestNode[0]->setPosition(800,600,0);
+			mTestNode[0]->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
+			mTestNode[0]->attachObject(mLight);
+		}
 
         mTestNode[1] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
@@ -2749,17 +2752,17 @@ protected:
         mTestNode[4]->attachObject(pSys2);
 		*/
 
-		mCamera->setPosition(0, 1000, 0);
-		mCamera->setFixedYawAxis(false);
+		mCamera->setPosition(0, 1000, 500);
 		mCamera->lookAt(0,0,0);
+		mCamera->setFarClipDistance(10000);
 
 
     }
 
-	void testTextureShadowsCustomCasterMat(ShadowTechnique tech)
+	void testTextureShadowsCustomCasterMat(ShadowTechnique tech, bool directional)
 	{
 
-		testTextureShadows(tech);
+		testTextureShadows(tech, directional);
 
 		String customCasterMatVp = 
 			"void customCasterVp(float4 position : POSITION,\n"
@@ -2809,9 +2812,9 @@ protected:
 
 	}
 
-	void testTextureShadowsCustomReceiverMat(ShadowTechnique tech)
+	void testTextureShadowsCustomReceiverMat(ShadowTechnique tech, bool directional)
 	{
-		testTextureShadows(tech);
+		testTextureShadows(tech, directional);
 
 		String customReceiverMatVp = 
 			"void customReceiverVp(float4 position : POSITION,\n"
@@ -5021,7 +5024,7 @@ protected:
 
 
 		// Use original SM for normal scene
-		testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
+		testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE, true);
 
 	}
 
@@ -6632,6 +6635,56 @@ protected:
 	}
 
 
+	void testBug()
+	{
+		// NOTE: enable flag only turns on SRGB for texture sampling, you may
+		// need to configure the window for the reverse conversion for consistency!
+		HighLevelGpuProgramPtr vp = HighLevelGpuProgramManager::getSingleton().createProgram("vp", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, "hlsl", GPT_VERTEX_PROGRAM);
+		vp->setSourceFile("Example_Basic.hlsl");
+		vp->setParameter("target", "vs_3_0");
+		vp->setParameter("entry_point", "ambientOneTexture_vp");
+		vp->getDefaultParameters()->setNamedAutoConstant("worldViewProj", GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+		vp->load();
+		HighLevelGpuProgramPtr fp = HighLevelGpuProgramManager::getSingleton().createProgram("fp", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, "hlsl", GPT_FRAGMENT_PROGRAM);
+		fp->setSource(" \
+			uniform int numLoop;  \
+			float4 ps_main() : COLOR0  \
+		{      \
+			float accum = 0.0; \
+			for (int i = 0; i < numLoop; ++i) \
+			{ \
+				accum += 0.2; \
+			} \
+			return( float4( accum, accum, accum, 1.0f ) ); \
+		} \
+		");
+		fp->setParameter("target", "ps_3_0");
+		fp->setParameter("entry_point", "ps_main");
+		fp->load();
+
+		fp->reload();
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testint", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		p->setVertexProgram(vp->getName());
+		p->setFragmentProgram(fp->getName());
+		mat->load();
+
+		p->getFragmentProgramParameters()->setNamedConstant("numLoop", (int)3);
+
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+
 
     void createScene(void)
     {
@@ -6672,6 +6725,7 @@ protected:
 		//Any anyString("test");
 		*/
 
+		testBug();
 		//testSharedPtrBug();
         //testMatrices();
         //testBsp();
@@ -6697,8 +6751,8 @@ protected:
         //testProjection();
         //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
-        //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
-		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
+        //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE, true);
+		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE, false);
 		//testTextureShadowsIntegrated();
 		//testTextureShadowsIntegrated();
 		//testStencilShadowsMixedOpSubMeshes(false, true);
@@ -6768,7 +6822,7 @@ protected:
         //testBuildTangentOnAnimatedMesh();
 		//testOverlayRelativeMode();
 
-		testCubeDDS();
+		//testCubeDDS();
 		//testDxt1();
 		//testDxt1FromMemory();
 		//testDxt3FromMemory();

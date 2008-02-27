@@ -44,6 +44,22 @@ namespace Ogre
 		Timer();
 		~Timer();
 
+		/** Method for setting a specific option of the Timer. These options are usually
+            specific for a certain implementation of the Timer class, and may (and probably
+            will) not exist across different implementations.  reset() must be called after
+			all setOption() calls.
+            @param
+                strKey The name of the option to set
+            @param
+                pValue A pointer to the value - the size should be calculated by the timer
+                based on the key
+            @return
+                On success, true is returned.
+            @par
+                On failure, false is returned.
+        */
+        bool setOption( const String& strKey, const void* pValue ) { return false; }
+
 		/** Resets timer */
 		void reset();
 

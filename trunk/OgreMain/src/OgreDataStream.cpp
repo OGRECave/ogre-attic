@@ -224,9 +224,8 @@ namespace Ogre {
         // Copy data from incoming stream
         mSize = sourceStream->size();
         mData = new uchar[mSize];
-        sourceStream->read(mData, mSize);
         mPos = mData;
-        mEnd = mData + mSize;
+        mEnd = mData + sourceStream->read(mData, mSize);
         mFreeOnClose = freeOnClose;
     }
     //-----------------------------------------------------------------------
@@ -237,9 +236,8 @@ namespace Ogre {
         // Copy data from incoming stream
         mSize = sourceStream.size();
         mData = new uchar[mSize];
-        sourceStream.read(mData, mSize);
         mPos = mData;
-        mEnd = mData + mSize;
+        mEnd = mData + sourceStream.read(mData, mSize);
         mFreeOnClose = freeOnClose;
     }
     //-----------------------------------------------------------------------
@@ -250,9 +248,8 @@ namespace Ogre {
         // Copy data from incoming stream
         mSize = sourceStream->size();
         mData = new uchar[mSize];
-        sourceStream->read(mData, mSize);
         mPos = mData;
-        mEnd = mData + mSize;
+        mEnd = mData + sourceStream->read(mData, mSize);
         mFreeOnClose = freeOnClose;
     }
     //-----------------------------------------------------------------------

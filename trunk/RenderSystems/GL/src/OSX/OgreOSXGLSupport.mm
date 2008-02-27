@@ -77,11 +77,22 @@ void OSXGLSupport::addConfig( void )
 	mOptions[ optBitDepth.name ] = optBitDepth;
 
 	CGLRendererInfoObj rend;
-	long nrend;
+    
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+	GLint nrend;
 	CGLQueryRendererInfo(CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay), &rend, &nrend);
+#else
+    long nrend;
+	CGLQueryRendererInfo(CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay), &rend, &nrend);
+#endif
 
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+    GLint maxSamples;
+	CGLDescribeRenderer(rend, 0, kCGLRPMaxSamples, &maxSamples);
+#else
 	long maxSamples;
 	CGLDescribeRenderer(rend, 0, kCGLRPMaxSamples, &maxSamples);
+#endif
 
     //FSAA possibilities
     optFSAA.name = "FSAA";
@@ -218,7 +229,7 @@ RenderWindow* OSXGLSupport::createWindow( bool autoCreateWindow, GLRenderSystem*
 			winOptions[ "FSAA" ] = opt->second.currentValue;
         }
 
-		return renderSystem->_createRenderWindow( windowTitle, w, h, fullscreen, &winOptions );
+		return renderSystem->createRenderWindow( windowTitle, w, h, fullscreen, &winOptions );
 	}
 	else
 	{
