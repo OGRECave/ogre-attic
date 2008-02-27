@@ -1432,6 +1432,7 @@ namespace Ogre
 				break;
 			case ACT_LIGHT_CASTS_SHADOWS:
 				_writeRawConstant(i->physicalIndex, source->getLightCastsShadows(i->data));
+				break;
             case ACT_LIGHT_ATTENUATION:
 				_writeRawConstant(i->physicalIndex, source->getLightAttenuation(i->data), i->elementCount);
                 break;
@@ -1540,14 +1541,12 @@ namespace Ogre
 				}
 				break;
 			case ACT_SPOTLIGHT_PARAMS_ARRAY:
+				for (size_t l = 0 ; l < i->data; ++l)
 				{
-					for (size_t l = 0 ; l < i->data; ++l)
-					{
-						_writeRawConstant(i->physicalIndex + l*i->elementCount, source->getSpotlightParams(l), 
-							i->elementCount);
-					}
-					break;
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, source->getSpotlightParams(l), 
+						i->elementCount);
 				}
+				break;
             case ACT_DERIVED_LIGHT_DIFFUSE_COLOUR:
                 _writeRawConstant(i->physicalIndex,
                     source->getLightDiffuseColourWithPower(i->data) * source->getSurfaceDiffuseColour(),
@@ -1562,7 +1561,7 @@ namespace Ogre
 				for (size_t l = 0; l < i->data; ++l)
                 {
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
-                        source->getLightDiffuseColourWithPower(i->data) * source->getSurfaceDiffuseColour(),
+                        source->getLightDiffuseColourWithPower(l) * source->getSurfaceDiffuseColour(),
                         i->elementCount);
                 }
                 break;
@@ -1570,7 +1569,7 @@ namespace Ogre
 				for (size_t l = 0; l < i->data; ++l)
                 {
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
-                        source->getLightSpecularColour(i->data) * source->getSurfaceSpecularColour(),
+                        source->getLightSpecularColour(l) * source->getSurfaceSpecularColour(),
                         i->elementCount);
                 }
                 break;
