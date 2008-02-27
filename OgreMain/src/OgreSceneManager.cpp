@@ -1444,12 +1444,15 @@ void SceneManager::setSkyBox(
                 "Sky box material '" + materialName + "' not found.",
                 "SceneManager::setSkyBox");
         }
-        // Make sure the material doesn't update the depth buffer
-        m->setDepthWriteEnabled(false);
         // Ensure loaded
         m->load();
-        // Also clamp texture, don't wrap (otherwise edges can get filtered)
-        m->getBestTechnique()->getPass(0)->getTextureUnitState(0)->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		if (!m->getBestTechnique() || 
+			!m->getBestTechnique()->getNumPasses())
+		{
+			LogManager::getSingleton().logMessage(
+				"Warning, skybox material " + materialName + " is not supported, defaulting.");
+			m = MaterialManager::getSingleton().getDefaultSettings();
+		}
 
 
         mSkyBoxDrawFirst = drawFirst;
@@ -1497,10 +1500,19 @@ void SceneManager::setSkyBox(
             }
             // Set active frame
 			Material::TechniqueIterator ti = boxMat->getSupportedTechniqueIterator();
+			// Make sure the material doesn't update the depth buffer
+			boxMat->setDepthWriteEnabled(false);
+
 			while (ti.hasMoreElements())
 			{
 				Technique* tech = ti.getNext();
-				tech->getPass(0)->getTextureUnitState(0)->setCurrentFrame(i);
+				Pass* p = tech->getPass(0);
+				if (p->getNumTextureUnitStates() > 0)
+				{
+					TextureUnitState* t = p->getTextureUnitState(0);
+					t->setCurrentFrame(i);
+					t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+				}
 			}
 
             mSkyBoxEntity[i]->setMaterialName(boxMat->getName());
