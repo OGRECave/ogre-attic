@@ -275,7 +275,8 @@ namespace Ogre
             if (FAILED(hr))
 		    {
 				this->freeInternalResources();
-			    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't create cube texture", "D3D9Texture::_loadCubeTex" );
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't create cube texture: " + String(DXGetErrorDescription9(hr)), 
+					"D3D9Texture::_loadCubeTex" );
 		    }
 
             hr = mpCubeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
@@ -283,7 +284,8 @@ namespace Ogre
             if (FAILED(hr))
 		    {
 				this->freeInternalResources();
-			    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture", "D3D9Texture::_loadCubeTex" );
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture: " + String(DXGetErrorDescription9(hr)), 
+					"D3D9Texture::_loadCubeTex" );
 		    }
 
             D3DSURFACE_DESC texDesc;
@@ -381,7 +383,7 @@ namespace Ogre
 			if (FAILED(hr))
 			{
 				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
-					"Unable to load volume texture from " + this->getName(),
+					"Unable to load volume texture from " + this->getName() + ": " + String(DXGetErrorDescription9(hr)),
 					"D3D9Texture::_loadVolumeTex");
 			}
 	
@@ -390,7 +392,8 @@ namespace Ogre
 			if (FAILED(hr))
 			{
 				this->freeInternalResources();
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture", "D3D9Texture::_loadVolumeTex" );
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture: " + String(DXGetErrorDescription9(hr)), 
+					"D3D9Texture::_loadVolumeTex" );
 			}
 	
 			D3DVOLUME_DESC texDesc;
@@ -477,7 +480,7 @@ namespace Ogre
 			if (FAILED(hr))
 			{
 				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
-					"Unable to load texture from " + this->getName(),
+					"Unable to load texture from " + this->getName() + " :" + String(DXGetErrorDescription9(hr)),
 					"D3D9Texture::_loadNormTex");
 			}
 	
@@ -486,7 +489,8 @@ namespace Ogre
 			if (FAILED(hr))
 			{
 				this->freeInternalResources();
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture", "D3D9Texture::_loadNormTex" );
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture: " + String(DXGetErrorDescription9(hr)), 
+					"D3D9Texture::_loadNormTex" );
 			}
 	
 			D3DSURFACE_DESC texDesc;
@@ -636,7 +640,8 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->freeInternalResources();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error creating texture", "D3D9Texture::_createNormTex" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error creating texture: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_createNormTex" );
 		}
 		
 		// set the base texture we'll use in the render system
@@ -644,7 +649,8 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->freeInternalResources();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture", "D3D9Texture::_createNormTex" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_createNormTex" );
 		}
 		
 		// set final tex. attributes from tex. description
@@ -654,7 +660,8 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->freeInternalResources();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get texture description", "D3D9Texture::_createNormTex" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get texture description: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_createNormTex" );
 		}
 
 		if (mFSAA > 0 && mFSAALevelSupported)
@@ -683,7 +690,8 @@ namespace Ogre
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if(FAILED(hr))
 			{
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not set best autogen filter type", "D3D9Texture::_createNormTex" );
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not set best autogen filter type: "  + String(DXGetErrorDescription9(hr)), 
+					"D3D9Texture::_createNormTex" );
 			}
 		}
 
@@ -764,7 +772,8 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->freeInternalResources();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error creating texture", "D3D9Texture::_createCubeTex" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error creating texture: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_createCubeTex" );
 		}
 
 		// set the base texture we'll use in the render system
@@ -772,7 +781,8 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->freeInternalResources();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture", "D3D9Texture::_createCubeTex" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_createCubeTex" );
 		}
 		
 		// set final tex. attributes from tex. description
@@ -782,7 +792,8 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->freeInternalResources();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get texture description", "D3D9Texture::_createCubeTex" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get texture description: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_createCubeTex" );
 		}
 
 		if (mFSAA > 0 && mFSAALevelSupported)
@@ -811,7 +822,8 @@ namespace Ogre
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if(FAILED(hr))
 			{
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not set best autogen filter type", "D3D9Texture::_createCubeTex" );
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not set best autogen filter type: " + String(DXGetErrorDescription9(hr)), 
+					"D3D9Texture::_createCubeTex" );
 			}
 		}
 
@@ -889,7 +901,8 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->freeInternalResources();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error creating texture", "D3D9Texture::_createVolumeTex" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error creating texture: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_createVolumeTex" );
 		}
 
 		// set the base texture we'll use in the render system
@@ -897,7 +910,8 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->freeInternalResources();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture", "D3D9Texture::_createVolumeTex" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get base texture: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_createVolumeTex" );
 		}
 		
 		// set final tex. attributes from tex. description
@@ -907,7 +921,8 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->freeInternalResources();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get texture description", "D3D9Texture::_createVolumeTex" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get texture description: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_createVolumeTex" );
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, desc.Depth, D3D9Mappings::_getPF(desc.Format));
 		
@@ -917,7 +932,8 @@ namespace Ogre
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if(FAILED(hr))
 			{
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not set best autogen filter type", "D3D9Texture::_createCubeTex" );
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not set best autogen filter type: " + String(DXGetErrorDescription9(hr)), 
+					"D3D9Texture::_createCubeTex" );
 			}
 		}
 	}
@@ -930,19 +946,22 @@ namespace Ogre
 		// get device caps
 		hr = mpDev->GetDeviceCaps(&mDevCaps);
 		if (FAILED(hr))
-			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't get device description", "D3D9Texture::_setDevice" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't get device description: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_setDevice" );
 
 		// get D3D pointer
 		hr = mpDev->GetDirect3D(&mpD3D);
 		// decrement reference count
 		mpD3D->Release();
 		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D9 pointer", "D3D9Texture::_setDevice" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D9 pointer: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_setDevice" );
 
 		// get our device creation parameters
 		hr = mpDev->GetCreationParameters(&mDevCreParams);
 		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D9 device creation parameters", "D3D9Texture::_setDevice" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D9 device creation parameters: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_setDevice" );
 
 		// get our back buffer pixel format
 		IDirect3DSurface9 *pSrf;
@@ -951,12 +970,14 @@ namespace Ogre
 		// decrement reference count
 		pSrf->Release();
 		if (FAILED(hr))
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D9 device pixel format", "D3D9Texture::_setDevice" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D9 device pixel format: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_setDevice" );
 
 		hr = pSrf->GetDesc(&srfDesc);
 		if (FAILED(hr))
 		{
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D9 device pixel format", "D3D9Texture::_setDevice" );
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to get D3D9 device pixel format: " + String(DXGetErrorDescription9(hr)), 
+				"D3D9Texture::_setDevice" );
 		}
 
 		mBBPixelFormat = srfDesc.Format;
