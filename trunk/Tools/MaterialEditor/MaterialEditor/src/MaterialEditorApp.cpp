@@ -49,7 +49,7 @@ bool MaterialEditorApp::OnInit()
 	wxInitAllImageHandlers();
 
 	wxBitmap bitmap;
-	if(bitmap.LoadFile("resources/images/splash.png", wxBITMAP_TYPE_PNG))
+	if(bitmap.LoadFile("../lexers/splash.png", wxBITMAP_TYPE_PNG))
 	{
 		wxSplashScreen* splash = new wxSplashScreen(bitmap, wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_TIMEOUT,
 			2000, NULL, -1, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER | wxSTAY_ON_TOP);
@@ -65,6 +65,7 @@ bool MaterialEditorApp::OnInit()
 	new IconManager();
 
 	MaterialEditorFrame* frame = new MaterialEditorFrame();
+	frame->SetIcon(wxIcon(ogre_xpm));
 	frame->Show(true);
 
 	SetTopWindow(frame);

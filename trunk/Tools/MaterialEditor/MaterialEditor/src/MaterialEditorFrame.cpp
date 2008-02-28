@@ -119,13 +119,29 @@ BEGIN_EVENT_TABLE(MaterialEditorFrame, wxFrame)
 	EVT_MENU (ID_VIEW_MENU_DIRECTX, MaterialEditorFrame::OnViewDirectX)
 END_EVENT_TABLE()
 
-MaterialEditorFrame::MaterialEditorFrame(wxWindow* parent)
-: mFileMenu(NULL), mEditMenu(NULL), mToolsMenu(NULL),
-  wxFrame(parent, - 1, wxT("Ogre Material Editor"), wxDefaultPosition, wxSize(512, 512), wxDEFAULT_FRAME_STYLE),
-  mRoot(0),
-  mEntity(0),
-  mDirectXRenderSystem(0),
-  mOpenGLRenderSystem(0)
+MaterialEditorFrame::MaterialEditorFrame(wxWindow* parent) :
+	wxFrame(parent, - 1, wxT("Ogre Material Editor"), wxDefaultPosition, wxSize(512, 512), wxDEFAULT_FRAME_STYLE),
+	mMenuBar(0),
+	mFileMenu(0),
+	mEditMenu(0),
+	mViewMenu(0),
+	mToolsMenu(0),
+	mWindowMenu(0),
+	mHelpMenu(0),
+	mAuiManager(0),
+	mAuiNotebook(0),
+	mManagementNotebook(0),
+	mInformationNotebook(0),
+	mWorkspacePanel(0),
+	mResourcePanel(0),
+	mPropertiesPanel(0),
+	mRoot(0),
+	mEntity(0),
+	mLogPanel(0),
+	mDocPanel(0),
+	mOgreControl(0),
+	mDirectXRenderSystem(0),
+	mOpenGLRenderSystem(0)
 {
 	createAuiManager();
 	createMenuBar();
@@ -133,10 +149,14 @@ MaterialEditorFrame::MaterialEditorFrame(wxWindow* parent)
 	CreateToolBar();
 	CreateStatusBar();
 
-	createOgrePane();
+	/* 
+	** We have to create the OgrePanel first
+	** since some of the other panels rely on Ogre.
+	*/
 	createAuiNotebookPane();
-	createManagementPane();
+	createOgrePane();
 	createInformationPane();
+	createManagementPane();
 	createPropertiesPane();
 
 	mAuiManager->Update();
@@ -144,6 +164,8 @@ MaterialEditorFrame::MaterialEditorFrame(wxWindow* parent)
 
 MaterialEditorFrame::~MaterialEditorFrame() 
 {
+	mLogPanel->detachLog(Ogre::LogManager::getSingleton().getDefaultLog());
+
 	if(mAuiManager)
 	{
 		mAuiManager->UnInit();
@@ -199,7 +221,7 @@ void MaterialEditorFrame::createManagementPane()
 	mManagementNotebook->AddPage(mResourcePanel, "Resources");
 
 	wxAuiPaneInfo info;
-	info.Caption(_("Management"));
+	info.Caption(wxT("Management"));
 	info.MaximizeButton(true);
 	info.BestSize(256, 512);
 	info.Left();
@@ -214,12 +236,13 @@ void MaterialEditorFrame::createInformationPane()
 
 	mLogPanel = new LogPanel(mInformationNotebook);
 	mInformationNotebook->AddPage(mLogPanel, "Log");
+	mLogPanel->attachLog(Ogre::LogManager::getSingleton().getDefaultLog());
 
 	mDocPanel = new DocPanel(mInformationNotebook);
 	mInformationNotebook->AddPage(mDocPanel, "Documentation");
 
 	wxAuiPaneInfo info;
-	info.Caption(_("Information"));
+	info.Caption(wxT("Information"));
 	info.MaximizeButton(true);
 	info.BestSize(256, 128);
 	info.Bottom();
@@ -232,7 +255,7 @@ void MaterialEditorFrame::createPropertiesPane()
 	mPropertiesPanel = new PropertiesPanel(this);
 
 	wxAuiPaneInfo info;
-	info.Caption(_("Properties"));
+	info.Caption(wxT("Properties"));
 	info.MaximizeButton(true);
 	info.BestSize(256, 512);
 	info.Left();
@@ -389,33 +412,33 @@ void MaterialEditorFrame::createEditMenu()
 void MaterialEditorFrame::createViewMenu()
 {
 	mViewMenu = new wxMenu("");
-	mViewMenu->Append(ID_VIEW_MENU_OPENGL, _("OpenGL"));
-	mViewMenu->Append(ID_VIEW_MENU_DIRECTX, _("DirectX"));
-	mMenuBar->Append(mViewMenu, _("&View"));
+	mViewMenu->Append(ID_VIEW_MENU_OPENGL, wxT("OpenGL"));
+	mViewMenu->Append(ID_VIEW_MENU_DIRECTX, wxT("DirectX"));
+	mMenuBar->Append(mViewMenu, wxT("&View"));
 }
 
 void MaterialEditorFrame::createToolsMenu()
 {
 	mToolsMenu = new wxMenu("");
 	wxMenu* resourceMenu = new wxMenu("");
-	resourceMenu->Append(ID_TOOLS_MENU_RESOURCES_MENU_ADD_GROUP, _("Add Group"));
-	resourceMenu->Append(ID_TOOLS_MENU_RESOURCES_MENU_REMOVE_GROUP, _("Remove Group"));
-	resourceMenu->Append(ID_TOOLS_MENU_RESOURCES_MENU_ADD, _("Add"));
-	resourceMenu->Append(ID_TOOLS_MENU_RESOURCES_MENU_REMOVE, _("Remove"));
-	mToolsMenu->AppendSubMenu(resourceMenu, _("Resources"));
-	mMenuBar->Append(mToolsMenu, _("&Tools"));
+	resourceMenu->Append(ID_TOOLS_MENU_RESOURCES_MENU_ADD_GROUP, wxT("Add Group"));
+	resourceMenu->Append(ID_TOOLS_MENU_RESOURCES_MENU_REMOVE_GROUP, wxT("Remove Group"));
+	resourceMenu->Append(ID_TOOLS_MENU_RESOURCES_MENU_ADD, wxT("Add"));
+	resourceMenu->Append(ID_TOOLS_MENU_RESOURCES_MENU_REMOVE, wxT("Remove"));
+	mToolsMenu->AppendSubMenu(resourceMenu, wxT("Resources"));
+	mMenuBar->Append(mToolsMenu, wxT("&Tools"));
 }
 
 void MaterialEditorFrame::createWindowMenu()
 {
 	mWindowMenu = new wxMenu("");
-	mMenuBar->Append(mWindowMenu, _("&Window"));
+	mMenuBar->Append(mWindowMenu, wxT("&Window"));
 }
 
 void MaterialEditorFrame::createHelpMenu()
 {
 	mHelpMenu = new wxMenu("");
-	mMenuBar->Append(mHelpMenu, _("&Help"));
+	mMenuBar->Append(mHelpMenu, wxT("&Help"));
 }
 
 void MaterialEditorFrame::OnActivate(wxActivateEvent& event)
@@ -457,8 +480,8 @@ void MaterialEditorFrame::OnNewMaterial(wxCommandEvent& event)
 
 void MaterialEditorFrame::OnFileOpen(wxCommandEvent& event)
 {
-	wxFileDialog * openDialog = new wxFileDialog(this, _("Choose a file to open"), wxEmptyString, wxEmptyString,
-		_("Material Files (*.material)|*.material|Mesh Files (*.mesh)|*.mesh|Program Files (*.program)|*.program|Cg Files (*.cg)|*.cg|GLSL Files(*.vert; *.frag)|*.vert;*.frag|All Files (*.*)|*.*"));
+	wxFileDialog * openDialog = new wxFileDialog(this, wxT("Choose a file to open"), wxEmptyString, wxEmptyString,
+		wxT("All Ogre Files (*.material;*.mesh;*.program;*.cg;*.vert;*.frag)|*.material;*.mesh;*.program;*.cg;*.vert;*.frag|Material Files (*.material)|*.material|Mesh Files (*.mesh)|*.mesh|Program Files (*.program)|*.program|Cg Files (*.cg)|*.cg|GLSL Files(*.vert; *.frag)|*.vert;*.frag|All Files (*.*)|*.*"));
 
 	if(openDialog->ShowModal() == wxID_OK)
 	{
@@ -602,7 +625,7 @@ void MaterialEditorFrame::OnViewOpenGL(wxCommandEvent& event)
 	//	mAuiManager->AddPane(mOgreControl, info);
 	//}
 
-	//info.Caption(_("OGRE - OpenGL"));
+	//info.Caption(wxT("OGRE - OpenGL"));
 
 	//mAuiManager->Update();
 }
@@ -628,7 +651,7 @@ void MaterialEditorFrame::OnViewDirectX(wxCommandEvent& event)
 		mAuiManager->AddPane(mOgreControl, info);
 	}
 
-	info.Caption(_("OGRE - DirectX"));
+	info.Caption(wxT("OGRE - DirectX"));
 
 	mAuiManager->Update();
 	*/

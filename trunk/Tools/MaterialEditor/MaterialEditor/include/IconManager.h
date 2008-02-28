@@ -35,6 +35,8 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "../xpm/cut.xpm"
 #include "../xpm/material.xpm"
 #include "../xpm/material_script.xpm"
+#include "../xpm/ogre.xpm"
+#include "../xpm/pass.xpm"
 #include "../xpm/paste.xpm"
 #include "../xpm/program_script.xpm"
 #include "../xpm/project.xpm"
@@ -43,6 +45,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "../xpm/save.xpm"
 #include "../xpm/save_as.xpm"
 #include "../xpm/shader.xpm"
+#include "../xpm/technique.xpm"
 #include "../xpm/workspace.xpm"
 
 class IconManager : public Ogre::Singleton<IconManager>
@@ -58,6 +61,7 @@ public:
 		CUT,
 		MATERIAL,
 		MATERIAL_SCRIPT,
+		OGRE,
 		PASS,
 		PASTE,
 		PROGRAM_SCRIPT,

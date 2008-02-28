@@ -12,51 +12,32 @@ LogPanel::LogPanel(wxWindow* parent, wxWindowID id /* = wxID_ANY */, const wxPoi
 {
 	mBoxSizer = new wxBoxSizer(wxVERTICAL);
 	
-	//mToolPanel = new wxPanel(this);
-	//mBoxSizer->Add(mToolPanel, 0, wxEXPAND | wxALL, 5);
-    //mLogComboBox = new wxComboBox(mToolPanel, wxID_ANY);
-	//mMenuButton = new wxBitmapButton(mToolPanel, wxID_ANY, wxNullBitmap);
-	//mClearButton = new wxBitmapButton(mToolPanel, wxID_ANY, wxNullBitmap);
-	//mWordWrapButton = new wxBitmapButton(mToolPanel, wxID_ANY, wxNullBitmap);
-	
-	mTextControl = new wxTextCtrl(this, -1, _(""), wxDefaultPosition, wxSize(200,150), wxNO_BORDER | wxTE_MULTILINE);
+	mTextControl = new wxTextCtrl(this, -1, wxT(""), wxDefaultPosition, wxSize(200,150), wxNO_BORDER | wxTE_MULTILINE);
 	mTextControl->SetEditable(false);
 	mBoxSizer->Add(mTextControl, 1, wxEXPAND | wxALL, 0);
 
 	SetSizer(mBoxSizer);
 	Layout();
-
-	mRedirector = NULL;
 }
 
 LogPanel::~LogPanel()
+{}
+
+void LogPanel::attachLog(Ogre::Log *log)
 {
-	if(mRedirector)
+	log->addListener(this);
+}
+
+void LogPanel::detachLog(Ogre::Log *log)
+{
+	log->removeListener(this);
+}
+
+void LogPanel::messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName)
+{
+	if(lml == Ogre::LML_CRITICAL || lml == Ogre::LML_NORMAL)
 	{
-		delete mRedirector;
-		mRedirector = NULL;
+		mTextControl->AppendText(wxT(message.c_str()));
+		mTextControl->AppendText(wxT("\n"));
 	}
 }
-
-void LogPanel::setLog(const String& logName)
-{
-	mTextControl->Clear();
-
-	if(mRedirector) delete mRedirector;
-	mRedirector = new LogToTextRedirector(mTextControl, logName);
-}
-
-/*
-void LogPanel::addLog(const String& logName)
-{
-	if(mRedirector) delete mRedirector;
-	
-	mRedirector = new LogToTextRedirector(mTextControl, logName);
-	mTextControl->Clear();
-}
-
-void LogPanel::removeLog(const String& logName)
-{
-
-}
-*/
