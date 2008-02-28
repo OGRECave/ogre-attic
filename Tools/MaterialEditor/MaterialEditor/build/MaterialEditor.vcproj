@@ -101,10 +101,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)/$(ConfigurationName)"
+			OutputDirectory=".\$(ConfigurationName)"
+			IntermediateDirectory=".\$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="0"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -124,7 +124,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="$(WXWIN)\include;$(WXWIN)\contrib\include;$(WXWIN)\lib\vc_lib\msw;$(OGRE)\OgreMain\include;$(WXWIN)\contrib\include\wx\propgrid;..\..\wxScintilla_1.69.2\include;$(BOOST)"
+				AdditionalIncludeDirectories="..\include;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\contrib\include&quot;;&quot;$(WXWIN)\lib\vc_lib\mswd&quot;;&quot;$(OGRE_SRC)\OgreMain\include&quot;;..\..\wxScintilla_1.69.2\include;&quot;$(WXWIN)\contrib\include\wx\propgrid&quot;;&quot;$(BOOST_ROOT)&quot;"
 				PreprocessorDefinitions="WIN32;__WXMSW__;_WINDOWS;NOPCH;_CRT_NONSTDC_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -143,9 +143,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28_core.lib wxmsw28_aui.lib wxmsw28d_adv.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib OgreMain.lib"
+				AdditionalDependencies="wxbase28d.lib wxmsw28d_core.lib wxmsw28d_aui.lib wxmsw28d_adv.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib OgreMain.lib wxmsw28d_propgrid.lib wxscintillad.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(WXWIN)\lib;$(WXWIN)\contrib\lib;$(WXWIN)\lib\vc_lib;$(OGRE)\lib;..\..\wxScintilla_1.69.2\lib;$(BOOST)\lib"
+				AdditionalLibraryDirectories="&quot;$(WXWIN)\lib&quot;;&quot;$(WXWIN)\contrib\lib&quot;;&quot;$(WXWIN)\lib\vc_lib&quot;;&quot;$(WXWIN)\lib\vc_lib\mswd&quot;;&quot;$(OGRE_SRC)\lib&quot;;..\..\wxScintilla_1.69.2\lib;&quot;$(WXWIN)\lib\vc_dll\&quot;;&quot;$(BOOST_ROOT)\lib&quot;"
 				GenerateManifest="false"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -176,7 +176,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;.\$(ConfigurationName)\*.exe&quot; &quot;$(SolutionDir)\bin\$(ConfigurationName)&quot;"
+				CommandLine="copy &quot;.\$(ConfigurationName)\*.exe&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)&quot;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -633,6 +633,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\xpm\pass.xpm"
+				>
+			</File>
+			<File
 				RelativePath="..\xpm\paste.xpm"
 				>
 			</File>
@@ -662,6 +666,10 @@
 			</File>
 			<File
 				RelativePath="..\xpm\shader.xpm"
+				>
+			</File>
+			<File
+				RelativePath="..\xpm\technique.xpm"
 				>
 			</File>
 		</Filter>

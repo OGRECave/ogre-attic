@@ -4,12 +4,13 @@ template<> IconManager* Ogre::Singleton<IconManager>::ms_Singleton = 0;
 
 IconManager::IconManager()
 {
-	// TODO: Still Need Technique and Pass
 	mIconMap[CLOSE] = wxBitmap(close_xpm);
 	mIconMap[COPY] = wxBitmap(copy_xpm);
 	mIconMap[CUT] = wxBitmap(cut_xpm);
 	mIconMap[MATERIAL] = wxBitmap(material_xpm);
 	mIconMap[MATERIAL_SCRIPT] = wxBitmap(material_script_xpm);
+	mIconMap[OGRE] = wxBitmap(ogre_xpm);
+	mIconMap[PASS] = wxBitmap(pass_xpm);
 	mIconMap[PASTE] = wxBitmap(paste_xpm);
 	mIconMap[PROGRAM_SCRIPT] = wxBitmap(program_script_xpm);
 	mIconMap[PROJECT] = wxBitmap(project_xpm);
@@ -18,6 +19,7 @@ IconManager::IconManager()
 	mIconMap[SAVE] = wxBitmap(save_xpm);
 	mIconMap[SAVE_AS] = wxBitmap(save_as_xpm);
 	mIconMap[SHADER] = wxBitmap(shader_xpm);
+	mIconMap[TECHNIQUE] = wxBitmap(technique_xpm);
 	mIconMap[WORKSPACE] = wxBitmap(workspace_xpm);
 }
 

@@ -64,9 +64,10 @@ Torus Knot Software Ltd.
 
 #define WORKSPACE_IMAGE 0
 #define PROJECT_IMAGE 1
-#define MATERIAL_IMAGE 2
-#define TECHNIQUE_IMAGE 3
-#define PASS_IMAGE 4
+#define MATERIAL_SCRIPT_IMAGE 2
+#define MATERIAL_IMAGE 3
+#define TECHNIQUE_IMAGE 4
+#define PASS_IMAGE 5
 
 namespace
 {
@@ -76,6 +77,7 @@ namespace
 const long ID_TREE_CTRL = wxNewId();
 const long ID_MENU_NEW = wxNewId();
 const long ID_MENU_NEW_PROJECT = wxNewId();
+const long ID_MENU_NEW_MATERIAL_SCRIPT = wxNewId();
 const long ID_MENU_NEW_MATERIAL = wxNewId();
 const long ID_MENU_NEW_TECHNIQUE = wxNewId();
 const long ID_MENU_NEW_PASS = wxNewId();
@@ -89,6 +91,7 @@ BEGIN_EVENT_TABLE(WorkspacePanel, wxPanel)
 	EVT_TREE_ITEM_ACTIVATED(ID_TREE_CTRL, WorkspacePanel::OnActivate)
 	EVT_TREE_SEL_CHANGED(ID_TREE_CTRL, WorkspacePanel::OnSelectionChanged)
 	EVT_MENU(ID_MENU_NEW_PROJECT, WorkspacePanel::OnNewProject)
+	EVT_MENU(ID_MENU_NEW_MATERIAL_SCRIPT, WorkspacePanel::OnNewMaterialScript)
 	EVT_MENU(ID_MENU_NEW_MATERIAL, WorkspacePanel::OnNewMaterial)
 	EVT_MENU(ID_MENU_NEW_TECHNIQUE, WorkspacePanel::OnNewTechnique)
 	EVT_MENU(ID_MENU_NEW_PASS, WorkspacePanel::OnNewPass)
@@ -142,9 +145,10 @@ wxImageList* WorkspacePanel::getImageList()
 {
 	if(mImageList == NULL)
 	{
-		mImageList = new wxImageList(16, 16, true, 5);
+		mImageList = new wxImageList(16, 16, true, 6);
 		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::WORKSPACE));
 		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::PROJECT));
+		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::MATERIAL_SCRIPT));
 		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::MATERIAL));
 		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::TECHNIQUE));
 		mImageList->Add(IconManager::getSingleton().getIcon(IconManager::PASS));
@@ -170,6 +174,7 @@ void WorkspacePanel::appendNewMenu(wxMenu* menu)
 {
 	wxMenu* newMenu = new wxMenu();
 	newMenu->Append(ID_MENU_NEW_PROJECT, wxT("Project"));
+	newMenu->Append(ID_MENU_NEW_MATERIAL_SCRIPT, wxT("Material Script"));
 	newMenu->Append(ID_MENU_NEW_MATERIAL, wxT("Material"));
 	newMenu->Append(ID_MENU_NEW_TECHNIQUE, wxT("Technique"));
 	newMenu->Append(ID_MENU_NEW_PASS, wxT("Pass"));
@@ -315,6 +320,12 @@ void WorkspacePanel::OnNewProject(wxCommandEvent& event)
 	delete wizard;
 }
 
+void WorkspacePanel::OnNewMaterialScript(wxCommandEvent& event)
+{
+	wxTreeItemId id = mTreeCtrl->GetSelection();
+	mTreeCtrl->AppendItem(id, "Material Script", MATERIAL_SCRIPT_IMAGE);
+}
+
 void WorkspacePanel::OnNewMaterial(wxCommandEvent& event)
 {
 	wxTreeItemId id = mTreeCtrl->GetSelection();
@@ -401,8 +412,8 @@ void WorkspacePanel::OnNewPass(wxCommandEvent& event)
 
 void WorkspacePanel::OnAddMaterial(wxCommandEvent& event)
 {
-	wxFileDialog * openDialog = new wxFileDialog(this, _("Add a Material"), wxEmptyString, wxEmptyString,
-		_("Material Files (*.material)|*.material|All Files (*.*)|*.*"));
+	wxFileDialog * openDialog = new wxFileDialog(this, wxT("Add a Material"), wxEmptyString, wxEmptyString,
+		wxT("Material Files (*.material)|*.material|All Files (*.*)|*.*"));
 
 	if(openDialog->ShowModal() == wxID_OK)
 	{

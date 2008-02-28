@@ -25,7 +25,7 @@ DocPanel::DocPanel(wxWindow* parent, wxWindowID id /* = wxID_ANY */, const wxPoi
 {
 	mBoxSizer = new wxBoxSizer(wxVERTICAL);
 
-	mTextControl = new wxTextCtrl(this, -1, _(""), wxDefaultPosition, wxSize(200,150), wxNO_BORDER | wxTE_MULTILINE);
+	mTextControl = new wxTextCtrl(this, -1, wxT(""), wxDefaultPosition, wxSize(200,150), wxNO_BORDER | wxTE_MULTILINE);
 	mTextControl->SetEditable(false);
 	mTextControl->SetBackgroundColour(wxColor(255, 255, 225));
 	mTextControl->AppendText("N/A");

@@ -67,6 +67,7 @@ public:
 	void OnActivate(wxTreeEvent& event);
 	void OnSelectionChanged(wxTreeEvent& event);
 	void OnNewProject(wxCommandEvent& event);
+	void OnNewMaterialScript(wxCommandEvent& event);
 	void OnNewMaterial(wxCommandEvent& event);
 	void OnNewTechnique(wxCommandEvent& event);
 	void OnNewPass(wxCommandEvent& event);
