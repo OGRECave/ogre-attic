@@ -367,6 +367,11 @@ Viewport *CompositorChain::getViewport()
 {
     return mViewport;
 }
+//---------------------------------------------------------------------
+void CompositorChain::_notifyViewport(Viewport* vp)
+{
+	mViewport = vp;
+}
 //-----------------------------------------------------------------------
 void CompositorChain::RQListener::renderQueueStarted(uint8 id, 
 	const String& invocation, bool& skipThisQueue)
