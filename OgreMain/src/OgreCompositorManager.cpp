@@ -151,6 +151,10 @@ CompositorChain *CompositorManager::getCompositorChain(Viewport *vp)
     Chains::iterator i=mChains.find(vp);
     if(i != mChains.end())
     {
+		// Make sure we have the right viewport
+		// It's possible that this chain may have outlived a viewport and another
+		// viewport was created at the same physical address, meaning we find it again but the viewport is gone
+		i->second->_notifyViewport(vp);
         return i->second;
     }
     else
