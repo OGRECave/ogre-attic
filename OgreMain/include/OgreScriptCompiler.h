@@ -204,8 +204,10 @@ namespace Ogre
 			CE_UNDEFINEDVARIABLE,
 			CE_OBJECTNAMEEXPECTED,
 			CE_OBJECTALLOCATIONERROR,
-			CE_INVALIDPARAMETERS
+			CE_INVALIDPARAMETERS,
+			CE_DUPLICATEOVERRIDE
 		};
+		static String formatErrorCode(uint32 code);
 	public:
 		ScriptCompiler();
 
