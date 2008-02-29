@@ -51,32 +51,6 @@ Torus Knot Software Ltd.
 
 namespace Ogre
 {
-	// This function converts a compile error code to a string description
-	static String convertErrorCode(uint32 code)
-	{
-		switch(code)
-		{
-		case ScriptCompiler::CE_STRINGEXPECTED:
-			return "string expected";
-		case ScriptCompiler::CE_NUMBEREXPECTED:
-			return "number expected";
-		case ScriptCompiler::CE_FEWERPARAMETERSEXPECTED:
-			return "fewer parameters expected";
-		case ScriptCompiler::CE_VARIABLEEXPECTED:
-			return "variable expected";
-		case ScriptCompiler::CE_UNDEFINEDVARIABLE:
-			return "undefined variable";
-		case ScriptCompiler::CE_OBJECTNAMEEXPECTED:
-			return "object name expected";
-		case ScriptCompiler::CE_OBJECTALLOCATIONERROR:
-			return "object allocation error";
-		case ScriptCompiler::CE_INVALIDPARAMETERS:
-			return "invalid parameters";
-		default:
-			return "unknown error";
-		}
-	}
-
 	// AbstractNode
 	AbstractNode::AbstractNode(AbstractNode *ptr)
 		:parent(ptr), type(ANT_UNKNOWN), line(0)
@@ -289,7 +263,7 @@ namespace Ogre
 	void ScriptCompilerListener::error(const ScriptCompiler::ErrorPtr &err)
 	{
 		Ogre::String msg = "Compiler error: ";
-		msg = msg + convertErrorCode(err->code) + " in " + err->file + " " +
+		msg = msg + ScriptCompiler::formatErrorCode(err->code) + " in " + err->file + " " +
 			Ogre::StringConverter::toString(err->line);
 		Ogre::LogManager::getSingleton().logMessage(msg);
 	}
@@ -340,6 +314,33 @@ namespace Ogre
 	}
 
 	// ScriptCompiler
+	String ScriptCompiler::formatErrorCode(uint32 code)
+	{
+		switch(code)
+		{
+		case ScriptCompiler::CE_STRINGEXPECTED:
+			return "string expected";
+		case ScriptCompiler::CE_NUMBEREXPECTED:
+			return "number expected";
+		case ScriptCompiler::CE_FEWERPARAMETERSEXPECTED:
+			return "fewer parameters expected";
+		case ScriptCompiler::CE_VARIABLEEXPECTED:
+			return "variable expected";
+		case ScriptCompiler::CE_UNDEFINEDVARIABLE:
+			return "undefined variable";
+		case ScriptCompiler::CE_OBJECTNAMEEXPECTED:
+			return "object name expected";
+		case ScriptCompiler::CE_OBJECTALLOCATIONERROR:
+			return "object allocation error";
+		case ScriptCompiler::CE_INVALIDPARAMETERS:
+			return "invalid parameters";
+		case ScriptCompiler::CE_DUPLICATEOVERRIDE:
+			return "duplicate object override";
+		default:
+			return "unknown error";
+		}
+	}
+
 	ScriptCompiler::ScriptCompiler()
 		:mListener(0)
 	{
@@ -458,7 +459,7 @@ namespace Ogre
 		else
 		{
 			Ogre::String msg = "Compiler error: ";
-			msg = msg + convertErrorCode(code) + " in " + file + " " +
+			msg = msg + formatErrorCode(code) + " in " + file + " " +
 				Ogre::StringConverter::toString(line);
 			Ogre::LogManager::getSingleton().logMessage(msg);
 		}
@@ -645,7 +646,7 @@ namespace Ogre
 	{
 		if(source->type == ANT_OBJECT)
 		{
-			ObjectAbstractNode *src = (ObjectAbstractNode*)source.get();
+			ObjectAbstractNode *src = reinterpret_cast<ObjectAbstractNode*>(source.get());
 
 			// Overlay the environment of one on top the other first
 			for(std::map<String,String>::const_iterator i = src->getVariables().begin(); i != src->getVariables().end(); ++i)
@@ -655,75 +656,129 @@ namespace Ogre
 					dest->setVariable(i->first, i->second);
 			}
 			
-			// Queue up all transfers
-			std::list<AbstractNodePtr> queue;
-			queue.insert(queue.begin(), src->children.begin(), src->children.end());
+			// Create a vector storing each pairing of override between source and destination
+			std::vector<std::pair<AbstractNodePtr,AbstractNodeList::iterator> > overrides; 
+			// A list of indices for each destination node tracks the minimum
+			// source node they can index-match against
+			std::map<ObjectAbstractNode*,size_t> indices;
+			// A map storing which nodes have overridden from the destination node
+			std::map<ObjectAbstractNode*,bool> overridden;
 
-			// Index each source node type
-			std::map<String,int> srcIndexMap;
-
-			std::list<AbstractNodePtr>::iterator i = queue.begin();
-			while(i != queue.end())
+			// Fill the vector with objects from the source node (base)
+			// And insert none objects into the front of the destination node
+			AbstractNodeList::iterator insertPos = dest->children.begin();
+			for(AbstractNodeList::const_iterator i = src->children.begin(); i != src->children.end(); ++i)
 			{
-				// Move forward and store current position
-				std::list<AbstractNodePtr>::iterator cur = i;
-				i++;
-
-				// Only process if it is an object
-				if((*cur)->type == ANT_OBJECT)
+				if((*i)->type == ANT_OBJECT)
 				{
-					ObjectAbstractNode *srcObj = (ObjectAbstractNode*)(*cur).get();
-					srcIndexMap[srcObj->cls]++;
-					int srcIndex = srcIndexMap[srcObj->cls];
+					overrides.push_back(std::make_pair(*i, dest->children.end()));
+				}
+				else
+				{
+					AbstractNodePtr newNode((*i)->clone());
+					newNode->parent = dest;
+					dest->children.insert(insertPos, newNode);
+				}
+			}
 
-					// Search through destination for an object of this type at this index
-					AbstractNodeList::iterator dst_iter = dest->children.end();
-					int dstIndex = 0;
-					for(AbstractNodeList::iterator j = dest->children.begin(); j != dest->children.end(); ++j)
+			// Track the running maximum override index in the name-matching phase
+			size_t maxOverrideIndex = 0;
+
+			// Loop through destination children searching for name-matching overrides
+			for(AbstractNodeList::iterator i = dest->children.begin(); i != dest->children.end(); ++i)
+			{
+				if((*i)->type == ANT_OBJECT)
+				{
+					// Start tracking the override index position for this object
+					size_t overrideIndex = 0;
+
+					ObjectAbstractNode *node = reinterpret_cast<ObjectAbstractNode*>((*i).get());
+					indices[node] = maxOverrideIndex;
+					overridden[node] = false;
+
+					// Find the matching name node
+					for(size_t j = 0; j < overrides.size(); ++j)
 					{
-						if((*j)->type == ANT_OBJECT)
+						ObjectAbstractNode *temp = reinterpret_cast<ObjectAbstractNode*>(overrides[j].first.get());
+						if(temp->cls == node->cls && !node->name.empty() && temp->name == node->name)
 						{
-							ObjectAbstractNode *dstObj = (ObjectAbstractNode*)(*j).get();
-							if(dstObj->cls == srcObj->cls)
+							// Pair these two together unless it's already paired
+							if(overrides[j].second == dest->children.end())
 							{
-								// Found the right object, so store our searched results
-								dstIndex++;
-								dst_iter = j;
-								if(dstIndex == srcIndex)
-									break; // Break if we've reached our goals of the n-th object of the source type
+								overrides[j] = std::make_pair(overrides[j].first, i);
+								// Store the max override index for this matched pair
+								overrideIndex = j;
+								overrideIndex = maxOverrideIndex = std::max(overrideIndex, maxOverrideIndex);
+								indices[node] = overrideIndex;
+								overridden[node] = true;
 							}
+							else
+							{
+								addError(CE_DUPLICATEOVERRIDE, node->file, node->line);
+							}
+							break;
 						}
-					}
-
-					if(srcIndex == dstIndex && dst_iter != dest->children.end())
-					{
-						// Overlay the source on the destination node
-						overlayObject(*cur, (ObjectAbstractNode*)(*dst_iter).get());
-						// Remove the node from the source queue
-						queue.erase(cur);
-					}
-					else if(dst_iter != dest->children.end())
-					{
-						// This means we found nodes of the right type, but not enough. Copy our after the one we did find.
-						AbstractNodeList::iterator next = dst_iter;
-						next++;
-
-						AbstractNodePtr newNode = AbstractNodePtr(srcObj->clone());
-						newNode->parent = dest;
-						dest->children.insert(next, newNode);
-						// Remove the node from the source queue
-						queue.erase(cur);
 					}
 				}
 			}
 
-			// Insert the remainder into the front of the destination
-			AbstractNodeList::iterator k = dest->children.begin();
-			for(std::list<AbstractNodePtr>::iterator j = queue.begin(); j != queue.end(); ++j)
+			// Now make matches based on index
+			// Loop through destination children searching for name-matching overrides
+			for(AbstractNodeList::iterator i = dest->children.begin(); i != dest->children.end(); ++i)
 			{
-				AbstractNodePtr newNode((*j)->clone());
-				newNode->parent = dest;
-				dest->children.insert(k, newNode);
+				if((*i)->type == ANT_OBJECT)
+				{
+					ObjectAbstractNode *node = reinterpret_cast<ObjectAbstractNode*>((*i).get());
+					if(!overridden[node])
+					{
+						// Retrieve the minimum override index from the map
+						size_t overrideIndex = indices[node];
+
+						if(overrideIndex < overrides.size())
+						{
+							// Search for minimum matching override
+							for(size_t j = overrideIndex; j < overrides.size(); ++j)
+							{
+								ObjectAbstractNode *temp = reinterpret_cast<ObjectAbstractNode*>(overrides[j].first.get());
+								if(temp->cls == node->cls && overrides[j].second == dest->children.end())
+								{
+									overrides[j] = std::make_pair(overrides[j].first, i);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			// Loop through overrides, either inserting source nodes or overriding
+			insertPos = dest->children.begin();
+			for(size_t i = 0; i < overrides.size(); ++i)
+			{
+				if(overrides[i].second != dest->children.end())
+				{
+					// Override the destination with the source (base) object
+					overlayObject(overrides[i].first, 
+						reinterpret_cast<ObjectAbstractNode*>((*overrides[i].second).get()));
+					insertPos = overrides[i].second;
+					insertPos++;
+				}
+				else
+				{
+					// No override was possible, so insert this node at the insert position
+					// into the destination (child) object
+					AbstractNodePtr newNode(overrides[i].first->clone());
+					newNode->parent = dest;
+					if(insertPos != dest->children.end())
+					{
+						dest->children.insert(insertPos, newNode);
+						insertPos++;
+					}
+					else
+					{
+						dest->children.push_back(newNode);
+					}
+				}
 			}
 		}
 	}
@@ -941,6 +996,7 @@ namespace Ogre
 			mIds["clamp"] = ID_CLAMP;
 			mIds["mirror"] = ID_MIRROR;
 			mIds["border"] = ID_BORDER;
+		mIds["tex_border_colour"] = ID_TEX_BORDER_COLOUR;
 		mIds["filtering"] = ID_FILTERING;
 			mIds["bilinear"] = ID_BILINEAR;
 			mIds["trilinear"] = ID_TRILINEAR;
