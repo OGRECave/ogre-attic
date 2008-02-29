@@ -285,4 +285,16 @@ namespace Ogre {
     {
         return mType;
     }
+
+    //---------------------------------------------------------------------
+    String ILImageCodec::magicNumberToFileExt(const char *magicNumberPtr, size_t maxbytes) const
+    {
+	// DevIL uses magic internally to determine file types when
+	// necessary but does not expose the code in its API.
+	// This makes it difficult to implement this function, but also
+	// reduces its importance. Just for now, here is a kludge to 
+	// get Ogre to build and ensure that it always tries to load files
+	// that DevIL might be able to load.
+	return String("jpg");
+    }
 }

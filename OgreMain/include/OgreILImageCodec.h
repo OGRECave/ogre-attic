@@ -60,6 +60,8 @@ namespace Ogre {
         void initialiseIL(void);
         
         virtual String getType() const;        
+
+	String magicNumberToFileExt(const char *magicNumberPtr, size_t maxbytes) const;
     };
 
 } // namespace
