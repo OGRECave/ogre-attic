@@ -57,7 +57,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     ResourceGroupManager::ResourceGroupManager()
-        : mCurrentGroup(0)
+        : mCurrentGroup(0), mLoadingListener(0)
     {
         // Create the 'General' group
         createResourceGroup(DEFAULT_RESOURCE_GROUP_NAME);
@@ -534,8 +534,9 @@ namespace Ogre {
     {
 		OGRE_LOCK_AUTO_MUTEX
 
+		if(mLoadingListener)
 		{
-			DataStreamPtr stream = fireResourceLoading(resourceName, groupName, resourceBeingLoaded);
+			DataStreamPtr stream = mLoadingListener->resourceLoading(resourceName, groupName, resourceBeingLoaded);
 			if(!stream.isNull())
 				return stream;
 		}
@@ -1154,31 +1155,6 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-	DataStreamPtr ResourceGroupManager::fireResourceLoading(const String &name, const String &group, Resource *resource)
-	{
-		OGRE_LOCK_AUTO_MUTEX
-        for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
-            l != mResourceGroupListenerList.end(); ++l)
-        {
-            DataStreamPtr stream = (*l)->resourceLoading(name, group, resource);
-			if(!stream.isNull())
-				return stream;
-        }
-		return DataStreamPtr();
-	}
-	//-----------------------------------------------------------------------
-	bool ResourceGroupManager::_fireResourceCollision(ResourcePtr &resource, ResourceManager *resourceManager)
-	{
-		OGRE_LOCK_AUTO_MUTEX
-        for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
-            l != mResourceGroupListenerList.end(); ++l)
-        {
-           if((*l)->resourceCollision(resource, resourceManager))
-			   return true;
-        }
-		return false;
-	}
-	//-----------------------------------------------------------------------
     void ResourceGroupManager::shutdownAll(void)
     {
         OGRE_LOCK_AUTO_MUTEX
@@ -1461,6 +1437,16 @@ namespace Ogre {
 
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
 		return grp->resourceDeclarations;
+	}
+	//-------------------------------------------------------------------------
+	void ResourceGroupManager::setLoadingListener(ResourceLoadingListener *listener)
+	{
+		mLoadingListener = listener;
+	}
+	//-------------------------------------------------------------------------
+	ResourceLoadingListener *ResourceGroupManager::getLoadingListener()
+	{
+		return mLoadingListener;
 	}
 	//-----------------------------------------------------------------------
 	ScriptLoader::~ScriptLoader()
