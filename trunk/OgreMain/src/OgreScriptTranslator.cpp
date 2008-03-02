@@ -3183,7 +3183,6 @@ namespace Ogre{
 	void GpuProgramTranslator::translateUnifiedGpuProgram(ScriptCompiler *compiler, ObjectAbstractNode *obj)
 	{
 		std::list<std::pair<String,String> > customParameters;
-		String syntax, source;
 		AbstractNodePtr params;
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
@@ -3232,7 +3231,6 @@ namespace Ogre{
 		args.push_back(Any(obj->name));
 		args.push_back(Any(compiler->getResourceGroup()));
 		args.push_back(Any(obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM));
-		args.push_back(Any(source));
 		retval = compiler->_fireCreateObject("UnifiedGpuProgram", args);
 		if(retval.isEmpty())
 		{
