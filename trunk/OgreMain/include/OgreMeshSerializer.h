@@ -35,6 +35,8 @@ Torus Knot Software Ltd.
 #include "OgreSerializer.h"
 
 namespace Ogre {
+	
+	class MeshSerializerListener;
 
     /** Class for serialising mesh data to/from an OGRE .mesh file.
     @remarks
@@ -85,14 +87,36 @@ namespace Ogre {
         @param pDest Pointer to the Mesh object which will receive the data. Should be blank already.
         */
         void importMesh(DataStreamPtr& stream, Mesh* pDest);
+
+		/// Sets the listener for this serializer
+		void setListener(MeshSerializerListener *listener);
+		/// Returns the current listener
+		MeshSerializerListener *getListener();
     protected:
         static String msCurrentVersion;
 
         typedef std::map<String, MeshSerializerImpl* > MeshSerializerImplMap;
         MeshSerializerImplMap mImplementations;
 
+		MeshSerializerListener *mListener;
+
     };
 
+	/** 
+	 @remarks
+		This class allows users to hook into the mesh loading process and
+		modify references within the mesh as they are loading. Material and
+		skeletal references can be processed using this interface which allows
+		finer control over resources.
+	*/
+	class MeshSerializerListener
+	{
+	public:
+		/// Called to override the loading of the given named material
+		virtual void processMaterialName(String *name) = 0;
+		/// Called to override the reference to a skeleton
+		virtual void processSkeletonName(String *name) = 0;
+	};
 }
 
 

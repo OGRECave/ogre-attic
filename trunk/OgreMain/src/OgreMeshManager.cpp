@@ -58,7 +58,7 @@ namespace Ogre
     }
     //-----------------------------------------------------------------------
     MeshManager::MeshManager():
-    mBoundsPaddingFactor(0.01)
+    mBoundsPaddingFactor(0.01), mListener(0)
     {
         mPrepAllMeshesForShadowVolumes = false;
 
@@ -335,7 +335,7 @@ namespace Ogre
 		// to preserve previous behaviour, load immediately
 		msh->load();
 	}
-
+	//-------------------------------------------------------------------------
 	void MeshManager::createPrefabSphere(void)
 	{
 		MeshPtr msh = create(
@@ -347,7 +347,16 @@ namespace Ogre
 		// to preserve previous behaviour, load immediately
 		msh->load();
 	}
-
+	//-------------------------------------------------------------------------
+	void MeshManager::setListener(Ogre::MeshSerializerListener *listener)
+	{
+		mListener = listener;
+	}
+	//-------------------------------------------------------------------------
+	MeshSerializerListener *MeshManager::getListener()
+	{
+		return mListener;
+	}
     //-----------------------------------------------------------------------
 	void MeshManager::loadResource(Resource* res)
 	{

@@ -40,6 +40,8 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
+	class MeshSerializerListener;
+
     /** Handles the management of mesh resources.
         @remarks
             This class deals with the runtime management of
@@ -359,6 +361,14 @@ namespace Ogre {
 	    */
         void setBoundsPaddingFactor(Real paddingFactor);
 
+		/** Sets the listener used to control mesh loading through the serializer.
+		*/
+		void setListener(MeshSerializerListener *listener);
+		
+		/** Gets the listener used to control mesh loading through the serializer.
+		*/
+		MeshSerializerListener *getListener();
+
         /** @see ManualResourceLoader::loadResource */
         void loadResource(Resource* res);
 
@@ -421,8 +431,11 @@ namespace Ogre {
 
         bool mPrepAllMeshesForShadowVolumes;
 	
-	//the factor by which the bounding box of an entity is padded	
-	Real mBoundsPaddingFactor;
+		//the factor by which the bounding box of an entity is padded	
+		Real mBoundsPaddingFactor;
+
+		// The listener to pass to serializers
+		MeshSerializerListener *mListener;
     };
 
 
