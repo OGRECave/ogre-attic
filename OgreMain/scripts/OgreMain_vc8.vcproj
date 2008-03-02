@@ -964,6 +964,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreScriptTranslator.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreSerializer.cpp"
 				>
 			</File>
@@ -1794,6 +1798,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreScriptParser.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreScriptTranslator.h"
 				>
 			</File>
 			<File

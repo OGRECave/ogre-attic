@@ -106,17 +106,12 @@ namespace Ogre
 	/** This is an abstract node which cannot be broken down further */
 	class _OgreExport AtomAbstractNode : public AbstractNode
 	{
-	private:
-		mutable bool mIsNumber, mNumberTest;
-		mutable Real mNum;
 	public:
 		String value;
 		uint32 id;
 	public:
 		AtomAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
-		bool isNumber() const;
-		Real getNumber() const;
 	private:
 		void parseNumber() const;
 	};
@@ -224,8 +219,23 @@ namespace Ogre
 		void addError(uint32 code, const String &file, int line);
 		/// Sets the listener used by the compiler
 		void setListener(ScriptCompilerListener *listener);
+		/// Returns the currently set listener
+		ScriptCompilerListener *getListener();
 		/// Returns the resource group currently set for this compiler
 		const String &getResourceGroup() const;
+		/// Adds a name exclusion to the map
+		/**
+		 * Name exclusions identify object types which cannot accept
+		 * names. This means that excluded types will always have empty names.
+		 * All values in the object header are stored as object values.
+		 */
+		void addNameExclusion(const String &type);
+		/// Removes a name exclusion
+		void removeNameExclusion(const String &type);
+		/// Internal method for firing the handleEvent method
+		bool _fireEvent(const String &name, const std::vector<Any> &args, Any *retval);
+		/// Internal method for firing the createObject event
+		Any _fireCreateObject(const String &type, const std::vector<Any> &args);
 	private: // Tree processing
 		AbstractNodeListPtr convertToAST(const ConcreteNodeListPtr &nodes);
 		/// This built-in function processes import nodes
@@ -240,6 +250,8 @@ namespace Ogre
 		void processVariables(AbstractNodeList *nodes);
 		/// This function overlays the given object on the destination object following inheritance rules
 		void overlayObject(const AbstractNodePtr &source, ObjectAbstractNode *dest);
+		/// Returns true if the given class is name excluded
+		bool isNameExcluded(const String &cls, AbstractNode *parent);
 		/// This function sets up the initial values in word id map
 		void initWordMap();
 	private:
@@ -288,169 +300,7 @@ namespace Ogre
 			ID_FALSE = 2,
 			ID_YES = 1,
 			ID_NO = 2
-		};
-		// This is the translator base class
-		class _OgreExport Translator
-		{
-		private:
-			ScriptCompiler *mCompiler;
-			Any mContext;
-		protected:
-			ScriptCompiler *getCompiler();
-			ScriptCompilerListener *getCompilerListener();
-			AbstractNodeList::const_iterator getNodeAt(const AbstractNodeList &nodes, int index);
-			bool getBoolean(const AbstractNodePtr &node, bool *result);
-			bool getString(const AbstractNodePtr &node, String *result);
-			bool getNumber(const AbstractNodePtr &node, Real *result);
-			bool getColour(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColourValue *result);
-			bool getSceneBlendFactor(const AbstractNodePtr &node, SceneBlendFactor *sbf);
-			bool getCompareFunction(const AbstractNodePtr &node, CompareFunction *func);
-			bool getMatrix4(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, Matrix4 *m);
-			bool getInts(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, int *vals, int count);
-			bool getFloats(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, float *vals, int count);
-			bool getStencilOp(const AbstractNodePtr &node, StencilOperation *op); 
-		public:
-			Translator();
-			/// This static translation function requests a translation on the given node
-			static void translate(Translator *translator, const AbstractNodePtr &node, ScriptCompiler *compiler);
-		protected:
-			/// This function is called to process each object node
-			virtual void processObject(ObjectAbstractNode*) = 0;
-			/// This function is called to process each property node
-			virtual void processProperty(PropertyAbstractNode*) = 0;
-		};
-		friend class Translater;
-		class _OgreExport MaterialTranslator : public Translator
-		{
-		protected:
-			MaterialPtr mMaterial;
-			Ogre::AliasTextureNamePairList mTextureAliases;
-		public:
-			MaterialTranslator();
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport TechniqueTranslator : public Translator
-		{
-		protected:
-			Technique *mTechnique;
-		public:
-			TechniqueTranslator(Technique *technique);
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport PassTranslator : public Translator
-		{
-		protected:
-			Pass *mPass;
-		public:
-			PassTranslator(Pass *pass);
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport TextureUnitTranslator : public Translator
-		{
-		protected:
-			TextureUnitState *mUnit;
-		public:
-			TextureUnitTranslator(TextureUnitState *unit);
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport GpuProgramTranslator : public Translator
-		{
-		public:
-			GpuProgramTranslator();
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport HighLevelGpuProgramTranslator : public Translator
-		{
-		public:
-			HighLevelGpuProgramTranslator();
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport UnifiedGpuProgramTranslator : public Translator
-		{
-		public:
-			UnifiedGpuProgramTranslator();
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport GpuProgramParametersTranslator : public Translator
-		{
-		protected:
-			GpuProgramParametersSharedPtr mParams;
-			int mAnimParametricsCount;
-		public:
-			GpuProgramParametersTranslator(const GpuProgramParametersSharedPtr &params);
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport ParticleSystemTranslator : public Translator
-		{
-		protected:
-			Ogre::ParticleSystem *mSystem;
-		public:
-			ParticleSystemTranslator();
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport ParticleEmitterTranslator : public Translator
-		{
-		protected:
-			Ogre::ParticleEmitter *mEmitter;
-		public:
-			ParticleEmitterTranslator(ParticleEmitter *emitter);
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport ParticleAffectorTranslator : public Translator
-		{
-		protected:
-			Ogre::ParticleAffector *mAffector;
-		public:
-			ParticleAffectorTranslator(ParticleAffector *affector);
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport CompositorTranslator : public Translator
-		{
-		protected:
-			CompositorPtr mCompositor;
-		public:
-			CompositorTranslator();
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport CompositionTechniqueTranslator : public Translator
-		{
-		protected:
-			CompositionTechnique *mTechnique;
-		public:
-			CompositionTechniqueTranslator(CompositionTechnique *technique);
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport CompositionTargetPassTranslator : public Translator
-		{
-		protected:
-			CompositionTargetPass *mTarget;
-		public:
-			CompositionTargetPassTranslator(CompositionTargetPass *target);
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
-		class _OgreExport CompositionPassTranslator : public Translator
-		{
-		protected:
-			CompositionPass *mPass;
-		public:
-			CompositionPassTranslator(CompositionPass *pass);
-			void processObject(ObjectAbstractNode*);
-			void processProperty(PropertyAbstractNode*);
-		};
+		};	
 	};
 
 	/** This is a listener for the compiler. The compiler can be customized with
@@ -463,37 +313,99 @@ namespace Ogre
 		ScriptCompilerListener();
 
 		/// Returns the concrete node list from the given file
-		virtual ConcreteNodeListPtr importFile(const String &name);
+		virtual ConcreteNodeListPtr importFile(ScriptCompiler *compiler, const String &name);
 		/// Allows for responding to and overriding behavior before a CST is translated into an AST
-		virtual void preASTConversion(ConcreteNodeListPtr nodes, ScriptCompiler::IdMap *ids);
-		/// Allows for overriding the translation of the given node into the concrete resource.
-		virtual std::pair<bool,ScriptCompiler::Translator*> preObjectTranslation(ObjectAbstractNode *obj);
-		/// Allows for overriding the translation of the given node into the concrete resource.
-		virtual std::pair<bool,ScriptCompiler::Translator*> prePropertyTranslation(PropertyAbstractNode *prop);
+		virtual void preConversion(ScriptCompiler *compiler, ConcreteNodeListPtr nodes);
 		/// Called when an error occurred
-		virtual void error(const ScriptCompiler::ErrorPtr &err);
+		virtual void handleError(ScriptCompiler *compiler, uint32 code, const String &file, int line);
+		/// Called when an event occurs during translation
+		virtual bool handleEvent(ScriptCompiler *compiler, const String &name, const std::vector<Ogre::Any> &args, Ogre::Any *retval);
+		/// Called when a translator requests a concrete object to be created
+		virtual Ogre::Any createObject(ScriptCompiler *compiler, const String &type, const std::vector<Ogre::Any> &args);
+	};
 
-		/// Must return the requested material
-		virtual MaterialPtr createMaterial(const String &name, const String &group);
-		/// Called before texture aliases are applied to a material
-		virtual void preApplyTextureAliases(Ogre::AliasTextureNamePairList *aliases);
-		/// Called before texture names are used
-		virtual void getTextureNames(String *names, int count = 0);
-		/// Called before a gpu program name is used
-		virtual void getGpuProgramName(String *name);
-		/// Called to return the requested GpuProgram
-		virtual GpuProgramPtr createGpuProgram(const String &name, const String &group, const String &source, GpuProgramType type, const String &syntax);
-		/// Called to return a HighLevelGpuProgram
-		virtual HighLevelGpuProgramPtr createHighLevelGpuProgram(const String &name, const String &group, const String &language, GpuProgramType type, const String &source);
+	class ScriptTranslator;
+	class ScriptTranslatorManager;
 
-		/// Returns the requested particle system template
-		virtual ParticleSystem *createParticleSystem(const String &name, const String &group);
-		/// Processes the name of the material
-		virtual void getMaterialName(String *name);
+	/** Manages threaded compilation of scripts. This script loader forwards
+		scripts compilations to a specific compiler instance.
+	*/
+	class _OgreExport ScriptCompilerManager : public Singleton<ScriptCompilerManager>, public ScriptLoader
+	{
+	private:
+		OGRE_AUTO_MUTEX
 
-		/// Returns the compositor that is created
-		virtual CompositorPtr createCompositor(const String &name, const String &group);
-		
+		// A list of patterns loaded by this compiler manager
+		StringVector mScriptPatterns;
+
+		// A pointer to the listener used for compiling scripts
+		ScriptCompilerListener *mListener;
+
+		// Stores a map from object types to the translators that handle them
+		std::vector<ScriptTranslatorManager*> mManagers;
+
+		// A pointer to the built-in ScriptTranslatorManager
+		ScriptTranslatorManager *mBuiltinTranslatorManager;
+
+		// A pointer to the specific compiler instance used
+		OGRE_THREAD_POINTER(ScriptCompiler, mScriptCompiler);
+	public:
+		ScriptCompilerManager();
+		virtual ~ScriptCompilerManager();
+
+		/// Sets the listener used for compiler instances
+		void setListener(ScriptCompilerListener *listener);
+		/// Returns the currently set listener used for compiler instances
+		ScriptCompilerListener *getListener();
+
+		/// Adds the given translator manager to the list of managers
+		void addTranslatorManager(ScriptTranslatorManager *man);
+		/// Removes the given translator manager from the list of managers
+		void removeTranslatorManager(ScriptTranslatorManager *man);
+		/// Clears all translator managers
+		void clearTranslatorManagers();
+		/// Retrieves a ScriptTranslator from the supported managers
+		ScriptTranslator *getTranslator(const AbstractNodePtr &node);
+
+		/// @copydoc ScriptLoader::getScriptPatterns
+        const StringVector& getScriptPatterns(void) const;
+        /// @copydoc ScriptLoader::parseScript
+        void parseScript(DataStreamPtr& stream, const String& groupName);
+        /// @copydoc ScriptLoader::getLoadingOrder
+        Real getLoadingOrder(void) const;
+
+		/** Override standard Singleton retrieval.
+        @remarks
+        Why do we do this? Well, it's because the Singleton
+        implementation is in a .h file, which means it gets compiled
+        into anybody who includes it. This is needed for the
+        Singleton template to work, but we actually only want it
+        compiled into the implementation of the class based on the
+        Singleton, not all of them. If we don't change this, we get
+        link errors when trying to use the Singleton-based class from
+        an outside dll.
+        @par
+        This method just delegates to the template version anyway,
+        but the implementation stays in this single compilation unit,
+        preventing link errors.
+        */
+        static ScriptCompilerManager& getSingleton(void);
+        /** Override standard Singleton retrieval.
+        @remarks
+        Why do we do this? Well, it's because the Singleton
+        implementation is in a .h file, which means it gets compiled
+        into anybody who includes it. This is needed for the
+        Singleton template to work, but we actually only want it
+        compiled into the implementation of the class based on the
+        Singleton, not all of them. If we don't change this, we get
+        link errors when trying to use the Singleton-based class from
+        an outside dll.
+        @par
+        This method just delegates to the template version anyway,
+        but the implementation stays in this single compilation unit,
+        preventing link errors.
+        */
+        static ScriptCompilerManager* getSingletonPtr(void);
 	};
 
 	/// This enum defines the integer ids for keywords this compiler handles
@@ -733,72 +645,6 @@ namespace Ogre
 			ID_PASS_OP,
 			ID_TWO_SIDED,
 		ID_END_BUILTIN_IDS
-	};
-
-	/** Manages threaded compilation of scripts. This script loader forwards
-		scripts compilations to a specific compiler instance.
-	*/
-	class _OgreExport ScriptCompilerManager : public Singleton<ScriptCompilerManager>, public ScriptLoader
-	{
-	private:
-		OGRE_AUTO_MUTEX
-
-		// A list of patterns loaded by this compiler manager
-		StringVector mScriptPatterns;
-
-		// A pointer to the listener used for compiling scripts
-		ScriptCompilerListener *mListener;
-
-		// A pointer to the specific compiler instance used
-		OGRE_THREAD_POINTER(ScriptCompiler, mScriptCompiler);
-	public:
-		ScriptCompilerManager();
-		virtual ~ScriptCompilerManager();
-
-		/// Sets the listener used for compiler instances
-		void setListener(ScriptCompilerListener *listener);
-		/// Returns the currently set listener used for compiler instances
-		ScriptCompilerListener *getListener();
-
-		/// @copydoc ScriptLoader::getScriptPatterns
-        const StringVector& getScriptPatterns(void) const;
-        /// @copydoc ScriptLoader::parseScript
-        void parseScript(DataStreamPtr& stream, const String& groupName);
-        /// @copydoc ScriptLoader::getLoadingOrder
-        Real getLoadingOrder(void) const;
-
-		/** Override standard Singleton retrieval.
-        @remarks
-        Why do we do this? Well, it's because the Singleton
-        implementation is in a .h file, which means it gets compiled
-        into anybody who includes it. This is needed for the
-        Singleton template to work, but we actually only want it
-        compiled into the implementation of the class based on the
-        Singleton, not all of them. If we don't change this, we get
-        link errors when trying to use the Singleton-based class from
-        an outside dll.
-        @par
-        This method just delegates to the template version anyway,
-        but the implementation stays in this single compilation unit,
-        preventing link errors.
-        */
-        static ScriptCompilerManager& getSingleton(void);
-        /** Override standard Singleton retrieval.
-        @remarks
-        Why do we do this? Well, it's because the Singleton
-        implementation is in a .h file, which means it gets compiled
-        into anybody who includes it. This is needed for the
-        Singleton template to work, but we actually only want it
-        compiled into the implementation of the class based on the
-        Singleton, not all of them. If we don't change this, we get
-        link errors when trying to use the Singleton-based class from
-        an outside dll.
-        @par
-        This method just delegates to the template version anyway,
-        but the implementation stays in this single compilation unit,
-        preventing link errors.
-        */
-        static ScriptCompilerManager* getSingletonPtr(void);
 	};
 }
 
