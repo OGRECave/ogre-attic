@@ -30,6 +30,7 @@ Torus Knot Software Ltd.
 
 #include "OgreMeshSerializerImpl.h"
 #include "OgreMeshFileFormat.h"
+#include "OgreMeshSerializer.h"
 #include "OgreMesh.h"
 #include "OgreSubMesh.h"
 #include "OgreException.h"
@@ -101,7 +102,7 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("MeshSerializer export successful.");
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::importMesh(DataStreamPtr& stream, Mesh* pMesh)
+    void MeshSerializerImpl::importMesh(DataStreamPtr& stream, Mesh* pMesh, MeshSerializerListener *listener)
     {
 		// Determine endianness (must be the first thing we do!)
 		determineEndianness(stream);
@@ -116,7 +117,7 @@ namespace Ogre {
             switch (streamID)
             {
             case M_MESH:
-                readMesh(stream, pMesh);
+                readMesh(stream, pMesh, listener);
                 break;
 			}
 
@@ -821,7 +822,7 @@ namespace Ogre {
 
 	}
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readMesh(DataStreamPtr& stream, Mesh* pMesh)
+    void MeshSerializerImpl::readMesh(DataStreamPtr& stream, Mesh* pMesh, MeshSerializerListener *listener)
     {
         unsigned short streamID;
 
@@ -874,10 +875,10 @@ namespace Ogre {
 					}
 					break;
                 case M_SUBMESH:
-                    readSubMesh(stream, pMesh);
+                    readSubMesh(stream, pMesh, listener);
                     break;
                 case M_MESH_SKELETON_LINK:
-                    readSkeletonLink(stream, pMesh);
+                    readSkeletonLink(stream, pMesh, listener);
                     break;
                 case M_MESH_BONE_ASSIGNMENT:
                     readMeshBoneAssignment(stream, pMesh);
@@ -920,14 +921,18 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSubMesh(DataStreamPtr& stream, Mesh* pMesh)
+    void MeshSerializerImpl::readSubMesh(DataStreamPtr& stream, Mesh* pMesh, MeshSerializerListener *listener)
     {
         unsigned short streamID;
 
         SubMesh* sm = pMesh->createSubMesh();
+
         // char* materialName
         String materialName = readString(stream);
+		if(listener)
+			listener->processMaterialName(&materialName);
         sm->setMaterialName(materialName);
+
         // bool useSharedVertices
         readBools(stream,&sm->useSharedVertices, 1);
 
@@ -1049,9 +1054,13 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSkeletonLink(DataStreamPtr& stream, Mesh* pMesh)
+    void MeshSerializerImpl::readSkeletonLink(DataStreamPtr& stream, Mesh* pMesh, MeshSerializerListener *listener)
     {
         String skelName = readString(stream);
+
+		if(listener)
+			listener->processSkeletonName(&skelName);
+
         pMesh->setSkeletonName(skelName);
     }
     //---------------------------------------------------------------------
@@ -2703,9 +2712,9 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1_2::readMesh(DataStreamPtr& stream, Mesh* pMesh)
+    void MeshSerializerImpl_v1_2::readMesh(DataStreamPtr& stream, Mesh* pMesh, MeshSerializerListener *listener)
     {
-        MeshSerializerImpl::readMesh(stream, pMesh);
+        MeshSerializerImpl::readMesh(stream, pMesh, listener);
         // Always automatically build edge lists for this version
         pMesh->mAutoBuildEdgeLists = true;
 

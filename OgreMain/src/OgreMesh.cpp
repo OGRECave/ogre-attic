@@ -202,6 +202,7 @@ namespace Ogre {
     {
         // Load from specified 'name'
         MeshSerializer serializer;
+		serializer.setListener(MeshManager::getSingleton().getListener());
         LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
 
         DataStreamPtr stream =

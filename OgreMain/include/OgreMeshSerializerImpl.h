@@ -38,7 +38,8 @@ Torus Knot Software Ltd.
 #include "OgreEdgeListBuilder.h"
 
 namespace Ogre {
-
+	
+	class MeshSerializerListener;
 
     /** Internal implementation of Mesh reading / writing for the latest version of the
     .mesh format.
@@ -70,7 +71,7 @@ namespace Ogre {
         @param stream The DataStream holding the .mesh data. Must be initialised (pos at the start of the buffer).
         @param pDest Pointer to the Mesh object which will receive the data. Should be blank already.
         */
-        void importMesh(DataStreamPtr& stream, Mesh* pDest);
+        void importMesh(DataStreamPtr& stream, Mesh* pDest, MeshSerializerListener *listener);
 
     protected:
 
@@ -125,8 +126,8 @@ namespace Ogre {
 
         virtual void readTextureLayer(DataStreamPtr& stream, Mesh* pMesh, MaterialPtr& pMat);
         virtual void readSubMeshNameTable(DataStreamPtr& stream, Mesh* pMesh);
-        virtual void readMesh(DataStreamPtr& stream, Mesh* pMesh);
-        virtual void readSubMesh(DataStreamPtr& stream, Mesh* pMesh);
+        virtual void readMesh(DataStreamPtr& stream, Mesh* pMesh, MeshSerializerListener *listener);
+        virtual void readSubMesh(DataStreamPtr& stream, Mesh* pMesh, MeshSerializerListener *listener);
         virtual void readSubMeshOperation(DataStreamPtr& stream, Mesh* pMesh, SubMesh* sub);
         virtual void readSubMeshTextureAlias(DataStreamPtr& stream, Mesh* pMesh, SubMesh* sub);
         virtual void readGeometry(DataStreamPtr& stream, Mesh* pMesh, VertexData* dest);
@@ -134,7 +135,7 @@ namespace Ogre {
         virtual void readGeometryVertexElement(DataStreamPtr& stream, Mesh* pMesh, VertexData* dest);
         virtual void readGeometryVertexBuffer(DataStreamPtr& stream, Mesh* pMesh, VertexData* dest);
 
-        virtual void readSkeletonLink(DataStreamPtr& stream, Mesh* pMesh);
+        virtual void readSkeletonLink(DataStreamPtr& stream, Mesh* pMesh, MeshSerializerListener *listener);
         virtual void readMeshBoneAssignment(DataStreamPtr& stream, Mesh* pMesh);
         virtual void readSubMeshBoneAssignment(DataStreamPtr& stream, Mesh* pMesh, 
             SubMesh* sub);
@@ -189,7 +190,7 @@ namespace Ogre {
         MeshSerializerImpl_v1_2();
         ~MeshSerializerImpl_v1_2();
     protected:
-        virtual void readMesh(DataStreamPtr& stream, Mesh* pMesh);
+        virtual void readMesh(DataStreamPtr& stream, Mesh* pMesh, MeshSerializerListener *listener);
         virtual void readGeometry(DataStreamPtr& stream, Mesh* pMesh, VertexData* dest);
         virtual void readGeometryPositions(unsigned short bindIdx, DataStreamPtr& stream, 
             Mesh* pMesh, VertexData* dest);
