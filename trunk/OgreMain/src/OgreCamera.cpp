@@ -1041,6 +1041,16 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
+	void Camera::synchroniseBaseSettingsWith(const Camera* cam)
+	{
+		this->setPosition(cam->getPosition());
+		this->setProjectionType(cam->getProjectionType());
+		this->setOrientation(cam->getOrientation());
+		this->setAspectRatio(cam->getAspectRatio());
+		this->setNearClipDistance(cam->getNearClipDistance());
+		this->setFarClipDistance(cam->getFarClipDistance());
+
+	}
 
 
 } // namespace Ogre
