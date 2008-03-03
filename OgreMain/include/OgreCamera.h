@@ -579,6 +579,14 @@ namespace Ogre {
 		*/
 		virtual bool getUseRenderingDistance(void) const { return mUseRenderingDistance; }
 
+		/** Synchronise core camera settings with another. 
+		@remarks
+			Copies the position, orientation, clip distances, projection type 
+			and aspect ratio from another camera. Other settings like query flags, 
+			reflection etc are preserved.
+		*/
+		virtual void synchroniseBaseSettingsWith(const Camera* cam);
+
      };
 
 } // namespace Ogre
