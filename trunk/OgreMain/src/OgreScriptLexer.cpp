@@ -73,11 +73,11 @@ namespace Ogre{
 					lexeme = "";
 					state = COMMENT;
 				}
-				/*else if(c == star && lastc == slash)
+				else if(c == star && lastc == slash)
 				{
 					lexeme = "";
 					state = MULTICOMMENT;
-				}*/
+				}
 				else if(c == quote)
 				{
 					// Clear out the lexeme ready to be filled with quotes!

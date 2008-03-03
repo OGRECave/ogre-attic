@@ -333,6 +333,8 @@ namespace Ogre
 		for(AbstractNodeList::iterator i = ast->begin(); i != ast->end(); ++i)
 		{
 			//logAST(0, *i);
+			if((*i)->type == ANT_OBJECT && reinterpret_cast<ObjectAbstractNode*>((*i).get())->abstract)
+				continue;
 			ScriptTranslator *translator = ScriptCompilerManager::getSingleton().getTranslator(*i);
 			if(translator)
 				translator->translate(this, *i);
