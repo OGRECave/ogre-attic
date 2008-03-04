@@ -75,6 +75,28 @@ namespace Ogre
 		}
 	}
 
+	Portal * PCZone::findMatchingPortal(Portal * portal)
+	{
+		// look through all the portals in zone2 for a match
+		Portal* portal2;
+		PortalList::iterator pi2, piend2;
+		piend2 = mPortals.end();
+		for (pi2 = mPortals.begin(); pi2 != piend2; pi2++)
+		{
+			portal2 = *pi2;
+			//portal2->updateDerivedValues();
+			if (portal2->getTargetZone() == 0 &&
+				portal2->closeTo(portal) &&
+				portal2->getDerivedDirection().dotProduct(portal->getDerivedDirection()) < -0.9)
+			{
+				// found a match!
+				return portal2;
+			}
+		}
+		// no match
+		return 0;
+	}
+
 	/* create node specific zone data if necessary
 	*/
 	void PCZone::createNodeZoneData(PCZSceneNode *)

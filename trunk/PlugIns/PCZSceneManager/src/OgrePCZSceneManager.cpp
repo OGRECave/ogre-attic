@@ -999,38 +999,27 @@ namespace Ogre
 				{
 					// this is a portal without a connected zone - look for 
 					// a matching portal in another zone
-					ZoneMap::iterator j, jend;
 					PCZone* zone2;
-					jend = mZones.end();
+					ZoneMap::iterator j= mZones.begin();
 					foundMatch = false;
-					for (j = mZones.begin(); j != jend; j++)
+					while (!foundMatch && j != mZones.end())
 					{
 						zone2 = j->second;
 						if (zone2 != zone) // make sure we don't look in the same zone
 						{
-							// look through all the portals in zone2 for a match
-							Portal* portal2;
-							PortalList::iterator pi2, piend2;
-							piend2 = zone2->mPortals.end();
-							for (pi2 = zone2->mPortals.begin(); pi2 != piend2; pi2++)
+							Portal * portal2 = zone2->findMatchingPortal(portal);
+							if (portal2)
 							{
-								portal2 = *pi2;
-								//portal2->updateDerivedValues();
-								if (portal2->getTargetZone() == 0 &&
-									portal2->closeTo(portal))
-								{
-									Ogre::LogManager::getSingletonPtr()->logMessage("Connecting portal "+portal->getName()+" to portal "+portal2->getName());
-									// found a match!
-									foundMatch = true;
-									portal->setTargetZone(zone2);
-									portal->setTargetPortal(portal2);
-									portal2->setTargetZone(zone);
-									portal2->setTargetPortal(portal);
-									break;
-									break;
-								}
+								// found a match!
+								Ogre::LogManager::getSingletonPtr()->logMessage("Connecting portal "+portal->getName()+" to portal "+portal2->getName());
+								foundMatch = true;
+								portal->setTargetZone(zone2);
+								portal->setTargetPortal(portal2);
+								portal2->setTargetZone(zone);
+								portal2->setTargetPortal(portal);
 							}
 						}
+						j++;
 					}
 					if (foundMatch == false)
 					{

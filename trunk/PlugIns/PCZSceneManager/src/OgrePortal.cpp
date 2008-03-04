@@ -871,7 +871,14 @@ bool Portal::closeTo(Portal * otherPortal)
 	{
 	default:
 	case PORTAL_TYPE_QUAD:
-		close = mDerivedSphere.intersects(otherPortal->getDerivedSphere());
+		{
+			// quad portals must be within 1/4 sphere of each other
+			Sphere quarterSphere1 = mDerivedSphere;
+			quarterSphere1.setRadius(quarterSphere1.getRadius()*0.25);
+			Sphere quarterSphere2 = otherPortal->getDerivedSphere();
+			quarterSphere2.setRadius(quarterSphere2.getRadius()*0.25);
+			close = quarterSphere1.intersects(quarterSphere2);
+		}
 		break;
 	case PORTAL_TYPE_AABB:
 		// NOTE: AABB's must match perfectly

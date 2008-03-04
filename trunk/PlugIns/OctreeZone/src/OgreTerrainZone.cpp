@@ -113,6 +113,8 @@ namespace Ogre
 			node->_updateBounds();
 			// DON'T resize the octree to the same size as the enclosure node bounding box
 			// resize(node->_getWorldAABB());
+			// EXPERIMENTAL - prevent terrain zone enclosure node from visiting other zones
+			node->allowToVisit(false);
 		}
 	}
 
