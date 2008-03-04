@@ -148,6 +148,10 @@ namespace Ogre
 		*/
 		virtual void createNodeZoneData(PCZSceneNode *);
 
+		/** find a matching portal (for connecting portals)
+		*/
+		virtual Portal * findMatchingPortal(Portal *);
+
 		/* Add a portal to the zone
 		*/
 		virtual void _addPortal( Portal * ) = 0;

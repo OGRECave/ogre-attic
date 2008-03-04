@@ -107,12 +107,17 @@ namespace Ogre {
 			page->pageSceneNode = mTerrainZone->mPCZSM->getSceneNode(name);
 			// set the home zone of the scene node to the terrainzone
 			((PCZSceneNode*)(page->pageSceneNode))->anchorToHomeZone(mTerrainZone);
+			// EXPERIMENTAL - prevent terrain zone pages from visiting other zones
+			((PCZSceneNode*)(page->pageSceneNode))->allowToVisit(false);
 		}
 		else
 		{
 			page->pageSceneNode = mTerrainZone->getTerrainRootNode()->createChildSceneNode(name);
 			// set the home zone of the scene node to the terrainzone
 			((PCZSceneNode*)(page->pageSceneNode))->anchorToHomeZone(mTerrainZone);
+			// EXPERIMENTAL - prevent terrain zone pages from visiting other zones
+			((PCZSceneNode*)(page->pageSceneNode))->allowToVisit(false);
+
 		}
         
         size_t q = 0;
@@ -136,12 +141,16 @@ namespace Ogre {
 						page->pageSceneNode->addChild(c);
 					// set the home zone of the scene node to the terrainzone
 					((PCZSceneNode*)c)->anchorToHomeZone(mTerrainZone);
+					// EXPERIMENTAL - prevent terrain zone pages from visiting other zones
+					((PCZSceneNode*)c)->allowToVisit(false);
 				}
 				else
 				{
 					c = page->pageSceneNode->createChildSceneNode( name );
 					// set the home zone of the scene node to the terrainzone
 					((PCZSceneNode*)c)->anchorToHomeZone(mTerrainZone);
+					// EXPERIMENTAL - prevent terrain zone pages from visiting other zones
+					((PCZSceneNode*)c)->allowToVisit(false);
 				}
 
 				TerrainZoneRenderable *tile = new TerrainZoneRenderable(name, mTerrainZone);
