@@ -33,6 +33,9 @@ Torus Knot Software Ltd.
 #include "OgreRenderSystem.h"
 #include "OgreD3D10Device.h"
 #include "OgreD3D10Mappings.h"
+#include "OgreFixedFuncState.h"
+#include "OgreHlslFixedFuncEmuShaderGenerator.h"
+#include "OgreFixedFuncEmuShaderManager.h"
 
 namespace Ogre 
 {
@@ -133,6 +136,10 @@ namespace Ogre
         D3D10HLSLProgramFactory* mHLSLProgramFactory;
 
 		size_t mLastVertexSourceCount;
+
+		FixedFuncState mFixedFuncState;
+		Hlsl4FixedFuncEmuShaderGenerator mHlslFixedFuncEmuShaderGenerator;
+		FixedFuncEmuShaderManager	mFixedFuncEmuShaderManager;
 
 
 		/// Internal method for populating the capabilities structure

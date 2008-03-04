@@ -454,6 +454,22 @@
 				RelativePath="..\src\OgreD3D10VideoModeList.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\src\OgreFixedFuncEmuShaderGenerator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreFixedFuncEmuShaderManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreFixedFuncState.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreHlslFixedFuncEmuShaderGenerator.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -553,6 +569,22 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D10VideoModeList.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreFixedFuncEmuShaderGenerator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreFixedFuncEmuShaderManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreFixedFuncState.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreHlslFixedFuncEmuShaderGenerator.h"
 				>
 			</File>
 		</Filter>

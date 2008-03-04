@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D10Prerequisites.h"
 #include "OgreHardwareVertexBuffer.h"
 #include "OgreHighLevelGpuProgramManager.h"
+#include "OgreFixedFuncState.h"
 
 namespace Ogre { 
 
@@ -42,19 +43,15 @@ namespace Ogre {
 		typedef std::map<D3D10HLSLProgram*, ID3D10InputLayout*> ShaderToILayoutMap;
 		typedef ShaderToILayoutMap::iterator ShaderToILayoutMapIterator;
 
+		D3D10_INPUT_ELEMENT_DESC*  mD3delems;
+
 		ShaderToILayoutMap mShaderToILayoutMap;
 
-		HighLevelGpuProgramPtr mVs;
-		GpuProgramParametersSharedPtr mVsParams;
-		HighLevelGpuProgramPtr mFs;
-		GpuProgramParametersSharedPtr mFsParams;
+		VertexBufferDeclaration mVertexBufferDeclaration;
 
 		/** Gets the D3D10-specific vertex declaration. */
 
 		ID3D10InputLayout	*  getILayoutByShader(D3D10HLSLProgram* boundVertexProgram);
-
-		unsigned short numberOfTexcoord();
-		unsigned short countVertexElementSemantic(VertexElementSemantic semantic);
 	public:
 		D3D10VertexDeclaration(D3D10Device &  device);
 		~D3D10VertexDeclaration();
@@ -86,13 +83,7 @@ namespace Ogre {
 		D3D10_INPUT_ELEMENT_DESC * getD3DVertexDeclaration(void);
 		void bindToShader(D3D10HLSLProgram* boundVertexProgram);
 
-		HighLevelGpuProgramPtr getFixFuncVs();
-		HighLevelGpuProgramPtr getFixFuncFs();
-		GpuProgramParametersSharedPtr getFixFuncVsParams();
-		GpuProgramParametersSharedPtr getFixFuncFsParams();
-
-		bool hasColor();
-		bool hasTexcoord();
+		const VertexBufferDeclaration & getVertexBufferDeclaration();
 
 	};
 
