@@ -162,6 +162,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreScriptLexer.h \
                      OgreScriptLoader.h \
                      OgreScriptParser.h \
+                     OgreScriptTranslator.h \
                      OgreSearchOps.h \
                      OgreSerializer.h \
                      OgreShadowCameraSetup.h \
