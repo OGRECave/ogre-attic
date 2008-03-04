@@ -160,12 +160,16 @@ namespace Ogre
 		mEventNames.push_back("DeviceLost");
 		mEventNames.push_back("DeviceRestored");
 
+		mFixedFuncEmuShaderManager.registerGenerator(&mHlslFixedFuncEmuShaderGenerator);
+
 
 	}
 	//---------------------------------------------------------------------
 	D3D10RenderSystem::~D3D10RenderSystem()
 	{
         shutdown();
+
+		mFixedFuncEmuShaderManager.unregisterGenerator(&mHlslFixedFuncEmuShaderGenerator);
 
         // Deleting the HLSL program factory
         if (mHLSLProgramFactory)
@@ -1397,19 +1401,19 @@ namespace Ogre
 	void D3D10RenderSystem::_setViewMatrix( const Matrix4 &m )
 	{
 		// save latest view matrix
-		mMainVertexShaderMatrixsBuffer.mViewMatrix = m.transpose();
+		mMainVertexShaderMatrixsBuffer.mViewMatrix = m;
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setProjectionMatrix( const Matrix4 &m )
 	{
 		 // save latest projection matrix
-		mMainVertexShaderMatrixsBuffer.mProjectionMatrix = m.transpose();
+		mMainVertexShaderMatrixsBuffer.mProjectionMatrix = m;
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setWorldMatrix( const Matrix4 &m )
 	{
 		// save latest world matrix
-		mMainVertexShaderMatrixsBuffer.mWorldMatrix = m.transpose();
+		mMainVertexShaderMatrixsBuffer.mWorldMatrix = m;
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse,
@@ -1869,6 +1873,7 @@ namespace Ogre
 		mFogDensitiy	= densitiy;
 		mFogStart		= start;
 		mFogEnd			= end;
+		mFixedFuncState.getGeneralFixedFuncState().setFogMode(mFogMode);
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setPolygonMode(PolygonMode level)
@@ -2256,21 +2261,29 @@ namespace Ogre
 		bool needToUnmapFS = false;
 	 	if (!mBoundVertexProgram) // I know this is bad code - but I want to get things going
 		{
+			assert (!mBoundFragmentProgram); // not allowed for now
+
+			const VertexBufferDeclaration &  vertexBufferDeclaration = 
+				(static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getVertexBufferDeclaration();
+			FixedFuncPrograms & fixedFuncPrograms = mFixedFuncEmuShaderManager.getShaderPrograms("hlsl4", 
+				vertexBufferDeclaration,
+				mFixedFuncState
+				);
 
 
 			{
-				HighLevelGpuProgramPtr fixedFuncVsProgram = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncVs();
+				HighLevelGpuProgramPtr fixedFuncVsProgram = fixedFuncPrograms.getVertexProgramUsage()->getProgram();
 				needToUnmapVS = true;
 				bindGpuProgram(fixedFuncVsProgram.get());
 
-				GpuProgramParametersSharedPtr params = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncVsParams();
-				{
+				GpuProgramParametersSharedPtr params = fixedFuncPrograms.getVertexProgramUsage()->getParameters();
+				/*{
 					const GpuConstantDefinition& def = params->getConstantDefinition("FullPosTransMatrix");
 					Matrix4 FullPosTransMatrix =  mMainVertexShaderMatrixsBuffer.mWorldMatrix * mMainVertexShaderMatrixsBuffer.mViewMatrix * mMainVertexShaderMatrixsBuffer.mProjectionMatrix ;
 					memcpy((params->getFloatPointer(def.physicalIndex)), &FullPosTransMatrix ,sizeof(float) * def.elementSize * def.arraySize);
-				}
+				}*/
 
-				/*
+				
 				{
 					const GpuConstantDefinition& def = params->getConstantDefinition("World");
 					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mWorldMatrix ,sizeof(float) * def.elementSize * def.arraySize);
@@ -2283,43 +2296,75 @@ namespace Ogre
 					const GpuConstantDefinition& def = params->getConstantDefinition("View");
 					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mViewMatrix ,sizeof(float) * def.elementSize * def.arraySize);
 				}
-				*/
+						
 				bindGpuProgramParameters(GPT_VERTEX_PROGRAM, params);
 
-		}
-
-			/*
-			char * pConstData;
-			mMainMatrixsConstantBuffer->Map( D3D10_MAP_WRITE_DISCARD, NULL, (void **) &pConstData );
-			memcpy(pConstData, &mMainVertexShaderMatrixsBuffer, sizeof(MainVertexShaderMatrixsBuffer));
-			mMainMatrixsConstantBuffer->Unmap();*/
-
-			//ID3D10Buffer* pBuffers[1] ;
-			//pBuffers[0] = mMainMatrixsConstantBuffer;
-			//mDevice->VSSetConstantBuffers( 0, 1, pBuffers );
-		}
-
-		if (!mBoundFragmentProgram)
-		{
-
-			HighLevelGpuProgramPtr fixedFuncPsProgram = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncFs();
-			needToUnmapFS = true;
-			bindGpuProgram(fixedFuncPsProgram.get());
-
-			GpuProgramParametersSharedPtr params = (static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getFixFuncFsParams();
-			if ((static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->hasTexcoord())
-			{
-				const GpuConstantDefinition& def = params->getConstantDefinition("TextureMatrix");
-				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mTextureMatrix ,sizeof(float) * def.elementSize * def.arraySize);
-			}
-			if ((static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->hasColor())
-			{
-				const GpuConstantDefinition& def = params->getConstantDefinition("LightingEnabled");
-				memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mLightingEnabled ,sizeof(float));
 			}
 
-			bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, params);
+			{
+				/*
+				char * pConstData;
+				mMainMatrixsConstantBuffer->Map( D3D10_MAP_WRITE_DISCARD, NULL, (void **) &pConstData );
+				memcpy(pConstData, &mMainVertexShaderMatrixsBuffer, sizeof(MainVertexShaderMatrixsBuffer));
+				mMainMatrixsConstantBuffer->Unmap();*/
 
+				//ID3D10Buffer* pBuffers[1] ;
+				//pBuffers[0] = mMainMatrixsConstantBuffer;
+				//mDevice->VSSetConstantBuffers( 0, 1, pBuffers );
+
+				HighLevelGpuProgramPtr fixedFuncPsProgram = fixedFuncPrograms.getFragmentProgramUsage()->getProgram();
+				needToUnmapFS = true;
+				bindGpuProgram(fixedFuncPsProgram.get());
+
+				GpuProgramParametersSharedPtr params = fixedFuncPrograms.getFragmentProgramUsage()->getParameters();
+				if (vertexBufferDeclaration.hasTexcoord())
+				{
+					const GpuConstantDefinition& def = params->getConstantDefinition("TextureMatrix");
+					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mTextureMatrix ,sizeof(float) * def.elementSize * def.arraySize);
+				}
+				if (vertexBufferDeclaration.hasColor())
+				{
+					const GpuConstantDefinition& def = params->getConstantDefinition("LightingEnabled");
+					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mLightingEnabled ,sizeof(float));
+				}
+
+				switch (mFixedFuncState.getGeneralFixedFuncState().getFogMode())
+				{
+				case FOG_NONE:
+					break;
+				case FOG_EXP:
+				case FOG_EXP2:
+					{
+						const GpuConstantDefinition& def = params->getConstantDefinition("FogDensity");
+						memcpy((params->getFloatPointer(def.physicalIndex)), &mFogDensitiy ,sizeof(float));
+					}
+					break;
+				case FOG_LINEAR:
+					{
+						const GpuConstantDefinition& def = params->getConstantDefinition("FogStart");
+						memcpy((params->getFloatPointer(def.physicalIndex)), &mFogStart ,sizeof(float));
+					}
+					{
+						const GpuConstantDefinition& def = params->getConstantDefinition("FogEnd");
+						memcpy((params->getFloatPointer(def.physicalIndex)), &mFogEnd ,sizeof(float));
+					}
+					break;
+				}
+
+				if (mFixedFuncState.getGeneralFixedFuncState().getFogMode() != FOG_NONE)
+				{
+					const GpuConstantDefinition& def = params->getConstantDefinition("FogColor");
+					float * fogColor = (params->getFloatPointer(def.physicalIndex));
+					fogColor[0] = mFogColour[0];
+					fogColor[1] = mFogColour[1];
+					fogColor[2] = mFogColour[2];
+					fogColor[3] = mFogColour[3];
+				}
+
+				bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, params);
+
+
+			}
 
 
 		}
