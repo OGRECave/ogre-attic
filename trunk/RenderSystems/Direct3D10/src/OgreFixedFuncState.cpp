@@ -39,13 +39,14 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
-	GeneralFixedFuncState::GeneralFixedFuncState() :
-		 mAlphaRejectFunc(CMPF_ALWAYS_PASS)
-		, mLightingEnabled(true)
-		, mShadeOptions(SO_GOURAUD)
-		, mFogMode(FOG_NONE)
-		, mNormaliseNormals(false)
+	GeneralFixedFuncState::GeneralFixedFuncState()
     {
+		ZeroMemory(this, sizeof(GeneralFixedFuncState));
+		mAlphaRejectFunc = CMPF_ALWAYS_PASS;
+		mLightingEnabled = true;
+		mShadeOptions = SO_GOURAUD;
+		mFogMode = FOG_NONE;
+		mNormaliseNormals = false;
     }
     //-----------------------------------------------------------------------------
     GeneralFixedFuncState::~GeneralFixedFuncState()
@@ -109,7 +110,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	FixedFuncState::FixedFuncState()
 	{
-
 	}
 	//-----------------------------------------------------------------------
 	FixedFuncState::~FixedFuncState()
@@ -144,29 +144,54 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	const bool FixedFuncState::operator<( const FixedFuncState & other ) const
 	{
-		int memcmpRes = memcmp(&this->mGeneralFixedFuncState, &other.mGeneralFixedFuncState, sizeof(mGeneralFixedFuncState)) > 0 ;
+	
+
+		// General
+		int memcmpRes = memcmp(&this->mGeneralFixedFuncState, &other.mGeneralFixedFuncState, sizeof(GeneralFixedFuncState))  ;
 		if (memcmpRes)
 		{
 			return memcmpRes > 0;
 		}
-		else
+
+		// mTextureLayerStateList
+		if (mTextureLayerStateList.size() != other.mTextureLayerStateList.size())
 		{
-			if (mTextureLayerStateList.size() == other.mTextureLayerStateList.size())
+			return mTextureLayerStateList.size() > other.mTextureLayerStateList.size();
+		}
+
+		if (mTextureLayerStateList.size() > 0)
+		{
+			int memcmpRes =  memcmp(&mTextureLayerStateList[0], &other.mTextureLayerStateList[0], mTextureLayerStateList.size() * sizeof(TextureLayerState));
+			if (memcmpRes)
 			{
-				if (mTextureLayerStateList.size() > 0)
-				{
-					return memcmp(&mTextureLayerStateList[0], &other.mTextureLayerStateList[0], mTextureLayerStateList.size() * sizeof(Light::LightTypes)) > 0 ;
-				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return  (mTextureLayerStateList.size() > other.mTextureLayerStateList.size());
+				return memcmpRes > 0;
 			}
 		}
+
+		// mLights
+
+		if (!mGeneralFixedFuncState.getLightingEnabled())
+		{
+			return false;
+		}
+
+		if (mLights.size() != other.mLights.size())
+		{
+			return mLights.size() > other.mLights.size();
+		}
+
+
+		if (mLights.size() > 0)
+		{
+			int memcmpRes =  memcmp(&mLights[0], &other.mLights[0], mLights.size() * sizeof(Light::LightTypes));
+			if (memcmpRes)
+			{
+				return memcmpRes > 0;
+			}
+		}
+
+		return false;
+
 	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
@@ -183,20 +208,18 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	const bool VertexBufferDeclaration::operator<( const VertexBufferDeclaration & other ) const
 	{
-		if (mVertexBufferElementList.size() == other.mVertexBufferElementList.size())
+		if(mVertexBufferElementList.size() != other.mVertexBufferElementList.size())
 		{
-			if (mVertexBufferElementList.size() > 0)
-			{
-				return memcmp(&mVertexBufferElementList[0], &other.mVertexBufferElementList[0], mVertexBufferElementList.size() * sizeof(VertexBufferElement)) > 0 ;
-			}
-			else
-			{
-				return false;
-			}
+			return  (mVertexBufferElementList.size() > other.mVertexBufferElementList.size());
+		}
+
+		if (mVertexBufferElementList.size() > 0)
+		{
+			return memcmp(&mVertexBufferElementList[0], &other.mVertexBufferElementList[0], mVertexBufferElementList.size() * sizeof(VertexBufferElement)) > 0 ;
 		}
 		else
 		{
-			return  (mVertexBufferElementList.size() > other.mVertexBufferElementList.size());
+			return false;
 		}
 	}
 	//-----------------------------------------------------------------------

@@ -116,7 +116,7 @@ namespace Ogre {
 	public:
 		/// Default constructor
 		GeneralFixedFuncState();
-		virtual ~GeneralFixedFuncState();
+		~GeneralFixedFuncState();
 
 		/** Sets whether or not dynamic lighting is enabled.
 		@param

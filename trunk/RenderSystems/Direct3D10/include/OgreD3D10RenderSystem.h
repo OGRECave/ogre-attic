@@ -107,7 +107,6 @@ namespace Ogre
 
 		void initInputDevices(void);
 		void processInputDevices(void);
-		void setD3D10Light( size_t index, Light* light );
 		
 		// state management methods, very primitive !!!
 //		HRESULT __SetRenderState(D3DRENDERSTATETYPE state, DWORD value);
@@ -180,6 +179,8 @@ namespace Ogre
 
 		D3D10_RECT mScissorRect;
 
+		ColourValue mBaseLightAmbient;
+
 
 		D3D10HLSLProgram* mBoundVertexProgram;
 		D3D10HLSLProgram* mBoundFragmentProgram;
@@ -223,7 +224,6 @@ namespace Ogre
 		struct MainFregmentShaderMatrixsBuffer
 		{
 			Matrix4 mTextureMatrix;
-			float	mLightingEnabled;
 		};
 
 		MainFregmentShaderMatrixsBuffer mMainFregmentShaderMatrixsBuffer;
