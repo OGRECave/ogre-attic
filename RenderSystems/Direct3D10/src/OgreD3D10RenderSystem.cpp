@@ -1282,28 +1282,33 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::setAmbientLight( float r, float g, float b )
 	{
-	/*	HRESULT hr = __SetRenderState( D3DRS_AMBIENT, D3DCOLOR_COLORVALUE( r, g, b, 1.0f ) );
-		if( FAILED( hr ) )
-			OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, 
-			"Failed to set render stat D3DRS_AMBIENT", "D3D10RenderSystem::setAmbientLight" );
-	*/}
+		mBaseLightAmbient[0] = r;
+		mBaseLightAmbient[0] = g;
+		mBaseLightAmbient[0] = b;
+		mBaseLightAmbient[0] = 0.0;
+	}
 	//---------------------------------------------------------------------
     void D3D10RenderSystem::_useLights(const LightList& lights, unsigned short limit)
     {
-/*        LightList::const_iterator i, iend;
-        iend = lights.end();
-        unsigned short num = 0;
-        for (i = lights.begin(); i != iend && num < limit; ++i, ++num)
-        {
-            setD3D10Light(num, *i);
-        }
-        // Disable extra lights
-        for (; num < mCurrentLights; ++num)
-        {
-            setD3D10Light(num, NULL);
-        }
-        mCurrentLights = std::min(limit, static_cast<unsigned short>(lights.size()));
-*/
+		mCurrentLights = lights.size();
+		if (mCurrentLights > limit)
+		{
+			mCurrentLights = limit;
+		}
+
+		if (mCurrentLights > 0)
+		{
+			memcpy(&mLights[0], &lights[0], mCurrentLights * sizeof(Light *));
+		}
+
+		LightTypesList lightTypes;
+		for(size_t i = 0 ; i < mCurrentLights ; i++ )
+		{
+			mLights[i] = lights[i];
+			lightTypes.push_back(mLights[i]->getType());
+
+		}
+		mFixedFuncState.setLights(lightTypes);
     }
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::setShadingType( ShadeOptions so )
@@ -1319,11 +1324,11 @@ namespace Ogre
 	{
 		if (enabled)
 		{
-			mMainFregmentShaderMatrixsBuffer.mLightingEnabled = 1.0;
+			mFixedFuncState.getGeneralFixedFuncState().setLightingEnabled(true);
 		}
 		else
 		{
-			mMainFregmentShaderMatrixsBuffer.mLightingEnabled = 0.0;
+			mFixedFuncState.getGeneralFixedFuncState().setLightingEnabled(false);
 		}
 	/*	HRESULT hr;
 		if( FAILED( hr = __SetRenderState( D3DRS_LIGHTING, enabled ) ) )
@@ -1331,72 +1336,6 @@ namespace Ogre
 			"Failed to set render state D3DRS_LIGHTING", "D3D10RenderSystem::setLightingEnabled" );
 	*/}
 	//---------------------------------------------------------------------
-	void D3D10RenderSystem::setD3D10Light( size_t index, Light* lt )
-	{
-/*		HRESULT hr;
-
-		D3DLIGHT9 d3dLight;
-		ZeroMemory( &d3dLight, sizeof(d3dLight) );
-
-        if (!lt)
-        {
-            if( FAILED( hr = mDevice->LightEnable( index, FALSE) ) )
-			    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"Unable to disable light", "D3D10RenderSystem::setD3D10Light" );
-        }
-        else
-        {
-			switch( lt->getType() )
-			{
-			case Light::LT_POINT:
-				d3dLight.Type = D3DLIGHT_POINT;
-				break;
-
-			case Light::LT_DIRECTIONAL:
-				d3dLight.Type = D3DLIGHT_DIRECTIONAL;
-				break;
-
-			case Light::LT_SPOTLIGHT:
-				d3dLight.Type = D3DLIGHT_SPOT;
-				d3dLight.Falloff = lt->getSpotlightFalloff();
-				d3dLight.Theta = lt->getSpotlightInnerAngle().valueRadians();
-				d3dLight.Phi = lt->getSpotlightOuterAngle().valueRadians();
-				break;
-			}
-
-			ColourValue col;
-			col = lt->getDiffuseColour();
-			d3dLight.Diffuse = D3DXCOLOR( col.r, col.g, col.b, col.a );
-
-			col = lt->getSpecularColour();
-			d3dLight.Specular = D3DXCOLOR( col.r, col.g, col.b, col.a );
-
-			Vector3 vec;
-			if( lt->getType() != Light::LT_DIRECTIONAL )
-			{
-				vec = lt->getDerivedPosition();
-				d3dLight.Position = D3DXVECTOR3( vec.x, vec.y, vec.z );
-			}
-			if( lt->getType() != Light::LT_POINT )
-			{
-				vec = lt->getDerivedDirection();
-				d3dLight.Direction = D3DXVECTOR3( vec.x, vec.y, vec.z );
-			}
-
-			d3dLight.Range = lt->getAttenuationRange();
-			d3dLight.Attenuation0 = lt->getAttenuationConstant();
-			d3dLight.Attenuation1 = lt->getAttenuationLinear();
-			d3dLight.Attenuation2 = lt->getAttenuationQuadric();
-
-			if( FAILED( hr = mDevice->SetLight( index, &d3dLight ) ) )
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set light details", "D3D10RenderSystem::setD3D10Light" );
-
-            if( FAILED( hr = mDevice->LightEnable( index, TRUE ) ) )
-			    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to enable light", "D3D10RenderSystem::setD3D10Light" );
-        }
-
-*/
-	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setViewMatrix( const Matrix4 &m )
 	{
@@ -2296,6 +2235,140 @@ namespace Ogre
 					const GpuConstantDefinition& def = params->getConstantDefinition("View");
 					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mViewMatrix ,sizeof(float) * def.elementSize * def.arraySize);
 				}
+				{
+					const GpuConstantDefinition& def = params->getConstantDefinition("ViewIT");
+					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mViewMatrix.inverse().transpose() ,sizeof(float) * def.elementSize * def.arraySize);
+				}
+				{
+					const GpuConstantDefinition& def = params->getConstantDefinition("WorldViewIT");
+					Matrix4 WorldViewIT = mMainVertexShaderMatrixsBuffer.mWorldMatrix * mMainVertexShaderMatrixsBuffer.mViewMatrix;
+					WorldViewIT = WorldViewIT.inverse().transpose();
+
+					memcpy((params->getFloatPointer(def.physicalIndex)), &WorldViewIT ,sizeof(float) * def.elementSize * def.arraySize);
+				}
+
+				if (mFixedFuncState.getGeneralFixedFuncState().getLightingEnabled())
+				{
+					{
+						const GpuConstantDefinition& def = params->getConstantDefinition("BaseLightAmbient");
+						float BaseLightAmbient[4];
+						BaseLightAmbient[0] = mBaseLightAmbient[0];
+						BaseLightAmbient[1] = mBaseLightAmbient[1];
+						BaseLightAmbient[2] = mBaseLightAmbient[2];
+						BaseLightAmbient[3] = mBaseLightAmbient[3];
+
+						memcpy((params->getFloatPointer(def.physicalIndex)), &BaseLightAmbient ,sizeof(float) * 4);
+					}
+
+
+					for(size_t i = 0 ; i < mFixedFuncState.getLights().size() ; i++)
+					{
+						String prefix = "Light" + Ogre::StringConverter::toString(i) + "_";
+						switch (mFixedFuncState.getLights()[i])
+						{
+						case Light::LT_POINT:
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Position");
+								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getPosition() ,sizeof(float) * 3);
+							}
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Ambient");
+								float lightAmbient[4];
+								ZeroMemory(lightAmbient, sizeof(float) * 4);
+								//memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getAmbient() ,sizeof(float) * 4);
+								memcpy((params->getFloatPointer(def.physicalIndex)), &lightAmbient[0] ,sizeof(float) * 4);
+							}
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Diffuse");
+								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getDiffuseColour() ,sizeof(float) * 4);
+							}
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Specular");
+								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getSpecularColour() ,sizeof(float) * 4);
+							}
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Range");
+								float range = mLights[i]->getAttenuationRange();
+								memcpy((params->getFloatPointer(def.physicalIndex)), &range ,sizeof(float));
+							}
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Attenuation");
+								float Attenuation[3];
+								Attenuation[0] = mLights[i]->getAttenuationConstant();
+								Attenuation[1] = mLights[i]->getAttenuationLinear();
+								Attenuation[2] = mLights[i]->getAttenuationQuadric();
+
+								memcpy((params->getFloatPointer(def.physicalIndex)), &Attenuation[0] ,sizeof(float) * 3);
+							}			
+							break;
+						case Light::LT_DIRECTIONAL:
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Direction");
+								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getDirection() ,sizeof(float) * 3);
+							}			
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Ambient");
+								float lightAmbient[4];
+								ZeroMemory(lightAmbient, sizeof(float) * 4);
+								//memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getAmbient() ,sizeof(float) * 4);
+								memcpy((params->getFloatPointer(def.physicalIndex)), &lightAmbient[0] ,sizeof(float) * 4);
+							}			
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Diffuse");
+								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getDiffuseColour() ,sizeof(float) * 4);
+							}			
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Specular");
+								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getSpecularColour() ,sizeof(float) * 4);
+							}			
+
+							break;
+						case Light::LT_SPOTLIGHT:
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Direction");
+								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getDirection() ,sizeof(float) * 3);
+							}			
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Position");
+								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getPosition() ,sizeof(float) * 3);
+							}			
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Ambient");
+								float lightAmbient[4];
+								ZeroMemory(lightAmbient, sizeof(float) * 4);
+								//memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getAmbient() ,sizeof(float) * 4);
+								memcpy((params->getFloatPointer(def.physicalIndex)), &lightAmbient[0] ,sizeof(float) * 4);
+							}			
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Diffuse");
+								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getDiffuseColour() ,sizeof(float) * 4);
+							}			
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Specular");
+								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getSpecularColour() ,sizeof(float) * 4);
+							}			
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Attenuation");
+								float Attenuation[3];
+								Attenuation[0] = mLights[i]->getAttenuationConstant();
+								Attenuation[1] = mLights[i]->getAttenuationLinear();
+								Attenuation[2] = mLights[i]->getAttenuationQuadric();
+
+								memcpy((params->getFloatPointer(def.physicalIndex)), &Attenuation[0] ,sizeof(float) * 3);							}			
+							{
+								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Spot");
+								float Spot[3];
+								Spot[0] = mLights[i]->getSpotlightInnerAngle().valueRadians() ;
+								Spot[1] = mLights[i]->getSpotlightOuterAngle().valueRadians();
+								Spot[2] = mLights[i]->getSpotlightFalloff();
+								memcpy((params->getFloatPointer(def.physicalIndex)), &Spot[0] ,sizeof(float) * 3);
+							}							
+							break;
+						}
+					}
+
+				}
+
 						
 				bindGpuProgramParameters(GPT_VERTEX_PROGRAM, params);
 
@@ -2322,11 +2395,7 @@ namespace Ogre
 					const GpuConstantDefinition& def = params->getConstantDefinition("TextureMatrix");
 					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mTextureMatrix ,sizeof(float) * def.elementSize * def.arraySize);
 				}
-				if (vertexBufferDeclaration.hasColor())
-				{
-					const GpuConstantDefinition& def = params->getConstantDefinition("LightingEnabled");
-					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mLightingEnabled ,sizeof(float));
-				}
+	
 
 				switch (mFixedFuncState.getGeneralFixedFuncState().getFogMode())
 				{

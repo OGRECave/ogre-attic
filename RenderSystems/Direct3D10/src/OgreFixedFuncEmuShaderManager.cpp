@@ -117,13 +117,12 @@ namespace Ogre
 		fragmentProgramUsage->setProgram(Ogre::GpuProgramPtr(fs));
 		fragmentProgramUsage->setParameters(fs->createParameters());
 
-		FixedFuncPrograms newPrograms;
+		FixedFuncPrograms & newPrograms = mLanguage2State2Declaration2ProgramsMap[generatorName][fixedFuncState][vertexBufferDeclaration];
 		newPrograms.setVertexProgramUsage(vertexProgramUsage);
 		newPrograms.setFragmentProgramUsage(fragmentProgramUsage);
 
 		mProgramsToDeleteAtTheEnd.push_back(newPrograms);
-		mLanguage2State2Declaration2ProgramsMap[generatorName][fixedFuncState][vertexBufferDeclaration] = newPrograms;	
-		return mLanguage2State2Declaration2ProgramsMap[generatorName][fixedFuncState][vertexBufferDeclaration];
+		return newPrograms;
 	}
 	//---------------------------------------------------------------------
 	FixedFuncPrograms & FixedFuncEmuShaderManager::getShaderPrograms( const String & generatorName, 

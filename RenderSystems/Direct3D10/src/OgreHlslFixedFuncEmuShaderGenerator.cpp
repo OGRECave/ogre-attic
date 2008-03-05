@@ -161,6 +161,8 @@ namespace Ogre
 		shaderSource = shaderSource + "float4x4  World;\n";
 		shaderSource = shaderSource + "float4x4  View;\n";
 		shaderSource = shaderSource + "float4x4  Projection;\n";
+		shaderSource = shaderSource + "float4x4  ViewIT;\n";
+		shaderSource = shaderSource + "float4x4  WorldViewIT;\n";	
 
 		switch (fixedFuncState.getGeneralFixedFuncState().getFogMode())
 		{
@@ -176,6 +178,44 @@ namespace Ogre
 			break;
 		}
 
+		if (fixedFuncState.getGeneralFixedFuncState().getLightingEnabled())
+		{
+			shaderSource = shaderSource + "float4 BaseLightAmbient;\n";
+
+			for(size_t i = 0 ; i < fixedFuncState.getLights().size() ; i++)
+			{
+				String prefix = "Light" + Ogre::StringConverter::toString(i) + "_";
+				switch (fixedFuncState.getLights()[i])
+				{
+				case Light::LT_POINT:
+					shaderSource = shaderSource + "float3 " + prefix + "Position;\n";
+					shaderSource = shaderSource + "float4 " + prefix + "Ambient;\n";
+					shaderSource = shaderSource + "float4 " + prefix + "Diffuse;\n";
+					shaderSource = shaderSource + "float4 " + prefix + "Specular;\n";				
+					shaderSource = shaderSource + "float  " + prefix + "Range;\n";				
+					shaderSource = shaderSource + "float3 " + prefix + "Attenuation;\n";				
+					break;
+				case Light::LT_DIRECTIONAL:
+					shaderSource = shaderSource + "float3 " + prefix + "Direction;\n";
+					shaderSource = shaderSource + "float4 " + prefix + "Ambient;\n";
+					shaderSource = shaderSource + "float4 " + prefix + "Diffuse;\n";
+					shaderSource = shaderSource + "float4 " + prefix + "Specular;\n";				
+					break;
+				case Light::LT_SPOTLIGHT:
+					shaderSource = shaderSource + "float3 " + prefix + "Direction;\n";
+					shaderSource = shaderSource + "float3 " + prefix + "Position;\n";
+					shaderSource = shaderSource + "float4 " + prefix + "Ambient;\n";
+					shaderSource = shaderSource + "float4 " + prefix + "Diffuse;\n";
+					shaderSource = shaderSource + "float4 " + prefix + "Specular;\n";				
+					shaderSource = shaderSource + "float3 " + prefix + "Attenuation;\n";				
+					shaderSource = shaderSource + "float3 " + prefix + "Spot;\n";				
+					break;
+				}
+			}
+
+		}
+		
+
 
 		shaderSource = shaderSource + "struct VS_OUTPUT\n";
 		shaderSource = shaderSource + "{\n";
@@ -184,10 +224,9 @@ namespace Ogre
 		{
 			shaderSource = shaderSource + "float2 tCord : TEXCOORD;\n";
 		}
-		if (bHasColor)
-		{
-			shaderSource = shaderSource + "float4 col : COLOR;\n";
-		}
+		
+		shaderSource = shaderSource + "float4 Color : COLOR0;\n";
+		shaderSource = shaderSource + "float4 ColorSpec : COLOR1;\n";
 
 		if (fixedFuncState.getGeneralFixedFuncState().getFogMode() != FOG_NONE)
 		{
@@ -208,12 +247,134 @@ namespace Ogre
 		{
 			shaderSource = shaderSource + "output.tCord = input.Texcoord0;\n";		
 		}
-		if (bHasColor)
+
+		shaderSource = shaderSource + "output.ColorSpec = float4(0.0, 0.0, 0.0, 0.0);\n";
+
+
+		if (fixedFuncState.getGeneralFixedFuncState().getLightingEnabled() && fixedFuncState.getLights().size() > 0)
 		{
-			shaderSource = shaderSource + "output.col.x = ((input.DiffuseColor0 >> 24) & 0xFF) / 255.0f;\n";
-			shaderSource = shaderSource + "output.col.y = ((input.DiffuseColor0 >> 16) & 0xFF) / 255.0f;\n"; 
-			shaderSource = shaderSource + "output.col.z = ((input.DiffuseColor0 >> 8) & 0xFF) / 255.0f;\n";
-			shaderSource = shaderSource + "output.col.w = (input.DiffuseColor0 & 0xFF) / 255.0f;\n";
+			shaderSource = shaderSource + "output.Color = BaseLightAmbient;\n";
+			if (bHasColor)
+			{
+				shaderSource = shaderSource + "output.Color.x = ((input.DiffuseColor0 >> 24) & 0xFF) / 255.0f;\n";
+				shaderSource = shaderSource + "output.Color.y = ((input.DiffuseColor0 >> 16) & 0xFF) / 255.0f;\n"; 
+				shaderSource = shaderSource + "output.Color.z = ((input.DiffuseColor0 >> 8) & 0xFF) / 255.0f;\n";
+				shaderSource = shaderSource + "output.Color.w = (input.DiffuseColor0 & 0xFF) / 255.0f;\n";
+			}
+
+
+			shaderSource = shaderSource + "float3 N = mul((float3x3)WorldViewIT, input.Normal0);\n";
+			shaderSource = shaderSource + "float3 V = -normalize(cameraPos);\n";
+
+			shaderSource = shaderSource + "#define fMaterialPower 16.f\n";
+
+			for(size_t i = 0 ; i < fixedFuncState.getLights().size() ; i++)
+			{
+				String prefix = "Light" + Ogre::StringConverter::toString(i) + "_";
+				switch (fixedFuncState.getLights()[i])
+				{
+				case Light::LT_POINT:
+					shaderSource = shaderSource + "{\n";
+					shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(World,input.Position0);\n";
+					shaderSource = shaderSource + "  float3 L = mul((float3x3)ViewIT, normalize((PosDiff)));\n";
+					shaderSource = shaderSource + "  float NdotL = dot(N, L);\n";
+					shaderSource = shaderSource + "  float4 Color = " + prefix + "Ambient;\n";
+					shaderSource = shaderSource + "  float4 ColorSpec = 0;\n";
+					shaderSource = shaderSource + "  float fAtten = 1.f;\n";
+					shaderSource = shaderSource + "  if(NdotL >= 0.f)\n";
+					shaderSource = shaderSource + "  {\n";
+					shaderSource = shaderSource + "    //compute diffuse color\n";
+					shaderSource = shaderSource + "    Color += NdotL * " + prefix + "Diffuse;\n";
+					shaderSource = shaderSource + "    //add specular component\n";
+					shaderSource = shaderSource + "    float3 H = normalize(L + V);   //half vector\n";
+					shaderSource = shaderSource + "    ColorSpec = pow(max(0, dot(H, N)), fMaterialPower) * " + prefix + "Specular;\n";
+					shaderSource = shaderSource + "    float LD = length(PosDiff);\n";
+					shaderSource = shaderSource + "    if(LD > " + prefix + "Range)\n";
+					shaderSource = shaderSource + "    {\n";
+					shaderSource = shaderSource + "      fAtten = 0.f;\n";
+					shaderSource = shaderSource + "    }\n";
+					shaderSource = shaderSource + "    else\n";
+					shaderSource = shaderSource + "    {\n";
+					shaderSource = shaderSource + "      fAtten *= 1.f/(" + prefix + "Attenuation.x + " + prefix + "Attenuation.y*LD + " + prefix + "Attenuation.z*LD*LD);\n";
+					shaderSource = shaderSource + "    }\n";
+					shaderSource = shaderSource + "    Color *= fAtten;\n";
+					shaderSource = shaderSource + "    ColorSpec *= fAtten;\n";
+					shaderSource = shaderSource + "    output.Color += Color;\n";
+					shaderSource = shaderSource + "    output.ColorSpec += ColorSpec;\n";
+					shaderSource = shaderSource + "  }\n";
+					shaderSource = shaderSource + "}\n";
+
+					break;
+				case Light::LT_DIRECTIONAL:			
+					shaderSource = shaderSource + "{\n";
+					shaderSource = shaderSource + "  float3 L = mul((float3x3)ViewIT, -normalize(" + prefix + "Direction));\n";
+					shaderSource = shaderSource + "  float NdotL = dot(N, L);\n";
+					shaderSource = shaderSource + "  float4 Color = " + prefix + "Ambient;\n";
+					shaderSource = shaderSource + "  float4 ColorSpec = 0;\n";
+					shaderSource = shaderSource + "  if(NdotL > 0.f)\n";
+					shaderSource = shaderSource + "  {\n";
+					shaderSource = shaderSource + "    //compute diffuse color\n";
+					shaderSource = shaderSource + "    Color += NdotL * " + prefix + "Diffuse;\n";
+					shaderSource = shaderSource + "    //add specular component\n";
+					shaderSource = shaderSource + "    float3 H = normalize(L + V);   //half vector\n";
+					shaderSource = shaderSource + "    ColorSpec = pow(max(0, dot(H, N)), fMaterialPower) * " + prefix + "Specular;\n";
+					shaderSource = shaderSource + "    output.Color += Color;\n";
+					shaderSource = shaderSource + "    output.ColorSpec += ColorSpec;\n";
+					shaderSource = shaderSource + "  }\n";
+					shaderSource = shaderSource + "}\n";
+					break;
+				case Light::LT_SPOTLIGHT:
+					shaderSource = shaderSource + "{\n";
+					shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(World,input.Position0);\n";
+					shaderSource = shaderSource + "   float3 L = mul((float3x3)ViewIT, normalize((PosDiff)));\n";
+					shaderSource = shaderSource + "   float NdotL = dot(N, L);\n";
+					shaderSource = shaderSource + "   Out.Color = " + prefix + "Ambient;\n";
+					shaderSource = shaderSource + "   Out.ColorSpec = 0;\n";
+					shaderSource = shaderSource + "   float fAttenSpot = 1.f;\n";
+					shaderSource = shaderSource + "   if(NdotL >= 0.f)\n";
+					shaderSource = shaderSource + "   {\n";
+					shaderSource = shaderSource + "      //compute diffuse color\n";
+					shaderSource = shaderSource + "      Out.Color += NdotL * " + prefix + "Diffuse;\n";
+					shaderSource = shaderSource + "      //add specular component\n";
+					shaderSource = shaderSource + "       float3 H = normalize(L + V);   //half vector\n";
+					shaderSource = shaderSource + "       Out.ColorSpec = pow(max(0, dot(H, N)), fMaterialPower) * " + prefix + "Specular;\n";
+					shaderSource = shaderSource + "      float LD = length(PosDiff);\n";
+					shaderSource = shaderSource + "      if(LD > lights[i].fRange)\n";
+					shaderSource = shaderSource + "      {\n";
+					shaderSource = shaderSource + "         fAttenSpot = 0.f;\n";
+					shaderSource = shaderSource + "      }\n";
+					shaderSource = shaderSource + "      else\n";
+					shaderSource = shaderSource + "      {\n";
+					shaderSource = shaderSource + "         fAttenSpot *= 1.f/(" + prefix + "Attenuation.x + " + prefix + "Attenuation.y*LD + " + prefix + "Attenuation.z*LD*LD);\n";
+					shaderSource = shaderSource + "      }\n";
+					shaderSource = shaderSource + "      //spot cone computation\n";
+					shaderSource = shaderSource + "      float3 L2 = mul((float3x3)ViewIT, -normalize(" + prefix + "Direction));\n";
+					shaderSource = shaderSource + "      float rho = dot(L, L2);\n";
+					shaderSource = shaderSource + "      fAttenSpot *= pow(saturate((rho - " + prefix + "Spot.y)/(" + prefix + "Spot.x - " + prefix + "Spot.y)), " + prefix + "Spot.z);\n";
+					shaderSource = shaderSource + "		Color *= fAttenSpot;\n";
+					shaderSource = shaderSource + "		ColorSpec *= fAttenSpot;\n";
+					shaderSource = shaderSource + "    output.Color += Color;\n";
+					shaderSource = shaderSource + "    output.ColorSpec += ColorSpec;\n";
+					shaderSource = shaderSource + "   }\n";
+					shaderSource = shaderSource + "}\n";
+					break;
+				}
+			}
+
+		}
+		else
+		{
+			if (bHasColor)
+			{
+				shaderSource = shaderSource + "output.Color.x = ((input.DiffuseColor0 >> 24) & 0xFF) / 255.0f;\n";
+				shaderSource = shaderSource + "output.Color.y = ((input.DiffuseColor0 >> 16) & 0xFF) / 255.0f;\n"; 
+				shaderSource = shaderSource + "output.Color.z = ((input.DiffuseColor0 >> 8) & 0xFF) / 255.0f;\n";
+				shaderSource = shaderSource + "output.Color.w = (input.DiffuseColor0 & 0xFF) / 255.0f;\n";
+			}
+			else
+			{
+				shaderSource = shaderSource + "output.Color = float4(1.0, 1.0, 1.0, 1.0);\n";
+			}
 		}
 
 		switch (fixedFuncState.getGeneralFixedFuncState().getFogMode())
@@ -232,22 +393,11 @@ namespace Ogre
 		// here starts the fragment shader
 
 		shaderSource = shaderSource + "float4x4  TextureMatrix;\n";
-		shaderSource = shaderSource + "float  LightingEnabled;\n";
 		shaderSource = shaderSource + "float4  FogColor;\n";
 
 
 
-		if(bHasColor &bHasTexcoord)
-		{
-			shaderSource = shaderSource + "sampler tex0 : register(s0);\n";
-			shaderSource = shaderSource + "float4 " + fragmentProgramName + "( VS_OUTPUT input ) : SV_Target\n";
-			shaderSource = shaderSource + "{\n";
-			shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.tCord.x, input.tCord.y, 0, 1);\n";
-			shaderSource = shaderSource + "texCordWithMatrix = mul( texCordWithMatrix, TextureMatrix );\n";
-			shaderSource = shaderSource + "float4 lightColor = max((float4(1.0,1.0,1.0,1.0) * (LightingEnabled)), input.col);\n";
-			shaderSource = shaderSource + "float4 finalColor = tex2D(tex0,texCordWithMatrix.xy) * lightColor;\n";
-		}
-		else if(bHasTexcoord)
+		if(bHasTexcoord)
 		{
 			shaderSource = shaderSource + "sampler tex0 : register(s0);\n";
 			shaderSource = shaderSource + "float4 " + fragmentProgramName + "( VS_OUTPUT input ) : SV_Target\n";
@@ -255,18 +405,13 @@ namespace Ogre
 			shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.tCord.x, input.tCord.y, 0, 1);\n";
 			shaderSource = shaderSource + "texCordWithMatrix = mul( texCordWithMatrix, TextureMatrix );\n";
 			shaderSource = shaderSource + "\n";
-			shaderSource = shaderSource + "float4 finalColor = tex2D(tex0,texCordWithMatrix.xy);\n";
-		}
-		else if(bHasColor)
-		{
-			shaderSource = shaderSource + "float4 " + fragmentProgramName + "( VS_OUTPUT input ) : SV_Target\n";
-			shaderSource = shaderSource + "{\n";
-			shaderSource = shaderSource + "float4 finalColor = max((float4(1.0,1.0,1.0,1.0) * (LightingEnabled)), input.col);\n";
+			shaderSource = shaderSource + "float4 finalColor = tex2D(tex0,texCordWithMatrix.xy)  * input.Color + input.ColorSpec;\n";
 		}
 		else 
 		{
-			shaderSource = shaderSource + "float4 " + fragmentProgramName + "( VS_OUTPUT input) : SV_Target\n";
-			shaderSource = shaderSource + "{\nfloat4 finalColor = float4(1.0, 1.0, 1.0, 1.0);\n";
+			shaderSource = shaderSource + "float4 " + fragmentProgramName + "( VS_OUTPUT input ) : SV_Target\n";
+			shaderSource = shaderSource + "{\n";
+			shaderSource = shaderSource + "float4 finalColor = input.colorD + input.colorS;\n";
 		}
 
 		switch (fixedFuncState.getGeneralFixedFuncState().getFogMode())
