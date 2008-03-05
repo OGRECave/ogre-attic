@@ -384,12 +384,16 @@ namespace Ogre{
 			compiler->addError(ScriptCompiler::CE_OBJECTNAMEEXPECTED, obj->file, obj->line);
 
 		// Create a material with the given name
-		if(compiler->getListener())
+		std::vector<Ogre::Any> args;
+		args.push_back(Ogre::Any(obj->name));
+		args.push_back(Ogre::Any(compiler->getResourceGroup()));
+		Ogre::Any retval = compiler->_fireCreateObject("Material", args);
+		if(retval.isEmpty())
 		{
-			std::vector<Ogre::Any> args;
-			args.push_back(Ogre::Any(obj->name));
-			args.push_back(Ogre::Any(compiler->getResourceGroup()));
-			Ogre::Any retval = compiler->getListener()->createObject(compiler, "Material", args);
+			mMaterial = reinterpret_cast<Ogre::Material*>(MaterialManager::getSingleton().create(obj->name, compiler->getResourceGroup()).get());
+		}
+		else
+		{
 			try{
 				mMaterial = Ogre::any_cast<Ogre::Material*>(retval);
 			}catch(...){
@@ -397,11 +401,6 @@ namespace Ogre{
 				return;
 			}
 		}
-		else
-		{
-			mMaterial = reinterpret_cast<Ogre::Material*>(MaterialManager::getSingleton().create(obj->name, compiler->getResourceGroup()).get());
-		}
-
 
 		mMaterial->removeAllTechniques();
 		obj->context = Any(mMaterial);

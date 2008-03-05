@@ -930,7 +930,7 @@ namespace Ogre {
         // char* materialName
         String materialName = readString(stream);
 		if(listener)
-			listener->processMaterialName(&materialName);
+			listener->processMaterialName(pMesh, &materialName);
         sm->setMaterialName(materialName);
 
         // bool useSharedVertices
@@ -1059,7 +1059,7 @@ namespace Ogre {
         String skelName = readString(stream);
 
 		if(listener)
-			listener->processSkeletonName(&skelName);
+			listener->processSkeletonName(pMesh, &skelName);
 
         pMesh->setSkeletonName(skelName);
     }
