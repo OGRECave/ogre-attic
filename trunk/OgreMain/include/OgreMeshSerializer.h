@@ -113,9 +113,9 @@ namespace Ogre {
 	{
 	public:
 		/// Called to override the loading of the given named material
-		virtual void processMaterialName(String *name) = 0;
+		virtual void processMaterialName(Mesh *mesh, String *name) = 0;
 		/// Called to override the reference to a skeleton
-		virtual void processSkeletonName(String *name) = 0;
+		virtual void processSkeletonName(Mesh *mesh, String *name) = 0;
 	};
 }
 

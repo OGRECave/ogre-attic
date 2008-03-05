@@ -318,9 +318,67 @@ namespace Ogre
 		virtual void preConversion(ScriptCompiler *compiler, ConcreteNodeListPtr nodes);
 		/// Called when an error occurred
 		virtual void handleError(ScriptCompiler *compiler, uint32 code, const String &file, int line);
-		/// Called when an event occurs during translation
+		/// Called when an event occurs during translation, return true if handled
+		/**
+		 @remarks	This function is called from the translators when an event occurs that
+					that can be responded to. Often this is overriding names. The support events are:
+					processTextureNames - Allows overriding referenced textures
+						arg1 is a String*
+						arg2 is the size of the array
+						No return value
+					processMaterialName - Allows overriding referenced materials
+						arg1 is a single String*
+						No return value
+					processGpuProgramName - Allows overriding referenced gpu programs
+						arg1 is a single String*
+						No return value
+					processNameExclusion - Allows forcing a name exclusion
+						arg1 is a String of the node object's class ("material", "particle_system", etc.)
+						arg2 is an AbstractNode* which is the object's parent
+						No return value
+		 @arg compiler A reference to the compiler
+		 @arg name The name of the event
+		 @arg args The vector of argument for the event
+		 @arg retval A possible return value from handlers
+		 @return True if the handler processed the event
+		*/
 		virtual bool handleEvent(ScriptCompiler *compiler, const String &name, const std::vector<Ogre::Any> &args, Ogre::Any *retval);
 		/// Called when a translator requests a concrete object to be created
+		/**
+		 @remarks	This function is called when a translator needs to create an Ogre object
+					during comilation. If a valid object is returned from this function it is
+					used instead of a default object created from Ogre's resource managers.
+					The object types are:
+					Material
+						arg1 is the name for the material specified in the script file
+						arg2 is the resource group of the compiling script file
+					GpuProgram
+						arg1 is the name for the material specified in the script file
+						arg2 is the resource group of the compiling script file
+						arg3 is the specified source file
+						arg4 is the GpuProgramType
+						arg5 is the program's syntax code
+					UnifiedGpuProgram
+						arg1 is the name for the material specified in the script file
+						arg2 is the resource group of the compiling script file
+						arg3 is the GpuProgramType
+					HighLevelGpuProgram
+						arg1 is the name for the material specified in the script file
+						arg2 is the resource group of the compiling script file
+						arg3 is the specified language
+						arg4 is the GpuProgramType
+						arg5 is the specified source file
+					ParticleSystem
+						arg1 is the name for the material specified in the script file
+						arg2 is the resource group of the compiling script file
+					Compositor
+						arg1 is the name for the material specified in the script file
+						arg2 is the resource group of the compiling script file
+		 @arg compiler A reference to the compiler
+		 @arg type The type of the requested object
+		 @arg args Creation arguments for the object
+		 @return A reference (pointer) to the created object wrapped in an Any
+	    */
 		virtual Ogre::Any createObject(ScriptCompiler *compiler, const String &type, const std::vector<Ogre::Any> &args);
 	};
 
