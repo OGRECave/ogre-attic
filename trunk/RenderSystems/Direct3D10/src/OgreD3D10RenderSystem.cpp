@@ -103,20 +103,11 @@ namespace Ogre
 		FilterMagnification = FO_NONE;
 		FilterMips = FO_NONE;
 
-		mFogMode = FOG_NONE;
-		// mFogColour = no need;
-		mFogDensitiy = 0.0f;
-		mFogStart = 0.0f;
-		mFogEnd = 0.0f;
 		mPolygonMode = PM_SOLID;
 
 		ZeroMemory(mTexStageDesc, OGRE_MAX_TEXTURE_LAYERS * sizeof(sD3DTextureStageDesc));
 		ZeroMemory(mSamplerStates, OGRE_MAX_TEXTURE_LAYERS * sizeof(ID3D10SamplerState *));
 		ZeroMemory(mActiveTextures, OGRE_MAX_TEXTURE_LAYERS * sizeof(ID3D10ShaderResourceView *));
-
-		// init lights
-		for(int i = 0; i < MAX_LIGHTS; i++ )
-			mLights[i] = 0;
 
 		// Create our Direct3D object
 	//	if( NULL == (mpD3D = Direct3DCreate9(D3D_SDK_VERSION)) )
@@ -153,8 +144,6 @@ namespace Ogre
 		}
 */
 		mLastVertexSourceCount = 0;
-
-        mCurrentLights = 0;
 
 		// Enumerate events
 		mEventNames.push_back("DeviceLost");
@@ -1282,32 +1271,26 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::setAmbientLight( float r, float g, float b )
 	{
-		mBaseLightAmbient[0] = r;
-		mBaseLightAmbient[0] = g;
-		mBaseLightAmbient[0] = b;
-		mBaseLightAmbient[0] = 0.0;
+		mFixedFuncProgramsParameters.setLightAmbient(ColourValue(r, g, b, 0.0f));
 	}
 	//---------------------------------------------------------------------
     void D3D10RenderSystem::_useLights(const LightList& lights, unsigned short limit)
     {
-		mCurrentLights = lights.size();
-		if (mCurrentLights > limit)
+		size_t currentLightsCount = lights.size();
+		if (currentLightsCount > limit)
 		{
-			mCurrentLights = limit;
+			currentLightsCount = limit;
 		}
 
-		if (mCurrentLights > 0)
-		{
-			memcpy(&mLights[0], &lights[0], mCurrentLights * sizeof(Light *));
-		}
-
+		LightList lightsList;
 		LightTypesList lightTypes;
-		for(size_t i = 0 ; i < mCurrentLights ; i++ )
+		for(size_t i = 0 ; i < currentLightsCount ; i++)
 		{
-			mLights[i] = lights[i];
-			lightTypes.push_back(mLights[i]->getType());
-
+			Light * curLight = lights[i];
+			lightsList.push_back(curLight);
+			lightTypes.push_back(curLight->getType());
 		}
+		mFixedFuncProgramsParameters.setLights(lightsList);
 		mFixedFuncState.setLights(lightTypes);
     }
 	//---------------------------------------------------------------------
@@ -1340,19 +1323,19 @@ namespace Ogre
 	void D3D10RenderSystem::_setViewMatrix( const Matrix4 &m )
 	{
 		// save latest view matrix
-		mMainVertexShaderMatrixsBuffer.mViewMatrix = m;
+		mFixedFuncProgramsParameters.setViewMat(m);
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setProjectionMatrix( const Matrix4 &m )
 	{
 		 // save latest projection matrix
-		mMainVertexShaderMatrixsBuffer.mProjectionMatrix = m;
+		mFixedFuncProgramsParameters.setProjectionMat(m);
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setWorldMatrix( const Matrix4 &m )
 	{
 		// save latest world matrix
-		mMainVertexShaderMatrixsBuffer.mWorldMatrix = m;
+		mFixedFuncProgramsParameters.setWorldMat(m);
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse,
@@ -1436,11 +1419,14 @@ namespace Ogre
 			ID3D10ShaderResourceView * pTex = dt->getTexture();
 			mTexStageDesc[stage].pTex = pTex;
 			mTexStageDesc[stage].used = true;
+			mTexStageDesc[stage].type = dt->getTextureType();
 		}
 		else
 		{
 			mTexStageDesc[stage].used = false;
 		}
+
+		mFixedFuncProgramsParameters.setTextureEnabled(stage, enabled);
 
 
 	}
@@ -1495,7 +1481,7 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setTextureMatrix( size_t stage, const Matrix4& xForm )
 	{
-		mMainFregmentShaderMatrixsBuffer.mTextureMatrix = xForm.transpose();
+		mFixedFuncProgramsParameters.setTextureMatrix(stage, xForm);
 	/*	HRESULT hr;
 		D3DXMATRIX d3dMat; // the matrix we'll maybe apply
 		Matrix4 newMat = xForm; // the matrix we'll apply after conv. to D3D format
@@ -1807,12 +1793,12 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setFog( FogMode mode, const ColourValue& colour, Real densitiy, Real start, Real end )
 	{
-		mFogMode		= mode;
-		mFogColour		= colour;
-		mFogDensitiy	= densitiy;
-		mFogStart		= start;
-		mFogEnd			= end;
-		mFixedFuncState.getGeneralFixedFuncState().setFogMode(mFogMode);
+		mFixedFuncProgramsParameters.setFogMode(mode);
+		mFixedFuncProgramsParameters.setFogColour(colour);
+		mFixedFuncProgramsParameters.setFogDensitiy(densitiy);
+		mFixedFuncProgramsParameters.setFogStart(start);
+		mFixedFuncProgramsParameters.setFogEnd(end);
+		mFixedFuncState.getGeneralFixedFuncState().setFogMode(mode);
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setPolygonMode(PolygonMode level)
@@ -2202,238 +2188,56 @@ namespace Ogre
 		{
 			assert (!mBoundFragmentProgram); // not allowed for now
 
-			const VertexBufferDeclaration &  vertexBufferDeclaration = 
-				(static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getVertexBufferDeclaration();
-			FixedFuncPrograms & fixedFuncPrograms = mFixedFuncEmuShaderManager.getShaderPrograms("hlsl4", 
-				vertexBufferDeclaration,
-				mFixedFuncState
-				);
 
-
+			
+			// update texture layers
+			TextureLayerStateList textureLayerStateList;
+			for (size_t i = 0 ; i < OGRE_MAX_TEXTURE_LAYERS ; i++)
 			{
-				HighLevelGpuProgramPtr fixedFuncVsProgram = fixedFuncPrograms.getVertexProgramUsage()->getProgram();
+				sD3DTextureStageDesc & curDesc = mTexStageDesc[i];
+				if (curDesc.used)
+				{
+					TextureLayerState textureLayerState;
+					textureLayerState.setTextureType(curDesc.type);
+					textureLayerState.setTexCoordCalcMethod(curDesc.autoTexCoordType);
+					textureLayerState.setLayerBlendModeEx(curDesc.layerBlendMode);
+					textureLayerState.setCoordIndex(curDesc.coordIndex);
+					textureLayerStateList.push_back(textureLayerState);
+
+				}
+
+			}
+			mFixedFuncState.setTextureLayerStateList(textureLayerStateList);
+
+				const VertexBufferDeclaration &  vertexBufferDeclaration = 
+					(static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getVertexBufferDeclaration();
+				FixedFuncPrograms * fixedFuncPrograms = mFixedFuncEmuShaderManager.getShaderPrograms("hlsl4", 
+					vertexBufferDeclaration,
+					mFixedFuncState
+					);
+
+
 				needToUnmapVS = true;
-				bindGpuProgram(fixedFuncVsProgram.get());
-
-				GpuProgramParametersSharedPtr params = fixedFuncPrograms.getVertexProgramUsage()->getParameters();
-				/*{
-					const GpuConstantDefinition& def = params->getConstantDefinition("FullPosTransMatrix");
-					Matrix4 FullPosTransMatrix =  mMainVertexShaderMatrixsBuffer.mWorldMatrix * mMainVertexShaderMatrixsBuffer.mViewMatrix * mMainVertexShaderMatrixsBuffer.mProjectionMatrix ;
-					memcpy((params->getFloatPointer(def.physicalIndex)), &FullPosTransMatrix ,sizeof(float) * def.elementSize * def.arraySize);
-				}*/
-
+				needToUnmapFS = true;
 				
-				{
-					const GpuConstantDefinition& def = params->getConstantDefinition("World");
-					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mWorldMatrix ,sizeof(float) * def.elementSize * def.arraySize);
-				}
-				{
-					const GpuConstantDefinition& def = params->getConstantDefinition("Projection");
-					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mProjectionMatrix ,sizeof(float) * def.elementSize * def.arraySize);
-				}
-				{
-					const GpuConstantDefinition& def = params->getConstantDefinition("View");
-					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mViewMatrix ,sizeof(float) * def.elementSize * def.arraySize);
-				}
-				{
-					const GpuConstantDefinition& def = params->getConstantDefinition("ViewIT");
-					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainVertexShaderMatrixsBuffer.mViewMatrix.inverse().transpose() ,sizeof(float) * def.elementSize * def.arraySize);
-				}
-				{
-					const GpuConstantDefinition& def = params->getConstantDefinition("WorldViewIT");
-					Matrix4 WorldViewIT = mMainVertexShaderMatrixsBuffer.mWorldMatrix * mMainVertexShaderMatrixsBuffer.mViewMatrix;
-					WorldViewIT = WorldViewIT.inverse().transpose();
+				fixedFuncPrograms->setFixedFuncProgramsParameters(mFixedFuncProgramsParameters);
 
-					memcpy((params->getFloatPointer(def.physicalIndex)), &WorldViewIT ,sizeof(float) * def.elementSize * def.arraySize);
-				}
-
-				if (mFixedFuncState.getGeneralFixedFuncState().getLightingEnabled())
-				{
-					{
-						const GpuConstantDefinition& def = params->getConstantDefinition("BaseLightAmbient");
-						float BaseLightAmbient[4];
-						BaseLightAmbient[0] = mBaseLightAmbient[0];
-						BaseLightAmbient[1] = mBaseLightAmbient[1];
-						BaseLightAmbient[2] = mBaseLightAmbient[2];
-						BaseLightAmbient[3] = mBaseLightAmbient[3];
-
-						memcpy((params->getFloatPointer(def.physicalIndex)), &BaseLightAmbient ,sizeof(float) * 4);
-					}
+				// Bind Vertex Program
+				bindGpuProgram(fixedFuncPrograms->getVertexProgramUsage()->getProgram().get());
+				bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+					fixedFuncPrograms->getVertexProgramUsage()->getParameters());
+				
+				// Bind Fragment Program 
+				bindGpuProgram(fixedFuncPrograms->getFragmentProgramUsage()->getProgram().get());
+				bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+					fixedFuncPrograms->getFragmentProgramUsage()->getParameters());
 
 
-					for(size_t i = 0 ; i < mFixedFuncState.getLights().size() ; i++)
-					{
-						String prefix = "Light" + Ogre::StringConverter::toString(i) + "_";
-						switch (mFixedFuncState.getLights()[i])
-						{
-						case Light::LT_POINT:
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Position");
-								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getPosition() ,sizeof(float) * 3);
-							}
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Ambient");
-								float lightAmbient[4];
-								ZeroMemory(lightAmbient, sizeof(float) * 4);
-								//memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getAmbient() ,sizeof(float) * 4);
-								memcpy((params->getFloatPointer(def.physicalIndex)), &lightAmbient[0] ,sizeof(float) * 4);
-							}
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Diffuse");
-								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getDiffuseColour() ,sizeof(float) * 4);
-							}
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Specular");
-								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getSpecularColour() ,sizeof(float) * 4);
-							}
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Range");
-								float range = mLights[i]->getAttenuationRange();
-								memcpy((params->getFloatPointer(def.physicalIndex)), &range ,sizeof(float));
-							}
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Attenuation");
-								float Attenuation[3];
-								Attenuation[0] = mLights[i]->getAttenuationConstant();
-								Attenuation[1] = mLights[i]->getAttenuationLinear();
-								Attenuation[2] = mLights[i]->getAttenuationQuadric();
 
-								memcpy((params->getFloatPointer(def.physicalIndex)), &Attenuation[0] ,sizeof(float) * 3);
-							}			
-							break;
-						case Light::LT_DIRECTIONAL:
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Direction");
-								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getDirection() ,sizeof(float) * 3);
-							}			
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Ambient");
-								float lightAmbient[4];
-								ZeroMemory(lightAmbient, sizeof(float) * 4);
-								//memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getAmbient() ,sizeof(float) * 4);
-								memcpy((params->getFloatPointer(def.physicalIndex)), &lightAmbient[0] ,sizeof(float) * 4);
-							}			
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Diffuse");
-								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getDiffuseColour() ,sizeof(float) * 4);
-							}			
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Specular");
-								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getSpecularColour() ,sizeof(float) * 4);
-							}			
-
-							break;
-						case Light::LT_SPOTLIGHT:
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Direction");
-								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getDirection() ,sizeof(float) * 3);
-							}			
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Position");
-								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getPosition() ,sizeof(float) * 3);
-							}			
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Ambient");
-								float lightAmbient[4];
-								ZeroMemory(lightAmbient, sizeof(float) * 4);
-								//memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getAmbient() ,sizeof(float) * 4);
-								memcpy((params->getFloatPointer(def.physicalIndex)), &lightAmbient[0] ,sizeof(float) * 4);
-							}			
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Diffuse");
-								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getDiffuseColour() ,sizeof(float) * 4);
-							}			
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Specular");
-								memcpy((params->getFloatPointer(def.physicalIndex)), &mLights[i]->getSpecularColour() ,sizeof(float) * 4);
-							}			
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Attenuation");
-								float Attenuation[3];
-								Attenuation[0] = mLights[i]->getAttenuationConstant();
-								Attenuation[1] = mLights[i]->getAttenuationLinear();
-								Attenuation[2] = mLights[i]->getAttenuationQuadric();
-
-								memcpy((params->getFloatPointer(def.physicalIndex)), &Attenuation[0] ,sizeof(float) * 3);							}			
-							{
-								const GpuConstantDefinition& def = params->getConstantDefinition(prefix + "Spot");
-								float Spot[3];
-								Spot[0] = mLights[i]->getSpotlightInnerAngle().valueRadians() ;
-								Spot[1] = mLights[i]->getSpotlightOuterAngle().valueRadians();
-								Spot[2] = mLights[i]->getSpotlightFalloff();
-								memcpy((params->getFloatPointer(def.physicalIndex)), &Spot[0] ,sizeof(float) * 3);
-							}							
-							break;
-						}
-					}
-
-				}
 
 						
-				bindGpuProgramParameters(GPT_VERTEX_PROGRAM, params);
 
-			}
-
-			{
-				/*
-				char * pConstData;
-				mMainMatrixsConstantBuffer->Map( D3D10_MAP_WRITE_DISCARD, NULL, (void **) &pConstData );
-				memcpy(pConstData, &mMainVertexShaderMatrixsBuffer, sizeof(MainVertexShaderMatrixsBuffer));
-				mMainMatrixsConstantBuffer->Unmap();*/
-
-				//ID3D10Buffer* pBuffers[1] ;
-				//pBuffers[0] = mMainMatrixsConstantBuffer;
-				//mDevice->VSSetConstantBuffers( 0, 1, pBuffers );
-
-				HighLevelGpuProgramPtr fixedFuncPsProgram = fixedFuncPrograms.getFragmentProgramUsage()->getProgram();
-				needToUnmapFS = true;
-				bindGpuProgram(fixedFuncPsProgram.get());
-
-				GpuProgramParametersSharedPtr params = fixedFuncPrograms.getFragmentProgramUsage()->getParameters();
-				if (vertexBufferDeclaration.hasTexcoord())
-				{
-					const GpuConstantDefinition& def = params->getConstantDefinition("TextureMatrix");
-					memcpy((params->getFloatPointer(def.physicalIndex)), &mMainFregmentShaderMatrixsBuffer.mTextureMatrix ,sizeof(float) * def.elementSize * def.arraySize);
-				}
-	
-
-				switch (mFixedFuncState.getGeneralFixedFuncState().getFogMode())
-				{
-				case FOG_NONE:
-					break;
-				case FOG_EXP:
-				case FOG_EXP2:
-					{
-						const GpuConstantDefinition& def = params->getConstantDefinition("FogDensity");
-						memcpy((params->getFloatPointer(def.physicalIndex)), &mFogDensitiy ,sizeof(float));
-					}
-					break;
-				case FOG_LINEAR:
-					{
-						const GpuConstantDefinition& def = params->getConstantDefinition("FogStart");
-						memcpy((params->getFloatPointer(def.physicalIndex)), &mFogStart ,sizeof(float));
-					}
-					{
-						const GpuConstantDefinition& def = params->getConstantDefinition("FogEnd");
-						memcpy((params->getFloatPointer(def.physicalIndex)), &mFogEnd ,sizeof(float));
-					}
-					break;
-				}
-
-				if (mFixedFuncState.getGeneralFixedFuncState().getFogMode() != FOG_NONE)
-				{
-					const GpuConstantDefinition& def = params->getConstantDefinition("FogColor");
-					float * fogColor = (params->getFloatPointer(def.physicalIndex));
-					fogColor[0] = mFogColour[0];
-					fogColor[1] = mFogColour[1];
-					fogColor[2] = mFogColour[2];
-					fogColor[3] = mFogColour[3];
-				}
-
-				bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, params);
-
-
-			}
+			
 
 
 		}
@@ -3364,7 +3168,7 @@ namespace Ogre
 		// nothing to do - D3D10 shares rendering context already
 	}
 	//---------------------------------------------------------------------
-	Ogre::String D3D10RenderSystem::getErrorDescription( long errorNumber ) const
+	String D3D10RenderSystem::getErrorDescription( long errorNumber ) const
 	{
 		return mDevice.getErrorDescription(errorNumber);
 	}

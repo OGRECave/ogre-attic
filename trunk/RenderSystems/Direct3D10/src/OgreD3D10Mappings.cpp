@@ -41,7 +41,7 @@ namespace Ogre
 	return 0;
 	}*/
 	//---------------------------------------------------------------------
-	/*D3DLIGHTTYPE D3D10Mappings::get(Ogre::Light::LightTypes lightType)
+	/*D3DLIGHTTYPE D3D10Mappings::get(Light::LightTypes lightType)
 	{
 	switch( lightType )
 	{

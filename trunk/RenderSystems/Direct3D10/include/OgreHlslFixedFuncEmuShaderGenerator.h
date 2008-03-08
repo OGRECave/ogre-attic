@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 
 #include "OgreTextureManager.h"
 #include "OgreFixedFuncEmuShaderGenerator.h"
+#include "OgreFixedFuncEmuShaderManager.h"
 
 namespace Ogre 
 {
@@ -38,6 +39,13 @@ namespace Ogre
 
 	class HlslFixedFuncEmuShaderGenerator : public FixedFuncEmuShaderGenerator
 	{
+	protected:
+		class HlslFixedFuncPrograms : public FixedFuncPrograms
+		{
+		public:
+			void setFixedFuncProgramsParameters(const FixedFuncProgramsParameters & params);
+
+		};
 	public:
 		HlslFixedFuncEmuShaderGenerator();
 		virtual ~HlslFixedFuncEmuShaderGenerator();
@@ -46,6 +54,8 @@ namespace Ogre
 			const String & fragmentProgramName, 
 			const VertexBufferDeclaration & vertexBufferDeclaration, 
 			FixedFuncState &  fixedFuncState);
+
+		virtual FixedFuncPrograms * createFixedFuncPrograms();
 	};
 
 	class Hlsl4FixedFuncEmuShaderGenerator : public HlslFixedFuncEmuShaderGenerator

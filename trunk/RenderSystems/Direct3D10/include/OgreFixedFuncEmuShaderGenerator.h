@@ -35,6 +35,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre 
 {
+	class FixedFuncPrograms;
 
 	class FixedFuncEmuShaderGenerator
 	{
@@ -57,6 +58,8 @@ namespace Ogre
 			const String & fragmentProgramName, 
 			const VertexBufferDeclaration & vertexBufferDeclaration, 
 			FixedFuncState &  fixedFuncState) = 0;
+
+		virtual FixedFuncPrograms * createFixedFuncPrograms() = 0;
 
 
 
