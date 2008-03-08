@@ -163,6 +163,12 @@ namespace Ogre
 		shaderSource = shaderSource + "float4x4  Projection;\n";
 		shaderSource = shaderSource + "float4x4  ViewIT;\n";
 		shaderSource = shaderSource + "float4x4  WorldViewIT;\n";	
+	
+		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
+		{
+			String layerCounter = StringConverter::toString(i);
+			shaderSource = shaderSource + "float4x4  TextureMatrix" + layerCounter + ";\n";
+		}
 
 		switch (fixedFuncState.getGeneralFixedFuncState().getFogMode())
 		{
@@ -223,7 +229,7 @@ namespace Ogre
 		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
 		{
 			String layerCounter = StringConverter::toString(i);
-			shaderSource = shaderSource + "float2 tCord" + layerCounter + " : TEXCOORD" + layerCounter + ";\n";
+			shaderSource = shaderSource + "float2 Texcoord" + layerCounter + " : TEXCOORD" + layerCounter + ";\n";
 		}
 		
 		shaderSource = shaderSource + "float4 Color : COLOR0;\n";
@@ -252,11 +258,13 @@ namespace Ogre
 			String layerCounter = StringConverter::toString(i);
 			if (i < texcoordCount)
 			{
-				shaderSource = shaderSource + "output.tCord" + layerCounter + " = input.Texcoord" + layerCounter + ";\n";		
+				shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.Texcoord" + layerCounter + ".x, input.Texcoord" + layerCounter + ".y, 0, 1);\n";
+				shaderSource = shaderSource + "texCordWithMatrix = mul(TextureMatrix" + layerCounter + ", texCordWithMatrix );\n";
+				shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = texCordWithMatrix.xy;\n";		
 			}
 			else
 			{
-				shaderSource = shaderSource + "output.tCord" + layerCounter + " = float2(0.0, 0.0);\n"; // so no error
+				shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float2(0.0, 0.0);\n"; // so no error
 			}
 		}
 
@@ -400,15 +408,33 @@ namespace Ogre
 			break;
 		}
 
+		switch (fixedFuncState.getGeneralFixedFuncState().getFogMode())
+		{
+		case FOG_NONE:
+			break;
+		case FOG_EXP:
+			shaderSource = shaderSource + "#define E 2.71828\n";
+			shaderSource = shaderSource + "output.fogDist = 1.0 / pow( E, output.fogDist*FogDensity );\n";
+			shaderSource = shaderSource + "output.fogDist = clamp( output.fogDist, 0, 1 );\n";
+			break;
+		case FOG_EXP2:
+			shaderSource = shaderSource + "#define E 2.71828\n";
+			shaderSource = shaderSource + "output.fogDist = 1.0 / pow( E, output.fogDist*output.fogDist*FogDensity*FogDensity );\n";
+			shaderSource = shaderSource + "output.fogDist = clamp( output.fogDist, 0, 1 );\n";
+			break;
+		case FOG_LINEAR:
+			shaderSource = shaderSource + "output.fogDist = (FogEnd - output.fogDist)/(FogEnd - FogStart);\n";
+			shaderSource = shaderSource + "output.fogDist = clamp( output.fogDist, 0, 1 );\n";
+			break;
+		}
+
 		shaderSource = shaderSource + "return output;}\n";
 
 		// here starts the fragment shader
 
-
 		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
 		{
 			String layerCounter = StringConverter::toString(i);
-			shaderSource = shaderSource + "float4x4  TextureMatrix" + layerCounter + ";\n";
 			shaderSource = shaderSource + "sampler Texture" + layerCounter + " : register(s" + layerCounter + ");\n";
 		}
 		
@@ -424,30 +450,8 @@ namespace Ogre
 			String layerCounter = StringConverter::toString(i);
 			String coordIndex = StringConverter::toString(curTextureLayerState.getCoordIndex());
 			shaderSource = shaderSource + "{\n";
-			shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.tCord" + coordIndex + ".x, input.tCord" + coordIndex + ".y, 0, 1);\n";
-			shaderSource = shaderSource + "texCordWithMatrix = mul(TextureMatrix" + layerCounter + ", texCordWithMatrix );\n";
-			shaderSource = shaderSource + "finalColor = tex2D(Texture" + layerCounter + ",texCordWithMatrix.xy)  * finalColor;\n";
+			shaderSource = shaderSource + "finalColor = tex2D(Texture" + layerCounter + ", input.Texcoord" + coordIndex + ")  * finalColor;\n";
 			shaderSource = shaderSource + "}\n";
-		}
-
-		switch (fixedFuncState.getGeneralFixedFuncState().getFogMode())
-		{
-		case FOG_NONE:
-			break;
-		case FOG_EXP:
-			shaderSource = shaderSource + "#define E 2.71828\n";
-			shaderSource = shaderSource + "input.fogDist = 1.0 / pow( E, input.fogDist*FogDensity );\n";
-			shaderSource = shaderSource + "input.fogDist = clamp( input.fogDist, 0, 1 );\n";
-			break;
-		case FOG_EXP2:
-			shaderSource = shaderSource + "#define E 2.71828\n";
-			shaderSource = shaderSource + "input.fogDist = 1.0 / pow( E, input.fogDist*input.fogDist*FogDensity*FogDensity );\n";
-			shaderSource = shaderSource + "input.fogDist = clamp( input.fogDist, 0, 1 );\n";
-			break;
-		case FOG_LINEAR:
-			shaderSource = shaderSource + "input.fogDist = (FogEnd - input.fogDist)/(FogEnd - FogStart);\n";
-			shaderSource = shaderSource + "input.fogDist = clamp( input.fogDist, 0, 1 );\n";
-			break;
 		}
 
 		if (fixedFuncState.getGeneralFixedFuncState().getFogMode() != FOG_NONE)
@@ -457,7 +461,8 @@ namespace Ogre
 
 		}
 
-		shaderSource = shaderSource + "return finalColor;\n}";
+		shaderSource = shaderSource + "return finalColor;\n";
+		shaderSource = shaderSource + "}\n";
 		return shaderSource;
 	}
 	//---------------------------------------------------------------------
@@ -564,11 +569,11 @@ namespace Ogre
 			break;
 		case FOG_EXP:
 		case FOG_EXP2:
-			_setProgramFloatParameter(GPT_FRAGMENT_PROGRAM, "FogDensity", params.getFogDensitiy());
+			_setProgramFloatParameter(GPT_VERTEX_PROGRAM, "FogDensity", params.getFogDensitiy());
 			break;
 		case FOG_LINEAR:
-			_setProgramFloatParameter(GPT_FRAGMENT_PROGRAM, "FogStart", params.getFogStart());
-			_setProgramFloatParameter(GPT_FRAGMENT_PROGRAM, "FogEnd", params.getFogEnd());
+			_setProgramFloatParameter(GPT_VERTEX_PROGRAM, "FogStart", params.getFogStart());
+			_setProgramFloatParameter(GPT_VERTEX_PROGRAM, "FogEnd", params.getFogEnd());
 			break;
 		}
 
@@ -582,7 +587,7 @@ namespace Ogre
 		{
 			if (params.isTextureStageEnabled(i))
 			{
-				_setProgramMatrix4Parameter(GPT_FRAGMENT_PROGRAM, "TextureMatrix" + StringConverter::toString(i), params.getTextureMatrices()[i]);
+				_setProgramMatrix4Parameter(GPT_VERTEX_PROGRAM, "TextureMatrix" + StringConverter::toString(i), params.getTextureMatrices()[i]);
 			}
 		}
 
