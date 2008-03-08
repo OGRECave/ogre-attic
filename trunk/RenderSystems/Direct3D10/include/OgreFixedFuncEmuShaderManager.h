@@ -46,6 +46,8 @@ namespace Ogre
 		// Fragment program details
 		GpuProgramUsage * mFragmentProgramUsage;
 
+		FixedFuncState mFixedFuncState;
+
 		void _setProgramParameter(const GpuProgramType type, const String paramName, const void * value, const size_t sizeInBytes);
 		void _setProgramintParameter(const GpuProgramType type, const String paramName, const int & value);
 		void _setProgramFloatParameter(const GpuProgramType type, const String paramName, const float & value);
@@ -53,6 +55,7 @@ namespace Ogre
 		void _setProgramColorParameter(const GpuProgramType type, const String paramName, const ColourValue & value);
 		void _setProgramVector3Parameter(const GpuProgramType type, const String paramName, const Vector3 & value);
 	public:
+
 		class FixedFuncProgramsParameters
 		{
 		public:
@@ -118,7 +121,9 @@ namespace Ogre
 		void setVertexProgramUsage(GpuProgramUsage * val);
 		GpuProgramUsage * getFragmentProgramUsage() const;
 		void setFragmentProgramUsage(GpuProgramUsage * val);
-		
+		const FixedFuncState & getFixedFuncState() const;
+		void setFixedFuncState(const FixedFuncState & val);
+
 		virtual void setFixedFuncProgramsParameters(const FixedFuncProgramsParameters & val) = 0;
 	};
 

@@ -1408,7 +1408,11 @@ namespace Ogre
 	void D3D10RenderSystem::_setTexture( size_t stage, bool enabled, const TexturePtr& tex )
 	{
 		D3D10TexturePtr dt = tex;
-		if (enabled && !dt.isNull())
+		if (dt.isNull())
+		{
+			enabled = false;
+		}
+		if (enabled)
 		{
 			// note used
 			dt->touch();
