@@ -100,7 +100,7 @@ namespace Ogre
 			const Real getFogEnd() const;
 			void setFogEnd(const Real val);
 			const bool getLightingEnabled() const;
-			void LightingEnabled(const bool val);
+			void setLightingEnabled(const bool val);
 			const ColourValue & getLightAmbient() const;
 			void setLightAmbient(const ColourValue val);
 

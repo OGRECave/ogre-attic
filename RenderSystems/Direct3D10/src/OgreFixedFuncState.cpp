@@ -170,9 +170,9 @@ namespace Ogre {
 
 		// mLights
 
-		if (!mGeneralFixedFuncState.getLightingEnabled())
+		if (mGeneralFixedFuncState.getLightingEnabled() != other.mGeneralFixedFuncState.getLightingEnabled())
 		{
-			return false;
+			return (mGeneralFixedFuncState.getLightingEnabled() > other.mGeneralFixedFuncState.getLightingEnabled());
 		}
 
 		if (mLights.size() != other.mLights.size())

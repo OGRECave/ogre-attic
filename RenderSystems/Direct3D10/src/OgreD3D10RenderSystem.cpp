@@ -1305,14 +1305,10 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::setLightingEnabled( bool enabled )
 	{
-		if (enabled)
-		{
-			mFixedFuncState.getGeneralFixedFuncState().setLightingEnabled(true);
-		}
-		else
-		{
-			mFixedFuncState.getGeneralFixedFuncState().setLightingEnabled(false);
-		}
+		mFixedFuncProgramsParameters.setLightingEnabled(enabled);
+		mFixedFuncState.getGeneralFixedFuncState().setLightingEnabled(enabled);
+
+	
 	/*	HRESULT hr;
 		if( FAILED( hr = __SetRenderState( D3DRS_LIGHTING, enabled ) ) )
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
