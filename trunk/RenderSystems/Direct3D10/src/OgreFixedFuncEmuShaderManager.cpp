@@ -343,7 +343,7 @@ namespace Ogre
 		return mLightingEnabled;
 	}
 	//---------------------------------------------------------------------
-	void FixedFuncPrograms::FixedFuncProgramsParameters::LightingEnabled( const bool val )
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setLightingEnabled( const bool val )
 	{
 		mLightingEnabled = val;
 	}
