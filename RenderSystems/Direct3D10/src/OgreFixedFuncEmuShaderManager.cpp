@@ -121,6 +121,7 @@ namespace Ogre
 		mLanguage2State2Declaration2ProgramsMap[generatorName][fixedFuncState][vertexBufferDeclaration] = newPrograms;
 		newPrograms->setVertexProgramUsage(vertexProgramUsage);
 		newPrograms->setFragmentProgramUsage(fragmentProgramUsage);
+		newPrograms->setFixedFuncState(fixedFuncState);
 
 		mProgramsToDeleteAtTheEnd.push_back(newPrograms);
 		return newPrograms;
@@ -244,6 +245,16 @@ namespace Ogre
 		valueAsFloat3[1] = value[1];
 		valueAsFloat3[2] = value[2];
 		_setProgramParameter(type, paramName, &valueAsFloat3, sizeof(float) * 3);
+	}
+	//---------------------------------------------------------------------
+	const FixedFuncState & FixedFuncPrograms::getFixedFuncState() const
+	{
+		return mFixedFuncState;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::setFixedFuncState( const FixedFuncState & val )
+	{
+		mFixedFuncState = val;
 	}
 	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------
