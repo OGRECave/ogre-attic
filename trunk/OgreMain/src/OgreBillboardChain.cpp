@@ -319,7 +319,7 @@ namespace Ogre {
 		{
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
 				"chainIndex out of bounds",
-				"BillboardChain::removeChainElement");
+				"BillboardChain::clearChain");
 		}
 		ChainSegment& seg = mChainSegmentList[chainIndex];
 
@@ -383,7 +383,7 @@ namespace Ogre {
 		{
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
 				"chainIndex out of bounds",
-				"BillboardChain::updateChainElement");
+				"BillboardChain::getChainElement");
 		}
 		const ChainSegment& seg = mChainSegmentList[chainIndex];
 
@@ -392,6 +392,19 @@ namespace Ogre {
 		idx = (idx % mMaxElementsPerChain) + seg.start;
 
 		return mChainElementList[idx];
+	}
+	//-----------------------------------------------------------------------
+	size_t BillboardChain::getNumChainElements(size_t chainIndex) const
+	{
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"chainIndex out of bounds",
+				"BillboardChain::getNumChainElements");
+		}
+		const ChainSegment& seg = mChainSegmentList[chainIndex];
+
+		return seg.tail - seg.head + 1;
 	}
 	//-----------------------------------------------------------------------
 	void BillboardChain::updateBoundingBox(void) const

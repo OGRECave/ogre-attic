@@ -217,6 +217,9 @@ namespace Ogre {
 		*/
 		virtual const Element& getChainElement(size_t chainIndex, size_t elementIndex) const;
 
+		/** Returns the number of chain elements. */
+		virtual size_t getNumChainElements(size_t chainIndex) const;
+
 		/** Remove all elements of a given chain (but leave the chain intact). */
 		virtual void clearChain(size_t chainIndex);
 		/** Remove all elements from all chains (but leave the chains themselves intact). */
