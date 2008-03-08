@@ -99,7 +99,7 @@ namespace Ogre {
 		return mNormaliseNormals;
 	}
 	//-----------------------------------------------------------------------
-	Ogre::CompareFunction GeneralFixedFuncState::getAlphaRejectFunction( void ) const
+	CompareFunction GeneralFixedFuncState::getAlphaRejectFunction( void ) const
 	{
 		return mAlphaRejectFunc;
 	}
@@ -132,7 +132,7 @@ namespace Ogre {
 		return mTextureLayerStateList;
 	}
 	//-----------------------------------------------------------------------
-	void FixedFuncState::setTextureLayerStateList( TextureLayerStateList val )
+	void FixedFuncState::setTextureLayerStateList( const TextureLayerStateList & val )
 	{
 		mTextureLayerStateList = val;
 	}
@@ -228,9 +228,9 @@ namespace Ogre {
 		return countVertexElementSemantic(VES_DIFFUSE) > 0;
 	}
 	//-----------------------------------------------------------------------
-	bool VertexBufferDeclaration::hasTexcoord() const
+	uint8 VertexBufferDeclaration::getTexcoordCount() const
 	{
-		return countVertexElementSemantic(VES_TEXTURE_COORDINATES)  > 0;
+		return (uint8)countVertexElementSemantic(VES_TEXTURE_COORDINATES);
 	}
 	//-----------------------------------------------------------------------
 	unsigned short VertexBufferDeclaration::numberOfTexcoord() const
@@ -264,7 +264,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
-	Ogre::TextureType TextureLayerState::getTextureType() const
+	TextureType TextureLayerState::getTextureType() const
 	{
 		return mTextureType;
 	}
@@ -274,7 +274,7 @@ namespace Ogre {
 		mTextureType = val;
 	}
 	//-----------------------------------------------------------------------
-	Ogre::TexCoordCalcMethod TextureLayerState::getTexCoordCalcMethod() const
+	TexCoordCalcMethod TextureLayerState::getTexCoordCalcMethod() const
 	{
 		return mTexCoordCalcMethod;
 	}
@@ -284,19 +284,29 @@ namespace Ogre {
 		mTexCoordCalcMethod = val;
 	}
 	//-----------------------------------------------------------------------
-	Ogre::LayerBlendOperationEx TextureLayerState::getLayerBlendOperationEx() const
+	LayerBlendModeEx TextureLayerState::getLayerBlendModeEx() const
 	{
 		return mLayerBlendOperationEx;
 	}
 	//-----------------------------------------------------------------------
-	void TextureLayerState::setLayerBlendOperationEx( Ogre::LayerBlendOperationEx val )
+	void TextureLayerState::setLayerBlendModeEx( LayerBlendModeEx val )
 	{
 		mLayerBlendOperationEx = val;
 	}
 	//-----------------------------------------------------------------------
+	uint8 TextureLayerState::getCoordIndex() const
+	{
+		return mCoordIndex;
+	}
+	//-----------------------------------------------------------------------
+	void TextureLayerState::setCoordIndex( uint8 val )
+	{
+		mCoordIndex = val;
+	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
-	Ogre::VertexElementSemantic VertexBufferElement::getVertexElementSemantic() const
+	//-----------------------------------------------------------------------
+	VertexElementSemantic VertexBufferElement::getVertexElementSemantic() const
 	{
 		return mVertexElementSemantic;
 	}
@@ -306,7 +316,7 @@ namespace Ogre {
 		mVertexElementSemantic = val;
 	}
 	//-----------------------------------------------------------------------
-	Ogre::VertexElementType VertexBufferElement::getVertexElementType() const
+	VertexElementType VertexBufferElement::getVertexElementType() const
 	{
 		return mVertexElementType;
 	}

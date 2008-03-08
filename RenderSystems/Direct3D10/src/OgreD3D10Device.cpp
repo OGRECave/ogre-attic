@@ -74,7 +74,7 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	const Ogre::String D3D10Device::getErrorDescription(const HRESULT lastResult /* = NO_ERROR */) const
+	const String D3D10Device::getErrorDescription(const HRESULT lastResult /* = NO_ERROR */) const
 	{
 		if (!mD3D10Device)
 		{

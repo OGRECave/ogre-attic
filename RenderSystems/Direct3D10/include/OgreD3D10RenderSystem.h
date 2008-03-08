@@ -69,33 +69,14 @@ namespace Ogre
 		D3D10DriverList* mDriverList;
 		/// Currently active driver
 		D3D10Driver* mActiveD3DDriver;
-		/// Device caps.
-//		D3DCAPS9 mCaps;
 		/// NVPerfHUD allowed?
 		bool mUseNVPerfHUD;
 		/// Per-stage constant support? (not in main caps since D3D specific & minor)
 		bool mPerStageConstantSupport;
 
 		/// structure holding texture unit settings for every stage
-/*		struct sD3DTextureStageDesc
-		{
-			/// the type of the texture
-			D3D10Mappings::eD3DTexType texType;
-			/// wich texCoordIndex to use
-			size_t coordIndex;
-			/// type of auto tex. calc. used
-			TexCoordCalcMethod autoTexCoordType;
-            /// Frustum, used if the above is projection
-            const Frustum *frustum;
-			/// texture 
-			ID3D10Resource *pTex;
-			/// vertex texture 
-			ID3D10Resource *pVertexTex;
-		} mTexStageDesc[OGRE_MAX_TEXTURE_LAYERS];
-*/
-		// Array of up to 8 lights, indexed as per API
-		// Note that a null value indeicates a free slot
-		Light* mLights[MAX_LIGHTS];
+
+
 
 		D3D10DriverList* getDirect3DDrivers(void);
 		void refreshD3DSettings(void);
@@ -108,21 +89,6 @@ namespace Ogre
 		void initInputDevices(void);
 		void processInputDevices(void);
 		
-		// state management methods, very primitive !!!
-//		HRESULT __SetRenderState(D3DRENDERSTATETYPE state, DWORD value);
-//		HRESULT __SetSamplerState(DWORD sampler, D3DSAMPLERSTATETYPE type, DWORD value);
-//		HRESULT __SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value);
-
-/*		HRESULT __SetFloatRenderState(D3DRENDERSTATETYPE state, Real value)
-		{
-#if OGRE_DOUBLE_PRECISION == 1
-			float temp = static_cast<float>(value);
-			return __SetRenderState(state, *((LPDWORD)(&temp)));
-#else
-			return __SetRenderState(state, *((LPDWORD)(&value)));
-#endif
-		}
-*/
 		/// return anisotropy level
 		DWORD _getCurrentAnisotropy(size_t unit);
 		/// check if a FSAA is supported
@@ -137,6 +103,7 @@ namespace Ogre
 		size_t mLastVertexSourceCount;
 
 		FixedFuncState mFixedFuncState;
+		FixedFuncPrograms::FixedFuncProgramsParameters mFixedFuncProgramsParameters;
 		Hlsl4FixedFuncEmuShaderGenerator mHlslFixedFuncEmuShaderGenerator;
 		FixedFuncEmuShaderManager	mFixedFuncEmuShaderManager;
 
@@ -164,13 +131,8 @@ namespace Ogre
 
 		D3D10_DEPTH_STENCIL_DESC mDepthStencilDesc; 
 		D3D10_DEPTH_STENCIL_DESC mCurrentDepthStencilDesc;
-		ID3D10DepthStencilState * mCurrentDepthStencilState;
+		ID3D10DepthStencilState * mCurrentDepthStencilState;;
 
-		FogMode mFogMode;
-		ColourValue mFogColour;
-		Real mFogDensitiy;
-		Real mFogStart;
-		Real mFogEnd;
 		PolygonMode mPolygonMode;
 
 		FilterOptions FilterMinification;
@@ -178,8 +140,6 @@ namespace Ogre
 		FilterOptions FilterMips;
 
 		D3D10_RECT mScissorRect;
-
-		ColourValue mBaseLightAmbient;
 
 
 		D3D10HLSLProgram* mBoundVertexProgram;
@@ -189,8 +149,9 @@ namespace Ogre
 		struct sD3DTextureStageDesc
 		{
 			/// the type of the texture
-			D3D10Mappings::eD3DTexType texType;
-			/// wich texCoordIndex to use
+			//D3D10Mappings::eD3DTexType texType;
+			TextureType type;
+			/// which texCoordIndex to use
 			size_t coordIndex;
 			/// type of auto tex. calc. used
 			TexCoordCalcMethod autoTexCoordType;
@@ -209,29 +170,6 @@ namespace Ogre
 
 		ID3D10SamplerState * mSamplerStates[OGRE_MAX_TEXTURE_LAYERS];
 		ID3D10ShaderResourceView  * mActiveTextures[OGRE_MAX_TEXTURE_LAYERS];
-
-        unsigned short mCurrentLights;
-
-		struct MainVertexShaderMatrixsBuffer
-		{
-			Matrix4 mWorldMatrix;
-			Matrix4 mViewMatrix;
-			Matrix4 mProjectionMatrix;
-		};
-
-		MainVertexShaderMatrixsBuffer mMainVertexShaderMatrixsBuffer;
-
-		struct MainFregmentShaderMatrixsBuffer
-		{
-			Matrix4 mTextureMatrix;
-		};
-
-		MainFregmentShaderMatrixsBuffer mMainFregmentShaderMatrixsBuffer;
-
-
-		
-
-		//D3DXMATRIX mDxViewMat, mDxProjMat, mDxWorldMat;
 
 		// What follows is a set of duplicated lists just to make it
 		// easier to deal with lost devices

@@ -46,14 +46,17 @@ namespace Ogre {
 	protected:
 		TextureType mTextureType;
 		TexCoordCalcMethod mTexCoordCalcMethod;
-		LayerBlendOperationEx mLayerBlendOperationEx;
+		LayerBlendModeEx mLayerBlendOperationEx;
+		uint8 mCoordIndex;
 	public:
 		TextureType getTextureType() const;
 		void setTextureType(TextureType val);
 		TexCoordCalcMethod getTexCoordCalcMethod() const;
 		void setTexCoordCalcMethod(TexCoordCalcMethod val);
-		Ogre::LayerBlendOperationEx getLayerBlendOperationEx() const;
-		void setLayerBlendOperationEx(Ogre::LayerBlendOperationEx val);
+		LayerBlendModeEx getLayerBlendModeEx() const;
+		void setLayerBlendModeEx(LayerBlendModeEx val);
+		uint8 getCoordIndex() const;
+		void setCoordIndex(uint8 val);
 	};
 
 	typedef std::vector<TextureLayerState> TextureLayerStateList;
@@ -91,7 +94,7 @@ namespace Ogre {
 		const bool operator<(const VertexBufferDeclaration & other) const;
 
 		bool hasColor() const;
-		bool hasTexcoord() const;
+		uint8 getTexcoordCount() const;
 		unsigned short numberOfTexcoord() const;
 		unsigned short countVertexElementSemantic( VertexElementSemantic semantic ) const;
 
@@ -203,7 +206,6 @@ namespace Ogre {
 
 		/** Returns true if this pass has auto-normalisation of normals set. */
 		bool getNormaliseNormals(void) const;
-
 	};
 
     /** Class defining a fixed function state.
@@ -239,7 +241,7 @@ namespace Ogre {
 		const LightTypesList & getLights() const;
 		void setLights(LightTypesList val);
 		const TextureLayerStateList & getTextureLayerStateList() const;
-		void setTextureLayerStateList(TextureLayerStateList val);
+		void setTextureLayerStateList(const TextureLayerStateList & val);
 		GeneralFixedFuncState & getGeneralFixedFuncState();
 
 		const bool operator<(const FixedFuncState & other) const;

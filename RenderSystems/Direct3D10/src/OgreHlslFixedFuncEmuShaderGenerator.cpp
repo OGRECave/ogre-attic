@@ -50,7 +50,7 @@ namespace Ogre
 		FixedFuncState & fixedFuncState )
 	{
 		bool bHasColor = vertexBufferDeclaration.hasColor();
-		bool bHasTexcoord = vertexBufferDeclaration.hasTexcoord();
+		uint8 texcoordCount = vertexBufferDeclaration.getTexcoordCount();
 
 		String shaderSource = "";
 
@@ -184,7 +184,7 @@ namespace Ogre
 
 			for(size_t i = 0 ; i < fixedFuncState.getLights().size() ; i++)
 			{
-				String prefix = "Light" + Ogre::StringConverter::toString(i) + "_";
+				String prefix = "Light" + StringConverter::toString(i) + "_";
 				switch (fixedFuncState.getLights()[i])
 				{
 				case Light::LT_POINT:
@@ -220,9 +220,10 @@ namespace Ogre
 		shaderSource = shaderSource + "struct VS_OUTPUT\n";
 		shaderSource = shaderSource + "{\n";
 		shaderSource = shaderSource + "float4 Pos : SV_POSITION;\n";
-		if (bHasTexcoord)
+		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
 		{
-			shaderSource = shaderSource + "float2 tCord : TEXCOORD;\n";
+			String layerCounter = StringConverter::toString(i);
+			shaderSource = shaderSource + "float2 tCord" + layerCounter + " : TEXCOORD" + layerCounter + ";\n";
 		}
 		
 		shaderSource = shaderSource + "float4 Color : COLOR0;\n";
@@ -243,9 +244,20 @@ namespace Ogre
 		shaderSource = shaderSource + "output.Pos = mul( Projection, cameraPos );\n";	
 
 
-		if(bHasTexcoord)
+
+
+
+		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
 		{
-			shaderSource = shaderSource + "output.tCord = input.Texcoord0;\n";		
+			String layerCounter = StringConverter::toString(i);
+			if (i < texcoordCount)
+			{
+				shaderSource = shaderSource + "output.tCord" + layerCounter + " = input.Texcoord" + layerCounter + ";\n";		
+			}
+			else
+			{
+				shaderSource = shaderSource + "output.tCord" + layerCounter + " = float2(0.0, 0.0);\n"; // so no error
+			}
 		}
 
 		shaderSource = shaderSource + "output.ColorSpec = float4(0.0, 0.0, 0.0, 0.0);\n";
@@ -270,7 +282,7 @@ namespace Ogre
 
 			for(size_t i = 0 ; i < fixedFuncState.getLights().size() ; i++)
 			{
-				String prefix = "Light" + Ogre::StringConverter::toString(i) + "_";
+				String prefix = "Light" + StringConverter::toString(i) + "_";
 				switch (fixedFuncState.getLights()[i])
 				{
 				case Light::LT_POINT:
@@ -392,26 +404,30 @@ namespace Ogre
 
 		// here starts the fragment shader
 
-		shaderSource = shaderSource + "float4x4  TextureMatrix;\n";
+
+		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
+		{
+			String layerCounter = StringConverter::toString(i);
+			shaderSource = shaderSource + "float4x4  TextureMatrix" + layerCounter + ";\n";
+			shaderSource = shaderSource + "sampler Texture" + layerCounter + " : register(s" + layerCounter + ");\n";
+		}
+		
 		shaderSource = shaderSource + "float4  FogColor;\n";
 
+		shaderSource = shaderSource + "float4 " + fragmentProgramName + "( VS_OUTPUT input ) : SV_Target\n";
+		shaderSource = shaderSource + "{\n";
+		shaderSource = shaderSource + "float4 finalColor = input.Color + input.ColorSpec;\n";
 
-
-		if(bHasTexcoord)
+		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
 		{
-			shaderSource = shaderSource + "sampler tex0 : register(s0);\n";
-			shaderSource = shaderSource + "float4 " + fragmentProgramName + "( VS_OUTPUT input ) : SV_Target\n";
+			const TextureLayerState & curTextureLayerState = fixedFuncState.getTextureLayerStateList()[i];
+			String layerCounter = StringConverter::toString(i);
+			String coordIndex = StringConverter::toString(curTextureLayerState.getCoordIndex());
 			shaderSource = shaderSource + "{\n";
-			shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.tCord.x, input.tCord.y, 0, 1);\n";
-			shaderSource = shaderSource + "texCordWithMatrix = mul( texCordWithMatrix, TextureMatrix );\n";
-			shaderSource = shaderSource + "\n";
-			shaderSource = shaderSource + "float4 finalColor = tex2D(tex0,texCordWithMatrix.xy)  * input.Color + input.ColorSpec;\n";
-		}
-		else 
-		{
-			shaderSource = shaderSource + "float4 " + fragmentProgramName + "( VS_OUTPUT input ) : SV_Target\n";
-			shaderSource = shaderSource + "{\n";
-			shaderSource = shaderSource + "float4 finalColor = input.colorD + input.colorS;\n";
+			shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.tCord" + coordIndex + ".x, input.tCord" + coordIndex + ".y, 0, 1);\n";
+			shaderSource = shaderSource + "texCordWithMatrix = mul(TextureMatrix" + layerCounter + ", texCordWithMatrix );\n";
+			shaderSource = shaderSource + "finalColor = tex2D(Texture" + layerCounter + ",texCordWithMatrix.xy)  * finalColor;\n";
+			shaderSource = shaderSource + "}\n";
 		}
 
 		switch (fixedFuncState.getGeneralFixedFuncState().getFogMode())
@@ -445,6 +461,11 @@ namespace Ogre
 		return shaderSource;
 	}
 	//---------------------------------------------------------------------
+	FixedFuncPrograms * HlslFixedFuncEmuShaderGenerator::createFixedFuncPrograms()
+	{
+		return new HlslFixedFuncPrograms();
+	}
+	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------
 	Hlsl4FixedFuncEmuShaderGenerator::Hlsl4FixedFuncEmuShaderGenerator()
@@ -465,4 +486,107 @@ namespace Ogre
 		return HlslFixedFuncEmuShaderGenerator::getShaderSource(vertexProgramName, fragmentProgramName, vertexBufferDeclaration, fixedFuncState);
 	}
 	//---------------------------------------------------------------------
+	void HlslFixedFuncEmuShaderGenerator::HlslFixedFuncPrograms::setFixedFuncProgramsParameters( const FixedFuncProgramsParameters & params )
+	{
+		_setProgramMatrix4Parameter(GPT_VERTEX_PROGRAM, "World", params.getWorldMat());
+		_setProgramMatrix4Parameter(GPT_VERTEX_PROGRAM, "View", params.getViewMat());
+		_setProgramMatrix4Parameter(GPT_VERTEX_PROGRAM, "Projection", params.getProjectionMat());
+
+		_setProgramMatrix4Parameter(GPT_VERTEX_PROGRAM, "ViewIT", params.getViewMat().inverse().transpose());
+
+
+		Matrix4 WorldViewIT = params.getWorldMat() * params.getViewMat();
+		WorldViewIT = WorldViewIT.inverse().transpose();
+		_setProgramMatrix4Parameter(GPT_VERTEX_PROGRAM, "WorldViewIT", WorldViewIT);
+
+
+		if (params.getLightingEnabled() && params.getLights().size() > 0)
+		{
+			_setProgramColorParameter(GPT_VERTEX_PROGRAM, "BaseLightAmbient", params.getLightAmbient());
+
+			for(size_t i = 0 ; i < params.getLights().size() ; i++)
+			{
+				Light * curLight = params.getLights()[i];
+				String prefix = "Light" + StringConverter::toString(i) + "_";
+
+				_setProgramColorParameter(GPT_VERTEX_PROGRAM, prefix + "Ambient", ColourValue::Black);
+				_setProgramColorParameter(GPT_VERTEX_PROGRAM, prefix + "Diffuse", curLight->getDiffuseColour());
+				_setProgramColorParameter(GPT_VERTEX_PROGRAM, prefix + "Specular", curLight->getSpecularColour());		
+
+				switch (curLight->getType())
+				{
+				case Light::LT_POINT:
+					{
+						_setProgramVector3Parameter(GPT_VERTEX_PROGRAM, prefix + "Position", curLight->getPosition());
+						_setProgramFloatParameter(GPT_VERTEX_PROGRAM, prefix + "Range", curLight->getAttenuationRange());
+
+						Vector3 attenuation;
+						attenuation[0] = curLight->getAttenuationConstant();
+						attenuation[1] = curLight->getAttenuationLinear();
+						attenuation[2] = curLight->getAttenuationQuadric();
+						_setProgramVector3Parameter(GPT_VERTEX_PROGRAM, prefix + "Attenuation", attenuation);
+					}
+					break;
+				case Light::LT_DIRECTIONAL:
+					_setProgramVector3Parameter(GPT_VERTEX_PROGRAM, prefix + "Direction", curLight->getDirection());
+
+					break;
+				case Light::LT_SPOTLIGHT:
+					{
+
+						_setProgramVector3Parameter(GPT_VERTEX_PROGRAM, prefix + "Direction", curLight->getDirection());
+						_setProgramVector3Parameter(GPT_VERTEX_PROGRAM, prefix + "Position", curLight->getPosition());
+
+						Vector3 attenuation;
+						attenuation[0] = curLight->getAttenuationConstant();
+						attenuation[1] = curLight->getAttenuationLinear();
+						attenuation[2] = curLight->getAttenuationQuadric();
+						_setProgramVector3Parameter(GPT_VERTEX_PROGRAM, prefix + "Attenuation", attenuation);
+
+						Vector3 spot;
+						spot[0] = curLight->getSpotlightInnerAngle().valueRadians() ;
+						spot[1] = curLight->getSpotlightOuterAngle().valueRadians();
+						spot[2] = curLight->getSpotlightFalloff();
+						_setProgramVector3Parameter(GPT_VERTEX_PROGRAM, prefix + "Spot", spot);					
+					}
+					break;
+				} // end of - switch (curLight->getType())
+			} // end of - for(size_t i = 0 ; i < params.getLights().size() ; i++) 
+		} // end of -  if (params.getLightingEnabled())
+
+
+
+
+
+		switch (params.getFogMode())
+		{
+		case FOG_NONE:
+			break;
+		case FOG_EXP:
+		case FOG_EXP2:
+			_setProgramFloatParameter(GPT_FRAGMENT_PROGRAM, "FogDensity", params.getFogDensitiy());
+			break;
+		case FOG_LINEAR:
+			_setProgramFloatParameter(GPT_FRAGMENT_PROGRAM, "FogStart", params.getFogStart());
+			_setProgramFloatParameter(GPT_FRAGMENT_PROGRAM, "FogEnd", params.getFogEnd());
+			break;
+		}
+
+		if (params.getFogMode() != FOG_NONE)
+		{
+			_setProgramColorParameter(GPT_FRAGMENT_PROGRAM, "FogColor", params.getFogColour());
+		}
+
+
+		for(size_t i = 0 ; i < params.getTextureMatrices().size() ; i++)
+		{
+			if (params.isTextureStageEnabled(i))
+			{
+				_setProgramMatrix4Parameter(GPT_FRAGMENT_PROGRAM, "TextureMatrix" + StringConverter::toString(i), params.getTextureMatrices()[i]);
+			}
+		}
+
+
+
+	}
 }

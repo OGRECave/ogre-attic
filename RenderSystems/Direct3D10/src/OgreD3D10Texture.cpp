@@ -675,7 +675,7 @@ namespace Ogre
 		mBuffer = buffer;
 		mWidth = (unsigned int) mBuffer->getWidth();
 		mHeight = (unsigned int) mBuffer->getHeight();
-		mColourDepth = (unsigned int) Ogre::PixelUtil::getNumElemBits(mBuffer->getFormat());
+		mColourDepth = (unsigned int) PixelUtil::getNumElemBits(mBuffer->getFormat());
 		
 		ID3D10Resource * pBackBuffer = buffer->getParentTexture()->getTextureResource();
 

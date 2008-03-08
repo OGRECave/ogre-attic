@@ -44,7 +44,7 @@ namespace Ogre
 	{
 		for (size_t i = 0 ; i < mProgramsToDeleteAtTheEnd.size() ; i++)
 		{
-			mProgramsToDeleteAtTheEnd[i].releaseMemory();
+			delete mProgramsToDeleteAtTheEnd[i];
 		}
 	}
 	//---------------------------------------------------------------------
@@ -58,7 +58,7 @@ namespace Ogre
 		mFixedFuncEmuShaderGeneratorMap.erase(generator->getName());
 	}
 	//---------------------------------------------------------------------
-	FixedFuncPrograms & FixedFuncEmuShaderManager::_createShaderPrograms( const String & generatorName, 
+	FixedFuncPrograms * FixedFuncEmuShaderManager::_createShaderPrograms( const String & generatorName, 
 		const VertexBufferDeclaration & vertexBufferDeclaration, FixedFuncState & fixedFuncState )
 	{
 
@@ -103,7 +103,7 @@ namespace Ogre
 		vs->setParameter("target",fixedFuncEmuShaderGenerator->getVpTarget());
 		static_cast<LoadFromSourceGpuProgram *>(vs.get())->doLoadFromSource();
 
-		vertexProgramUsage->setProgram(Ogre::GpuProgramPtr(vs));
+		vertexProgramUsage->setProgram(GpuProgramPtr(vs));
 		vertexProgramUsage->setParameters(vs->createParameters());
 
 		fs = HighLevelGpuProgramManager::getSingleton().
@@ -114,18 +114,19 @@ namespace Ogre
 		fs->setParameter("target",fixedFuncEmuShaderGenerator->getFpTarget());
 		static_cast<LoadFromSourceGpuProgram *>(fs.get())->doLoadFromSource();
 
-		fragmentProgramUsage->setProgram(Ogre::GpuProgramPtr(fs));
+		fragmentProgramUsage->setProgram(GpuProgramPtr(fs));
 		fragmentProgramUsage->setParameters(fs->createParameters());
 
-		FixedFuncPrograms & newPrograms = mLanguage2State2Declaration2ProgramsMap[generatorName][fixedFuncState][vertexBufferDeclaration];
-		newPrograms.setVertexProgramUsage(vertexProgramUsage);
-		newPrograms.setFragmentProgramUsage(fragmentProgramUsage);
+		FixedFuncPrograms * newPrograms = fixedFuncEmuShaderGenerator->createFixedFuncPrograms();
+		mLanguage2State2Declaration2ProgramsMap[generatorName][fixedFuncState][vertexBufferDeclaration] = newPrograms;
+		newPrograms->setVertexProgramUsage(vertexProgramUsage);
+		newPrograms->setFragmentProgramUsage(fragmentProgramUsage);
 
 		mProgramsToDeleteAtTheEnd.push_back(newPrograms);
 		return newPrograms;
 	}
 	//---------------------------------------------------------------------
-	FixedFuncPrograms & FixedFuncEmuShaderManager::getShaderPrograms( const String & generatorName, 
+	FixedFuncPrograms * FixedFuncEmuShaderManager::getShaderPrograms( const String & generatorName, 
 		const VertexBufferDeclaration & vertexBufferDeclaration, FixedFuncState & fixedFuncState )
 	{
 		Language2State2Declaration2ProgramsMap::iterator langIter = mLanguage2State2Declaration2ProgramsMap.find(generatorName);
@@ -148,22 +149,22 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------
-	Ogre::GpuProgramUsage * FixedFuncPrograms::getVertexProgramUsage() const 
+	GpuProgramUsage * FixedFuncPrograms::getVertexProgramUsage() const 
 	{
 		return mVertexProgramUsage;
 	}
 	//---------------------------------------------------------------------
-	void FixedFuncPrograms::setVertexProgramUsage( Ogre::GpuProgramUsage * val )
+	void FixedFuncPrograms::setVertexProgramUsage( GpuProgramUsage * val )
 	{
 		mVertexProgramUsage = val;
 	}
 	//---------------------------------------------------------------------
-	Ogre::GpuProgramUsage * FixedFuncPrograms::getFragmentProgramUsage() const
+	GpuProgramUsage * FixedFuncPrograms::getFragmentProgramUsage() const
 	{
 		return mFragmentProgramUsage;
 	}
 	//---------------------------------------------------------------------
-	void FixedFuncPrograms::setFragmentProgramUsage( Ogre::GpuProgramUsage * val )
+	void FixedFuncPrograms::setFragmentProgramUsage( GpuProgramUsage * val )
 	{
 		mFragmentProgramUsage = val;
 	}
@@ -177,11 +178,6 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	FixedFuncPrograms::~FixedFuncPrograms()
 	{
-		
-	}
-	//---------------------------------------------------------------------
-	void FixedFuncPrograms::releaseMemory()
-	{
 		if (mVertexProgramUsage)
 		{
 			delete(mVertexProgramUsage);
@@ -189,6 +185,230 @@ namespace Ogre
 		if (mFragmentProgramUsage)
 		{
 			delete(mFragmentProgramUsage);
+		}	
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::_setProgramParameter( const GpuProgramType type, const String paramName, const void * value, const size_t sizeInBytes )
+	{
+		GpuProgramParametersSharedPtr programParameters;
+		switch(type)
+		{
+		case GPT_VERTEX_PROGRAM: 
+			programParameters = getVertexProgramUsage()->getParameters();
+			break;
+		case GPT_FRAGMENT_PROGRAM: 
+			programParameters = getFragmentProgramUsage()->getParameters();
+			break;
+
+		}
+		const GpuConstantDefinition& def = programParameters->getConstantDefinition(paramName);
+		if (def.isFloat())
+		{
+			memcpy((programParameters->getFloatPointer(def.physicalIndex)), value, sizeInBytes);
+		}
+		else
+		{
+			memcpy((programParameters->getIntPointer(def.physicalIndex)), value, sizeInBytes);
 		}
 	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::_setProgramintParameter( const GpuProgramType type, const String paramName, const int & value )
+	{
+		_setProgramParameter(type, paramName, &value, sizeof(int));
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::_setProgramFloatParameter( const GpuProgramType type, const String paramName, const float & value )
+	{
+		_setProgramParameter(type, paramName, &value, sizeof(float));
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::_setProgramMatrix4Parameter( const GpuProgramType type, const String paramName, const Matrix4 & value )
+	{
+		_setProgramParameter(type, paramName, &value, sizeof(Matrix4));
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::_setProgramColorParameter( const GpuProgramType type, const String paramName, const ColourValue & value )
+	{
+		float valueAsFloat4[4];
+		valueAsFloat4[0] = value[0];
+		valueAsFloat4[1] = value[1];
+		valueAsFloat4[2] = value[2];
+		valueAsFloat4[3] = value[3];
+		_setProgramParameter(type, paramName, &valueAsFloat4[0], sizeof(float) * 4);
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::_setProgramVector3Parameter( const GpuProgramType type, const String paramName, const Vector3 & value )
+	{
+		float valueAsFloat3[3];
+		valueAsFloat3[0] = value[0];
+		valueAsFloat3[1] = value[1];
+		valueAsFloat3[2] = value[2];
+		_setProgramParameter(type, paramName, &valueAsFloat3, sizeof(float) * 3);
+	}
+	//---------------------------------------------------------------------
+	//---------------------------------------------------------------------
+	//---------------------------------------------------------------------
+	const Matrix4 & FixedFuncPrograms::FixedFuncProgramsParameters::getWorldMat() const
+	{
+		return mWorldMat;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setWorldMat( const Matrix4 & val )
+	{
+		mWorldMat = val;
+	}
+	//---------------------------------------------------------------------
+	const Matrix4 & FixedFuncPrograms::FixedFuncProgramsParameters::getProjectionMat() const
+	{
+		return mProjectionMat;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setProjectionMat( const Matrix4 & val )
+	{
+		mProjectionMat = val;
+	}
+	//---------------------------------------------------------------------
+	const Matrix4 & FixedFuncPrograms::FixedFuncProgramsParameters::getViewMat() const
+	{
+		return mViewMat;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setViewMat( const Matrix4 & val )
+	{
+		mViewMat = val;
+	}
+	//---------------------------------------------------------------------
+	const LightList & FixedFuncPrograms::FixedFuncProgramsParameters::getLights() const
+	{
+		return mLights;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setLights( const LightList & val )
+	{
+		mLights = val;
+	}
+	//---------------------------------------------------------------------
+	const FogMode FixedFuncPrograms::FixedFuncProgramsParameters::getFogMode() const
+	{
+		return mFogMode;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setFogMode( const FogMode val )
+	{
+		mFogMode = val;
+	}
+	//---------------------------------------------------------------------
+	const ColourValue FixedFuncPrograms::FixedFuncProgramsParameters::getFogColour() const
+	{
+		return mFogColour;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setFogColour( const ColourValue val )
+	{
+		mFogColour = val;
+	}
+	//---------------------------------------------------------------------
+	const Real FixedFuncPrograms::FixedFuncProgramsParameters::getFogDensitiy() const
+	{
+		return mFogDensitiy;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setFogDensitiy( const Real val )
+	{
+		mFogDensitiy = val;
+	}
+	//---------------------------------------------------------------------
+	const Real FixedFuncPrograms::FixedFuncProgramsParameters::getFogStart() const
+	{
+		return mFogStart;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setFogStart( const Real val )
+	{
+		mFogStart = val;
+	}
+	//---------------------------------------------------------------------
+	const Real FixedFuncPrograms::FixedFuncProgramsParameters::getFogEnd() const
+	{
+		return mFogEnd;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setFogEnd( const Real val )
+	{
+		mFogEnd = val;
+	}
+	//---------------------------------------------------------------------
+	const bool FixedFuncPrograms::FixedFuncProgramsParameters::getLightingEnabled() const
+	{
+		return mLightingEnabled;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::LightingEnabled( const bool val )
+	{
+		mLightingEnabled = val;
+	}
+	//---------------------------------------------------------------------
+	const ColourValue & FixedFuncPrograms::FixedFuncProgramsParameters::getLightAmbient() const
+	{
+		return mLightAmbient;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setLightAmbient( const ColourValue val )
+	{
+		mLightAmbient = val;
+	}
+	//---------------------------------------------------------------------
+	const FixedFuncPrograms::FixedFuncProgramsParameters::TextureMatrixVector & FixedFuncPrograms::FixedFuncProgramsParameters::getTextureMatrices() const
+	{
+		return mTextureMatrices;
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setTextureMatrix( const size_t index, const Matrix4 & val )
+	{
+		// resize
+		while (index < mTextureMatrices.size() - 1)
+		{
+			mTextureMatrices.push_back(Matrix4::IDENTITY);
+		}
+		mTextureMatrices[index] = val;
+	}
+	//---------------------------------------------------------------------
+	FixedFuncPrograms::FixedFuncProgramsParameters::FixedFuncProgramsParameters()
+	{
+		mFogMode = FOG_NONE;
+		mFogColour = ColourValue::Black;
+		mFogDensitiy = 0.0f;
+		mFogStart = 0.0f;
+		mFogEnd = 0.0f;
+	}
+	//---------------------------------------------------------------------
+	FixedFuncPrograms::FixedFuncProgramsParameters::~FixedFuncProgramsParameters()
+	{
+
+	}
+	//---------------------------------------------------------------------
+	void FixedFuncPrograms::FixedFuncProgramsParameters::setTextureEnabled( const size_t index, const bool val )
+	{
+		// resize
+		while (index < mTextureEnabledVector.size() - 1)
+		{
+			mTextureEnabledVector.push_back(false);
+		}
+		mTextureEnabledVector[index] = val;
+
+	}
+	//---------------------------------------------------------------------
+	bool FixedFuncPrograms::FixedFuncProgramsParameters::isTextureStageEnabled( const size_t index ) const
+	{
+		if(index < mTextureEnabledVector.size())
+		{
+			return mTextureEnabledVector[index];
+		}
+		else
+		{
+			return false;
+		}
+			
+	}
+	//---------------------------------------------------------------------
 }
