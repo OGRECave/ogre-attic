@@ -184,39 +184,43 @@ namespace Ogre
 			break;
 		}
 
-		if (fixedFuncState.getGeneralFixedFuncState().getLightingEnabled())
+		if (fixedFuncState.getGeneralFixedFuncState().getLightingEnabled() && fixedFuncState.getGeneralFixedFuncState().getTotalNumberOfLights() > 0)
 		{
 			shaderSource = shaderSource + "float4 BaseLightAmbient;\n";
 
-			for(size_t i = 0 ; i < fixedFuncState.getLights().size() ; i++)
+			// Point Light
+			for(uint8 i = 0 ; i < fixedFuncState.getGeneralFixedFuncState().getLightTypeCount(Light::LT_POINT) ; i++)
 			{
-				String prefix = "Light" + StringConverter::toString(i) + "_";
-				switch (fixedFuncState.getLights()[i])
-				{
-				case Light::LT_POINT:
-					shaderSource = shaderSource + "float3 " + prefix + "Position;\n";
-					shaderSource = shaderSource + "float4 " + prefix + "Ambient;\n";
-					shaderSource = shaderSource + "float4 " + prefix + "Diffuse;\n";
-					shaderSource = shaderSource + "float4 " + prefix + "Specular;\n";				
-					shaderSource = shaderSource + "float  " + prefix + "Range;\n";				
-					shaderSource = shaderSource + "float3 " + prefix + "Attenuation;\n";				
-					break;
-				case Light::LT_DIRECTIONAL:
-					shaderSource = shaderSource + "float3 " + prefix + "Direction;\n";
-					shaderSource = shaderSource + "float4 " + prefix + "Ambient;\n";
-					shaderSource = shaderSource + "float4 " + prefix + "Diffuse;\n";
-					shaderSource = shaderSource + "float4 " + prefix + "Specular;\n";				
-					break;
-				case Light::LT_SPOTLIGHT:
-					shaderSource = shaderSource + "float3 " + prefix + "Direction;\n";
-					shaderSource = shaderSource + "float3 " + prefix + "Position;\n";
-					shaderSource = shaderSource + "float4 " + prefix + "Ambient;\n";
-					shaderSource = shaderSource + "float4 " + prefix + "Diffuse;\n";
-					shaderSource = shaderSource + "float4 " + prefix + "Specular;\n";				
-					shaderSource = shaderSource + "float3 " + prefix + "Attenuation;\n";				
-					shaderSource = shaderSource + "float3 " + prefix + "Spot;\n";				
-					break;
-				}
+				String prefix = "PointLight" + StringConverter::toString(i) + "_";
+				shaderSource = shaderSource + "float3 " + prefix + "Position;\n";
+				shaderSource = shaderSource + "float4 " + prefix + "Ambient;\n";
+				shaderSource = shaderSource + "float4 " + prefix + "Diffuse;\n";
+				shaderSource = shaderSource + "float4 " + prefix + "Specular;\n";				
+				shaderSource = shaderSource + "float  " + prefix + "Range;\n";				
+				shaderSource = shaderSource + "float3 " + prefix + "Attenuation;\n";				
+			}
+
+			// Directional Light
+			for(uint8 i = 0 ; i < fixedFuncState.getGeneralFixedFuncState().getLightTypeCount(Light::LT_DIRECTIONAL) ; i++)
+			{
+				String prefix = "DirectionalLight" + StringConverter::toString(i) + "_";
+				shaderSource = shaderSource + "float3 " + prefix + "Direction;\n";
+				shaderSource = shaderSource + "float4 " + prefix + "Ambient;\n";
+				shaderSource = shaderSource + "float4 " + prefix + "Diffuse;\n";
+				shaderSource = shaderSource + "float4 " + prefix + "Specular;\n";				
+			}
+
+			// Spot Light
+			for(uint8 i = 0 ; i < fixedFuncState.getGeneralFixedFuncState().getLightTypeCount(Light::LT_SPOTLIGHT) ; i++)
+			{
+				String prefix = "SpotLight" + StringConverter::toString(i) + "_";
+				shaderSource = shaderSource + "float3 " + prefix + "Direction;\n";
+				shaderSource = shaderSource + "float3 " + prefix + "Position;\n";
+				shaderSource = shaderSource + "float4 " + prefix + "Ambient;\n";
+				shaderSource = shaderSource + "float4 " + prefix + "Diffuse;\n";
+				shaderSource = shaderSource + "float4 " + prefix + "Specular;\n";				
+				shaderSource = shaderSource + "float3 " + prefix + "Attenuation;\n";				
+				shaderSource = shaderSource + "float3 " + prefix + "Spot;\n";					
 			}
 
 		}
@@ -271,7 +275,7 @@ namespace Ogre
 		shaderSource = shaderSource + "output.ColorSpec = float4(0.0, 0.0, 0.0, 0.0);\n";
 
 
-		if (fixedFuncState.getGeneralFixedFuncState().getLightingEnabled() && fixedFuncState.getLights().size() > 0)
+		if (fixedFuncState.getGeneralFixedFuncState().getLightingEnabled() && fixedFuncState.getGeneralFixedFuncState().getTotalNumberOfLights() > 0)
 		{
 			shaderSource = shaderSource + "output.Color = BaseLightAmbient;\n";
 			if (bHasColor)
@@ -288,99 +292,102 @@ namespace Ogre
 
 			shaderSource = shaderSource + "#define fMaterialPower 16.f\n";
 
-			for(size_t i = 0 ; i < fixedFuncState.getLights().size() ; i++)
+			// Point Light
+			for(uint8 i = 0 ; i < fixedFuncState.getGeneralFixedFuncState().getLightTypeCount(Light::LT_POINT) ; i++)
 			{
-				String prefix = "Light" + StringConverter::toString(i) + "_";
-				switch (fixedFuncState.getLights()[i])
-				{
-				case Light::LT_POINT:
-					shaderSource = shaderSource + "{\n";
-					shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(World,input.Position0);\n";
-					shaderSource = shaderSource + "  float3 L = mul((float3x3)ViewIT, normalize((PosDiff)));\n";
-					shaderSource = shaderSource + "  float NdotL = dot(N, L);\n";
-					shaderSource = shaderSource + "  float4 Color = " + prefix + "Ambient;\n";
-					shaderSource = shaderSource + "  float4 ColorSpec = 0;\n";
-					shaderSource = shaderSource + "  float fAtten = 1.f;\n";
-					shaderSource = shaderSource + "  if(NdotL >= 0.f)\n";
-					shaderSource = shaderSource + "  {\n";
-					shaderSource = shaderSource + "    //compute diffuse color\n";
-					shaderSource = shaderSource + "    Color += NdotL * " + prefix + "Diffuse;\n";
-					shaderSource = shaderSource + "    //add specular component\n";
-					shaderSource = shaderSource + "    float3 H = normalize(L + V);   //half vector\n";
-					shaderSource = shaderSource + "    ColorSpec = pow(max(0, dot(H, N)), fMaterialPower) * " + prefix + "Specular;\n";
-					shaderSource = shaderSource + "    float LD = length(PosDiff);\n";
-					shaderSource = shaderSource + "    if(LD > " + prefix + "Range)\n";
-					shaderSource = shaderSource + "    {\n";
-					shaderSource = shaderSource + "      fAtten = 0.f;\n";
-					shaderSource = shaderSource + "    }\n";
-					shaderSource = shaderSource + "    else\n";
-					shaderSource = shaderSource + "    {\n";
-					shaderSource = shaderSource + "      fAtten *= 1.f/(" + prefix + "Attenuation.x + " + prefix + "Attenuation.y*LD + " + prefix + "Attenuation.z*LD*LD);\n";
-					shaderSource = shaderSource + "    }\n";
-					shaderSource = shaderSource + "    Color *= fAtten;\n";
-					shaderSource = shaderSource + "    ColorSpec *= fAtten;\n";
-					shaderSource = shaderSource + "    output.Color += Color;\n";
-					shaderSource = shaderSource + "    output.ColorSpec += ColorSpec;\n";
-					shaderSource = shaderSource + "  }\n";
-					shaderSource = shaderSource + "}\n";
+				String prefix = "PointLight" + StringConverter::toString(i) + "_";
+				shaderSource = shaderSource + "{\n";
+				shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(World,input.Position0);\n";
+				shaderSource = shaderSource + "  float3 L = mul((float3x3)ViewIT, normalize((PosDiff)));\n";
+				shaderSource = shaderSource + "  float NdotL = dot(N, L);\n";
+				shaderSource = shaderSource + "  float4 Color = " + prefix + "Ambient;\n";
+				shaderSource = shaderSource + "  float4 ColorSpec = 0;\n";
+				shaderSource = shaderSource + "  float fAtten = 1.f;\n";
+				shaderSource = shaderSource + "  if(NdotL >= 0.f)\n";
+				shaderSource = shaderSource + "  {\n";
+				shaderSource = shaderSource + "    //compute diffuse color\n";
+				shaderSource = shaderSource + "    Color += NdotL * " + prefix + "Diffuse;\n";
+				shaderSource = shaderSource + "    //add specular component\n";
+				shaderSource = shaderSource + "    float3 H = normalize(L + V);   //half vector\n";
+				shaderSource = shaderSource + "    ColorSpec = pow(max(0, dot(H, N)), fMaterialPower) * " + prefix + "Specular;\n";
+				shaderSource = shaderSource + "    float LD = length(PosDiff);\n";
+				shaderSource = shaderSource + "    if(LD > " + prefix + "Range)\n";
+				shaderSource = shaderSource + "    {\n";
+				shaderSource = shaderSource + "      fAtten = 0.f;\n";
+				shaderSource = shaderSource + "    }\n";
+				shaderSource = shaderSource + "    else\n";
+				shaderSource = shaderSource + "    {\n";
+				shaderSource = shaderSource + "      fAtten *= 1.f/(" + prefix + "Attenuation.x + " + prefix + "Attenuation.y*LD + " + prefix + "Attenuation.z*LD*LD);\n";
+				shaderSource = shaderSource + "    }\n";
+				shaderSource = shaderSource + "    Color *= fAtten;\n";
+				shaderSource = shaderSource + "    ColorSpec *= fAtten;\n";
+				shaderSource = shaderSource + "    output.Color += Color;\n";
+				shaderSource = shaderSource + "    output.ColorSpec += ColorSpec;\n";
+				shaderSource = shaderSource + "  }\n";
+				shaderSource = shaderSource + "}\n";
 
-					break;
-				case Light::LT_DIRECTIONAL:			
-					shaderSource = shaderSource + "{\n";
-					shaderSource = shaderSource + "  float3 L = mul((float3x3)ViewIT, -normalize(" + prefix + "Direction));\n";
-					shaderSource = shaderSource + "  float NdotL = dot(N, L);\n";
-					shaderSource = shaderSource + "  float4 Color = " + prefix + "Ambient;\n";
-					shaderSource = shaderSource + "  float4 ColorSpec = 0;\n";
-					shaderSource = shaderSource + "  if(NdotL > 0.f)\n";
-					shaderSource = shaderSource + "  {\n";
-					shaderSource = shaderSource + "    //compute diffuse color\n";
-					shaderSource = shaderSource + "    Color += NdotL * " + prefix + "Diffuse;\n";
-					shaderSource = shaderSource + "    //add specular component\n";
-					shaderSource = shaderSource + "    float3 H = normalize(L + V);   //half vector\n";
-					shaderSource = shaderSource + "    ColorSpec = pow(max(0, dot(H, N)), fMaterialPower) * " + prefix + "Specular;\n";
-					shaderSource = shaderSource + "    output.Color += Color;\n";
-					shaderSource = shaderSource + "    output.ColorSpec += ColorSpec;\n";
-					shaderSource = shaderSource + "  }\n";
-					shaderSource = shaderSource + "}\n";
-					break;
-				case Light::LT_SPOTLIGHT:
-					shaderSource = shaderSource + "{\n";
-					shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(World,input.Position0);\n";
-					shaderSource = shaderSource + "   float3 L = mul((float3x3)ViewIT, normalize((PosDiff)));\n";
-					shaderSource = shaderSource + "   float NdotL = dot(N, L);\n";
-					shaderSource = shaderSource + "   Out.Color = " + prefix + "Ambient;\n";
-					shaderSource = shaderSource + "   Out.ColorSpec = 0;\n";
-					shaderSource = shaderSource + "   float fAttenSpot = 1.f;\n";
-					shaderSource = shaderSource + "   if(NdotL >= 0.f)\n";
-					shaderSource = shaderSource + "   {\n";
-					shaderSource = shaderSource + "      //compute diffuse color\n";
-					shaderSource = shaderSource + "      Out.Color += NdotL * " + prefix + "Diffuse;\n";
-					shaderSource = shaderSource + "      //add specular component\n";
-					shaderSource = shaderSource + "       float3 H = normalize(L + V);   //half vector\n";
-					shaderSource = shaderSource + "       Out.ColorSpec = pow(max(0, dot(H, N)), fMaterialPower) * " + prefix + "Specular;\n";
-					shaderSource = shaderSource + "      float LD = length(PosDiff);\n";
-					shaderSource = shaderSource + "      if(LD > lights[i].fRange)\n";
-					shaderSource = shaderSource + "      {\n";
-					shaderSource = shaderSource + "         fAttenSpot = 0.f;\n";
-					shaderSource = shaderSource + "      }\n";
-					shaderSource = shaderSource + "      else\n";
-					shaderSource = shaderSource + "      {\n";
-					shaderSource = shaderSource + "         fAttenSpot *= 1.f/(" + prefix + "Attenuation.x + " + prefix + "Attenuation.y*LD + " + prefix + "Attenuation.z*LD*LD);\n";
-					shaderSource = shaderSource + "      }\n";
-					shaderSource = shaderSource + "      //spot cone computation\n";
-					shaderSource = shaderSource + "      float3 L2 = mul((float3x3)ViewIT, -normalize(" + prefix + "Direction));\n";
-					shaderSource = shaderSource + "      float rho = dot(L, L2);\n";
-					shaderSource = shaderSource + "      fAttenSpot *= pow(saturate((rho - " + prefix + "Spot.y)/(" + prefix + "Spot.x - " + prefix + "Spot.y)), " + prefix + "Spot.z);\n";
-					shaderSource = shaderSource + "		Color *= fAttenSpot;\n";
-					shaderSource = shaderSource + "		ColorSpec *= fAttenSpot;\n";
-					shaderSource = shaderSource + "    output.Color += Color;\n";
-					shaderSource = shaderSource + "    output.ColorSpec += ColorSpec;\n";
-					shaderSource = shaderSource + "   }\n";
-					shaderSource = shaderSource + "}\n";
-					break;
-				}
 			}
 
+			// Directional Light
+			for(uint8 i = 0 ; i < fixedFuncState.getGeneralFixedFuncState().getLightTypeCount(Light::LT_DIRECTIONAL) ; i++)
+			{
+				String prefix = "DirectionalLight" + StringConverter::toString(i) + "_";
+				shaderSource = shaderSource + "{\n";
+				shaderSource = shaderSource + "  float3 L = mul((float3x3)ViewIT, -normalize(" + prefix + "Direction));\n";
+				shaderSource = shaderSource + "  float NdotL = dot(N, L);\n";
+				shaderSource = shaderSource + "  float4 Color = " + prefix + "Ambient;\n";
+				shaderSource = shaderSource + "  float4 ColorSpec = 0;\n";
+				shaderSource = shaderSource + "  if(NdotL > 0.f)\n";
+				shaderSource = shaderSource + "  {\n";
+				shaderSource = shaderSource + "    //compute diffuse color\n";
+				shaderSource = shaderSource + "    Color += NdotL * " + prefix + "Diffuse;\n";
+				shaderSource = shaderSource + "    //add specular component\n";
+				shaderSource = shaderSource + "    float3 H = normalize(L + V);   //half vector\n";
+				shaderSource = shaderSource + "    ColorSpec = pow(max(0, dot(H, N)), fMaterialPower) * " + prefix + "Specular;\n";
+				shaderSource = shaderSource + "    output.Color += Color;\n";
+				shaderSource = shaderSource + "    output.ColorSpec += ColorSpec;\n";
+				shaderSource = shaderSource + "  }\n";
+				shaderSource = shaderSource + "}\n";
+			}
+
+			// Spot Light
+			for(uint8 i = 0 ; i < fixedFuncState.getGeneralFixedFuncState().getLightTypeCount(Light::LT_SPOTLIGHT) ; i++)
+			{
+				String prefix = "SpotLight" + StringConverter::toString(i) + "_";
+				shaderSource = shaderSource + "{\n";
+				shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(World,input.Position0);\n";
+				shaderSource = shaderSource + "   float3 L = mul((float3x3)ViewIT, normalize((PosDiff)));\n";
+				shaderSource = shaderSource + "   float NdotL = dot(N, L);\n";
+				shaderSource = shaderSource + "   Out.Color = " + prefix + "Ambient;\n";
+				shaderSource = shaderSource + "   Out.ColorSpec = 0;\n";
+				shaderSource = shaderSource + "   float fAttenSpot = 1.f;\n";
+				shaderSource = shaderSource + "   if(NdotL >= 0.f)\n";
+				shaderSource = shaderSource + "   {\n";
+				shaderSource = shaderSource + "      //compute diffuse color\n";
+				shaderSource = shaderSource + "      Out.Color += NdotL * " + prefix + "Diffuse;\n";
+				shaderSource = shaderSource + "      //add specular component\n";
+				shaderSource = shaderSource + "       float3 H = normalize(L + V);   //half vector\n";
+				shaderSource = shaderSource + "       Out.ColorSpec = pow(max(0, dot(H, N)), fMaterialPower) * " + prefix + "Specular;\n";
+				shaderSource = shaderSource + "      float LD = length(PosDiff);\n";
+				shaderSource = shaderSource + "      if(LD > lights[i].fRange)\n";
+				shaderSource = shaderSource + "      {\n";
+				shaderSource = shaderSource + "         fAttenSpot = 0.f;\n";
+				shaderSource = shaderSource + "      }\n";
+				shaderSource = shaderSource + "      else\n";
+				shaderSource = shaderSource + "      {\n";
+				shaderSource = shaderSource + "         fAttenSpot *= 1.f/(" + prefix + "Attenuation.x + " + prefix + "Attenuation.y*LD + " + prefix + "Attenuation.z*LD*LD);\n";
+				shaderSource = shaderSource + "      }\n";
+				shaderSource = shaderSource + "      //spot cone computation\n";
+				shaderSource = shaderSource + "      float3 L2 = mul((float3x3)ViewIT, -normalize(" + prefix + "Direction));\n";
+				shaderSource = shaderSource + "      float rho = dot(L, L2);\n";
+				shaderSource = shaderSource + "      fAttenSpot *= pow(saturate((rho - " + prefix + "Spot.y)/(" + prefix + "Spot.x - " + prefix + "Spot.y)), " + prefix + "Spot.z);\n";
+				shaderSource = shaderSource + "		Color *= fAttenSpot;\n";
+				shaderSource = shaderSource + "		ColorSpec *= fAttenSpot;\n";
+				shaderSource = shaderSource + "    output.Color += Color;\n";
+				shaderSource = shaderSource + "    output.ColorSpec += ColorSpec;\n";
+				shaderSource = shaderSource + "   }\n";
+				shaderSource = shaderSource + "}\n";
+			}
 		}
 		else
 		{
@@ -509,10 +516,29 @@ namespace Ogre
 		{
 			_setProgramColorParameter(GPT_VERTEX_PROGRAM, "BaseLightAmbient", params.getLightAmbient());
 
+			uint pointLightCount = 0;
+			uint directionalLightCount = 0;
+			uint spotLightCount = 0;
 			for(size_t i = 0 ; i < params.getLights().size() ; i++)
 			{
 				Light * curLight = params.getLights()[i];
-				String prefix = "Light" + StringConverter::toString(i) + "_";
+				String prefix;
+
+				switch (curLight->getType())
+				{
+				case Light::LT_POINT:
+					prefix = "PointLight" + StringConverter::toString(pointLightCount) + "_";
+					pointLightCount++;
+					break;
+				case Light::LT_DIRECTIONAL:
+					prefix = "DirectionalLight" + StringConverter::toString(directionalLightCount) + "_";
+					directionalLightCount++;
+					break;
+				case Light::LT_SPOTLIGHT:
+					prefix = "SpotLight" + StringConverter::toString(spotLightCount) + "_";
+					spotLightCount++;
+					break;
+				} 
 
 				_setProgramColorParameter(GPT_VERTEX_PROGRAM, prefix + "Ambient", ColourValue::Black);
 				_setProgramColorParameter(GPT_VERTEX_PROGRAM, prefix + "Diffuse", curLight->getDiffuseColour());
