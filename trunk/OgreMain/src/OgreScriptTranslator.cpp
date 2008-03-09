@@ -1752,8 +1752,11 @@ namespace Ogre{
 
 		Pass *pass = any_cast<Pass*>(node->parent->context);
 		pass->setFragmentProgram(name);
-		GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
-		GpuProgramTranslator::translateProgramParameters(compiler, params, node);
+		if(pass->getFragmentProgram()->isSupported())
+		{
+			GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
+			GpuProgramTranslator::translateProgramParameters(compiler, params, node);
+		}
 	}
 	//-------------------------------------------------------------------------
 	void PassTranslator::translateVertexProgramRef(ScriptCompiler *compiler, ObjectAbstractNode *node)
@@ -1771,8 +1774,11 @@ namespace Ogre{
 
 		Pass *pass = any_cast<Pass*>(node->parent->context);
 		pass->setVertexProgram(name);
-		GpuProgramParametersSharedPtr params = pass->getVertexProgramParameters();
-		GpuProgramTranslator::translateProgramParameters(compiler, params, node);
+		if(pass->getVertexProgram()->isSupported())
+		{
+			GpuProgramParametersSharedPtr params = pass->getVertexProgramParameters();
+			GpuProgramTranslator::translateProgramParameters(compiler, params, node);
+		}
 	}
 	//-------------------------------------------------------------------------
 	void PassTranslator::translateShadowCasterVertexProgramRef(ScriptCompiler *compiler, ObjectAbstractNode *node)
@@ -1790,8 +1796,11 @@ namespace Ogre{
 
 		Pass *pass = any_cast<Pass*>(node->parent->context);
 		pass->setShadowCasterVertexProgram(name);
-		GpuProgramParametersSharedPtr params = pass->getShadowCasterVertexProgramParameters();
-		GpuProgramTranslator::translateProgramParameters(compiler, params, node);
+		if(pass->getShadowCasterVertexProgram()->isSupported())
+		{
+			GpuProgramParametersSharedPtr params = pass->getShadowCasterVertexProgramParameters();
+			GpuProgramTranslator::translateProgramParameters(compiler, params, node);
+		}
 	}
 	//-------------------------------------------------------------------------
 	void PassTranslator::translateShadowReceiverVertexProgramRef(ScriptCompiler *compiler, ObjectAbstractNode *node)
@@ -1809,8 +1818,11 @@ namespace Ogre{
 
 		Pass *pass = any_cast<Pass*>(node->parent->context);
 		pass->setShadowReceiverVertexProgram(name);
-		GpuProgramParametersSharedPtr params = pass->getShadowReceiverVertexProgramParameters();
-		GpuProgramTranslator::translateProgramParameters(compiler, params, node);
+		if(pass->getShadowReceiverVertexProgram()->isSupported())
+		{
+			GpuProgramParametersSharedPtr params = pass->getShadowReceiverVertexProgramParameters();
+			GpuProgramTranslator::translateProgramParameters(compiler, params, node);
+		}
 	}
 	//-------------------------------------------------------------------------
 	void PassTranslator::translateShadowReceiverFragmentProgramRef(ScriptCompiler *compiler, ObjectAbstractNode *node)
@@ -1828,8 +1840,11 @@ namespace Ogre{
 
 		Pass *pass = any_cast<Pass*>(node->parent->context);
 		pass->setShadowReceiverFragmentProgram(name);
-		GpuProgramParametersSharedPtr params = pass->getShadowReceiverFragmentProgramParameters();
-		GpuProgramTranslator::translateProgramParameters(compiler, params, node);
+		if(pass->getShadowReceiverFragmentProgram()->isSupported())
+		{
+			GpuProgramParametersSharedPtr params = pass->getShadowReceiverFragmentProgramParameters();
+			GpuProgramTranslator::translateProgramParameters(compiler, params, node);
+		}
 	}
 
 	/**************************************************************************
@@ -3164,6 +3179,10 @@ namespace Ogre{
 
 		obj->context = Any(prog);
 
+		prog->setMorphAnimationIncluded(false);
+		prog->setPoseAnimationIncluded(0);
+		prog->setSkeletalAnimationIncluded(false);
+		prog->setVertexTextureFetchRequired(false);
 		prog->_notifyOrigin(obj->file);
 
 		// Set the custom parameters
@@ -3219,7 +3238,10 @@ namespace Ogre{
 			}
 			else if((*i)->type == ANT_OBJECT)
 			{
-				processNode(compiler, *i);
+				if(((ObjectAbstractNode*)(*i).get())->id == ID_DEFAULT_PARAMS)
+					params = *i;
+				else
+					processNode(compiler, *i);
 			}
 		}
 
@@ -3256,11 +3278,22 @@ namespace Ogre{
 
 		obj->context = Any(prog);
 
+		prog->setMorphAnimationIncluded(false);
+		prog->setPoseAnimationIncluded(0);
+		prog->setSkeletalAnimationIncluded(false);
+		prog->setVertexTextureFetchRequired(false);
 		prog->_notifyOrigin(obj->file);
 
 		// Set the custom parameters
 		for(std::list<std::pair<String,String> >::iterator i = customParameters.begin(); i != customParameters.end(); ++i)
 			prog->setParameter(i->first, i->second);
+
+		// Set up default parameters
+		if(prog->isSupported() && !params.isNull())
+		{
+			GpuProgramParametersSharedPtr ptr = prog->getDefaultParameters();
+			GpuProgramTranslator::translateProgramParameters(compiler, ptr, reinterpret_cast<ObjectAbstractNode*>(params.get()));
+		}
 
 		prog->touch();
 	}
@@ -3338,6 +3371,7 @@ namespace Ogre{
 			}
 		}
 
+
 		// Allocate the program
 		HighLevelGpuProgram *prog = 0;
 		Any retval;
@@ -3374,6 +3408,10 @@ namespace Ogre{
 
 		obj->context = Any(prog);
 
+		prog->setMorphAnimationIncluded(false);
+		prog->setPoseAnimationIncluded(0);
+		prog->setSkeletalAnimationIncluded(false);
+		prog->setVertexTextureFetchRequired(false);
 		prog->_notifyOrigin(obj->file);
 
 		// Set the custom parameters
