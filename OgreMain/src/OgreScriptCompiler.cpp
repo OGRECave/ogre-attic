@@ -320,6 +320,9 @@ namespace Ogre
 		// Clear the environment
 		mEnv.clear();
 
+		if(mListener)
+			mListener->preConversion(this, nodes);
+
 		// Convert our nodes to an AST
 		AbstractNodeListPtr ast = convertToAST(nodes);
 		// Processes the imports for this script
@@ -332,7 +335,15 @@ namespace Ogre
 		// Translate the nodes
 		for(AbstractNodeList::iterator i = ast->begin(); i != ast->end(); ++i)
 		{
-			//logAST(0, *i);
+			/*
+			if((*i)->type == ANT_OBJECT)
+			{
+				ObjectAbstractNode *obj = reinterpret_cast<ObjectAbstractNode*>((*i).get());
+				if(obj->name == "jaiqua" || obj->name == "Ogre/HardwareSkinningTwoWeights" ||
+					obj->name == "Ogre/HardwareSkinningTwoWeightsShadowCaster")
+					logAST(0, *i);
+			}
+			*/
 			if((*i)->type == ANT_OBJECT && reinterpret_cast<ObjectAbstractNode*>((*i).get())->abstract)
 				continue;
 			ScriptTranslator *translator = ScriptCompilerManager::getSingleton().getTranslator(*i);
