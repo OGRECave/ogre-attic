@@ -1283,15 +1283,14 @@ namespace Ogre
 		}
 
 		LightList lightsList;
-		LightTypesList lightTypes;
+		mFixedFuncState.getGeneralFixedFuncState().resetLightTypeCounts();
 		for(size_t i = 0 ; i < currentLightsCount ; i++)
 		{
 			Light * curLight = lights[i];
 			lightsList.push_back(curLight);
-			lightTypes.push_back(curLight->getType());
+			mFixedFuncState.getGeneralFixedFuncState().addOnetoLightTypeCount(curLight->getType());
 		}
 		mFixedFuncProgramsParameters.setLights(lightsList);
-		mFixedFuncState.setLights(lightTypes);
     }
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::setShadingType( ShadeOptions so )

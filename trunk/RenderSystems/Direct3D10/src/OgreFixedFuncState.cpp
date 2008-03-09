@@ -104,6 +104,40 @@ namespace Ogre {
 		return mAlphaRejectFunc;
 	}
 	//-----------------------------------------------------------------------
+	const uint8 GeneralFixedFuncState::getLightTypeCount( const Light::LightTypes type ) const
+	{
+		return mLightFromTypeCount[type];
+	}
+	//-----------------------------------------------------------------------
+	void GeneralFixedFuncState::setLightTypeCount( const Light::LightTypes type, const uint8 val )
+	{
+		mLightFromTypeCount[type] = val;
+	}
+	//-----------------------------------------------------------------------
+	const uint8 GeneralFixedFuncState::getTotalNumberOfLights() const
+	{
+		uint8 res = 0;
+		for( uint8 i = 0 ; i < LIGHT_TYPES_COUNT ; i++ )
+		{
+			res += mLightFromTypeCount[i];
+		}
+
+		return res;
+	}	
+	//-----------------------------------------------------------------------
+	void GeneralFixedFuncState::resetLightTypeCounts()
+	{
+		for( uint8 i = 0 ; i < LIGHT_TYPES_COUNT ; i++ )
+		{
+			mLightFromTypeCount[i] = 0;
+		}
+	}
+	//-----------------------------------------------------------------------
+	void GeneralFixedFuncState::addOnetoLightTypeCount( const Light::LightTypes type )
+	{
+		mLightFromTypeCount[type]++;
+	}
+	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
@@ -115,16 +149,6 @@ namespace Ogre {
 	FixedFuncState::~FixedFuncState()
 	{
 
-	}
-	//-----------------------------------------------------------------------
-	const LightTypesList & FixedFuncState::getLights() const
-	{
-		return mLights;
-	}
-	//-----------------------------------------------------------------------
-	void FixedFuncState::setLights( LightTypesList val )
-	{
-		mLights = val;
 	}
 	//-----------------------------------------------------------------------
 	const TextureLayerStateList & FixedFuncState::getTextureLayerStateList() const
@@ -162,33 +186,6 @@ namespace Ogre {
 		if (mTextureLayerStateList.size() > 0)
 		{
 			int memcmpRes =  memcmp(&mTextureLayerStateList[0], &other.mTextureLayerStateList[0], mTextureLayerStateList.size() * sizeof(TextureLayerState));
-			if (memcmpRes)
-			{
-				return memcmpRes > 0;
-			}
-		}
-
-		// mLights
-
-		if (mGeneralFixedFuncState.getLightingEnabled() != other.mGeneralFixedFuncState.getLightingEnabled())
-		{
-			return (mGeneralFixedFuncState.getLightingEnabled() > other.mGeneralFixedFuncState.getLightingEnabled());
-		}
-
-		if (!mGeneralFixedFuncState.getLightingEnabled())
-		{
-			return false;
-		}
-
-		if (mLights.size() != other.mLights.size())
-		{
-			return mLights.size() > other.mLights.size();
-		}
-
-
-		if (mLights.size() > 0)
-		{
-			int memcmpRes =  memcmp(&mLights[0], &other.mLights[0], mLights.size() * sizeof(Light::LightTypes));
 			if (memcmpRes)
 			{
 				return memcmpRes > 0;
@@ -259,7 +256,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	VertexBufferDeclaration::VertexBufferDeclaration()
 	{
-
+		ZeroMemory(this, sizeof(VertexBufferDeclaration));
 	}
 	//-----------------------------------------------------------------------
 	VertexBufferDeclaration::~VertexBufferDeclaration()
@@ -307,6 +304,16 @@ namespace Ogre {
 	void TextureLayerState::setCoordIndex( uint8 val )
 	{
 		mCoordIndex = val;
+	}
+	//-----------------------------------------------------------------------
+	TextureLayerState::TextureLayerState()
+	{
+		ZeroMemory(this, sizeof(TextureLayerState));
+	}
+	//-----------------------------------------------------------------------
+	TextureLayerState::~TextureLayerState()
+	{
+
 	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------

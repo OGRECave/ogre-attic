@@ -49,6 +49,8 @@ namespace Ogre {
 		LayerBlendModeEx mLayerBlendOperationEx;
 		uint8 mCoordIndex;
 	public:
+		TextureLayerState();
+		~TextureLayerState();
 		TextureType getTextureType() const;
 		void setTextureType(TextureType val);
 		TexCoordCalcMethod getTexCoordCalcMethod() const;
@@ -60,9 +62,6 @@ namespace Ogre {
 	};
 
 	typedef std::vector<TextureLayerState> TextureLayerStateList;
-
-	typedef std::vector<Light::LightTypes> LightTypesList; // TODO: rename LightTypes to LightType
-
 
 	class VertexBufferElement
 	{
@@ -114,6 +113,10 @@ namespace Ogre {
 		//-------------------------------------------------------------------------
 		/// Lighting enabled?
 		bool mLightingEnabled;
+
+#define LIGHT_TYPES_COUNT Light::LT_SPOTLIGHT + 1 // better to update the LightTypes enum
+		// a counter for each of the light types
+		uint8 mLightFromTypeCount[LIGHT_TYPES_COUNT];
 		/// Shading options
 		ShadeOptions mShadeOptions;
 	public:
@@ -206,6 +209,13 @@ namespace Ogre {
 
 		/** Returns true if this pass has auto-normalisation of normals set. */
 		bool getNormaliseNormals(void) const;
+
+		const uint8 getLightTypeCount(const Light::LightTypes type) const;
+		void setLightTypeCount(const Light::LightTypes type, const uint8 val);
+		const uint8 getTotalNumberOfLights() const;
+		void resetLightTypeCounts();
+		void addOnetoLightTypeCount(const Light::LightTypes type);
+
 	};
 
     /** Class defining a fixed function state.
@@ -226,8 +236,6 @@ namespace Ogre {
 	public:
     protected:
 		GeneralFixedFuncState mGeneralFixedFuncState;
-		/// lights
-		LightTypesList mLights;
         //-------------------------------------------------------------------------
         /// Storage of texture layer states
         TextureLayerStateList mTextureLayerStateList;
@@ -237,9 +245,6 @@ namespace Ogre {
 		FixedFuncState();
 		~FixedFuncState();
 
-
-		const LightTypesList & getLights() const;
-		void setLights(LightTypesList val);
 		const TextureLayerStateList & getTextureLayerStateList() const;
 		void setTextureLayerStateList(const TextureLayerStateList & val);
 		GeneralFixedFuncState & getGeneralFixedFuncState();
