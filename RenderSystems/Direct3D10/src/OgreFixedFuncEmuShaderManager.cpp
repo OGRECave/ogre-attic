@@ -73,7 +73,6 @@ namespace Ogre
 			fixedFuncState
 			);
 
-		
 		// Vertex program details
 		GpuProgramUsage * vertexProgramUsage = new GpuProgramUsage(GPT_VERTEX_PROGRAM);
 		// Fragment program details
@@ -91,7 +90,6 @@ namespace Ogre
 				loadFromSource();
 			};
 		};
-
 
 		static size_t shaderCount = 0;
 		shaderCount++;
@@ -377,7 +375,7 @@ namespace Ogre
 	void FixedFuncPrograms::FixedFuncProgramsParameters::setTextureMatrix( const size_t index, const Matrix4 & val )
 	{
 		// resize
-		while (index < mTextureMatrices.size() - 1)
+		while (index + 1> mTextureMatrices.size())
 		{
 			mTextureMatrices.push_back(Matrix4::IDENTITY);
 		}
@@ -401,7 +399,7 @@ namespace Ogre
 	void FixedFuncPrograms::FixedFuncProgramsParameters::setTextureEnabled( const size_t index, const bool val )
 	{
 		// resize
-		while (index < mTextureEnabledVector.size() - 1)
+		while (index + 1 > mTextureEnabledVector.size())
 		{
 			mTextureEnabledVector.push_back(false);
 		}
