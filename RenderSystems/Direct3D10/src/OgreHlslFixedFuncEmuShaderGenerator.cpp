@@ -259,17 +259,43 @@ namespace Ogre
 
 		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
 		{
+			const TextureLayerState & curTextureLayerState = fixedFuncState.getTextureLayerStateList()[i];
 			String layerCounter = StringConverter::toString(i);
-			if (i < texcoordCount)
+			String coordIdx = StringConverter::toString(curTextureLayerState.getCoordIndex());
+
+			shaderSource = shaderSource + "{\n";
+			switch(curTextureLayerState.getTexCoordCalcMethod())
 			{
-				shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.Texcoord" + layerCounter + ".x, input.Texcoord" + layerCounter + ".y, 0, 1);\n";
-				shaderSource = shaderSource + "texCordWithMatrix = mul(TextureMatrix" + layerCounter + ", texCordWithMatrix );\n";
-				shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = texCordWithMatrix.xy;\n";		
+			case TEXCALC_NONE:
+				if (curTextureLayerState.getCoordIndex() < texcoordCount)
+				{
+					shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.Texcoord" + coordIdx + ".x, input.Texcoord" + coordIdx + ".y, 0, 1);\n";
+					shaderSource = shaderSource + "texCordWithMatrix = mul(TextureMatrix" + layerCounter + ", texCordWithMatrix );\n";
+					shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = texCordWithMatrix.xy;\n";		
+				}
+				else
+				{
+					shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float2(0.0, 0.0);\n"; // so no error
+				}
+				break;
+			case TEXCALC_ENVIRONMENT_MAP: 
+				//shaderSource = shaderSource + "float3 ecPosition3 = cameraPos.xyz/cameraPos.w;\n";
+				shaderSource = shaderSource + "float3 u = normalize(cameraPos.xyz);\n";
+				shaderSource = shaderSource + "float3 r = reflect(u, input.Normal0);\n";
+				shaderSource = shaderSource + "float  m = 2.0 * sqrt(r.x * r.x + r.y * r.y + (r.z + 1.0) * (r.z + 1.0));\n";
+				shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float2 (r.x / m + 0.5, r.y / m + 0.5);\n";
+				break;
+			case TEXCALC_ENVIRONMENT_MAP_PLANAR:
+				break;
+			case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
+				break;
+			case TEXCALC_ENVIRONMENT_MAP_NORMAL:
+				break;
+			case TEXCALC_PROJECTIVE_TEXTURE:
+				break;
 			}
-			else
-			{
-				shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float2(0.0, 0.0);\n"; // so no error
-			}
+			shaderSource = shaderSource + "}\n";
+
 		}
 
 		shaderSource = shaderSource + "output.ColorSpec = float4(0.0, 0.0, 0.0, 0.0);\n";
@@ -437,7 +463,9 @@ namespace Ogre
 
 		shaderSource = shaderSource + "return output;}\n";
 
+		/////////////////////////////////////
 		// here starts the fragment shader
+		/////////////////////////////////////
 
 		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
 		{
@@ -449,15 +477,102 @@ namespace Ogre
 
 		shaderSource = shaderSource + "float4 " + fragmentProgramName + "( VS_OUTPUT input ) : SV_Target\n";
 		shaderSource = shaderSource + "{\n";
+
 		shaderSource = shaderSource + "float4 finalColor = input.Color + input.ColorSpec;\n";
 
 		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
 		{
 			const TextureLayerState & curTextureLayerState = fixedFuncState.getTextureLayerStateList()[i];
 			String layerCounter = StringConverter::toString(i);
-			String coordIndex = StringConverter::toString(curTextureLayerState.getCoordIndex());
 			shaderSource = shaderSource + "{\n";
-			shaderSource = shaderSource + "finalColor = tex2D(Texture" + layerCounter + ", input.Texcoord" + coordIndex + ")  * finalColor;\n";
+			shaderSource = shaderSource + "float4 texColor = tex2D(Texture" + layerCounter + ", input.Texcoord" + layerCounter + ");\n";
+			LayerBlendModeEx blend = curTextureLayerState.getLayerBlendModeEx();
+			switch(blend.source1)
+			{
+			case LBS_CURRENT:
+				shaderSource = shaderSource + "float4 source1 = finalColor;\n";
+				break;
+			case LBS_TEXTURE:
+				shaderSource = shaderSource + "float4 source1 = texColor;\n";
+				break;
+			case LBS_DIFFUSE:
+				shaderSource = shaderSource + "float4 source1 = input.Color;\n";
+				break;
+			case LBS_SPECULAR:
+				shaderSource = shaderSource + "float4 source1 = input.ColorSpec;\n";
+				break;
+			case LBS_MANUAL:
+				shaderSource = shaderSource + "float4 source1 = Texture" + layerCounter + "_colourArg1;\n";
+				break;
+			}
+			switch(blend.source2)
+			{
+			case LBS_CURRENT:
+				shaderSource = shaderSource + "float4 source2 = finalColor;\n";
+				break;
+			case LBS_TEXTURE:
+				shaderSource = shaderSource + "float4 source2 = texColor;\n";
+				break;
+			case LBS_DIFFUSE:
+				shaderSource = shaderSource + "float4 source2 = input.Color;\n";
+				break;
+			case LBS_SPECULAR:
+				shaderSource = shaderSource + "float4 source2 = input.ColorSpec;\n";
+				break;
+			case LBS_MANUAL:
+				shaderSource = shaderSource + "float4 source2 = Texture" + layerCounter + "_colourArg2;\n";
+				break;
+			}
+
+
+			switch(blend.operation)
+			{
+			case LBX_SOURCE1:
+				shaderSource = shaderSource + "finalColor = source1;\n";
+				break;
+			case LBX_SOURCE2:
+				shaderSource = shaderSource + "finalColor = source2;\n";
+				break;
+			case LBX_MODULATE:
+				shaderSource = shaderSource + "finalColor = source1 * source2;\n";
+				break;
+			case LBX_MODULATE_X2:
+				shaderSource = shaderSource + "finalColor = source1 * source2 * 2.0;\n";
+				break;
+			case LBX_MODULATE_X4:
+				shaderSource = shaderSource + "finalColor = source1 * source2 * 4.0;\n";
+				break;
+			case LBX_ADD:
+				shaderSource = shaderSource + "finalColor = source1 + source2;\n";
+				break;
+			case LBX_ADD_SIGNED:
+				shaderSource = shaderSource + "finalColor = source1 + source2 - 0.5;\n";
+				break;
+			case LBX_ADD_SMOOTH:
+				shaderSource = shaderSource + "finalColor = source1 + source2 - (source1 * source2);\n";
+				break;
+			case LBX_SUBTRACT:
+				shaderSource = shaderSource + "finalColor = source1 - source2;\n";
+				break;
+			case LBX_BLEND_DIFFUSE_ALPHA:
+				shaderSource = shaderSource + "finalColor = source1 * input.Color.w + source2 * (1.0 - input.Color.w);\n";
+				break;
+			case LBX_BLEND_TEXTURE_ALPHA:
+				shaderSource = shaderSource + "finalColor = source1 * texColor.w + source2 * (1.0 - texColor.w);\n";
+				break;
+			case LBX_BLEND_CURRENT_ALPHA:
+				shaderSource = shaderSource + "finalColor = source1 * finalColor.w + source2 * (1.0 - finalColor.w);\n";
+				break;
+			case LBX_BLEND_MANUAL:
+				shaderSource = shaderSource + "finalColor = source1 * Texture" + layerCounter + "_BlendValue.w + source2 * (1.0 - Texture" + layerCounter + "_BlendValue.w);\n";
+				break;
+			case LBX_DOTPRODUCT:
+				shaderSource = shaderSource + "finalColor = product(source1,source2);\n";
+				break;
+			case LBX_BLEND_DIFFUSE_COLOUR:
+				shaderSource = shaderSource + "finalColor = source1 * input.Color + source2 * (float4(1.0,1.0,1.0,1.0) - input.Color);\n";
+				break;
+			}
 			shaderSource = shaderSource + "}\n";
 		}
 

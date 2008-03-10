@@ -132,17 +132,15 @@ namespace Ogre
 		// fsaa options
 		mFSAAType.Count =1;
 		mFSAAType.Quality = 0;
-/*
+
 		// set stages desc. to defaults
 		for (size_t n = 0; n < OGRE_MAX_TEXTURE_LAYERS; n++)
 		{
 			mTexStageDesc[n].autoTexCoordType = TEXCALC_NONE;
 			mTexStageDesc[n].coordIndex = 0;
-			mTexStageDesc[n].texType = D3D10Mappings::D3D_TEX_TYPE_NORMAL;
 			mTexStageDesc[n].pTex = 0;
-			mTexStageDesc[n].pVertexTex = 0;
 		}
-*/
+
 		mLastVertexSourceCount = 0;
 
 		// Enumerate events
@@ -1445,6 +1443,7 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setTextureCoordSet( size_t stage, size_t index )
 	{
+		mTexStageDesc[stage].coordIndex = index;
 	/*	HRESULT hr;
         // Record settings
         mTexStageDesc[stage].coordIndex = index;
@@ -1683,7 +1682,10 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setTextureBlendMode( size_t stage, const LayerBlendModeEx& bm )
 	{
-		mTexStageDesc[stage].layerBlendMode = bm;
+		if (bm.blendType == LBT_COLOUR)
+		{
+			mTexStageDesc[stage].layerBlendMode = bm;
+		}
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setSceneBlending( SceneBlendFactor sourceFactor, SceneBlendFactor destFactor )
