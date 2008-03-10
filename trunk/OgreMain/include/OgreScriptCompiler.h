@@ -322,6 +322,9 @@ namespace Ogre
 		/**
 		 @remarks	This function is called from the translators when an event occurs that
 					that can be responded to. Often this is overriding names. The support events are:
+					preApplyTextureAliases - Allows overriding texture aliases before they are set
+						arg1 is a Material*
+						arg2 is an AliasTextureNamePairList* holding the aliases
 					processTextureNames - Allows overriding referenced textures
 						arg1 is a String*
 						arg2 is the size of the array
@@ -350,30 +353,36 @@ namespace Ogre
 					used instead of a default object created from Ogre's resource managers.
 					The object types are:
 					Material
-						arg1 is the name for the material specified in the script file
-						arg2 is the resource group of the compiling script file
+						arg1 is a string holding the file where the object is compiled from
+						arg2 is the name for the material specified in the script file
+						arg3 is the resource group of the compiling script file
 					GpuProgram
-						arg1 is the name for the material specified in the script file
-						arg2 is the resource group of the compiling script file
-						arg3 is the specified source file
-						arg4 is the GpuProgramType
-						arg5 is the program's syntax code
+						arg1 is a string holding the file where the object is compiled from
+						arg2 is the name for the material specified in the script file
+						arg3 is the resource group of the compiling script file
+						arg4 is the specified source file
+						arg5 is the GpuProgramType
+						arg6 is the program's syntax code
 					UnifiedGpuProgram
-						arg1 is the name for the material specified in the script file
-						arg2 is the resource group of the compiling script file
-						arg3 is the GpuProgramType
-					HighLevelGpuProgram
-						arg1 is the name for the material specified in the script file
-						arg2 is the resource group of the compiling script file
-						arg3 is the specified language
+						arg1 is a string holding the file where the object is compiled from
+						arg2 is the name for the material specified in the script file
+						arg3 is the resource group of the compiling script file
 						arg4 is the GpuProgramType
-						arg5 is the specified source file
+					HighLevelGpuProgram
+						arg1 is a string holding the file where the object is compiled from
+						arg2 is the name for the material specified in the script file
+						arg3 is the resource group of the compiling script file
+						arg4 is the specified language
+						arg5 is the GpuProgramType
+						arg6 is the specified source file
 					ParticleSystem
-						arg1 is the name for the material specified in the script file
-						arg2 is the resource group of the compiling script file
+						arg1 is a string holding the file where the object is compiled from
+						arg2 is the name for the material specified in the script file
+						arg3 is the resource group of the compiling script file
 					Compositor
-						arg1 is the name for the material specified in the script file
-						arg2 is the resource group of the compiling script file
+						arg1 is a string holding the file where the object is compiled from
+						arg2 is the name for the material specified in the script file
+						arg3 is the resource group of the compiling script file
 		 @arg compiler A reference to the compiler
 		 @arg type The type of the requested object
 		 @arg args Creation arguments for the object

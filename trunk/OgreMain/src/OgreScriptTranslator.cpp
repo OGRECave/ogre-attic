@@ -385,8 +385,9 @@ namespace Ogre{
 
 		// Create a material with the given name
 		std::vector<Ogre::Any> args;
-		args.push_back(Ogre::Any(obj->name));
-		args.push_back(Ogre::Any(compiler->getResourceGroup()));
+		args.push_back(Any(obj->file));
+		args.push_back(Any(obj->name));
+		args.push_back(Any(compiler->getResourceGroup()));
 		Ogre::Any retval = compiler->_fireCreateObject("Material", args);
 		if(retval.isEmpty())
 		{
@@ -3148,6 +3149,7 @@ namespace Ogre{
 		GpuProgram *prog = 0;
 		Any retval;
 		std::vector<Any> args;
+		args.push_back(Any(obj->file));
 		args.push_back(Any(obj->name));
 		args.push_back(Any(compiler->getResourceGroup()));
 		args.push_back(Any(source));
@@ -3249,6 +3251,7 @@ namespace Ogre{
 		HighLevelGpuProgram *prog = 0;
 		Any retval;
 		std::vector<Any> args;
+		args.push_back(Any(obj->file));
 		args.push_back(Any(obj->name));
 		args.push_back(Any(compiler->getResourceGroup()));
 		args.push_back(Any(obj->id == ID_VERTEX_PROGRAM ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM));
@@ -3371,11 +3374,20 @@ namespace Ogre{
 			}
 		}
 
+		if(obj->name == "Ogre/DepthShadowmap/NormalMapReceiverVP_HLSL")
+		{
+			int n = 0;
+		}
+		if(obj->name == "Ogre/DepthShadowmap/NormalMapReceiverFP_HLSL")
+		{
+			int n = 0;
+		}
 
 		// Allocate the program
 		HighLevelGpuProgram *prog = 0;
 		Any retval;
 		std::vector<Any> args;
+		args.push_back(Any(obj->file));
 		args.push_back(Any(obj->name));
 		args.push_back(Any(compiler->getResourceGroup()));
 		args.push_back(Any(language));
@@ -3784,6 +3796,7 @@ namespace Ogre{
 		// Allocate the particle system
 		Any retval;
 		std::vector<Any> args;
+		args.push_back(Any(obj->file));
 		args.push_back(Any(obj->name));
 		args.push_back(Any(compiler->getResourceGroup()));
 		retval = compiler->_fireCreateObject("ParticleSystem", args);
@@ -4042,6 +4055,7 @@ namespace Ogre{
 		// Create the compositor
 		Any retval;
 		std::vector<Any> args;
+		args.push_back(Any(obj->file));
 		args.push_back(Any(obj->name));
 		args.push_back(Any(compiler->getResourceGroup()));
 		retval = compiler->_fireCreateObject("Compositor", args);
