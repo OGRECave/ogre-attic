@@ -426,10 +426,7 @@ namespace Ogre {
 			{
 				// Load skeleton
 				try {
-					if(SkeletonManager::getSingleton().resourceExists(skelName))
-						mSkeleton = SkeletonManager::getSingleton().getByName(skelName);
-					else
-						mSkeleton = SkeletonManager::getSingleton().load(skelName, mGroup);
+					mSkeleton = SkeletonManager::getSingleton().load(skelName, mGroup);
 				}
 				catch (...)
 				{
