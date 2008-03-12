@@ -2766,17 +2766,21 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
     ro.srcRenderable = rend;
 
     // Set world transformation
-    rend->getWorldTransforms(mTempXform);
     numMatrices = rend->getNumWorldTransforms();
-    if (numMatrices > 1)
-    {
-        mDestRenderSystem->_setWorldMatrices(mTempXform, numMatrices);
-    }
-    else
-    {
-        mDestRenderSystem->_setWorldMatrix(*mTempXform);
-    }
-
+	
+	if (numMatrices > 0)
+	{
+	    rend->getWorldTransforms(mTempXform);
+		
+		if (numMatrices > 1)
+		{
+			mDestRenderSystem->_setWorldMatrices(mTempXform, numMatrices);
+		}
+		else
+		{
+			mDestRenderSystem->_setWorldMatrix(*mTempXform);
+		}
+	}
     // Issue view / projection changes if any
     useRenderableViewProjMode(rend);
 
