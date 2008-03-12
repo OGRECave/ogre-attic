@@ -48,6 +48,7 @@ Enhancements 2003 - 2004 (C) The OGRE Team
 #include "OgreStringConverter.h"
 #include "OgreViewport.h"
 #include "OgreException.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre
 {
@@ -654,24 +655,34 @@ namespace Ogre
     //-----------------------------------------------------------------------
     Real TerrainRenderable::_calculateCFactor()
     {
-        Real A, T;
+		Real A, T;
 
-        if (!mOptions->primaryCamera)
-        {
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-                "You have not created a camera yet!", 
-                "TerrainRenderable::_calculateCFactor");
-        }
+		A = 1.0f;
 
-        //A = 1 / Math::Tan(Math::AngleUnitsToRadians(opts.primaryCamera->getFOVy()));
-        // Turn off detail compression at higher FOVs
-        A = 1.0f;
+		int vertRes = 0;
+		if (mOptions->primaryCamera && mOptions->primaryCamera->getViewport())
+		{
+			vertRes = mOptions->primaryCamera->getViewport()->getActualHeight();
+		}
+		else
+		{
+			// default to first render target
+			RenderSystem* rsys = Root::getSingleton().getRenderSystem();
+			if (rsys->getRenderTargetIterator().hasMoreElements())
+				vertRes = Root::getSingleton().getRenderSystem()->getRenderTargetIterator().getNext()->getHeight();
+			else
+				// oh, just guess
+				vertRes = 768;
+		}
 
-        int vertRes = mOptions->primaryCamera->getViewport()->getActualHeight();
+		//A = 1 / Math::Tan(Math::AngleUnitsToRadians(opts.primaryCamera->getFOVy()));
+		// Turn off detail compression at higher FOVs
 
-        T = 2 * ( Real ) mOptions->maxPixelError / ( Real ) vertRes;
 
-        return A / T;
+
+		T = 2 * ( Real ) mOptions->maxPixelError / ( Real ) vertRes;
+
+		return A / T;
     }
     //-----------------------------------------------------------------------
     float TerrainRenderable::getHeightAt( float x, float z )
