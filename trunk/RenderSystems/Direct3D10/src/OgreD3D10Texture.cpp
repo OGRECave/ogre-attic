@@ -205,7 +205,7 @@ namespace Ogre
 		// Determine D3D pool to use
 		// Use managed unless we're a render target or user has asked for 
 		// a dynamic texture
-		if ((mUsage & TU_RENDERTARGET) ||
+		if (//(mUsage & TU_RENDERTARGET) ||
 			(mUsage & TU_DYNAMIC))
 		{
 			mIsDynamic = true;
@@ -219,6 +219,7 @@ namespace Ogre
 		{
 		case TEX_TYPE_1D:
 			this->_create1DTex();
+			break;
 		case TEX_TYPE_2D:
 		case TEX_TYPE_CUBE_MAP:
 			this->_create2DTex();
@@ -257,7 +258,13 @@ namespace Ogre
 		desc.CPUAccessFlags = D3D10Mappings::_getAccessFlags(mUsage);
 		desc.MiscFlags		= D3D10_RESOURCE_MISC_GENERATE_MIPS;
 
-
+		if (mIsDynamic)
+		{
+			desc.Usage			= D3D10_USAGE_DYNAMIC;
+			desc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
+			desc.MiscFlags = 0;
+			desc.BindFlags		= D3D10_BIND_SHADER_RESOURCE ;
+		}
 
 		// create the texture
 		hr = mDevice->CreateTexture1D(	
@@ -329,12 +336,21 @@ namespace Ogre
 		sampleDesc.Quality = 0;
 		desc.SampleDesc		= sampleDesc;
 		desc.Usage			= D3D10_USAGE_DEFAULT;//D3D10Mappings::_getUsage(mUsage);
+
 		desc.BindFlags		= D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
 		desc.CPUAccessFlags = 0;//D3D10_CPU_ACCESS_WRITE;//D3D10Mappings::_getAccessFlags(mUsage);
 		desc.MiscFlags		= 0;//D3D10_RESOURCE_MISC_GENERATE_MIPS;
 		//if (mMipmapsHardwareGenerated)
 		{
 			desc.MiscFlags		|= D3D10_RESOURCE_MISC_GENERATE_MIPS;
+		}
+
+		if (mIsDynamic)
+		{
+			desc.Usage			= D3D10_USAGE_DYNAMIC;
+			desc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
+			desc.MiscFlags = 0;
+			desc.BindFlags		= D3D10_BIND_SHADER_RESOURCE ;
 		}
 
 		if (this->getTextureType() == TEX_TYPE_CUBE_MAP)
@@ -413,7 +429,12 @@ namespace Ogre
 		desc.CPUAccessFlags = D3D10Mappings::_getAccessFlags(mUsage);
 		desc.MiscFlags		= 0;
 
-
+		if (mIsDynamic)
+		{
+			desc.Usage			= D3D10_USAGE_DYNAMIC;
+			desc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
+			desc.BindFlags		= D3D10_BIND_SHADER_RESOURCE ;
+		}
 		// create the texture
 		hr = mDevice->CreateTexture3D(	
 			&desc,

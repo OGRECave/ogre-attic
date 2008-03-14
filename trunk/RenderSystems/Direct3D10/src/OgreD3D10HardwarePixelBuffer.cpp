@@ -84,7 +84,7 @@ namespace Ogre {
 		// Set extents and format
 		PixelBox rval(lockBox, mFormat);
 		// Set locking flags according to options
-		D3D10_MAP  flags = D3D10_MAP_WRITE ;
+		D3D10_MAP  flags = D3D10_MAP_WRITE_DISCARD ;
 		switch(options)
 		{
 		case HBL_DISCARD:
@@ -100,12 +100,21 @@ namespace Ogre {
 			break;
 		};
 
+		mDevice.clearStoredErrorMessages();
+
 		// TODO - check return values here
 		switch(mParentTexture->getTextureType()) {
 		case TEX_TYPE_1D:
 			{
 
 				mParentTexture->GetTex1D()->Map(static_cast<UINT>(mSubresourceIndex), flags, 0, &rval.data);
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot map 1D texture\nError Description:" + errorDescription,
+						"D3D10HardwarePixelBuffer::lockImpl");
+				}
 			}
 			break;
 		case TEX_TYPE_2D:
@@ -113,6 +122,13 @@ namespace Ogre {
 				D3D10_MAPPED_TEXTURE2D mappedTex2D;
 				mParentTexture->GetTex2D()->Map(static_cast<UINT>(mSubresourceIndex), flags, 0, &mappedTex2D);
 				rval.data = mappedTex2D.pData;
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot map 1D texture\nError Description:" + errorDescription,
+						"D3D10HardwarePixelBuffer::lockImpl");
+				}
 			}
 			break;
 		case TEX_TYPE_3D:
@@ -120,6 +136,13 @@ namespace Ogre {
 				D3D10_MAPPED_TEXTURE3D mappedTex3D;
 				mParentTexture->GetTex3D()->Map(static_cast<UINT>(mSubresourceIndex), flags, 0, &mappedTex3D);
 				rval.data = mappedTex3D.pData;
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot map 1D texture\nError Description:" + errorDescription,
+						"D3D10HardwarePixelBuffer::lockImpl");
+				}
 			}
 			break;
 		}
