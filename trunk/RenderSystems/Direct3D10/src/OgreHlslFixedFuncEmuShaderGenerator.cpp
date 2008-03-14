@@ -249,10 +249,9 @@ namespace Ogre
 		shaderSource = shaderSource + "VS_OUTPUT " + vertexProgramName + "( VS_INPUT input )\n";
 		shaderSource = shaderSource + "{\n";
 		shaderSource = shaderSource + "VS_OUTPUT output = (VS_OUTPUT)0;\n";	
-		shaderSource = shaderSource + "float4 worldPos = mul( World, float4( input.Position0 , 1 ));\n";
-		shaderSource = shaderSource + "float4 cameraPos = mul( View, worldPos );\n";
-		shaderSource = shaderSource + "output.Pos = mul( Projection, cameraPos );\n";	
-
+		shaderSource = shaderSource + "float4 worldPos = mul(  float4( input.Position0 , 1 ), World);\n";
+		shaderSource = shaderSource + "float4 cameraPos = mul(  worldPos, View );\n";
+		shaderSource = shaderSource + "output.Pos = mul( cameraPos, Projection );\n";	
 
 
 
@@ -270,7 +269,7 @@ namespace Ogre
 				if (curTextureLayerState.getCoordIndex() < texcoordCount)
 				{
 					shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.Texcoord" + coordIdx + ".x, input.Texcoord" + coordIdx + ".y, 0, 1);\n";
-					shaderSource = shaderSource + "texCordWithMatrix = mul(TextureMatrix" + layerCounter + ", texCordWithMatrix );\n";
+					shaderSource = shaderSource + "texCordWithMatrix = mul(texCordWithMatrix, TextureMatrix" + layerCounter + " );\n";
 					shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = texCordWithMatrix.xy;\n";		
 				}
 				else
@@ -313,7 +312,7 @@ namespace Ogre
 			}
 
 
-			shaderSource = shaderSource + "float3 N = mul((float3x3)WorldViewIT, input.Normal0);\n";
+			shaderSource = shaderSource + "float3 N = mul(input.Normal0, (float3x3)WorldViewIT);\n";
 			shaderSource = shaderSource + "float3 V = -normalize(cameraPos);\n";
 
 			shaderSource = shaderSource + "#define fMaterialPower 16.f\n";
@@ -323,8 +322,8 @@ namespace Ogre
 			{
 				String prefix = "PointLight" + StringConverter::toString(i) + "_";
 				shaderSource = shaderSource + "{\n";
-				shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(World,input.Position0);\n";
-				shaderSource = shaderSource + "  float3 L = mul((float3x3)ViewIT, normalize((PosDiff)));\n";
+				shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(input.Position0, World);\n";
+				shaderSource = shaderSource + "  float3 L = mul(normalize(PosDiff), (float3x3)ViewIT);\n";
 				shaderSource = shaderSource + "  float NdotL = dot(N, L);\n";
 				shaderSource = shaderSource + "  float4 Color = " + prefix + "Ambient;\n";
 				shaderSource = shaderSource + "  float4 ColorSpec = 0;\n";
@@ -359,7 +358,7 @@ namespace Ogre
 			{
 				String prefix = "DirectionalLight" + StringConverter::toString(i) + "_";
 				shaderSource = shaderSource + "{\n";
-				shaderSource = shaderSource + "  float3 L = mul((float3x3)ViewIT, -normalize(" + prefix + "Direction));\n";
+				shaderSource = shaderSource + "  float3 L = mul(-normalize(" + prefix + "Direction), (float3x3)ViewIT);\n";
 				shaderSource = shaderSource + "  float NdotL = dot(N, L);\n";
 				shaderSource = shaderSource + "  float4 Color = " + prefix + "Ambient;\n";
 				shaderSource = shaderSource + "  float4 ColorSpec = 0;\n";
@@ -381,8 +380,8 @@ namespace Ogre
 			{
 				String prefix = "SpotLight" + StringConverter::toString(i) + "_";
 				shaderSource = shaderSource + "{\n";
-				shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(World,input.Position0);\n";
-				shaderSource = shaderSource + "   float3 L = mul((float3x3)ViewIT, normalize((PosDiff)));\n";
+				shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(input.Position0, World);\n";
+				shaderSource = shaderSource + "   float3 L = mul(normalize(PosDiff), (float3x3)ViewIT);\n";
 				shaderSource = shaderSource + "   float NdotL = dot(N, L);\n";
 				shaderSource = shaderSource + "   Out.Color = " + prefix + "Ambient;\n";
 				shaderSource = shaderSource + "   Out.ColorSpec = 0;\n";
@@ -404,7 +403,7 @@ namespace Ogre
 				shaderSource = shaderSource + "         fAttenSpot *= 1.f/(" + prefix + "Attenuation.x + " + prefix + "Attenuation.y*LD + " + prefix + "Attenuation.z*LD*LD);\n";
 				shaderSource = shaderSource + "      }\n";
 				shaderSource = shaderSource + "      //spot cone computation\n";
-				shaderSource = shaderSource + "      float3 L2 = mul((float3x3)ViewIT, -normalize(" + prefix + "Direction));\n";
+				shaderSource = shaderSource + "      float3 L2 = mul(-normalize(" + prefix + "Direction), (float3x3)ViewIT);\n";
 				shaderSource = shaderSource + "      float rho = dot(L, L2);\n";
 				shaderSource = shaderSource + "      fAttenSpot *= pow(saturate((rho - " + prefix + "Spot.y)/(" + prefix + "Spot.x - " + prefix + "Spot.y)), " + prefix + "Spot.z);\n";
 				shaderSource = shaderSource + "		Color *= fAttenSpot;\n";
