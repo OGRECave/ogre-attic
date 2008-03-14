@@ -1821,6 +1821,7 @@ namespace Ogre
 		mDepthStencilDesc.FrontFace.StencilFunc = D3D10Mappings::get(func);
 		mDepthStencilDesc.BackFace.StencilFunc = D3D10Mappings::get(func);
 
+		mStencilRef = refValue;
 		mDepthStencilDesc.StencilReadMask = refValue;
 		mDepthStencilDesc.StencilWriteMask = mask;
 
@@ -2326,7 +2327,7 @@ namespace Ogre
 					"Failed to create depth stencil state\nError Description:" + errorDescription, 
 					"D3D10RenderSystem::_render" );
 			}
-			mDevice->OMSetDepthStencilState(mCurrentDepthStencilState, 0); // TODO - find out where to get the parameter
+			mDevice->OMSetDepthStencilState(mCurrentDepthStencilState, mStencilRef); 
 			if (mDevice.isError())
 			{
 				String errorDescription = mDevice.getErrorDescription();
@@ -2773,7 +2774,7 @@ namespace Ogre
 
 			if (ClearFlags)
 			{
-				mDevice->ClearDepthStencilView( pRTDepthView, D3D10_CLEAR_DEPTH | D3D10_CLEAR_STENCIL, depth, stencil );
+				mDevice->ClearDepthStencilView( pRTDepthView, ClearFlags, depth, stencil );
 			}
 
 		}
