@@ -51,6 +51,7 @@ namespace Ogre
 	{
 		bool bHasColor = vertexBufferDeclaration.hasColor();
 		uint8 texcoordCount = vertexBufferDeclaration.getTexcoordCount();
+		bool hasNormal = false;
 
 		String shaderSource = "";
 
@@ -124,6 +125,7 @@ namespace Ogre
 			case VES_NORMAL:
 				parameterName = "Normal";
 				parameterShaderTypeName = "NORMAL";
+				hasNormal = true;
 				break;
 			case VES_DIFFUSE:
 				parameterName = "DiffuseColor";
@@ -233,7 +235,23 @@ namespace Ogre
 		for(size_t i = 0 ; i < fixedFuncState.getTextureLayerStateList().size() ; i++)
 		{
 			String layerCounter = StringConverter::toString(i);
-			shaderSource = shaderSource + "float2 Texcoord" + layerCounter + " : TEXCOORD" + layerCounter + ";\n";
+
+			const TextureLayerState & curTextureLayerState = fixedFuncState.getTextureLayerStateList()[i];
+
+			switch(curTextureLayerState.getTextureType())
+			{
+			case TEX_TYPE_1D:
+				shaderSource = shaderSource + "float1 Texcoord" + layerCounter + " : TEXCOORD" + layerCounter + ";\n";
+				break;
+			case TEX_TYPE_CUBE_MAP:
+			case TEX_TYPE_2D:
+				shaderSource = shaderSource + "float2 Texcoord" + layerCounter + " : TEXCOORD" + layerCounter + ";\n";
+				break;
+			case TEX_TYPE_3D:
+				shaderSource = shaderSource + "float3 Texcoord" + layerCounter + " : TEXCOORD" + layerCounter + ";\n";
+				break;
+			}
+
 		}
 		
 		shaderSource = shaderSource + "float4 Color : COLOR0;\n";
@@ -253,6 +271,15 @@ namespace Ogre
 		shaderSource = shaderSource + "float4 cameraPos = mul(  worldPos, View );\n";
 		shaderSource = shaderSource + "output.Pos = mul( cameraPos, Projection );\n";	
 
+		if (hasNormal)
+		{
+			shaderSource = shaderSource + "float3 Normal = input.Normal0;\n";	
+		}
+		else
+		{
+			shaderSource = shaderSource + "float3 Normal = float3(0.0, 0.0, 0.0);\n";	
+		}
+		
 
 
 
@@ -268,19 +295,46 @@ namespace Ogre
 			case TEXCALC_NONE:
 				if (curTextureLayerState.getCoordIndex() < texcoordCount)
 				{
-					shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.Texcoord" + coordIdx + ".x, input.Texcoord" + coordIdx + ".y, 0, 1);\n";
-					shaderSource = shaderSource + "texCordWithMatrix = mul(texCordWithMatrix, TextureMatrix" + layerCounter + " );\n";
-					shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = texCordWithMatrix.xy;\n";		
+
+					switch(curTextureLayerState.getTextureType())
+					{
+					case TEX_TYPE_1D:
+						shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = input.Texcoord" + coordIdx + ";\n";		
+						break;
+					case TEX_TYPE_CUBE_MAP:
+					case TEX_TYPE_2D:
+						shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.Texcoord" + coordIdx + ".x, input.Texcoord" + coordIdx + ".y, 0, 1);\n";
+						shaderSource = shaderSource + "texCordWithMatrix = mul(texCordWithMatrix, TextureMatrix" + layerCounter + " );\n";
+						shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = texCordWithMatrix.xy;\n";		
+						break;
+					case TEX_TYPE_3D:
+						shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = input.Texcoord" + coordIdx + ";\n";		
+						break;
+					}
+
 				}
 				else
 				{
-					shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float2(0.0, 0.0);\n"; // so no error
+
+					switch(curTextureLayerState.getTextureType())
+					{
+					case TEX_TYPE_1D:
+						shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float1(0.0, 0.0);\n"; // so no error
+						break;
+					case TEX_TYPE_CUBE_MAP:
+					case TEX_TYPE_2D:
+						shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float2(0.0, 0.0);\n"; // so no error
+						break;
+					case TEX_TYPE_3D:
+						shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float3(0.0, 0.0);\n"; // so no error
+						break;
+					}
 				}
 				break;
 			case TEXCALC_ENVIRONMENT_MAP: 
 				//shaderSource = shaderSource + "float3 ecPosition3 = cameraPos.xyz/cameraPos.w;\n";
 				shaderSource = shaderSource + "float3 u = normalize(cameraPos.xyz);\n";
-				shaderSource = shaderSource + "float3 r = reflect(u, input.Normal0);\n";
+				shaderSource = shaderSource + "float3 r = reflect(u, Normal);\n";
 				shaderSource = shaderSource + "float  m = 2.0 * sqrt(r.x * r.x + r.y * r.y + (r.z + 1.0) * (r.z + 1.0));\n";
 				shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float2 (r.x / m + 0.5, r.y / m + 0.5);\n";
 				break;
@@ -312,7 +366,7 @@ namespace Ogre
 			}
 
 
-			shaderSource = shaderSource + "float3 N = mul(input.Normal0, (float3x3)WorldViewIT);\n";
+			shaderSource = shaderSource + "float3 N = mul(normalize(Normal), (float3x3)WorldViewIT);\n";
 			shaderSource = shaderSource + "float3 V = -normalize(cameraPos);\n";
 
 			shaderSource = shaderSource + "#define fMaterialPower 16.f\n";
@@ -322,7 +376,7 @@ namespace Ogre
 			{
 				String prefix = "PointLight" + StringConverter::toString(i) + "_";
 				shaderSource = shaderSource + "{\n";
-				shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position-(float3)mul(input.Position0, World);\n";
+				shaderSource = shaderSource + "  float3 PosDiff = " + prefix + "Position - worldPos.xyz;\n";
 				shaderSource = shaderSource + "  float3 L = mul(normalize(PosDiff), (float3x3)ViewIT);\n";
 				shaderSource = shaderSource + "  float NdotL = dot(N, L);\n";
 				shaderSource = shaderSource + "  float4 Color = " + prefix + "Ambient;\n";
@@ -484,7 +538,21 @@ namespace Ogre
 			const TextureLayerState & curTextureLayerState = fixedFuncState.getTextureLayerStateList()[i];
 			String layerCounter = StringConverter::toString(i);
 			shaderSource = shaderSource + "{\n";
-			shaderSource = shaderSource + "float4 texColor = tex2D(Texture" + layerCounter + ", input.Texcoord" + layerCounter + ");\n";
+			switch(curTextureLayerState.getTextureType())
+			{
+			case TEX_TYPE_1D:
+				shaderSource = shaderSource + "float4 texColor = tex1D(Texture" + layerCounter + ", input.Texcoord" + layerCounter + ");\n";
+				break;
+			case TEX_TYPE_2D:
+				shaderSource = shaderSource + "float4 texColor = tex2D(Texture" + layerCounter + ", input.Texcoord" + layerCounter + ");\n";
+				break;
+			case TEX_TYPE_3D:
+				shaderSource = shaderSource + "float4 texColor = tex3D(Texture" + layerCounter + ", input.Texcoord" + layerCounter + ");\n";
+				break;
+			case TEX_TYPE_CUBE_MAP:
+				shaderSource = shaderSource + "float4 texColor = texCUBE(Texture" + layerCounter + ", input.Texcoord" + layerCounter + ");\n";
+				break;
+			}
 			LayerBlendModeEx blend = curTextureLayerState.getLayerBlendModeEx();
 			switch(blend.source1)
 			{
@@ -563,7 +631,10 @@ namespace Ogre
 				shaderSource = shaderSource + "finalColor = source1 * finalColor.w + source2 * (1.0 - finalColor.w);\n";
 				break;
 			case LBX_BLEND_MANUAL:
-				shaderSource = shaderSource + "finalColor = source1 * Texture" + layerCounter + "_BlendValue.w + source2 * (1.0 - Texture" + layerCounter + "_BlendValue.w);\n";
+				shaderSource = shaderSource + "finalColor = source1 * " + 
+					Ogre::StringConverter::toString(blend.factor) + 
+					" + source2 * (1.0 - " + 
+					Ogre::StringConverter::toString(blend.factor) + ");\n";
 				break;
 			case LBX_DOTPRODUCT:
 				shaderSource = shaderSource + "finalColor = product(source1,source2);\n";
@@ -621,7 +692,7 @@ namespace Ogre
 		_setProgramMatrix4Parameter(GPT_VERTEX_PROGRAM, "ViewIT", params.getViewMat().inverse().transpose());
 
 
-		Matrix4 WorldViewIT = params.getWorldMat() * params.getViewMat();
+		Matrix4 WorldViewIT = params.getViewMat() * params.getWorldMat();
 		WorldViewIT = WorldViewIT.inverse().transpose();
 		_setProgramMatrix4Parameter(GPT_VERTEX_PROGRAM, "WorldViewIT", WorldViewIT);
 
