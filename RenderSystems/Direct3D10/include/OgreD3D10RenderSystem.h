@@ -129,6 +129,7 @@ namespace Ogre
 		D3D10_RASTERIZER_DESC mCurrentRasterizerDesc;
 		ID3D10RasterizerState * mCurrentRasterizer;
 
+		UINT mStencilRef;
 		D3D10_DEPTH_STENCIL_DESC mDepthStencilDesc; 
 		D3D10_DEPTH_STENCIL_DESC mCurrentDepthStencilDesc;
 		ID3D10DepthStencilState * mCurrentDepthStencilState;;
