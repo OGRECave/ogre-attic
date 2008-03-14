@@ -126,14 +126,13 @@ namespace Ogre {
 			&includeHandler,	// [in] Optional. Pointer to an ID3D10Include Interface interface for handling include files. Setting this to NULL will cause a compile error if a shader contains a #include. 
 			mEntryPoint.c_str(), // [in] Name of the shader-entrypoint function where shader execution begins. 
 			mTarget.c_str(),			// [in] A string that specifies the shader model; can be any profile in shader model 2, shader model 3, or shader model 4. 
-			D3D10_SHADER_PACK_MATRIX_ROW_MAJOR,				// [in] Effect compile flags - no D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY at the first try...
+			0,				// [in] Effect compile flags - no D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY at the first try...
 			NULL,				// [in] Effect compile flags
 			NULL,				// [in] A pointer to a thread pump interface (see ID3DX10ThreadPump Interface). Use NULL to specify that this function should not return until it is completed. 
 			&mpMicroCode,		// [out] A pointer to an ID3D10Blob Interface which contains the compiled shader, as well as any embedded debug and symbol-table information. 
 			&errors,			// [out] A pointer to an ID3D10Blob Interface which contains a listing of errors and warnings that occured during compilation. These errors and warnings are identical to the the debug output from a debugger.
 			NULL				// [out] A pointer to the return value. May be NULL. If pPump is not NULL, then pHResult must be a valid memory location until the asynchronous execution completes. 
 			);
-
 
 		if (FAILED(hr)) // if fails - try with backwards compatibility flag
 		{
@@ -145,7 +144,7 @@ namespace Ogre {
 				&includeHandler,	// [in] Optional. Pointer to an ID3D10Include Interface interface for handling include files. Setting this to NULL will cause a compile error if a shader contains a #include. 
 				mEntryPoint.c_str(), // [in] Name of the shader-entrypoint function where shader execution begins. 
 				mTarget.c_str(),			// [in] A string that specifies the shader model; can be any profile in shader model 2, shader model 3, or shader model 4. 
-				D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY | D3D10_SHADER_PACK_MATRIX_ROW_MAJOR,				// [in] Effect compile flags - D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY enables older shaders to compile to 4_0 targets
+				D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY,				// [in] Effect compile flags - D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY enables older shaders to compile to 4_0 targets
 				NULL,				// [in] Effect compile flags
 				NULL,				// [in] A pointer to a thread pump interface (see ID3DX10ThreadPump Interface). Use NULL to specify that this function should not return until it is completed. 
 				&mpMicroCode,		// [out] A pointer to an ID3D10Blob Interface which contains the compiled shader, as well as any embedded debug and symbol-table information. 
@@ -154,26 +153,6 @@ namespace Ogre {
 				);
 
 		}
-
-		/*if (FAILED(hr)) // if fails - try this is an assembly shader - compile it with the right target version
-		{
-			hr = D3DX10CompileFromMemory(
-				mSource.c_str(),	// [in] Pointer to the shader in memory. 
-				mSource.size(),		// [in] Size of the shader in memory.  
-				NULL,				// [in] The name of the file that contains the shader code. 
-				NULL,				// [in] Optional. Pointer to a NULL-terminated array of macro definitions. See D3D10_SHADER_MACRO. If not used, set this to NULL. 
-				&includeHandler,	// [in] Optional. Pointer to an ID3D10Include Interface interface for handling include files. Setting this to NULL will cause a compile error if a shader contains a #include. 
-				mEntryPoint.c_str(), // [in] Name of the shader-entrypoint function where shader execution begins. 
-				mTarget.c_str(),			// [in] A string that specifies the shader model; can be any profile in shader model 2, shader model 3, or shader model 4. 
-				D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY | D3D10_SHADER_PACK_MATRIX_ROW_MAJOR,				// [in] Effect compile flags - D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY enables older shaders to compile to 4_0 targets
-				NULL,				// [in] Effect compile flags
-				NULL,				// [in] A pointer to a thread pump interface (see ID3DX10ThreadPump Interface). Use NULL to specify that this function should not return until it is completed. 
-				&mpMicroCode,		// [out] A pointer to an ID3D10Blob Interface which contains the compiled shader, as well as any embedded debug and symbol-table information. 
-				&errors,			// [out] A pointer to an ID3D10Blob Interface which contains a listing of errors and warnings that occured during compilation. These errors and warnings are identical to the the debug output from a debugger.
-				NULL				// [out] A pointer to the return value. May be NULL. If pPump is not NULL, then pHResult must be a valid memory location until the asynchronous execution completes. 
-				);
-
-		}*/
 
 
 #if 0 // this is how you disassemble
