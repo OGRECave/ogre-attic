@@ -3374,15 +3374,6 @@ namespace Ogre{
 			}
 		}
 
-		if(obj->name == "Ogre/DepthShadowmap/NormalMapReceiverVP_HLSL")
-		{
-			int n = 0;
-		}
-		if(obj->name == "Ogre/DepthShadowmap/NormalMapReceiverFP_HLSL")
-		{
-			int n = 0;
-		}
-
 		// Allocate the program
 		HighLevelGpuProgram *prog = 0;
 		Any retval;

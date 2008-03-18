@@ -340,6 +340,21 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+    void Animation::apply(Skeleton* skel, Real timePos, float weight,
+      const AnimationState::BoneBlendMask* blendMask, Real scale)
+    {
+      // Calculate time index for fast keyframe search
+      TimeIndex timeIndex = _getTimeIndex(timePos);
+
+      NodeTrackList::iterator i;
+      for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
+      {
+        // get bone to apply to 
+        Bone* b = skel->getBone(i->first);
+		i->second->applyToNode(b, timeIndex, (*blendMask)[b->getHandle()] * weight, scale);
+      }
+    }
 	//---------------------------------------------------------------------
 	void Animation::apply(Entity* entity, Real timePos, Real weight, 
 		bool software, bool hardware)
