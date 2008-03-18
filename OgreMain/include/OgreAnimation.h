@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 #include "OgreIteratorWrappers.h"
 #include "OgreAnimable.h"
 #include "OgreAnimationTrack.h"
-
+#include "OgreAnimationState.h"
 
 namespace Ogre {
 
@@ -204,6 +204,21 @@ namespace Ogre {
 			adapting an animation to a different size target.
         */
         void apply(Skeleton* skeleton, Real timePos, Real weight = 1.0, Real scale = 1.0f);
+
+        /** Applies all node tracks given a specific time point and weight to a given skeleton.
+        @remarks
+        Where you have associated animation tracks with Node objects, you can easily apply
+        an animation to those nodes by calling this method.
+        @param timePos The time position in the animation to apply.
+        @param weight The influence to give to this track, 1.0 for full influence, less to blend with
+        other animations.
+        @param blendMask The influence array defining additional per bone weights. These will
+        be modulated with the weight factor.
+        @param scale The scale to apply to translations and scalings, useful for 
+        adapting an animation to a different size target.
+        */
+        void apply(Skeleton* skeleton, Real timePos, float weight,
+          const AnimationState::BoneBlendMask* blendMask, Real scale);
 
 		/** Applies all vertex tracks given a specific time point and weight to a given entity.
 		@remarks

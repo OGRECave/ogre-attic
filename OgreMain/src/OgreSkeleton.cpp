@@ -252,16 +252,16 @@ namespace Ogre {
             // tolerate state entries for animations we're not aware of
             if (anim)
             {
-                if (linked)
-                {
-                    anim->apply(this, animState->getTimePosition(), 
-						animState->getWeight() * weightFactor, linked->scale);
-                }
-                else
-                {
-                    anim->apply(this, animState->getTimePosition(), 
-						animState->getWeight() * weightFactor);
-                }
+              if(animState->hasBlendMask())
+              {
+                anim->apply(this, animState->getTimePosition(), animState->getWeight() * weightFactor,
+                  animState->getBlendMask(), linked ? linked->scale : 1.0f);
+              }
+              else
+              {
+                anim->apply(this, animState->getTimePosition(), 
+                  animState->getWeight() * weightFactor, linked ? linked->scale : 1.0f);
+              }
             }
         }
 

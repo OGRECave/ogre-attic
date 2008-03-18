@@ -46,6 +46,10 @@ namespace Ogre {
     class _OgreExport AnimationState 
     {
     public:
+
+      /// typedef for an array of float values used as a bone blend mask
+      typedef std::vector<float> BoneBlendMask;
+
         /// Normal constructor with all params supplied
         AnimationState(const String& animName, AnimationStateSet *parent, 
 			Real timePos, Real length, Real weight = 1.0, bool enabled = false);
@@ -105,7 +109,51 @@ namespace Ogre {
 		/// Get the parent animation state set
 		AnimationStateSet* getParent(void) const { return mParent; }
 
+      /** @brief create a new blend mask with the given number of entries
+       *
+       * In addition to assigning a single weight value to a skeletal animation,
+       * it may be desirable to assign animation weights per bone using a 'blend mask'.
+       *
+       * @param blendMaskSizeHint 
+       *   The number of bones of the skeleton owning this AnimationState.
+       * @param fill
+       *   If true, the all blend mask entries will be set to 1.0.
+       */
+      void createBlendMask(size_t blendMaskSizeHint, bool fill = true);
+      /// destroy the currently set blend mask
+      void destroyBlendMask();
+      /** @brief set the blend mask data (might be dangerous)
+       *
+       * @par The size of the array should match the number of entries the
+       *      blend mask was created with.
+       *
+       * @par Stick to the setBlendMaskEntry method if you don't know exactly what you're doing.
+       */
+      void _setBlendMaskData(const float* blendMaskData);
+      /** @brief set the blend mask
+       *
+       * @par The size of the array should match the number of entries the
+       *      blend mask was created with.
+       *
+       * @par Stick to the setBlendMaskEntry method if you don't know exactly what you're doing.
+       */
+      void _setBlendMask(const BoneBlendMask* blendMask);
+      /// get the current blend mask (const version, may be 0) 
+      const BoneBlendMask* getBlendMask() const {return mBlendMask;}
+      /// return whether there is currently a valid blend mask set
+      bool hasBlendMask() const {return mBlendMask != 0;}
+      /// set the weight for the bone identified by the given handle
+      void setBlendMaskEntry(size_t boneHandle, float weight);
+      /// get the weight for the bone identified by the given handle
+      inline float getBlendMaskEntry(size_t boneHandle) const
+      {
+        assert(mBlendMask && mBlendMask->size() > boneHandle);
+        return (*mBlendMask)[boneHandle];
+      }
     protected:
+      /// the blend mask (containing per bone weights)
+      BoneBlendMask* mBlendMask;
+
         String mAnimationName;
 		AnimationStateSet* mParent;
         Real mTimePos;
