@@ -221,7 +221,7 @@ namespace Ogre {
 
 	template<class T, class U> inline bool operator<(SharedPtr<T> const& a, SharedPtr<U> const& b)
 	{
-		return a.get() < b.get();
+		return std::less<const void*>(a.get(), b.get());
 	}
 }
 
