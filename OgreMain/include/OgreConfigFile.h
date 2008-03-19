@@ -73,8 +73,9 @@ namespace Ogre {
         /** Gets the first setting from the file with the named key. 
         @param key The name of the setting
         @param section The name of the section it must be in (if any)
+		@param defaultValue The value to return if the setting is not found
         */
-        String getSetting(const String& key, const String& section = StringUtil::BLANK) const;
+        String getSetting(const String& key, const String& section = StringUtil::BLANK, const String& defaultValue = StringUtil::BLANK) const;
         /** Gets all settings from the file with the named key. */
         StringVector getMultiSetting(const String& key, const String& section = StringUtil::BLANK) const;
 
