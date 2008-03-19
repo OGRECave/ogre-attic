@@ -272,8 +272,6 @@ namespace Ogre
     }
 
     // remove extra culling planes created from the given portal
-	// NOTE: This function assumes that the planes are at the end of the array!
-	// NOTE: We used an array to avoid constantly allocating & deallocating memory
 	// NOTE: This should only be used during visibility traversal (backing out of a recursion)
     void PCZCamera::removePortalCullingPlanes(Portal *portal)
     {
