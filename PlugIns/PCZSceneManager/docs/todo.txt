@@ -2,6 +2,11 @@
 This file contains a list of todo items for the PCZSceneManager plugin.
 Some items are specific, some are not, it's just a list to keep notes for myself.
 
+UPDATES:
+-------------
+* The PCZFrustum now uses a Culling Plane Reservoir which eliminates the constant memory
+  allocations/de-allocations for PCPlanes during the culling process. (03/18/08)
+
 TODO:
 -------------
 * Allow portals to connect to the same zone they are in
@@ -11,8 +16,6 @@ TODO:
 
 OPTIMIZATIONS (todo):
 ---------------------
-* Change PlaneList in PCZFrustum to use vector instead of list. (get rid of constant
-  memory allocations/deallocations).
 * Only update light zones affected list when portals move or lights move
 * change save node old spatial so nodes do it automatically when their spatial
   data changes.  (currently, PCZscenemanager just does it for ALL nodes whether

@@ -58,9 +58,16 @@ namespace Ogre
     {
         mPortal = 0;
     }
+	void PCPlane::setFromOgrePlane(Plane & ogrePlane)
+	{
+		d = ogrePlane.d;
+		normal = ogrePlane.normal;
+		mPortal = 0;
+	}
 
     PCPlane::~PCPlane()
     {
+		mPortal = 0;
     }
 
 }

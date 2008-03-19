@@ -104,11 +104,14 @@ namespace Ogre
         void setOriginPlane(const Vector3 &rkNormal, const Vector3 &rkPoint);
         // tell the frustum whether or not to use the originplane
         void setUseOriginPlane(bool yesno) {mUseOriginPlane = yesno;}
+		// get an unused PCPlane from the CullingPlane Reservoir
+		PCPlane * getUnusedCullingPlane(void);
     protected:
         Vector3     mOrigin;
         Plane       mOriginPlane;
         bool        mUseOriginPlane;
-        PCPlaneList mCullingPlanes;
+        PCPlaneList mActiveCullingPlanes;
+		PCPlaneList mCullingPlaneReservoir;
 
     };
 

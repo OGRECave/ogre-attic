@@ -62,6 +62,8 @@ namespace Ogre
         PCPlane (const Vector3& rkNormal, const Vector3& rkPoint);
         /** Alternative constructor */
         PCPlane (const Vector3& rkPoint0, const Vector3& rkPoint1, const Vector3& rkPoint2);
+		/** Copy from an Ogre Plane */
+		void setFromOgrePlane(Plane & ogrePlane);
 
         /** Standard destructor */
         ~PCPlane();
@@ -79,6 +81,7 @@ namespace Ogre
         {
             mPortal = o;
         };
+
 
     protected:
 

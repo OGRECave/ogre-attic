@@ -137,7 +137,7 @@ namespace Ogre
         // now check visibility of each portal in the home zone.  If visible to
         // the light then add the target zone of the portal to the list of
         // affected zones and recurse into the target zone
-        PCZFrustum portalFrustum;
+        static PCZFrustum portalFrustum;
         Vector3 v = getDerivedPosition();
         portalFrustum.setOrigin(v);
         homeZone->_checkLightAgainstPortals(this, frameCount, &portalFrustum, 0);

@@ -64,6 +64,17 @@ namespace Ogre
     PCZFrustum::~PCZFrustum()
     {
         removeAllCullingPlanes();
+		// clear out the culling plane reservoir
+        PCPlaneList::iterator pit = mCullingPlaneReservoir.begin();
+        while ( pit != mCullingPlaneReservoir.end() )
+        {
+            PCPlane * plane = *pit;
+			// go to next entry
+            pit++;
+			//delete the entry in the list
+            delete plane;
+        }
+        mCullingPlaneReservoir.clear();
     }
 
     bool PCZFrustum::isVisible( const AxisAlignedBox & bound) const
@@ -83,10 +94,10 @@ namespace Ogre
             }
         }
 
-        // For each extra culling plane, see if the entire aabb is on the negative side
+        // For each extra active culling plane, see if the entire aabb is on the negative side
         // If so, object is not visible
-        PCPlaneList::const_iterator pit = mCullingPlanes.begin();
-        while ( pit != mCullingPlanes.end() )
+        PCPlaneList::const_iterator pit = mActiveCullingPlanes.begin();
+        while ( pit != mActiveCullingPlanes.end() )
         {
             PCPlane * plane = *pit;
             Plane::Side xside = plane->getSide(centre, halfSize);
@@ -115,10 +126,10 @@ namespace Ogre
             }
         }
 
-        // For each extra culling plane, see if the entire sphere is on the negative side
+        // For each extra active culling plane, see if the entire sphere is on the negative side
         // If so, object is not visible
-        PCPlaneList::const_iterator pit = mCullingPlanes.begin();
-        while ( pit != mCullingPlanes.end() )
+        PCPlaneList::const_iterator pit = mActiveCullingPlanes.begin();
+        while ( pit != mActiveCullingPlanes.end() )
         {
             PCPlane * plane = *pit;
             Plane::Side xside = plane->getSide(bound.getCenter());
@@ -141,14 +152,14 @@ namespace Ogre
     bool PCZFrustum::isVisible(Portal * portal)
     {
         // if the frustum has no planes, just return true
-        if (mCullingPlanes.size() == 0)
+        if (mActiveCullingPlanes.size() == 0)
         {
             return true;
         }
-		// check if this portal is already in the list of culling planes (avoid
+		// check if this portal is already in the list of active culling planes (avoid
 		// infinite recursion case)
-        PCPlaneList::const_iterator pit = mCullingPlanes.begin();
-        while ( pit != mCullingPlanes.end() )
+        PCPlaneList::const_iterator pit = mActiveCullingPlanes.begin();
+        while ( pit != mActiveCullingPlanes.end() )
         {
             PCPlane * plane = *pit;
 			if (plane->getPortal() == portal)
@@ -205,10 +216,10 @@ namespace Ogre
             }
         }
 
-        // For each  culling plane, see if all portal points are on the negative 
+        // For each active culling plane, see if all portal points are on the negative 
         // side. If so, the portal is not visible
-        pit = mCullingPlanes.begin();
-        while ( pit != mCullingPlanes.end() )
+        pit = mActiveCullingPlanes.begin();
+        while ( pit != mActiveCullingPlanes.end() )
         {
             PCPlane * plane = *pit;
             // set the visible flag to false
@@ -269,10 +280,10 @@ namespace Ogre
             }
         }
 
-        // For each  culling plane, see if the entire aabb is on the negative side
+        // For each active culling plane, see if the entire aabb is on the negative side
         // If so, object is not visible
-        PCPlaneList::iterator pit = mCullingPlanes.begin();
-        while ( pit != mCullingPlanes.end() )
+        PCPlaneList::iterator pit = mActiveCullingPlanes.begin();
+        while ( pit != mActiveCullingPlanes.end() )
         {
             PCPlane * plane = *pit;
             Plane::Side xside = plane->getSide(centre, halfSize);
@@ -309,9 +320,10 @@ namespace Ogre
 		if (portal->getType() == Portal::PORTAL_TYPE_AABB ||
 			portal->getType() == Portal::PORTAL_TYPE_SPHERE)
 		{
-            PCPlane * newPlane = new PCPlane(mOriginPlane);
+            PCPlane * newPlane = getUnusedCullingPlane();
+			newPlane->setFromOgrePlane(mOriginPlane);
             newPlane->setPortal(portal);
-            mCullingPlanes.push_front(newPlane);
+            mActiveCullingPlanes.push_front(newPlane);
 			addedcullingplanes++;
 			return addedcullingplanes;
 		}
@@ -332,8 +344,8 @@ namespace Ogre
 				j = 0;
 			}
 			visible = true;
-            pit = mCullingPlanes.begin();
-            while ( pit != mCullingPlanes.end() )
+            pit = mActiveCullingPlanes.begin();
+            while ( pit != mActiveCullingPlanes.end() )
             {
                 PCPlane * plane = *pit;
 				pt0_side = plane->getSide(portal->getDerivedCorner(i));
@@ -350,11 +362,10 @@ namespace Ogre
 			{
 				// add the plane created from the two portal corner points and the frustum location
 				// to the  culling plane
-                PCPlane * newPlane = new PCPlane(mOrigin,
-                                                 portal->getDerivedCorner(j),
-                                                 portal->getDerivedCorner(i));
+                PCPlane * newPlane = getUnusedCullingPlane();
+				newPlane->redefine(mOrigin, portal->getDerivedCorner(j), portal->getDerivedCorner(i));
                 newPlane->setPortal(portal);
-                mCullingPlanes.push_front(newPlane);
+                mActiveCullingPlanes.push_front(newPlane);
 				addedcullingplanes++;
 			}
         }
@@ -364,15 +375,16 @@ namespace Ogre
     // remove culling planes created from the given portal
     void PCZFrustum::removePortalCullingPlanes(Portal *portal)
     {
-        PCPlaneList::iterator pit = mCullingPlanes.begin();
-        while ( pit != mCullingPlanes.end() )
+        PCPlaneList::iterator pit = mActiveCullingPlanes.begin();
+        while ( pit != mActiveCullingPlanes.end() )
         {
             PCPlane * plane = *pit;
 			if (plane->getPortal() == portal)
 			{
-			    //delete the entry in the list
-                delete plane;
-                pit = mCullingPlanes.erase(pit);
+				// put the plane back in the reservoir
+				mCullingPlaneReservoir.push_front(plane);
+				// erase the entry from the active culling plane list
+                pit = mActiveCullingPlanes.erase(pit);
 			}
             else
             {
@@ -382,19 +394,20 @@ namespace Ogre
 
     }
 
-	// remove all  culling planes
+	// remove all active extra culling planes
     // NOTE: Does not change the use of the originPlane!
     void PCZFrustum::removeAllCullingPlanes(void)
     {
-        PCPlaneList::iterator pit = mCullingPlanes.begin();
-        while ( pit != mCullingPlanes.end() )
+        PCPlaneList::iterator pit = mActiveCullingPlanes.begin();
+        while ( pit != mActiveCullingPlanes.end() )
         {
             PCPlane * plane = *pit;
-			//delete the entry in the list
-            delete plane;
-            pit = mCullingPlanes.erase(pit);
+			// put the plane back in the reservoir
+			mCullingPlaneReservoir.push_front(plane);
+			// go to next entry
+            pit++;
         }
-        mCullingPlanes.clear();
+        mActiveCullingPlanes.clear();
     }
 
     // set the origin plane
@@ -402,5 +415,22 @@ namespace Ogre
     {
         mOriginPlane.redefine(rkNormal, rkPoint);
     }
+
+	// get an unused PCPlane from the CullingPlane Reservoir
+	// note that this removes the PCPlane from the reservoir!
+	PCPlane * PCZFrustum::getUnusedCullingPlane(void)
+	{
+		PCPlane * plane = 0;
+		if (mCullingPlaneReservoir.size() > 0)
+		{
+			PCPlaneList::iterator pit = mCullingPlaneReservoir.begin();
+			plane = *pit;
+			mCullingPlaneReservoir.erase(pit);
+			return plane;
+		}
+		// no available planes! create one
+		plane = new PCPlane;
+		return plane;
+	}
 
 }
