@@ -35,6 +35,8 @@ Torus Knot Software Ltd.
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
+#  undef NOMINMAX
+#  define NOMINMAX // required to stop windows.h screwing up std::min definition
 #endif
 
 namespace Ogre
