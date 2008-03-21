@@ -260,7 +260,6 @@ namespace Ogre {
     class Material;
     class MaterialPtr;
     class MaterialManager;
-    class MaterialScriptCompiler;
     class Math;
     class Matrix3;
     class Matrix4;

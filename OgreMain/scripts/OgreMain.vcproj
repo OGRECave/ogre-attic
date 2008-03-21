@@ -504,9 +504,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreMaterialManager.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreMaterialScriptCompiler.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreMaterialSerializer.cpp">
 			</File>
 			<File
@@ -1115,9 +1112,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreMaterialManager.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreMaterialScriptCompiler.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreMaterialSerializer.h">

@@ -33,7 +33,6 @@ Torus Knot Software Ltd.
 #include "OgrePass.h"
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
-#include "OgreRenderSystemCapabilities.h"
 #include "OgreGpuProgramManager.h"
 #include "OgreMaterialManager.h"
 
@@ -66,30 +65,44 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     String Technique::_compile(bool autoManageTextureUnits)
     {
-		StringUtil::StrStreamType compileErrors;
+		StringUtil::StrStreamType errors;
 
-		// assume not supported
-		mIsSupported = false;
-        // Go through each pass, checking requirements
-        Passes::iterator i;
+		mIsSupported = checkGPURules(errors);
+		if (mIsSupported)
+		{
+			mIsSupported = checkHardwareSupport(autoManageTextureUnits, errors);
+		}
+
+        // Compile for categorised illumination on demand
+        clearIlluminationPasses();
+        mIlluminationPassesCompilationPhase = IPS_NOT_COMPILED;
+
+		return errors.str();
+
+    }
+	//---------------------------------------------------------------------
+	bool Technique::checkHardwareSupport(bool autoManageTextureUnits, StringUtil::StrStreamType& compileErrors)
+	{
+		// Go through each pass, checking requirements
+		Passes::iterator i;
 		unsigned short passNum = 0;
 		const RenderSystemCapabilities* caps =
 			Root::getSingleton().getRenderSystem()->getCapabilities();
 		unsigned short numTexUnits = caps->getNumTextureUnits();
-        for (i = mPasses.begin(); i != mPasses.end(); ++i, ++passNum)
-        {
-            Pass* currPass = *i;
+		for (i = mPasses.begin(); i != mPasses.end(); ++i, ++passNum)
+		{
+			Pass* currPass = *i;
 			// Adjust pass index
 			currPass->_notifyIndex(passNum);
-            // Check texture unit requirements
-            size_t numTexUnitsRequested = currPass->getNumTextureUnitStates();
+			// Check texture unit requirements
+			size_t numTexUnitsRequested = currPass->getNumTextureUnitStates();
 			// Don't trust getNumTextureUnits for programmable
 			if(!currPass->hasFragmentProgram())
 			{
-	#if defined(OGRE_PRETEND_TEXTURE_UNITS) && OGRE_PRETEND_TEXTURE_UNITS > 0
+#if defined(OGRE_PRETEND_TEXTURE_UNITS) && OGRE_PRETEND_TEXTURE_UNITS > 0
 				if (numTexUnits > OGRE_PRETEND_TEXTURE_UNITS)
 					numTexUnits = OGRE_PRETEND_TEXTURE_UNITS;
-	#endif
+#endif
 				if (numTexUnitsRequested > numTexUnits)
 				{
 					if (!autoManageTextureUnits)
@@ -98,7 +111,7 @@ namespace Ogre {
 						compileErrors << "Pass " << passNum << 
 							": Too many texture units for the current hardware and no splitting allowed."
 							<< std::endl;
-						return compileErrors.str();
+						return false;
 					}
 					else if (currPass->hasVertexProgram())
 					{
@@ -107,7 +120,7 @@ namespace Ogre {
 							": Too many texture units for the current hardware and "
 							"cannot split programmable passes."
 							<< std::endl;
-						return compileErrors.str();
+						return false;
 					}
 				}
 			}
@@ -127,15 +140,15 @@ namespace Ogre {
 						compileErrors << "not supported.";
 
 					compileErrors << std::endl;
-					return compileErrors.str();
+					return false;
 				}
 			}
-            if (currPass->hasFragmentProgram())
-            {
-                // Check fragment program version
-                if (!currPass->getFragmentProgram()->isSupported())
-                {
-                    // Can't do this one
+			if (currPass->hasFragmentProgram())
+			{
+				// Check fragment program version
+				if (!currPass->getFragmentProgram()->isSupported())
+				{
+					// Can't do this one
 					compileErrors << "Pass " << passNum << 
 						": Fragment program " << currPass->getFragmentProgram()->getName()
 						<< " cannot be used - ";
@@ -145,13 +158,13 @@ namespace Ogre {
 						compileErrors << "not supported.";
 
 					compileErrors << std::endl;
-					return compileErrors.str();
-                }
-            }
-            else
-            {
+					return false;
+				}
+			}
+			else
+			{
 				// Check a few fixed-function options in texture layers
-                Pass::TextureUnitStateIterator texi = currPass->getTextureUnitStateIterator();
+				Pass::TextureUnitStateIterator texi = currPass->getTextureUnitStateIterator();
 				size_t texUnit = 0;
 				while (texi.hasMoreElements())
 				{
@@ -166,7 +179,7 @@ namespace Ogre {
 							" Tex " << texUnit <<
 							": Cube maps not supported by current environment."
 							<< std::endl;
-						return compileErrors.str();
+						return false;
 					}
 					// Any 3D textures? NB we make the assumption that any
 					// card capable of running fragment programs can support
@@ -178,18 +191,18 @@ namespace Ogre {
 							" Tex " << texUnit <<
 							": Volume textures not supported by current environment."
 							<< std::endl;
-						return compileErrors.str();
+						return false;
 					}
 					// Any Dot3 blending?
 					if (tex->getColourBlendMode().operation == LBX_DOTPRODUCT &&
-							!caps->hasCapability(RSC_DOT3))
+						!caps->hasCapability(RSC_DOT3))
 					{
 						// Fail
 						compileErrors << "Pass " << passNum << 
 							" Tex " << texUnit <<
 							": DOT3 blending not supported by current environment."
 							<< std::endl;
-						return compileErrors.str();
+						return false;
 					}
 					++texUnit;
 				}
@@ -216,19 +229,89 @@ namespace Ogre {
 						currPass->_notifyIndex(passNum);
 					}
 				}
-            }
+			}
 
 		}
-        // If we got this far, we're ok
-        mIsSupported = true;
+		// If we got this far, we're ok
+		return true;
+	}
+	//---------------------------------------------------------------------
+	bool Technique::checkGPURules(StringUtil::StrStreamType& errors)
+	{
+		const RenderSystemCapabilities* caps =
+			Root::getSingleton().getRenderSystem()->getCapabilities();
 
-        // Compile for categorised illumination on demand
-        clearIlluminationPasses();
-        mIlluminationPassesCompilationPhase = IPS_NOT_COMPILED;
+		StringUtil::StrStreamType includeRules;
+		bool includeRulesPresent = false;
+		bool includeRuleMatched = false;
 
-		return StringUtil::BLANK;
+		// Check vendors first
+		for (GPUVendorRuleList::const_iterator i = mGPUVendorRules.begin();
+			i != mGPUVendorRules.end(); ++i)
+		{
+			if (i->includeOrExclude == INCLUDE)
+			{
+				includeRulesPresent = true;
+				includeRules << caps->vendorToString(i->vendor) << " ";
+				if (i->vendor == caps->getVendor())
+					includeRuleMatched = true;
+			}
+			else // EXCLUDE
+			{
+				if (i->vendor == caps->getVendor())
+				{
+					errors << "Excluded GPU vendor: " << caps->vendorToString(i->vendor)
+						<< std::endl;
+					return false;
+				}
+					
+			}
+		}
 
-    }
+		if (includeRulesPresent && !includeRuleMatched)
+		{
+			errors << "Failed to match GPU vendor: " << includeRules
+				<< std::endl;
+			return false;
+		}
+
+		// now check device names
+		includeRules.str(StringUtil::BLANK);
+		includeRulesPresent = false;
+		includeRuleMatched = false;
+
+		for (GPUDeviceNameRuleList::const_iterator i = mGPUDeviceNameRules.begin();
+			i != mGPUDeviceNameRules.end(); ++i)
+		{
+			if (i->includeOrExclude == INCLUDE)
+			{
+				includeRulesPresent = true;
+				includeRules << i->devicePattern << " ";
+				if (StringUtil::match(caps->getDeviceName(), i->devicePattern, i->caseSensitive))
+					includeRuleMatched = true;
+			}
+			else // EXCLUDE
+			{
+				if (StringUtil::match(caps->getDeviceName(), i->devicePattern, i->caseSensitive))
+				{
+					errors << "Excluded GPU device: " << i->devicePattern
+						<< std::endl;
+					return false;
+				}
+
+			}
+		}
+
+		if (includeRulesPresent && !includeRuleMatched)
+		{
+			errors << "Failed to match GPU device: " << includeRules
+				<< std::endl;
+			return false;
+		}
+
+		// passed
+		return true;
+	}
     //-----------------------------------------------------------------------------
     Pass* Technique::createPass(void)
     {
@@ -353,6 +436,8 @@ namespace Ogre {
 		this->mShadowCasterMaterialName = rhs.mShadowCasterMaterialName;
 		this->mShadowReceiverMaterial = rhs.mShadowReceiverMaterial;
 		this->mShadowReceiverMaterialName = rhs.mShadowReceiverMaterialName;
+		this->mGPUVendorRules = rhs.mGPUVendorRules;
+		this->mGPUDeviceNameRules = rhs.mGPUDeviceNameRules;
 
 		// copy passes
 		removeAllPasses();
@@ -1132,4 +1217,64 @@ namespace Ogre {
 		mShadowReceiverMaterialName = name;
 		mShadowReceiverMaterial = MaterialManager::getSingleton().getByName(name); 
 	}
+	//---------------------------------------------------------------------
+	void Technique::addGPUVendorRule(GPUVendor vendor, Technique::IncludeOrExclude includeOrExclude)
+	{
+		addGPUVendorRule(GPUVendorRule(vendor, includeOrExclude));
+	}
+	//---------------------------------------------------------------------
+	void Technique::addGPUVendorRule(const Technique::GPUVendorRule& rule)
+	{
+		// remove duplicates
+		removeGPUVendorRule(rule.vendor);
+		mGPUVendorRules.push_back(rule);
+	}
+	//---------------------------------------------------------------------
+	void Technique::removeGPUVendorRule(GPUVendor vendor)
+	{
+		for (GPUVendorRuleList::iterator i = mGPUVendorRules.begin(); i != mGPUVendorRules.end(); )
+		{
+			if (i->vendor == vendor)
+				i = mGPUVendorRules.erase(i);
+			else
+				++i;
+		}
+	}
+	//---------------------------------------------------------------------
+	Technique::GPUVendorRuleIterator Technique::getGPUVendorRuleIterator() const
+	{
+		return GPUVendorRuleIterator(mGPUVendorRules.begin(), mGPUVendorRules.end());
+	}
+	//---------------------------------------------------------------------
+	void Technique::addGPUDeviceNameRule(const String& devicePattern, 
+		Technique::IncludeOrExclude includeOrExclude, bool caseSensitive)
+	{
+		addGPUDeviceNameRule(GPUDeviceNameRule(devicePattern, includeOrExclude, caseSensitive));
+	}
+	//---------------------------------------------------------------------
+	void Technique::addGPUDeviceNameRule(const Technique::GPUDeviceNameRule& rule)
+	{
+		// remove duplicates
+		removeGPUDeviceNameRule(rule.devicePattern);
+		mGPUDeviceNameRules.push_back(rule);
+	}
+	//---------------------------------------------------------------------
+	void Technique::removeGPUDeviceNameRule(const String& devicePattern)
+	{
+		for (GPUDeviceNameRuleList::iterator i = mGPUDeviceNameRules.begin(); i != mGPUDeviceNameRules.end(); )
+		{
+			if (i->devicePattern == devicePattern)
+				i = mGPUDeviceNameRules.erase(i);
+			else
+				++i;
+		}
+	}
+	//---------------------------------------------------------------------
+	Technique::GPUDeviceNameRuleIterator Technique::getGPUDeviceNameRuleIterator() const
+	{
+		return GPUDeviceNameRuleIterator(mGPUDeviceNameRules.begin(), mGPUDeviceNameRules.end());
+	}
+	//---------------------------------------------------------------------
+
+
 }
