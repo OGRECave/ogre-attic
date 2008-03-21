@@ -78,7 +78,6 @@ pkginclude_HEADERS = Ogre.h \
                      OgreMaterial.h \
                      OgreMaterialManager.h \
                      OgreMaterialSerializer.h \
-                     OgreMaterialScriptCompiler.h \
                      OgreMath.h \
                      OgreMatrix3.h \
                      OgreMatrix4.h \

@@ -34,6 +34,8 @@ Torus Knot Software Ltd.
 #include "OgreBlendMode.h"
 #include "OgreCommon.h"
 #include "OgrePass.h"
+#include "OgreIteratorWrappers.h"
+#include "OgreRenderSystemCapabilities.h"
 
 namespace Ogre {
     /** Class representing an approach to rendering this particular Material. 
@@ -95,6 +97,44 @@ namespace Ogre {
 		* shadow caster behavior. There only material name is stored so that it can be loaded once all file parsed in a resource group.
 		*/
 		String mShadowReceiverMaterialName;	
+
+	public:
+		/** Directive used to manually control technique support based on the
+			inclusion or exclusion of some factor.
+		*/
+		enum IncludeOrExclude
+		{
+			/// Inclusive - only support if present
+			INCLUDE = 0,
+			/// Exclusive - do not support if present
+			EXCLUDE = 1
+		};
+		/// Rule controlling whether technique is deemed supported based on GPU vendor
+		struct GPUVendorRule
+		{
+			GPUVendor vendor;
+			IncludeOrExclude includeOrExclude;
+			GPUVendorRule()
+				: vendor(GPU_UNKNOWN), includeOrExclude(EXCLUDE) {}
+			GPUVendorRule(GPUVendor v, IncludeOrExclude ie)
+				: vendor(v), includeOrExclude(ie) {}
+		};
+		/// Rule controlling whether technique is deemed supported based on GPU device name
+		struct GPUDeviceNameRule
+		{
+			String devicePattern;
+			IncludeOrExclude includeOrExclude;
+			bool caseSensitive;
+			GPUDeviceNameRule()
+				: includeOrExclude(EXCLUDE), caseSensitive(false) {}
+			GPUDeviceNameRule(const String& pattern, IncludeOrExclude ie, bool caseSen)
+				: devicePattern(pattern), includeOrExclude(ie), caseSensitive(caseSen) {}
+		};
+		typedef std::vector<GPUVendorRule> GPUVendorRuleList;
+		typedef std::vector<GPUDeviceNameRule> GPUDeviceNameRuleList;
+	protected:
+		GPUVendorRuleList mGPUVendorRules;
+		GPUDeviceNameRuleList mGPUDeviceNameRules;
 	public:
         /// Constructor
         Technique(Material* parent);
@@ -111,6 +151,10 @@ namespace Ogre {
 		@returns Any information explaining problems with the compile.
 		*/
         String _compile(bool autoManageTextureUnits);
+		/// Internal method for checking GPU vendor / device rules
+		bool checkGPURules(StringUtil::StrStreamType& errors);
+		/// Internal method for checking hardware support
+		bool checkHardwareSupport(bool autoManageTextureUnits, StringUtil::StrStreamType& compileErrors);
         /** Internal method for splitting the passes into illumination passes. */        
         void _compileIlluminationPasses(void);
 
@@ -549,6 +593,85 @@ namespace Ogre {
         */
         bool applyTextureAliases(const AliasTextureNamePairList& aliasList, const bool apply = true) const;
 
+
+		/** Add a rule which manually influences the support for this technique based
+			on a GPU vendor.
+		@remarks
+			You can use this facility to manually control whether a technique is
+			considered supported, based on a GPU vendor. You can add inclusive
+			or exclusive rules, and you can add as many of each as you like. If
+			at least one inclusive rule is added, a	technique is considered 
+			unsupported if it does not match any of those inclusive rules. If exclusive rules are
+			added, the technique is considered unsupported if it matches any of
+			those inclusive rules. 
+		@note
+			Any rule for the same vendor will be removed before adding this one.
+		@param vendor The GPU vendor
+		@param includeOrExclude Whether this is an inclusive or exclusive rule
+		*/
+		void addGPUVendorRule(GPUVendor vendor, IncludeOrExclude includeOrExclude);
+		/** Add a rule which manually influences the support for this technique based
+			on a GPU vendor.
+		@remarks
+			You can use this facility to manually control whether a technique is
+			considered supported, based on a GPU vendor. You can add inclusive
+			or exclusive rules, and you can add as many of each as you like. If
+			at least one inclusive rule is added, a	technique is considered 
+			unsupported if it does not match any of those inclusive rules. If exclusive rules are
+			added, the technique is considered unsupported if it matches any of
+			those inclusive rules. 
+		@note
+			Any rule for the same vendor will be removed before adding this one.
+		*/
+		void addGPUVendorRule(const GPUVendorRule& rule);
+		/** Removes a matching vendor rule.
+		@see addGPUVendorRule
+		*/
+		void removeGPUVendorRule(GPUVendor vendor);
+		typedef ConstVectorIterator<GPUVendorRuleList> GPUVendorRuleIterator;
+		/// Get an iterator over the currently registered vendor rules.
+		GPUVendorRuleIterator getGPUVendorRuleIterator() const;
+
+		/** Add a rule which manually influences the support for this technique based
+			on a pattern that matches a GPU device name (e.g. '*8800*').
+		@remarks
+			You can use this facility to manually control whether a technique is
+			considered supported, based on a GPU device name pattern. You can add inclusive
+			or exclusive rules, and you can add as many of each as you like. If
+			at least one inclusive rule is added, a	technique is considered 
+			unsupported if it does not match any of those inclusive rules. If exclusive rules are
+			added, the technique is considered unsupported if it matches any of
+			those inclusive rules. The pattern you supply can include wildcard
+			characters ('*') if you only want to match part of the device name.
+		@note
+			Any rule for the same device pattern will be removed before adding this one.
+		@param devicePattern The GPU vendor
+		@param includeOrExclude Whether this is an inclusive or exclusive rule
+		@param caseSensitive Whether the match is case sensitive or not
+		*/
+		void addGPUDeviceNameRule(const String& devicePattern, IncludeOrExclude includeOrExclude, bool caseSensitive = false);
+		/** Add a rule which manually influences the support for this technique based
+			on a pattern that matches a GPU device name (e.g. '*8800*').
+		@remarks
+			You can use this facility to manually control whether a technique is
+			considered supported, based on a GPU device name pattern. You can add inclusive
+			or exclusive rules, and you can add as many of each as you like. If
+			at least one inclusive rule is added, a	technique is considered 
+			unsupported if it does not match any of those inclusive rules. If exclusive rules are
+			added, the technique is considered unsupported if it matches any of
+			those inclusive rules. The pattern you supply can include wildcard
+			characters ('*') if you only want to match part of the device name.
+		@note
+			Any rule for the same device pattern will be removed before adding this one.
+		*/
+		void addGPUDeviceNameRule(const GPUDeviceNameRule& rule);
+		/** Removes a matching device name rule.
+		@see addGPUDeviceNameRule
+		*/
+		void removeGPUDeviceNameRule(const String& devicePattern);
+		typedef ConstVectorIterator<GPUDeviceNameRuleList> GPUDeviceNameRuleIterator;
+		/// Get an iterator over the currently registered device name rules.
+		GPUDeviceNameRuleIterator getGPUDeviceNameRuleIterator() const;
 
     };
 

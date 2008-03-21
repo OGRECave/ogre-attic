@@ -416,6 +416,7 @@ When a material is used for the first time, it is 'compiled'. That involves scan
 Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (@xref{colour_op_multipass_fallback}).
 @item Whether vertex or fragment programs are used, and if so which syntax they use (e.g. vs_1_1, ps_2_x, arbfp1 etc)
 @item Other effects like cube mapping and dot3 blending
+@item Whether the vendor or device name of the current graphics card matches some user-specified rules
 @end itemize
 @*
 In a material script, techniques must be listed in order of preference, i.e. the earlier techniques are preferred over the later techniques. This normally means you will list your most advanced, most demanding techniques first in the script, and list fallbacks afterwards.@*@*
@@ -434,6 +435,10 @@ Techniques have only a small number of attributes of their own:
 @ref{shadow_caster_material_name}
 @item
 @ref{shadow_receiver_material_name}
+@item 
+@ref{gpu_vendor_rule}
+@item 
+@ref{gpu_device_rule}
 @end itemize
 
 
@@ -483,6 +488,26 @@ When using @xref{Texture-based Shadows} you can specify an alternate material to
 @anchor{shadow_receiver_material_name}
 @subheading shadow_receiver_material_name
 When using @xref{Texture-based Shadows} you can specify an alternate material to use when performing the receiver shadow pass. Note that this explicit 'receiver' pass is only done when you're @strong{not} using @ref{Integrated Texture Shadows} - ie the shadow rendering is done separately (either as a modulative pass, or a masked light pass). This is like a more advanced version of using shadow_receiver_vertex_program and shadow_receiver_fragment_program, however note that for the moment you are expected to render the shadow in one pass, ie only the first pass is respected.
+
+@anchor{gpu_vendor_rule}
+@anchor{gpu_device_rule}
+@subheading gpu_vendor_rule and gpu_device_rule
+Although Ogre does a good job of detecting the capabilities of graphics cards and setting the supportability of techniques from that, occasionally card-specific behaviour exists which is not necessarily detectable and you may want to ensure that your materials go down a particular path to either use or avoid that behaviour. This is what these rules are for - you can specify matching rules so that a technique will be considered supportable only on cards from a particular vendor, or which match a device name pattern, or will be considered supported only if they @strong{don't} fulfil such matches.@*@*
+The format of the rules are as follows:@*@*
+
+gpu_vendor_rule <include|exclude> <vendor_name>@*
+gpu_device_rule <include|exclude> <device_pattern> [case_sensitive]@*
+@*
+An 'include' rule means that the technique will only be supported if one of the include rules is matched (if no include rules are provided, anything will pass). An 'exclude' rules means that the technique is considered unsupported if any of the exclude rules are matched. You can provide as many rules as you like, although <vendor_name> and <device_pattern> must obviously be unique. The valid list of <vendor_name> values is currently 'nvidia', 'ati', 'intel', 's3', 'matrox' and '3dlabs'. <device_pattern> can be any string, and you can use wildcards ('*') if you need to match variants. Here's an example:@*@*
+
+gpu_vendor_rule include nvidia@*
+gpu_vendor_rule include intel@*
+gpu_device_rule exclude *950*@*
+@*
+These rules, if all included in one technique, will mean that the technique will only be considered supported on graphics cards made by NVIDIA and Intel, and so long as the device name doesn't have '950' in it.@*@*
+
+Note that these rules can only mark a technique 'unsupported' when it would otherwise be considered 'supported' judging by the hardware capabilities. Even if a technique passes these rules, it is still subject to the usual hardware support tests.
+
 
 @node Passes
 @subsection Passes

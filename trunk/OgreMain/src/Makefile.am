@@ -62,7 +62,6 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreMaterial.cpp \
                          OgreMaterialManager.cpp \
                          OgreMaterialSerializer.cpp \
-                         OgreMaterialScriptCompiler.cpp \
                          OgreMath.cpp \
                          OgreMatrix3.cpp \
                          OgreMatrix4.cpp \

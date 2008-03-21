@@ -535,7 +535,7 @@ namespace Ogre{
 					{
 						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
 					}
-					else if(prop->values.size() > 3)
+					else if(prop->values.size() > 1)
 					{
 						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
 					}
@@ -554,7 +554,7 @@ namespace Ogre{
 					{
 						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
 					}
-					else if(prop->values.size() > 3)
+					else if(prop->values.size() > 1)
 					{
 						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
 					}
@@ -573,7 +573,7 @@ namespace Ogre{
 					{
 						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
 					}
-					else if(prop->values.size() > 3)
+					else if(prop->values.size() > 1)
 					{
 						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
 					}
@@ -598,7 +598,7 @@ namespace Ogre{
 					{
 						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
 					}
-					else if(prop->values.size() > 3)
+					else if(prop->values.size() > 1)
 					{
 						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
 					}
@@ -616,6 +616,105 @@ namespace Ogre{
 						}
 						else
 							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+					}
+					break;
+				case ID_GPU_VENDOR_RULE:
+					if(prop->values.size() < 2)
+					{
+						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 2)
+					{
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+						AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+
+						Technique::GPUVendorRule rule;
+						if ((*i0)->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get();
+							if (atom0->id == ID_INCLUDE)
+							{
+								rule.includeOrExclude = Technique::INCLUDE;
+							}
+							else if (atom0->id == ID_EXCLUDE)
+							{
+								rule.includeOrExclude = Technique::EXCLUDE;
+							}
+							else
+							{
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							String vendor;
+							if(!getString(*i1, &vendor))
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+
+							rule.vendor = RenderSystemCapabilities::vendorFromString(vendor);
+
+							if (rule.vendor != GPU_UNKNOWN)
+							{
+								mTechnique->addGPUVendorRule(rule);
+							}
+						}
+						else
+						{
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+
+					}
+					break;
+				case ID_GPU_DEVICE_RULE:
+					if(prop->values.size() < 2)
+					{
+						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
+					}
+					else if(prop->values.size() > 3)
+					{
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+					}
+					else
+					{
+						AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0);
+						AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1);
+
+						Technique::GPUDeviceNameRule rule;
+						if ((*i0)->type == ANT_ATOM)
+						{
+							AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i0).get();
+							if (atom0->id == ID_INCLUDE)
+							{
+								rule.includeOrExclude = Technique::INCLUDE;
+							}
+							else if (atom0->id == ID_EXCLUDE)
+							{
+								rule.includeOrExclude = Technique::EXCLUDE;
+							}
+							else
+							{
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							if(!getString(*i1, &rule.devicePattern))
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+
+							if (prop->values.size() == 3)
+							{
+								AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
+								if (!getBoolean(*i2, &rule.caseSensitive))
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+
+							mTechnique->addGPUDeviceNameRule(rule);
+						}
+						else
+						{
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
+
 					}
 					break;
 				}

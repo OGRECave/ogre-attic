@@ -877,6 +877,12 @@ namespace Ogre
 		mIds["lod_index"] = ID_LOD_INDEX;
 		mIds["shadow_caster_material_name"] = ID_SHADOW_CASTER_MATERIAL_NAME;
 		mIds["shadow_receiver_material_name"] = ID_SHADOW_RECEIVER_MATERIAL_NAME;
+		mIds["gpu_vendor_rule"] = ID_GPU_VENDOR_RULE;
+		mIds["gpu_device_rule"] = ID_GPU_DEVICE_RULE;
+		mIds["include"] = ID_INCLUDE;
+		mIds["exclude"] = ID_EXCLUDE;
+
+
 
 		mIds["ambient"] = ID_AMBIENT;
 		mIds["diffuse"] = ID_DIFFUSE;

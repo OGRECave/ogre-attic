@@ -223,7 +223,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	StringVector RenderSystemCapabilities::msGPUVendorStrings;
 	//---------------------------------------------------------------------
-	GPUVendor RenderSystemCapabilities::vendorFromString(const String& vendorString) const
+	GPUVendor RenderSystemCapabilities::vendorFromString(const String& vendorString)
 	{
 		initVendorStrings();
 		GPUVendor ret = GPU_UNKNOWN;
@@ -243,13 +243,13 @@ namespace Ogre {
 		
 	}
 	//---------------------------------------------------------------------
-	String RenderSystemCapabilities::vendorToString(GPUVendor v) const
+	String RenderSystemCapabilities::vendorToString(GPUVendor v)
 	{
 		initVendorStrings();
 		return msGPUVendorStrings[v];
 	}
 	//---------------------------------------------------------------------
-	void RenderSystemCapabilities::initVendorStrings() const
+	void RenderSystemCapabilities::initVendorStrings()
 	{
 		if (msGPUVendorStrings.empty())
 		{

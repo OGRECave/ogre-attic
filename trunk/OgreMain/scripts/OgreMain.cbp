@@ -173,7 +173,6 @@
 		<Unit filename="..\include\OgreManualObject.h" />
 		<Unit filename="..\include\OgreMaterial.h" />
 		<Unit filename="..\include\OgreMaterialManager.h" />
-		<Unit filename="..\include\OgreMaterialScriptCompiler.h" />
 		<Unit filename="..\include\OgreMaterialSerializer.h" />
 		<Unit filename="..\include\OgreMath.h" />
 		<Unit filename="..\include\OgreMatrix3.h" />
@@ -383,7 +382,6 @@
 		<Unit filename="..\src\OgreManualObject.cpp" />
 		<Unit filename="..\src\OgreMaterial.cpp" />
 		<Unit filename="..\src\OgreMaterialManager.cpp" />
-		<Unit filename="..\src\OgreMaterialScriptCompiler.cpp" />
 		<Unit filename="..\src\OgreMaterialSerializer.cpp" />
 		<Unit filename="..\src\OgreMath.cpp" />
 		<Unit filename="..\src\OgreMatrix3.cpp" />

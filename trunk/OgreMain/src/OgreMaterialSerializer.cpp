@@ -1715,6 +1715,70 @@ namespace Ogre
 		context.technique->setSchemeName(params);
 		return false;
 	}
+	//-----------------------------------------------------------------------
+	bool parseGPUVendorRule(String& params, MaterialScriptContext& context)
+	{
+		Technique::GPUVendorRule rule;
+		StringVector vecparams = StringUtil::split(params, " \t");
+		if (vecparams.size() != 2)
+		{
+			logParseError("Wrong number of parameters for gpu_vendor_rule, expected 2", context);
+			return false;
+		}
+		if (vecparams[0] == "include")
+		{
+			rule.includeOrExclude = Technique::INCLUDE;
+		}
+		else if (vecparams[0] == "exclude")
+		{
+			rule.includeOrExclude = Technique::EXCLUDE;
+		}
+		else
+		{
+			logParseError("Wrong parameter to gpu_vendor_rule, expected 'include' or 'exclude'", context);
+			return false;
+		}
+
+		rule.vendor = RenderSystemCapabilities::vendorFromString(vecparams[1]);
+		if (rule.vendor == GPU_UNKNOWN)
+		{
+			logParseError("Unknown vendor '" + vecparams[1] + "' ignored in gpu_vendor_rule", context);
+			return false;
+		}
+		context.technique->addGPUVendorRule(rule);
+		return false;
+	}
+	//-----------------------------------------------------------------------
+	bool parseGPUDeviceRule(String& params, MaterialScriptContext& context)
+	{
+		Technique::GPUDeviceNameRule rule;
+		StringVector vecparams = StringUtil::split(params, " \t");
+		if (vecparams.size() != 2 && vecparams.size() != 3)
+		{
+			logParseError("Wrong number of parameters for gpu_vendor_rule, expected 2 or 3", context);
+			return false;
+		}
+		if (vecparams[0] == "include")
+		{
+			rule.includeOrExclude = Technique::INCLUDE;
+		}
+		else if (vecparams[0] == "exclude")
+		{
+			rule.includeOrExclude = Technique::EXCLUDE;
+		}
+		else
+		{
+			logParseError("Wrong parameter to gpu_device_rule, expected 'include' or 'exclude'", context);
+			return false;
+		}
+
+		rule.devicePattern = vecparams[1];
+		if (vecparams.size() == 3)
+			rule.caseSensitive = StringConverter::parseBool(vecparams[2]);
+
+		context.technique->addGPUDeviceNameRule(rule);
+		return false;
+	}
     //-----------------------------------------------------------------------
 	bool parseShadowCasterMaterial(String& params, MaterialScriptContext& context)
 	{
@@ -2785,6 +2849,8 @@ namespace Ogre
 		mTechniqueAttribParsers.insert(AttribParserList::value_type("shadow_caster_material", (ATTRIBUTE_PARSER)parseShadowCasterMaterial));
 		mTechniqueAttribParsers.insert(AttribParserList::value_type("shadow_receiver_material", (ATTRIBUTE_PARSER)parseShadowReceiverMaterial));
 		mTechniqueAttribParsers.insert(AttribParserList::value_type("scheme", (ATTRIBUTE_PARSER)parseScheme));
+		mTechniqueAttribParsers.insert(AttribParserList::value_type("gpu_vendor_rule", (ATTRIBUTE_PARSER)parseGPUVendorRule));
+		mTechniqueAttribParsers.insert(AttribParserList::value_type("gpu_device_rule", (ATTRIBUTE_PARSER)parseGPUDeviceRule));
         mTechniqueAttribParsers.insert(AttribParserList::value_type("pass", (ATTRIBUTE_PARSER)parsePass));
 
         // Set up pass attribute parsers
@@ -3419,6 +3485,31 @@ namespace Ogre
 			{
 				writeAttribute(2, "shadow_receiver_material");
 				writeValue(pTech->getShadowReceiverMaterial()->getName());
+			}
+			// GPU vendor rules
+			Technique::GPUVendorRuleIterator vrit = pTech->getGPUVendorRuleIterator();
+			while (vrit.hasMoreElements())
+			{
+				const Technique::GPUVendorRule& rule = vrit.getNext();
+				writeAttribute(2, "gpu_vendor_rule");
+				if (rule.includeOrExclude == Technique::INCLUDE)
+					writeValue("include");
+				else
+					writeValue("exclude");
+				writeValue(RenderSystemCapabilities::vendorToString(rule.vendor));
+			}
+			// GPU device rules
+			Technique::GPUDeviceNameRuleIterator dnit = pTech->getGPUDeviceNameRuleIterator();
+			while (dnit.hasMoreElements())
+			{
+				const Technique::GPUDeviceNameRule& rule = dnit.getNext();
+				writeAttribute(2, "gpu_device_rule");
+				if (rule.includeOrExclude == Technique::INCLUDE)
+					writeValue("include");
+				else
+					writeValue("exclude");
+				writeValue(rule.devicePattern);
+				writeValue(StringConverter::toString(rule.caseSensitive));
 			}
             // Iterate over passes
             Technique::PassIterator it = const_cast<Technique*>(pTech)->getPassIterator();
