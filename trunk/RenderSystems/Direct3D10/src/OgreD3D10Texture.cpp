@@ -118,79 +118,62 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10Texture::_loadTex()
 	{
-		Image img;
-		// find & load resource data intro stream to allow resource
-		// group changes if required
-		DataStreamPtr dstream = 
-			ResourceGroupManager::getSingleton().openResource(
-			mName, mGroup, true, this);
-
-		size_t pos = mName.find_last_of(".");
-		String ext = mName.substr(pos+1);
-
-
-		img.load(dstream, ext);
-		loadImage(img);
-
-		/* // this is the other way to do it - without free image
-		D3DX10_IMAGE_INFO info;
-		MemoryDataStream memStream(dstream, true);
-		HRESULT hr = D3DX10GetImageInfoFromMemory(memStream.getPtr(), static_cast<DWORD>(memStream.size()), NULL, &info, NULL);
-		dstream->seek(0);
-
-
-		D3DX10_IMAGE_LOAD_INFO imageInfo;
-		imageInfo.Width = info.Width;
-		imageInfo.Height = info.Height;
-		imageInfo.Depth = info.Depth;
-		imageInfo.FirstMipLevel = 0;
-		imageInfo.MipLevels = 6;
-		imageInfo.Usage = D3D10_USAGE_DEFAULT;
-		imageInfo.BindFlags = D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
-		imageInfo.CpuAccessFlags = 0;
-		imageInfo.MiscFlags = D3D10_RESOURCE_MISC_GENERATE_MIPS;
-		imageInfo.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		imageInfo.Filter = D3DX10_FILTER_NONE;
-		imageInfo.MipFilter = D3DX10_FILTER_NONE;
-		imageInfo.pSrcInfo = &info;
-
-		mpTex = NULL;
-		hr = D3DX10CreateTextureFromMemory(mDevice, 
-		memStream.getPtr(), static_cast<DWORD>(memStream.size()), 
-		&imageInfo, NULL, &mpTex, NULL );
-
-
-		ID3D10Texture2D* pTemp;
-		D3D10_TEXTURE2D_DESC desc;
-		mpTex->QueryInterface( __uuidof( ID3D10Texture2D ), (LPVOID*)&pTemp );
-		pTemp->GetDesc( &desc );
-
-
-		
-		ZeroMemory( &mSRVDesc, sizeof(mSRVDesc) );
-		mSRVDesc.Format = imageInfo.Format;
-		switch (info.ResourceDimension)
+		if(this->getTextureType() == TEX_TYPE_CUBE_MAP)
 		{
-		case D3D10_RESOURCE_DIMENSION_TEXTURE1D:
-		mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE1D;
-		break;
-		case D3D10_RESOURCE_DIMENSION_TEXTURE2D:
-		mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
-		break;
-		case D3D10_RESOURCE_DIMENSION_TEXTURE3D:
-		mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE3D;
-		break;
+			// Load from 6 separate files
+			// Use OGRE its own codecs
+			String baseName, ext;
+			size_t pos = mName.find_last_of(".");
+			baseName = mName.substr(0, pos);
+			if ( pos != String::npos )
+				ext = mName.substr(pos+1);
+			std::vector<Image> images(6);
+			ConstImagePtrList imagePtrs;
+			static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
+
+			for(size_t i = 0; i < 6; i++)
+			{
+				String fullName = baseName + suffixes[i];
+				if (!ext.empty())
+					fullName = fullName + "." + ext;
+
+				// find & load resource data intro stream to allow resource
+				// group changes if required
+				DataStreamPtr dstream = 
+					ResourceGroupManager::getSingleton().openResource(
+					fullName, mGroup, true, this);
+
+				images[i].load(dstream, ext);
+
+				size_t imageMips = images[i].getNumMipmaps();
+
+				if(imageMips < mNumMipmaps) {
+					mNumMipmaps = imageMips;
+				}
+
+
+				imagePtrs.push_back(&images[i]);
+			}
+
+			_loadImages( imagePtrs );
+
 		}
-		mSRVDesc.Texture1D.MipLevels = imageInfo.MipLevels;
+		else
+		{
+			Image img;
+			// find & load resource data intro stream to allow resource
+			// group changes if required
+			DataStreamPtr dstream = 
+				ResourceGroupManager::getSingleton().openResource(
+				mName, mGroup, true, this);
+
+			size_t pos = mName.find_last_of(".");
+			String ext = mName.substr(pos+1);
 
 
-
-		hr = mDevice->CreateShaderResourceView( mpTex, &mSRVDesc, &mpShaderResourceView );
-		*/
-
-
-
-
+			img.load(dstream, ext);
+			loadImage(img);
+		}
 	}
 	//---------------------------------------------------------------------
 	void D3D10Texture::createInternalResourcesImpl(void)
@@ -356,6 +339,7 @@ namespace Ogre
 		if (this->getTextureType() == TEX_TYPE_CUBE_MAP)
 		{
 			desc.MiscFlags		|= D3D10_RESOURCE_MISC_TEXTURECUBE;
+			desc.ArraySize		= 6;
 		}
 
 
@@ -394,6 +378,15 @@ namespace Ogre
 		mSRVDesc.Format = desc.Format;
 		mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
 		mSRVDesc.Texture2D.MipLevels = desc.MipLevels;
+
+		if (this->getTextureType() == TEX_TYPE_CUBE_MAP)
+		{
+			mSRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURECUBE;
+			mSRVDesc.TextureCube.MipLevels = desc.MipLevels;
+			mSRVDesc.TextureCube.MostDetailedMip = 0;
+
+		}
+		
 		hr = mDevice->CreateShaderResourceView( mp2DTex, &mSRVDesc, &mpShaderResourceView );
 		if (FAILED(hr) || mDevice.isError())
 		{
@@ -592,6 +585,11 @@ namespace Ogre
 
 					D3D10HardwarePixelBuffer *buffer;
 					size_t subresourceIndex = mip + face * mNumMipmaps;
+					if (getNumFaces() > 0)
+					{
+						subresourceIndex = mip;
+
+					}
 					buffer = new D3D10HardwarePixelBuffer(
 						this, // parentTexture
 						mDevice, // device
@@ -599,6 +597,7 @@ namespace Ogre
 						width, 
 						height, 
 						depth,
+						face,
 						format,
 						(HardwareBuffer::Usage)bufusage // usage
 						); 

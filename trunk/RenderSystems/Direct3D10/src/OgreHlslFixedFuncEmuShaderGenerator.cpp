@@ -243,10 +243,10 @@ namespace Ogre
 			case TEX_TYPE_1D:
 				shaderSource = shaderSource + "float1 Texcoord" + layerCounter + " : TEXCOORD" + layerCounter + ";\n";
 				break;
-			case TEX_TYPE_CUBE_MAP:
 			case TEX_TYPE_2D:
 				shaderSource = shaderSource + "float2 Texcoord" + layerCounter + " : TEXCOORD" + layerCounter + ";\n";
 				break;
+			case TEX_TYPE_CUBE_MAP:
 			case TEX_TYPE_3D:
 				shaderSource = shaderSource + "float3 Texcoord" + layerCounter + " : TEXCOORD" + layerCounter + ";\n";
 				break;
@@ -301,7 +301,6 @@ namespace Ogre
 					case TEX_TYPE_1D:
 						shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = input.Texcoord" + coordIdx + ";\n";		
 						break;
-					case TEX_TYPE_CUBE_MAP:
 					case TEX_TYPE_2D:
 						shaderSource = shaderSource + "float4 texCordWithMatrix = float4(input.Texcoord" + coordIdx + ".x, input.Texcoord" + coordIdx + ".y, 0, 1);\n";
 						shaderSource = shaderSource + "texCordWithMatrix = mul(texCordWithMatrix, TextureMatrix" + layerCounter + " );\n";
@@ -321,7 +320,6 @@ namespace Ogre
 					case TEX_TYPE_1D:
 						shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float1(0.0, 0.0);\n"; // so no error
 						break;
-					case TEX_TYPE_CUBE_MAP:
 					case TEX_TYPE_2D:
 						shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float2(0.0, 0.0);\n"; // so no error
 						break;
@@ -341,6 +339,13 @@ namespace Ogre
 			case TEXCALC_ENVIRONMENT_MAP_PLANAR:
 				break;
 			case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
+				assert(curTextureLayerState.getTextureType() == TEX_TYPE_CUBE_MAP);
+				shaderSource = shaderSource + "{\n";	
+				shaderSource = shaderSource + "	float4 worldNorm = mul(float4(Normal, 0), World);\n";	
+				shaderSource = shaderSource + "	float4 viewNorm = mul(worldNorm, View);\n";	
+				shaderSource = shaderSource + "	viewNorm = normalize(viewNorm);\n";	
+				shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = reflect(viewNorm.xyz, float3(0.0,0.0,-1.0));\n";	
+				shaderSource = shaderSource + "}\n";	
 				break;
 			case TEXCALC_ENVIRONMENT_MAP_NORMAL:
 				break;
