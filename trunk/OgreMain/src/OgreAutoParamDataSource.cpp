@@ -669,7 +669,7 @@ namespace Ogre {
     if(index < mCurrentPass->getNumTextureUnitStates())
     {
       // texture unit existent, return its currently set transform
-      return mCurrentPass->getTextureUnitState(index)->getTextureTransform();
+      return mCurrentPass->getTextureUnitState(static_cast<unsigned short>(index))->getTextureTransform();
     }
     else
     {
