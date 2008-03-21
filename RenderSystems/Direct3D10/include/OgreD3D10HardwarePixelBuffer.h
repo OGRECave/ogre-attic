@@ -46,6 +46,8 @@ namespace Ogre {
 		D3D10Texture * mParentTexture;
 		size_t mSubresourceIndex;
 
+		size_t mFace;
+
 		D3D10_BOX OgreImageBoxToDx10Box(const Image::Box &inBox) const;
 
 		/// Render targets
@@ -53,7 +55,7 @@ namespace Ogre {
 		SliceTRT mSliceTRT;
 	public:
 		D3D10HardwarePixelBuffer(D3D10Texture * parentTexture, D3D10Device & device, size_t subresourceIndex,
-			size_t width, size_t height, size_t depth,PixelFormat format, HardwareBuffer::Usage usage);
+			size_t width, size_t height, size_t depth, size_t face, PixelFormat format, HardwareBuffer::Usage usage);
 
 		/// @copydoc HardwarePixelBuffer::blit
 		void blit(const HardwarePixelBufferSharedPtr &src, const Image::Box &srcBox, const Image::Box &dstBox);

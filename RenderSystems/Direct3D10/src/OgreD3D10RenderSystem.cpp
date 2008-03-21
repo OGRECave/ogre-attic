@@ -2207,8 +2207,8 @@ namespace Ogre
 					textureLayerStateList.push_back(textureLayerState);
 
 				}
-
 			}
+
 			mFixedFuncState.setTextureLayerStateList(textureLayerStateList);
 
 				const VertexBufferDeclaration &  vertexBufferDeclaration = 

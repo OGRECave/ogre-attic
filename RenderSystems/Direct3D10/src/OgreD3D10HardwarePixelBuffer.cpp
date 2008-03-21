@@ -40,11 +40,12 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------  
 
 	D3D10HardwarePixelBuffer::D3D10HardwarePixelBuffer(D3D10Texture * parentTexture, D3D10Device & device, size_t subresourceIndex,
-		size_t width, size_t height, size_t depth,PixelFormat format, HardwareBuffer::Usage usage):
+		size_t width, size_t height, size_t depth, size_t face, PixelFormat format, HardwareBuffer::Usage usage):
 	HardwarePixelBuffer(width, height, depth, format, usage, false, false),
 		mParentTexture(parentTexture),
 		mDevice(device),
-		mSubresourceIndex(subresourceIndex)
+		mSubresourceIndex(subresourceIndex),
+		mFace(face)
 	{
 		if(mUsage & TU_RENDERTARGET)
 		{
@@ -117,6 +118,7 @@ namespace Ogre {
 				}
 			}
 			break;
+		case TEX_TYPE_CUBE_MAP:
 		case TEX_TYPE_2D:
 			{
 				D3D10_MAPPED_TEXTURE2D mappedTex2D;
@@ -161,6 +163,7 @@ namespace Ogre {
 				mParentTexture->GetTex1D()->Unmap(static_cast<UINT>(mSubresourceIndex));
 			}
 			break;
+		case TEX_TYPE_CUBE_MAP:
 		case TEX_TYPE_2D:
 			{
 				mParentTexture->GetTex2D()->Unmap(static_cast<UINT>(mSubresourceIndex));
@@ -231,6 +234,7 @@ namespace Ogre {
 				}			
 			}
 			break;
+		case TEX_TYPE_CUBE_MAP:
 		case TEX_TYPE_2D:
 			{
 				mDevice->CopySubresourceRegion(
@@ -238,7 +242,7 @@ namespace Ogre {
 					static_cast<UINT>(mSubresourceIndex),
 					static_cast<UINT>(dstBox.left),
 					static_cast<UINT>(dstBox.top),
-					0,
+					mFace,
 					rsrcDx10->mParentTexture->GetTex2D(),
 					static_cast<UINT>(rsrcDx10->mSubresourceIndex),
 					&srcBoxDx10);
@@ -317,6 +321,7 @@ namespace Ogre {
 				}
 			}
 		break;
+		case TEX_TYPE_CUBE_MAP:
 		case TEX_TYPE_2D:
 			{
 				mDevice->UpdateSubresource( 
@@ -325,7 +330,7 @@ namespace Ogre {
 					&dstBoxDx10,
 					converted.data,
 					static_cast<UINT>(converted.rowPitch),
-					0 );
+					mFace );
 				if (mDevice.isError())
 				{
 					String errorDescription = mDevice.getErrorDescription();
