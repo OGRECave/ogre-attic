@@ -349,11 +349,9 @@ namespace Ogre
 				break;
 			case TEXCALC_PROJECTIVE_TEXTURE:
 				shaderSource = shaderSource + "{\n";	
-				shaderSource = shaderSource + "	float4 viewNorm = mul(float4(Normal, 1), WorldViewIT);\n";	
-				shaderSource = shaderSource + "	viewNorm = normalize(viewNorm);\n";	
 				shaderSource = shaderSource + "	float4 cameraPosNorm = normalize(cameraPos);\n";	
-				shaderSource = shaderSource + "	float4 res =  dot(cameraPosNorm, viewNorm) * viewNorm - cameraPosNorm;\n";	
-				shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float2(0.5-res.x, 0.5+res.y);\n";	
+				shaderSource = shaderSource + "output.Texcoord" + layerCounter + ".x = 0.5 + cameraPosNorm.x;\n";	
+				shaderSource = shaderSource + "output.Texcoord" + layerCounter + ".y = 0.5 - cameraPosNorm.y;\n";	
 				shaderSource = shaderSource + "}\n";
 				break;
 			}
