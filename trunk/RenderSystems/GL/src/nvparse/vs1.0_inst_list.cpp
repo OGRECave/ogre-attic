@@ -88,7 +88,7 @@ namespace
 {
 	void LoadProgram( GLenum target, GLuint id, char *instring );
 	void StrToUpper(char * string);
-	int vpid;
+	GLint vpid;
 }
 
 
