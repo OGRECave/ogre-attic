@@ -115,7 +115,11 @@ namespace Ogre
 		UINT deviceFlags = 0;
 		if (D3D10Device::D3D_NO_EXCEPTION != D3D10Device::getExceptionsErrorLevel())
 		{
-			deviceFlags = D3D10_CREATE_DEVICE_DEBUG;
+			deviceFlags |= D3D10_CREATE_DEVICE_DEBUG;
+		}
+		if (!OGRE_THREAD_SUPPORT)
+		{
+			deviceFlags |= D3D10_CREATE_DEVICE_SINGLETHREADED;
 		}
 
 		ID3D10Device * device;
@@ -602,7 +606,11 @@ namespace Ogre
 			UINT deviceFlags = 0;
 			if (D3D10Device::D3D_NO_EXCEPTION != D3D10Device::getExceptionsErrorLevel())
 			{
-				deviceFlags = D3D10_CREATE_DEVICE_DEBUG;
+				deviceFlags |= D3D10_CREATE_DEVICE_DEBUG;
+			}
+			if (!OGRE_THREAD_SUPPORT)
+			{
+				deviceFlags |= D3D10_CREATE_DEVICE_SINGLETHREADED;
 			}
 			
 			ID3D10Device * device;
