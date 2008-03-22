@@ -349,7 +349,7 @@ namespace Ogre
 				break;
 			case TEXCALC_PROJECTIVE_TEXTURE:
 				shaderSource = shaderSource + "{\n";	
-				shaderSource = shaderSource + "	float4 viewNorm = mul(float4(Normal, 0), WorldViewIT);\n";	
+				shaderSource = shaderSource + "	float4 viewNorm = mul(float4(Normal, 1), WorldViewIT);\n";	
 				shaderSource = shaderSource + "	viewNorm = normalize(viewNorm);\n";	
 				shaderSource = shaderSource + "	float4 cameraPosNorm = normalize(cameraPos);\n";	
 				shaderSource = shaderSource + "	float4 res =  dot(cameraPosNorm, viewNorm) * viewNorm - cameraPosNorm;\n";	
