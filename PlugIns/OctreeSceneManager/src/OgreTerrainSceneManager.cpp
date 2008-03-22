@@ -388,6 +388,11 @@ namespace Ogre
             // Custom material
             mOptions.terrainMaterial = 
                 MaterialManager::getSingleton().getByName(mCustomMaterialName);
+			if (mOptions.terrainMaterial.isNull()){
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+					"Material " + mCustomMaterialName + " not found.", 
+					"TerrainSceneManager::setupTerrainMaterial");
+			}
             mOptions.terrainMaterial->load();
 
         }

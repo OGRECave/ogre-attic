@@ -78,7 +78,7 @@ void OSXGLSupport::addConfig( void )
 
 	CGLRendererInfoObj rend;
     
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+#if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_4)
 	GLint nrend;
 	CGLQueryRendererInfo(CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay), &rend, &nrend);
 #else
@@ -86,7 +86,7 @@ void OSXGLSupport::addConfig( void )
 	CGLQueryRendererInfo(CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay), &rend, &nrend);
 #endif
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+#if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_4)
     GLint maxSamples;
 	CGLDescribeRenderer(rend, 0, kCGLRPMaxSamples, &maxSamples);
 #else

@@ -298,6 +298,98 @@ Rendering Engine)</p>
 <p class="header" align="center">Change Log</p>
 
 
+<p class="mainheader" align="left">v1.4.7 [Eihort] (6 March 2008) - Maintenance Release</p>
+<ul>
+	<li>Mac OS X:
+	<ul><li>Fixed CGL and uint issues when building against the Leopard (10.5) SDK</li>
+		<li>Carbon and CGL
+	  context's now manage the life of the pixel format, since this is
+	  needed to context share.</li>
+	  <li>Window destruction and resize fixes. </li>
+	  	<li>Added in support for WindowEventUtilities to function properly on OS X.</li>
+	  	<li>OgreCEGuiRenderer now builds on demand rather than being in the dependencies</li>
+		<li>Dependencies package updated, OIS version updated &amp; CEGui package issue resolved</li>
+		<li>Added the Preprocessor Macro NDEBUG to disable assertions in a release build</li>
+	</ul>
+	<li>Linux:<ul>
+		<li>Add 2 missing headers to
+		Makefile.am so they get installed correctly in Linux</li>
+		<li>Fix a bootstrap warning - extra characters after backslash</li>
+		<li>Fix problem where configure wasn't completing because of a spurious tab character</li>
+	</ul>
+	</li>
+	<li>GL:<ul>
+		<li>Remove call
+	  to _setCullingMode in GLRenderSystem::initialise - no reason for
+	  it to be there and if an auto-window was not used it could cause
+	  GL functions to be called before a window &amp; context were
+	  available.</li>
+	  <li>GL bugfix: unbind
+	  vertex / fragment programs at the end of a frame. This avoids
+	  having pointers to these programs stored when they could
+	  potentially be removed from the resource manager, e.g. during
+	  shutdown.</li>
+	  </ul>
+	  </li>
+  	<li>D3D9:<ul>
+		<li>D3D9: Avoid setting texture transform flags if a vertex program
+	  is bound - this could cause a crash if a user incorrectly set a
+	  fixed-function transform on a shader-based material.</li>
+  		</ul>
+	</li>
+
+	<li>Fix
+	  SceneManager::findLightsAffectingFrustum bug; directional lights
+	  should have been assigned a zero tempSquaredDist. This could lead
+	  to discrepancies between the documented behaviour of shadow
+	  texture ordering and the results.</li>
+	<li>Prevent any unnecessary rendering
+	  where iterate_once_per_light doesn't find any lights of the right
+	  type to iterate over</li>
+	<li>Unregister Entity from Mesh listener list when destroying. Also
+	  reorganise background loading event - queue the event, not the
+	  event and listeners, since listeners may get destroyed &amp; removed
+	  in between the event getting queued and fired.</li>
+	<li>Fix Math::intersects ray/convex
+	list of planes</li>
+	<li>Initialise Entity::mHardwarePoseCount
+	properly</li>
+	<li>SceneManager::setShadowTextureCasterMaterial and
+	  setShadowTextureReceiverMaterial should cope with cases where
+	  there is no supported technique gracefully</li>
+	<li>Copy main camera
+	  FOV to reflection camera in Demo_RenderToTexture example; some
+	  people have changed the FOV and then wondered why they get
+	  arefacts.</li>
+	<li>FreeImage codec -
+	  make it drop alpha &amp; downgrade to 24 bit if the format doesn't
+	  support 32-bit.</li>
+
+	 <li> Allow
+	  OverlayElement::setMaterialName to accept a blank name and thus
+	  to reset the material to nothing, to return it to the original
+	  state of not rendering.</li>
+	  <li>Fix movement speed for high frame rates in example framework</li>
+	  <li>Make Node::getRenderOperation()
+	  more robust under resource reloading situations. Lower
+	  performance, but this is only a debug routine anyway so
+	  robustness is better.</li>
+	  <li>Correct compositor script syntax - 'target_output' should allow all the same options as 'target'</li>
+	  <li>Win32 Ogre::Timer: now sorts out proper use of system cores</li>
+	  <li>Fix MemoryDataStream leaving garbage on unexpectedly short read</li>
+	  <li>Make SceneManager::setSkyBox tolerant of
+	  materials with no supported technique or incorrectly constructed
+	  with no passes or no texture units.</li>
+	  <li>Fix a rather obscure bug with
+	  compositor chains attached to viewports which get destroyed and
+	  later recreated</li>
+	  <li>Allow objects
+	  in render queues between RENDER_QUEUE_OVERLAY and
+	  RENDER_QUEUE_MAX to function correctly with compositors</li>
+	  <li>XMLConverter resilience fixes</li>
+	  <li>Minor doc corrections</li>
+  </ul>
+	
 
 
 

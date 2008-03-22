@@ -1793,6 +1793,16 @@ namespace Ogre
 		// Cache texcoord calc method to register
 		TexCoordCalcMethod autoTexCoordType = mTexStageDesc[stage].autoTexCoordType;
 
+		// if a vertex program is bound, we mustn't set texture transforms
+		if (mVertexProgramBound)
+		{
+			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
+			if( FAILED( hr ) )
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to disable texture coordinate transform", "D3D9RenderSystem::_setTextureMatrix" );
+			return;
+		}
+
+
 		if (autoTexCoordType == TEXCALC_ENVIRONMENT_MAP)
 		{
 			if (mCaps.VertexProcessingCaps & D3DVTXPCAPS_TEXGEN_SPHEREMAP)

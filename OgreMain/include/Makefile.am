@@ -1,5 +1,5 @@
 if !SAME_PLATFORM_AND_GUI
-	INCLUDE_SUBDIRS = $(OGRE_GUI)
+INCLUDE_SUBDIRS = $(OGRE_GUI)
 endif
 SUBDIRS = $(OGRE_PLATFORM) $(INCLUDE_SUBDIRS)
 
@@ -93,7 +93,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreNoMemoryMacros.h \
                      OgreNode.h \
                      OgreNumerics.h \
-					 OgreOptimisedUtil.h \ 
+                     OgreOptimisedUtil.h \
                      OgreOverlay.h \
                      OgreOverlayContainer.h \
                      OgreOverlayElement.h \
@@ -118,7 +118,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgrePlane.h \
                      OgrePlaneBoundedVolume.h \
                      OgrePlatform.h \
-					 OgrePlatformInformation.h \ 
+                     OgrePlatformInformation.h \
                      OgrePlugin.h \
                      OgrePolygon.h \
                      OgrePose.h \
