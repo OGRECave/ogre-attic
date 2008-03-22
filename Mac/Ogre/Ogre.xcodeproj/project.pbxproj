@@ -119,7 +119,6 @@
 		000E1E6A0B38D566004EA2DF /* OgreManualObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1D9A0B38D566004EA2DF /* OgreManualObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		000E1E6B0B38D566004EA2DF /* OgreMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1D9B0B38D566004EA2DF /* OgreMaterial.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		000E1E6C0B38D566004EA2DF /* OgreMaterialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1D9C0B38D566004EA2DF /* OgreMaterialManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		000E1E6D0B38D566004EA2DF /* OgreMaterialScriptCompiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1D9D0B38D566004EA2DF /* OgreMaterialScriptCompiler.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		000E1E6E0B38D566004EA2DF /* OgreMaterialSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1D9E0B38D566004EA2DF /* OgreMaterialSerializer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		000E1E6F0B38D566004EA2DF /* OgreMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1D9F0B38D566004EA2DF /* OgreMath.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		000E1E700B38D566004EA2DF /* OgreMatrix3.h in Headers */ = {isa = PBXBuildFile; fileRef = 000E1DA00B38D566004EA2DF /* OgreMatrix3.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -312,7 +311,6 @@
 		000E1FE20B38D5AA004EA2DF /* OgreManualObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E1F350B38D5AA004EA2DF /* OgreManualObject.cpp */; };
 		000E1FE30B38D5AA004EA2DF /* OgreMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E1F360B38D5AA004EA2DF /* OgreMaterial.cpp */; };
 		000E1FE40B38D5AA004EA2DF /* OgreMaterialManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E1F370B38D5AA004EA2DF /* OgreMaterialManager.cpp */; };
-		000E1FE50B38D5AA004EA2DF /* OgreMaterialScriptCompiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E1F380B38D5AA004EA2DF /* OgreMaterialScriptCompiler.cpp */; };
 		000E1FE60B38D5AA004EA2DF /* OgreMaterialSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E1F390B38D5AA004EA2DF /* OgreMaterialSerializer.cpp */; };
 		000E1FE70B38D5AA004EA2DF /* OgreMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E1F3A0B38D5AA004EA2DF /* OgreMath.cpp */; };
 		000E1FE80B38D5AA004EA2DF /* OgreMatrix3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E1F3B0B38D5AA004EA2DF /* OgreMatrix3.cpp */; };
@@ -765,7 +763,6 @@
 		000E1D9A0B38D566004EA2DF /* OgreManualObject.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreManualObject.h; path = ../../OgreMain/include/OgreManualObject.h; sourceTree = SOURCE_ROOT; };
 		000E1D9B0B38D566004EA2DF /* OgreMaterial.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreMaterial.h; path = ../../OgreMain/include/OgreMaterial.h; sourceTree = SOURCE_ROOT; };
 		000E1D9C0B38D566004EA2DF /* OgreMaterialManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreMaterialManager.h; path = ../../OgreMain/include/OgreMaterialManager.h; sourceTree = SOURCE_ROOT; };
-		000E1D9D0B38D566004EA2DF /* OgreMaterialScriptCompiler.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreMaterialScriptCompiler.h; path = ../../OgreMain/include/OgreMaterialScriptCompiler.h; sourceTree = SOURCE_ROOT; };
 		000E1D9E0B38D566004EA2DF /* OgreMaterialSerializer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreMaterialSerializer.h; path = ../../OgreMain/include/OgreMaterialSerializer.h; sourceTree = SOURCE_ROOT; };
 		000E1D9F0B38D566004EA2DF /* OgreMath.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreMath.h; path = ../../OgreMain/include/OgreMath.h; sourceTree = SOURCE_ROOT; };
 		000E1DA00B38D566004EA2DF /* OgreMatrix3.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreMatrix3.h; path = ../../OgreMain/include/OgreMatrix3.h; sourceTree = SOURCE_ROOT; };
@@ -958,7 +955,6 @@
 		000E1F350B38D5AA004EA2DF /* OgreManualObject.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreManualObject.cpp; path = ../../OgreMain/src/OgreManualObject.cpp; sourceTree = SOURCE_ROOT; };
 		000E1F360B38D5AA004EA2DF /* OgreMaterial.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreMaterial.cpp; path = ../../OgreMain/src/OgreMaterial.cpp; sourceTree = SOURCE_ROOT; };
 		000E1F370B38D5AA004EA2DF /* OgreMaterialManager.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreMaterialManager.cpp; path = ../../OgreMain/src/OgreMaterialManager.cpp; sourceTree = SOURCE_ROOT; };
-		000E1F380B38D5AA004EA2DF /* OgreMaterialScriptCompiler.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreMaterialScriptCompiler.cpp; path = ../../OgreMain/src/OgreMaterialScriptCompiler.cpp; sourceTree = SOURCE_ROOT; };
 		000E1F390B38D5AA004EA2DF /* OgreMaterialSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreMaterialSerializer.cpp; path = ../../OgreMain/src/OgreMaterialSerializer.cpp; sourceTree = SOURCE_ROOT; };
 		000E1F3A0B38D5AA004EA2DF /* OgreMath.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreMath.cpp; path = ../../OgreMain/src/OgreMath.cpp; sourceTree = SOURCE_ROOT; };
 		000E1F3B0B38D5AA004EA2DF /* OgreMatrix3.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreMatrix3.cpp; path = ../../OgreMain/src/OgreMatrix3.cpp; sourceTree = SOURCE_ROOT; };
@@ -1601,7 +1597,6 @@
 				000E1F350B38D5AA004EA2DF /* OgreManualObject.cpp */,
 				000E1F360B38D5AA004EA2DF /* OgreMaterial.cpp */,
 				000E1F370B38D5AA004EA2DF /* OgreMaterialManager.cpp */,
-				000E1F380B38D5AA004EA2DF /* OgreMaterialScriptCompiler.cpp */,
 				000E1F390B38D5AA004EA2DF /* OgreMaterialSerializer.cpp */,
 				000E1F3A0B38D5AA004EA2DF /* OgreMath.cpp */,
 				000E1F3B0B38D5AA004EA2DF /* OgreMatrix3.cpp */,
@@ -1802,7 +1797,6 @@
 				000E1D9A0B38D566004EA2DF /* OgreManualObject.h */,
 				000E1D9B0B38D566004EA2DF /* OgreMaterial.h */,
 				000E1D9C0B38D566004EA2DF /* OgreMaterialManager.h */,
-				000E1D9D0B38D566004EA2DF /* OgreMaterialScriptCompiler.h */,
 				000E1D9E0B38D566004EA2DF /* OgreMaterialSerializer.h */,
 				000E1D9F0B38D566004EA2DF /* OgreMath.h */,
 				000E1DA00B38D566004EA2DF /* OgreMatrix3.h */,
@@ -2399,7 +2393,6 @@
 				000E1E6A0B38D566004EA2DF /* OgreManualObject.h in Headers */,
 				000E1E6B0B38D566004EA2DF /* OgreMaterial.h in Headers */,
 				000E1E6C0B38D566004EA2DF /* OgreMaterialManager.h in Headers */,
-				000E1E6D0B38D566004EA2DF /* OgreMaterialScriptCompiler.h in Headers */,
 				000E1E6E0B38D566004EA2DF /* OgreMaterialSerializer.h in Headers */,
 				000E1E6F0B38D566004EA2DF /* OgreMath.h in Headers */,
 				000E1E700B38D566004EA2DF /* OgreMatrix3.h in Headers */,
@@ -2799,7 +2792,6 @@
 				000E1FE20B38D5AA004EA2DF /* OgreManualObject.cpp in Sources */,
 				000E1FE30B38D5AA004EA2DF /* OgreMaterial.cpp in Sources */,
 				000E1FE40B38D5AA004EA2DF /* OgreMaterialManager.cpp in Sources */,
-				000E1FE50B38D5AA004EA2DF /* OgreMaterialScriptCompiler.cpp in Sources */,
 				000E1FE60B38D5AA004EA2DF /* OgreMaterialSerializer.cpp in Sources */,
 				000E1FE70B38D5AA004EA2DF /* OgreMath.cpp in Sources */,
 				000E1FE80B38D5AA004EA2DF /* OgreMatrix3.cpp in Sources */,
