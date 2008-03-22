@@ -158,8 +158,6 @@ namespace Ogre
 
 		shaderSource = shaderSource + " };";
 
-
-
 		shaderSource = shaderSource + "float4x4  World;\n";
 		shaderSource = shaderSource + "float4x4  View;\n";
 		shaderSource = shaderSource + "float4x4  Projection;\n";
@@ -350,6 +348,13 @@ namespace Ogre
 			case TEXCALC_ENVIRONMENT_MAP_NORMAL:
 				break;
 			case TEXCALC_PROJECTIVE_TEXTURE:
+				shaderSource = shaderSource + "{\n";	
+				shaderSource = shaderSource + "	float4 viewNorm = mul(float4(Normal, 0), WorldViewIT);\n";	
+				shaderSource = shaderSource + "	viewNorm = normalize(viewNorm);\n";	
+				shaderSource = shaderSource + "	float4 cameraPosNorm = normalize(cameraPos);\n";	
+				shaderSource = shaderSource + "	float4 res =  dot(cameraPosNorm, viewNorm) * viewNorm - cameraPosNorm;\n";	
+				shaderSource = shaderSource + "output.Texcoord" + layerCounter + " = float2(0.5-res.x, 0.5+res.y);\n";	
+				shaderSource = shaderSource + "}\n";
 				break;
 			}
 			shaderSource = shaderSource + "}\n";
