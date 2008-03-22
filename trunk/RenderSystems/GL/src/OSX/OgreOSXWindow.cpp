@@ -173,7 +173,7 @@ void OSXWindow::createCGLFullscreen(unsigned int width, unsigned int height, uns
         
         CGLError err;
 		CGLPixelFormatObj pixelFormatObj;
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+#if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_4)
         GLint numPixelFormats = 0;
         err = CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
 #else
@@ -208,7 +208,7 @@ void OSXWindow::createCGLFullscreen(unsigned int width, unsigned int height, uns
 		// This synchronizes CGL with the vertical retrace
 		// Apple docs suggest that OpenGL blocks rendering calls when waiting for
 		// a vertical retrace anyhow.
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+#if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_4)
         GLint swapInterval = 1;
         CGLSetParameter(mCGLContext, kCGLCPSwapInterval, &swapInterval);
 #else
