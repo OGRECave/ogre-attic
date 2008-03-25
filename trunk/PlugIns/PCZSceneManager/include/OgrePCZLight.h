@@ -92,6 +92,17 @@ namespace Ogre
         */
         void updateZones(PCZone * defaultZone, long frameCount);
 
+		void removeZoneFromAffectedZonesList(PCZone * zone); // manually remove a zone from the affected list
+
+		// MovableObject notified when SceneNode changes
+		virtual void _notifyMoved(void);   
+
+		// clear update flag
+		void clearNeedsUpdate(void)   { mNeedsUpdate = false; } 
+
+		// get status of need for update. this checks all affected zones
+		bool getNeedsUpdate(void);   
+
     protected:
         /** flag indicating if any of the zones in the affectedZonesList is 
         *   visible in the current frame
@@ -101,7 +112,10 @@ namespace Ogre
         /** List of PCZones which are affected by the light
         */
         ZoneList affectedZonesList;
-    };
+
+		// flag recording if light has moved, therefore affected list needs updating 
+		bool mNeedsUpdate;   
+	};
 
 	/** Factory object for creating PCZLight instances */
 	class _OgrePCZPluginExport PCZLightFactory : public MovableObjectFactory

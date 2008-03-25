@@ -87,6 +87,13 @@ namespace Ogre
 		}
 		mZoneData.clear();
 	}
+	void PCZSceneNode::_update(bool updateChildren, bool parentHasChanged)
+	{
+		SceneNode::_update(updateChildren, parentHasChanged);
+
+		mPrevPosition = mNewPosition;
+		mNewPosition = _getDerivedPosition();   // do this way since _update is called through SceneManager::_updateSceneGraph which comes before PCZSceneManager::_updatePCZSceneNodes
+	}
 	PCZone* PCZSceneNode::getHomeZone(void)
 	{
 		return mHomeZone;

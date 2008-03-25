@@ -36,7 +36,7 @@ Code Style Update	 :
 
 #include "OgreStableHeaders.h"
 #include "OgrePCZLight.h"
-
+#include "OgrePCZone.h" // need for testing affected zone 
 #include "OgreException.h"
 #include "OgrePCZSceneNode.h"
 #include "OgrePCZCamera.h"
@@ -48,10 +48,12 @@ namespace Ogre
     //-----------------------------------------------------------------------
     PCZLight::PCZLight() : Light()
     {
+		mNeedsUpdate = true;   // need to update the first time, regardless of attachment or movement 
     }
     //-----------------------------------------------------------------------
 	PCZLight::PCZLight(const String& name) : Light(name)
     {
+		mNeedsUpdate = true;   // need to update the first time, regardless of attachment or movement 
     }
     //-----------------------------------------------------------------------
     PCZLight::~PCZLight()
@@ -142,6 +144,37 @@ namespace Ogre
         portalFrustum.setOrigin(v);
         homeZone->_checkLightAgainstPortals(this, frameCount, &portalFrustum, 0);
     }
+	//-----------------------------------------------------------------------
+	void PCZLight::removeZoneFromAffectedZonesList(PCZone * zone)
+	{
+		ZoneList::iterator it = std::find(affectedZonesList.begin(), affectedZonesList.end(), zone);
+
+		if (it != affectedZonesList.end())
+		{
+			affectedZonesList.erase( it );   // zone is in list, erase it.
+		}
+	}
+	//-----------------------------------------------------------------------
+	void PCZLight::_notifyMoved(void)
+	{
+		Light::_notifyMoved();   // inform ogre Light of movement
+
+		mNeedsUpdate = true;   // set need update flag
+	}
+	//-----------------------------------------------------------------------
+	bool PCZLight::getNeedsUpdate(void)
+	{
+		if(mNeedsUpdate)   // if this light has moved, return true immediately
+			return true;
+
+		// if any zones affected by this light have updated portals, then this light needs updating too
+		for (ZoneList::iterator iter = affectedZonesList.begin() ; iter != affectedZonesList.end(); iter++)
+		{ 
+			if((*iter)->getPortalsUpdated()) return true;   // return immediately to prevent further iterating
+		}
+
+		return false;   // light hasnt moved, and no zones have updated portals. no light update.
+	}
 
 
 	//-----------------------------------------------------------------------

@@ -80,6 +80,7 @@ namespace Ogre
                                        RenderQueue *queue, 
                                        bool onlyShadowCasters, 
                                        VisibleObjectsBoundsInfo* visibleBounds );
+		virtual void _update(bool updateChildren, bool parentHasChanged);
 		void		savePrevPosition(void);
 		Vector3&	getPrevPosition(void) {return mPrevPosition;}
 		unsigned long		getLastVisibleFrame(void) {return mLastVisibleFrame;}
@@ -92,6 +93,7 @@ namespace Ogre
 		void		enable(bool yesno) {mEnabled = yesno;}
 		bool		isEnabled(void) {return mEnabled;}
 	protected:
+		Vector3         mNewPosition; 
 		PCZone *		mHomeZone;
 		bool			mAnchored;
 		bool			mAllowedToVisit;
