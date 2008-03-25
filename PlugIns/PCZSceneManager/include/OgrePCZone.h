@@ -235,7 +235,8 @@ namespace Ogre
 		virtual void setZoneGeometry(const String &filename, PCZSceneNode * parentNode) = 0;
 		/* get the world coordinate aabb of the zone */
 		virtual void getAABB(AxisAlignedBox &);
-
+		void setPortalsUpdated(bool updated)   { mPortalsUpdated = updated;    }
+		bool getPortalsUpdated(void)      { return mPortalsUpdated;   }
 		/** list of Portals which this zone contains (each portal leads to another zone)
 		*/
 		PortalList mPortals;
@@ -259,6 +260,8 @@ namespace Ogre
         PCZSceneNodeList mHomeNodeList;
 		// list of SceneNodes visiting this particular PCZone
         PCZSceneNodeList mVisitorNodeList;
+		// flag recording whether any portals in this zone have moved 
+		bool mPortalsUpdated;   
 
     };
 

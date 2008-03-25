@@ -6,6 +6,9 @@ UPDATES:
 -------------
 * The PCZFrustum now uses a Culling Plane Reservoir which eliminates the constant memory
   allocations/de-allocations for PCPlanes during the culling process. (03/18/08)
+* Light zones now only update affected list when portals move or lights move (Thanks Aulcard)
+  (03/25/08)
+* PCZSceneNodes now only save old spatial data when they move (Thanks Aulcard) (03/25/08)
 
 TODO:
 -------------
@@ -16,10 +19,8 @@ TODO:
 
 OPTIMIZATIONS (todo):
 ---------------------
-* Only update light zones affected list when portals move or lights move
-* change save node old spatial so nodes do it automatically when their spatial
-  data changes.  (currently, PCZscenemanager just does it for ALL nodes whether
-  they have moved or not)
+* All Portals calculate position update every frame, similar to how PCZSceneNodes were updating
+  every frame.  This could be changed so that it is only done when portals move/changes.
 * OctreeZone - utilize octree when determining portal visibility (currently does 
   separate check not accelerated by octree) for both cameras and light frustums).
 * Add scissor rects for portals which are fully visible (i.e. all 4 sides)

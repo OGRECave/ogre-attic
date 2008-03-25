@@ -323,6 +323,9 @@ namespace Ogre
 		typedef MapIterator<ZoneMap> ZoneIterator;
 		ZoneIterator getZoneIterator(void) {return ZoneIterator(mZones.begin(), mZones.end());}
 
+		// clear portal update flag from all zones 
+		void _clearAllZonesPortalUpdateFlag(void);   
+
     protected:
 		// type of default zone to be used
 		String mDefaultZoneTypeName;

@@ -40,6 +40,7 @@ current TODO's       : none known
 #include "OgreCapsule.h"
 #include "OgreSegment.h"
 #include "OgreRay.h"
+#include "OgrePCZone.h"   // need access to real zone class 
 
 using namespace Ogre;
 
@@ -99,6 +100,15 @@ void Portal::setTargetZone( PCZone * z )
 // Set the zone this portal is in.
 void Portal::setCurrentHomeZone( PCZone * z)
 {
+	// do this here since more than one function calls setCurrentHomeZone
+	// also _addPortal is abstract, so easier to do it here.
+	if(z)
+	{
+		// inform old zone of portal change.
+		if(mCurrentHomeZone)   
+		mCurrentHomeZone->setPortalsUpdated(true);
+		z->setPortalsUpdated(true);   // inform new zone of portal change
+	}
 	mCurrentHomeZone = z;
 }
 
@@ -269,6 +279,11 @@ void Portal::updateDerivedValues(void)
 	{
 		if (prevWorldTransform != mNode->_getFullTransform())
 		{
+            if(mCurrentHomeZone) 
+			{
+				// inform home zone that a portal has been updated 
+				mCurrentHomeZone->setPortalsUpdated(true);   
+			}
 			// save world transform
 			Matrix4 transform = mNode->_getFullTransform();
 			Matrix3 rotation;
@@ -353,6 +368,11 @@ void Portal::updateDerivedValues(void)
 		}
 		else
 		{
+            if(mCurrentHomeZone) 
+			{
+				// this case should only happen once 
+				mCurrentHomeZone->setPortalsUpdated(true);
+			}
 			// this is the first time the derived CP has been calculated, so there
 			// is no "previous" value, so set previous = current.
 			mDerivedCP = mLocalCP;

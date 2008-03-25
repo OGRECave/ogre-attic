@@ -140,6 +140,8 @@ namespace Ogre
 		PCZone * homeZone = p->getCurrentHomeZone();
 		if (homeZone)
 		{
+			// inform zone of portal change. Do here since PCZone is abstract 
+			homeZone->setPortalsUpdated(true);   
 			homeZone->_removePortal(p);
 		}
 
@@ -184,6 +186,8 @@ namespace Ogre
 			PCZone * homeZone = thePortal->getCurrentHomeZone();
 			if (homeZone)
 			{
+				// inform zone of portal change 
+				homeZone->setPortalsUpdated(true);   
 				homeZone->_removePortal(thePortal);
 			}
 
@@ -464,7 +468,10 @@ namespace Ogre
         // calculate zones affected by each light
         _calcZonesAffectedByLights(cam);
 		// save node positions
-		_saveNodePositions();
+		//_saveNodePositions();
+		// clear update flags at end so user triggered updated are 
+		// not cleared prematurely 
+		_clearAllZonesPortalUpdateFlag(); 
     }
 
 	/* Save the position of all nodes (saved to PCZSN->prevPosition)
@@ -559,10 +566,15 @@ namespace Ogre
 		    while(it.hasMoreElements())
 		    {
 			    PCZLight* l = static_cast<PCZLight*>(it.getNext());
-                l->updateZones(((PCZSceneNode*)(cam->getParentSceneNode()))->getHomeZone(), mFrameCount);
+				if(l->getNeedsUpdate()) 
+				{
+					// only update if necessary 
+					l->updateZones(((PCZSceneNode*)(cam->getParentSceneNode()))->getHomeZone(), mFrameCount);   
+				}
+				// clear update flag 
+				l->clearNeedsUpdate();   
             }
         }
-
     }
 
 	//-----------------------------------------------------------------------
@@ -661,6 +673,26 @@ namespace Ogre
 	   either by the user or via the automatic re-assignment routine */
 	void PCZSceneManager::destroyZone(PCZone* zone, bool destroySceneNodes)
 	{
+		// need to remove this zone from all lights affected zones list,
+		// otherwise next frame _calcZonesAffectedByLights will call PCZLight::getNeedsUpdate()
+		// which will try to access the zone pointer and will cause an access violation
+		MovableObjectCollection* lights =
+		getMovableObjectCollection(PCZLightFactory::FACTORY_TYPE_NAME);
+		{
+			OGRE_LOCK_MUTEX(lights->mutex) // Is locking necessary in destroyZone? I don't know..
+
+			MovableObjectIterator it(lights->map.begin(), lights->map.end());
+
+			while(it.hasMoreElements())
+			{
+				PCZLight* l = static_cast<PCZLight*>(it.getNext());
+				if(l) 
+				{
+					// no need to check, this function does that anyway. if exists, is erased.
+					l->removeZoneFromAffectedZonesList(zone);   
+				}
+			}
+		}
 		// if not destroying scene nodes, then make sure any nodes who have
 		// this zone as homezone are set to have 0 for a homezone
 		for (SceneNodeList::iterator i = mSceneNodes.begin();
@@ -1283,6 +1315,20 @@ namespace Ogre
         q->setQueryMask(mask);
         return q;
     }
+    //---------------------------------------------------------------------
+	// clear portal update flag from all zones
+	void PCZSceneManager::_clearAllZonesPortalUpdateFlag(void)
+	{
+		ZoneMap::iterator zoneIterator = mZones.begin();
+
+		while ( zoneIterator != mZones.end() )
+		{
+			(zoneIterator->second)->setPortalsUpdated(false);
+			zoneIterator++;
+		}
+	}
+
+
 
     //-----------------------------------------------------------------------
     const String PCZSceneManagerFactory::FACTORY_TYPE_NAME = "PCZSceneManager";
