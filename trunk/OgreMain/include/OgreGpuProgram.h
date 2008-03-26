@@ -34,6 +34,7 @@ Torus Knot Software Ltd.
 #include "OgreResource.h"
 #include "OgreSharedPtr.h"
 #include "OgreIteratorWrappers.h"
+#include "OgreSerializer.h"
 
 namespace Ogre {
 
@@ -51,30 +52,30 @@ namespace Ogre {
 	*/
 	enum GpuConstantType
 	{
-		GCT_FLOAT1,
-		GCT_FLOAT2,
-		GCT_FLOAT3,
-		GCT_FLOAT4,
-		GCT_SAMPLER1D,
-		GCT_SAMPLER2D,
-		GCT_SAMPLER3D,
-		GCT_SAMPLERCUBE,
-		GCT_SAMPLER1DSHADOW,
-		GCT_SAMPLER2DSHADOW,
-		GCT_MATRIX_2X2,
-		GCT_MATRIX_2X3,
-		GCT_MATRIX_2X4,
-		GCT_MATRIX_3X2,
-		GCT_MATRIX_3X3,
-		GCT_MATRIX_3X4,
-		GCT_MATRIX_4X2,
-		GCT_MATRIX_4X3,
-		GCT_MATRIX_4X4,
-		GCT_INT1,
-		GCT_INT2,
-		GCT_INT3,
-		GCT_INT4,
-		GCT_UNKNOWN
+		GCT_FLOAT1 = 1,
+		GCT_FLOAT2 = 2,
+		GCT_FLOAT3 = 3,
+		GCT_FLOAT4 = 4,
+		GCT_SAMPLER1D = 5,
+		GCT_SAMPLER2D = 6,
+		GCT_SAMPLER3D = 7,
+		GCT_SAMPLERCUBE = 8,
+		GCT_SAMPLER1DSHADOW = 9,
+		GCT_SAMPLER2DSHADOW = 10,
+		GCT_MATRIX_2X2 = 11,
+		GCT_MATRIX_2X3 = 12,
+		GCT_MATRIX_2X4 = 13,
+		GCT_MATRIX_3X2 = 14,
+		GCT_MATRIX_3X3 = 15,
+		GCT_MATRIX_3X4 = 16,
+		GCT_MATRIX_4X2 = 17,
+		GCT_MATRIX_4X3 = 18,
+		GCT_MATRIX_4X4 = 19,
+		GCT_INT1 = 20,
+		GCT_INT2 = 21,
+		GCT_INT3 = 22,
+		GCT_INT4 = 23,
+		GCT_UNKNOWN = 99
 	};
 
 	/** Information about predefined program constants. 
@@ -87,6 +88,8 @@ namespace Ogre {
 		GpuConstantType constType;
 		/// Physical start index in buffer (either float or int buffer)
 		size_t physicalIndex;
+		/// Logical index - used to communicate this constant to the rendersystem
+		size_t logicalIndex;
 		/** Number of raw buffer slots per element 
 		(some programs pack each array element to float4, some do not) */
 		size_t elementSize;
@@ -175,6 +178,15 @@ namespace Ogre {
 		*/
         static void setGenerateAllConstantDefinitionArrayEntries(bool generateAll);
 
+		/** Saves constant definitions to a file, compatible with GpuProgram::setManualNamedParametersFile. 
+		@see GpuProgram::setManualNamedParametersFile
+		*/
+		void save(const String& filename) const;
+		/** Loads constant definitions from a stream, compatible with GpuProgram::setManualNamedParametersFile. 
+		@see GpuProgram::setManualNamedParametersFile
+		*/
+		void load(DataStreamPtr& stream);
+
     protected:
         /** Indicates whether all array entries will be generated and added to the definitions map
         @remarks
@@ -183,6 +195,17 @@ namespace Ogre {
             to be generated and added to the map.
         */
         static bool msGenerateAllConstantDefinitionArrayEntries;
+	};
+
+	/// Simple class for loading / saving GpuNamedConstants
+	class _OgreExport GpuNamedConstantsSerializer : public Serializer
+	{
+	public:
+		GpuNamedConstantsSerializer();
+		virtual ~GpuNamedConstantsSerializer();
+		void exportNamedConstants(const GpuNamedConstants* pConsts, const String& filename,
+			Endian endianMode = ENDIAN_NATIVE);
+		void importNamedConstants(DataStreamPtr& stream, GpuNamedConstants* pDest);
 	};
 
 	/** Structure recording the use of a physical buffer by a logical parameter
@@ -1406,6 +1429,12 @@ namespace Ogre {
 			String doGet(const void* target) const;
 			void doSet(void* target, const String& val);
 		};
+		class _OgreExport CmdManualNamedConstsFile : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
 		// Command object for setting / getting parameters
 		static CmdType msTypeCmd;
 		static CmdSyntax msSyntaxCmd;
@@ -1413,6 +1442,7 @@ namespace Ogre {
 		static CmdMorph msMorphCmd;
 		static CmdPose msPoseCmd;
 		static CmdVTF msVTFCmd;
+		static CmdManualNamedConstsFile msManNamedConstsFileCmd;
 	
 		/// The type of the program
 		GpuProgramType mType;
@@ -1444,6 +1474,12 @@ namespace Ogre {
 		/** Record of logical to physical buffer maps. Mandatory for low-level
 			programs or high-level programs which set their params the same way. */
 		mutable GpuLogicalBufferStruct mIntLogicalToPhysical;
+		/// Parameter name -> ConstantDefinition map, shared instance used by all parameter objects
+		mutable GpuNamedConstants mConstantDefs;
+		/// File from which to load named constants manually
+		String mManualNamedConstantsFile;
+		bool mLoadedManualNamedConstants;
+
 
 		/** Internal method for setting up the basic parameter definitions for a subclass. 
 		@remarks
@@ -1624,6 +1660,45 @@ namespace Ogre {
 		/** Reset a compile error if it occurred, allowing the load to be retried
 		*/
 		virtual void resetCompileError(void) { mCompileError = false; }
+
+		/** Allows you to manually provide a set of named parameter mappings
+			to a program which would not be able to derive named parameters itself.
+		@remarks
+			You may wish to use this if you have assembler programs that were compiled
+			from a high-level source, and want the convenience of still being able
+			to use the named parameters from the original high-level source.
+		@see setManualNamedConstantsFile
+		*/
+		virtual void setManualNamedConstants(const GpuNamedConstants& namedConstants);
+
+		/// Get a read-only reference to the named constants registered for this program (manually or automatically)
+		virtual const GpuNamedConstants& getNamedConstants() const { return mConstantDefs; }
+
+		/** Specifies the name of a file from which to load named parameters mapping
+			for a program which would not be able to derive named parameters itself.
+		@remarks
+			You may wish to use this if you have assembler programs that were compiled
+			from a high-level source, and want the convenience of still being able
+			to use the named parameters from the original high-level source. This
+			method will make a low-level program search in the resource group of the
+			program for the named file from which to load parameter names from. 
+			The file must be in the format produced by GpuNamedConstants::save.
+		*/
+		virtual void setManualNamedConstantsFile(const String& paramDefFile);
+
+		/** Gets the name of a file from which to load named parameters mapping
+			for a program which would not be able to derive named parameters itself.
+		*/
+		virtual const String& getManualNamedConstantsFile() const { return mManualNamedConstantsFile; }
+		/** Get the full list of named constants.
+		@note
+		Only available if this parameters object has named parameters, which means either
+		a high-level program which loads them, or a low-level program which has them
+		specified manually.
+		*/
+		virtual const GpuNamedConstants& getConstantDefinitions() const { return mConstantDefs; }
+
+
     protected:
         /// Virtual method which must be implemented by subclasses, load from mSource
         virtual void loadFromSource(void) = 0;

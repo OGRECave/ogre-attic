@@ -4500,6 +4500,9 @@ protected:
 		mCamera->lookAt(Vector3::ZERO);
 
 	}
+
+	std::map<SharedPtr<int>, int> testMap;
+
 	void testFloat32DDS()
 	{
 		ResourceGroupManager::getSingleton().addResourceLocation(
@@ -4518,6 +4521,18 @@ protected:
 
 		mCamera->setPosition(0,0,300);
 		mCamera->lookAt(Vector3::ZERO);
+
+		// try saving
+		TexturePtr tx = TextureManager::getSingleton().getByName("BumpyMetal_float32.dds");
+		float* dataBuf = new float[tx->getWidth() * tx->getHeight() * 4];
+		PixelBox pb(tx->getWidth(), tx->getHeight(), 1, PF_FLOAT32_RGB, dataBuf);
+
+		tx->getBuffer()->blitToMemory(pb);
+
+		Image img;
+		img.loadDynamicImage((uchar*)dataBuf, tx->getWidth(), tx->getHeight(), 1, PF_FLOAT32_RGB);
+		img.save("test.hdr");
+
 
 	}
 
@@ -4627,6 +4642,77 @@ protected:
 
 
 		//mSceneMgr->showBoundingBoxes(true);
+
+	}
+
+	void testExportPrecompiledAssemblerProgram()
+	{
+		HighLevelGpuProgramPtr hivp = HighLevelGpuProgramManager::getSingleton().getByName("Ogre/CelShadingVP");
+		hivp->load();
+		// write asm to disk
+		std::ofstream of;
+		of.open("../../../Media/celshadingvp.asm");
+		of << hivp->_getBindingDelegate()->getSource();
+		of.close();
+		// write named params
+		hivp->getNamedConstants().save("../../../Media/celshadingvp.constants");
+
+		HighLevelGpuProgramPtr hifp = HighLevelGpuProgramManager::getSingleton().getByName("Ogre/CelShadingFP");
+		hifp->load();
+		// write asm to disk
+		of.open("../../../Media/celshadingfp.asm");
+		of << hifp->_getBindingDelegate()->getSource();
+		of.close();
+		// write named params
+		hifp->getNamedConstants().save("../../../Media/celshadingfp.constants");
+
+
+		/* Now you can do this!
+
+			vertex_program CelShadingVPASM asm
+			{
+				source celshadingvp.asm
+				syntax vs_1_1 
+				manual_named_constants celshadingvp.constants
+
+				// I can use named constants in assembler!
+				default_params
+				{
+					param_named_auto lightPosition light_position_object_space 0
+					param_named_auto eyePosition camera_position_object_space
+					param_named_auto worldViewProj worldviewproj_matrix
+					param_named shininess float 10 
+				}
+			}
+
+			fragment_program CelShadingFPASM asm
+			{
+				source celshadingfp.asm
+				syntax ps_1_1 
+				manual_named_constants celshadingfp.constants
+
+				// I can use named constants in assembler!
+			}
+		*/
+	}
+
+	void testMaterial()
+	{
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName("Material.001/TEXFACE/arz.png");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		MaterialPtr m = e->getSubEntity(0)->getMaterial();
+		GpuProgramParametersSharedPtr params = m->getTechnique(0)->getPass(0)->getVertexProgramParameters();
+		params = m->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+		params = m->getTechnique(0)->getPass(1)->getVertexProgramParameters();
+		params = m->getTechnique(0)->getPass(1)->getFragmentProgramParameters();
+
+
+
+
+
+		mCamera->setPosition(0,0,-300);
+		mCamera->lookAt(Vector3::ZERO);
 
 	}
 
@@ -6725,7 +6811,7 @@ protected:
 		//Any anyString("test");
 		*/
 
-		testBug();
+		//testBug();
 		//testSharedPtrBug();
         //testMatrices();
         //testBsp();
@@ -6833,6 +6919,8 @@ protected:
 		//testFloat128DDS();
 		//testFloat16DDS();
 		//testFloat32DDS();
+		//testMaterial();
+		testExportPrecompiledAssemblerProgram();
 
 		//testVertexTexture();
 		//testGLSLTangent();

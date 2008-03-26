@@ -1787,6 +1787,24 @@ Another nVidia-specific OpenGL fragment shader syntax. It is a superset of ps 3.
 
 You can get a definitive list of the syntaxes supported by the current card by calling GpuProgramManager::getSingleton().getSupportedSyntax().@*@*
 
+@anchor{Specifying Named Constants for Assembler Shaders}
+@subheading Specifying Named Constants for Assembler Shaders
+
+Assembler shaders don't have named constants (also called uniform parameters) because the language does not support them - however if you for example decided to precompile your shaders from a high-level language down to assembler for performance or obscurity, you might still want to use the named parameters. Well, you actually can - GpuNamedConstants which contains the named parameter mappings has a 'save' method which you can use to write this data to disk, where you can reference it later using the manual_named_constants directive inside your assembler program decaration, e.g.
+
+@example
+vertex_program myVertexProgram asm
+{
+    source myVertexProgram.asm 
+    syntax vs_1_1
+	manual_named_constants myVertexProgram.constants
+}
+@end example
+
+In this case myVertexProgram.constants has been created by calling highLevelGpuProgram->getNamedConstants().save("myVertexProgram.constants"); sometime earlier as preparation, from the original high-level program. Once you've used this directive, you can use named parameters here even though the assembler program itself has no knowledge of them.
+
+
+
 @anchor{Default Program Parameters}
 @subheading Default Program Parameters
 While defining a vertex or fragment program, you can also specify the default parameters to be used for materials which use it, unless they specifically override them. You do this by including a nested 'default_params' section, like so:

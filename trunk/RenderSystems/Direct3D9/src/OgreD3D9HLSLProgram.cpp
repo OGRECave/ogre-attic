@@ -300,6 +300,7 @@ namespace Ogre {
                 String name = prefix + paramName;
                 
 				GpuConstantDefinition def;
+				def.logicalIndex = paramIndex;
 				// populate type, array size & element size
 				populateDef(desc, def);
 				if (def.isFloat())

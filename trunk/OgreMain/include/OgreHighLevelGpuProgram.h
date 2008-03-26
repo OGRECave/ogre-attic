@@ -64,8 +64,6 @@ namespace Ogre {
         GpuProgramPtr mAssemblerProgram;
 		/// Have we built the name->index parameter map yet?
 		mutable bool mConstantDefsBuilt;
-		/// Parameter name -> ConstantDefinition map, shared instance used by all parameter objects
-		mutable GpuNamedConstants mConstantDefs;
 
         /// Internal load high-level portion if not loaded
         virtual void loadHighLevel(void);
@@ -83,7 +81,7 @@ namespace Ogre {
         /// Populate the passed parameters with name->index map
         virtual void populateParameterNames(GpuProgramParametersSharedPtr params);
 		/** Build the constant definition map, must be overridden.
-		@note The implementation must fill in the mConstantDefs field at a minimum, 
+		@note The implementation must fill in the (inherited) mConstantDefs field at a minimum, 
 			and if the program requires that parameters are bound using logical 
 			parameter indexes then the mFloatLogicalToPhysical and mIntLogicalToPhysical
 			maps must also be populated.
