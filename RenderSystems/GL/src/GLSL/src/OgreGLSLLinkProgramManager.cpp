@@ -487,6 +487,7 @@ namespace Ogre {
 
 						// Complete def and add
 						// increment physical buffer location
+						def.logicalIndex = 0; // not valid in GLSL
 						if (def.isFloat())
 						{
 							def.physicalIndex = defs.floatBufferSize;

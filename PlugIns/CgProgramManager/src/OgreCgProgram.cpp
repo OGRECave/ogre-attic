@@ -284,6 +284,7 @@ namespace Ogre {
 					}
 
 
+					def.logicalIndex = logicalIndex;
 					mConstantDefs.map.insert(GpuConstantDefinitionMap::value_type(paramName, def));
 
 					// Record logical / physical mapping

@@ -49,6 +49,7 @@ namespace Ogre
 	GpuProgram::CmdMorph GpuProgram::msMorphCmd;
 	GpuProgram::CmdPose GpuProgram::msPoseCmd;
 	GpuProgram::CmdVTF GpuProgram::msVTFCmd;
+	GpuProgram::CmdManualNamedConstsFile GpuProgram::msManNamedConstsFileCmd;
 
 
     GpuProgramParameters::AutoConstantDefinition GpuProgramParameters::AutoConstantDictionary[] = {
@@ -238,7 +239,8 @@ namespace Ogre
         const String& group, bool isManual, ManualResourceLoader* loader) 
         :Resource(creator, name, handle, group, isManual, loader),
         mType(GPT_VERTEX_PROGRAM), mLoadFromFile(true), mSkeletalAnimation(false),
-        mVertexTextureFetch(false), mPassSurfaceAndLightStates(false), mCompileError(false)
+        mVertexTextureFetch(false), mPassSurfaceAndLightStates(false), mCompileError(false), 
+		mLoadedManualNamedConstants(false)
     {
     }
     //-----------------------------------------------------------------------------
@@ -326,12 +328,80 @@ namespace Ogre
 
         return GpuProgramManager::getSingleton().isSyntaxSupported(mSyntaxCode);
     }
+	//---------------------------------------------------------------------
+	void GpuProgram::setManualNamedConstantsFile(const String& paramDefFile)
+	{
+		mManualNamedConstantsFile = paramDefFile;
+		mLoadedManualNamedConstants = false;
+	}
+	//---------------------------------------------------------------------
+	void GpuProgram::setManualNamedConstants(const GpuNamedConstants& namedConstants)
+	{
+		mConstantDefs = namedConstants;
+
+		mFloatLogicalToPhysical.bufferSize = mConstantDefs.floatBufferSize;
+		mIntLogicalToPhysical.bufferSize = mConstantDefs.intBufferSize;
+		mFloatLogicalToPhysical.map.clear();
+		mIntLogicalToPhysical.map.clear();
+		// need to set up logical mappings too for some rendersystems
+		for (GpuConstantDefinitionMap::const_iterator i = mConstantDefs.map.begin();
+			i != mConstantDefs.map.end(); ++i)
+		{
+			const String& name = i->first;
+			const GpuConstantDefinition& def = i->second;
+			// only consider non-array entries
+			if (name.find("[") == String::npos)
+			{
+				GpuLogicalIndexUseMap::value_type val(def.logicalIndex, 
+					GpuLogicalIndexUse(def.physicalIndex, def.arraySize * def.elementSize));
+				if (def.isFloat())
+				{
+					mFloatLogicalToPhysical.map.insert(val);
+				}
+				else
+				{
+					mIntLogicalToPhysical.map.insert(val);
+				}
+			}
+		}
+
+
+	}
     //-----------------------------------------------------------------------------
     GpuProgramParametersSharedPtr GpuProgram::createParameters(void)
     {
         // Default implementation simply returns standard parameters.
         GpuProgramParametersSharedPtr ret = 
             GpuProgramManager::getSingleton().createParameters();
+		
+		
+		// optionally load manually supplied named constants
+		if (!mManualNamedConstantsFile.empty() && !mLoadedManualNamedConstants)
+		{
+			try 
+			{
+				GpuNamedConstants namedConstants;
+				DataStreamPtr stream = 
+					ResourceGroupManager::getSingleton().openResource(
+					mManualNamedConstantsFile, mGroup, true, this);
+				namedConstants.load(stream);
+				setManualNamedConstants(namedConstants);
+			}
+			catch(const Exception& e)
+			{
+				LogManager::getSingleton().stream() <<
+					"Unable to load manual named constants for GpuProgram " << mName <<
+					": " << e.getDescription();
+			}
+			mLoadedManualNamedConstants = true;
+		}
+		
+		
+		// set up named parameters, if any
+		if (!mConstantDefs.map.empty())
+		{
+			ret->_setNamedConstants(&mConstantDefs);
+		}
 		// link shared logical / physical map for low-level use
 		ret->_setLogicalIndexes(&mFloatLogicalToPhysical, &mIntLogicalToPhysical);
 
@@ -376,6 +446,10 @@ namespace Ogre
 			ParameterDef("uses_vertex_texture_fetch", 
 			"Whether this vertex program requires vertex texture fetch support.", PT_BOOL), 
 			&msVTFCmd);
+		dict->addParameter(
+			ParameterDef("manual_named_constants", 
+			"File containing named parameter mappings for low-level programs.", PT_BOOL), 
+			&msManNamedConstsFileCmd);
     }
 
     //-----------------------------------------------------------------------
@@ -385,8 +459,111 @@ namespace Ogre
 
         return language;
     }
+	//---------------------------------------------------------------------
+	//  GpuNamedConstants methods
+	//---------------------------------------------------------------------
+	void GpuNamedConstants::save(const String& filename) const
+	{
+		GpuNamedConstantsSerializer ser;
+		ser.exportNamedConstants(this, filename);
+	}
+	//---------------------------------------------------------------------
+	void GpuNamedConstants::load(DataStreamPtr& stream)
+	{
+		GpuNamedConstantsSerializer ser;
+		ser.importNamedConstants(stream, this);
+	}
+	//---------------------------------------------------------------------
+	//  GpuNamedConstantsSerializer methods
+	//---------------------------------------------------------------------
+	GpuNamedConstantsSerializer::GpuNamedConstantsSerializer()
+	{
+		mVersion = "[v1.0]";
+	}
+	//---------------------------------------------------------------------
+	GpuNamedConstantsSerializer::~GpuNamedConstantsSerializer()
+	{
+
+	}
+	//---------------------------------------------------------------------
+	void GpuNamedConstantsSerializer::exportNamedConstants(
+		const GpuNamedConstants* pConsts, const String& filename, Endian endianMode)
+	{
+		// Decide on endian mode
+		determineEndianness(endianMode);
+
+		String msg;
+		mpfFile = fopen(filename.c_str(), "wb");
+		if (!mpfFile)
+		{
+			OGRE_EXCEPT(Exception::ERR_CANNOT_WRITE_TO_FILE,
+				"Unable to open file " + filename + " for writing",
+				"GpuNamedConstantsSerializer::exportSkeleton");
+		}
+
+		writeFileHeader();
+
+		writeInts(&pConsts->floatBufferSize, 1);
+		writeInts(&pConsts->intBufferSize, 1);
+
+		// simple export of all the named constants, no chunks
+		// name, physical index
+		for (GpuConstantDefinitionMap::const_iterator i = pConsts->map.begin();
+			i != pConsts->map.end(); ++i)
+		{
+			const String& name = i->first;
+			const GpuConstantDefinition& def = i->second;
+
+			writeString(name);
+			writeInts(&def.physicalIndex, 1);
+			writeInts(&def.logicalIndex, 1);
+			uint32 constType = static_cast<uint32>(def.constType);
+			writeInts(&constType, 1);
+			writeInts(&def.elementSize, 1);
+			writeInts(&def.arraySize, 1);		
+		}
+
+		fclose(mpfFile);
+
+	}
+	//---------------------------------------------------------------------
+	void GpuNamedConstantsSerializer::importNamedConstants(
+		DataStreamPtr& stream, GpuNamedConstants* pDest)
+	{
+		// Determine endianness (must be the first thing we do!)
+		determineEndianness(stream);
+
+		// Check header
+		readFileHeader(stream);
+
+		// simple file structure, no chunks
+		pDest->map.clear();
+
+		readInts(stream, &pDest->floatBufferSize, 1);
+		readInts(stream, &pDest->intBufferSize, 1);
+
+		while (!stream->eof())
+		{
+			GpuConstantDefinition def;
+			String name = readString(stream);
+			// Hmm, deal with trailing information
+			if (name.empty())
+				continue;
+			readInts(stream, &def.physicalIndex, 1);
+			readInts(stream, &def.logicalIndex, 1);
+			uint constType;
+			readInts(stream, &constType, 1);
+			def.constType = static_cast<GpuConstantType>(constType);
+			readInts(stream, &def.elementSize, 1);
+			readInts(stream, &def.arraySize, 1);
+
+			pDest->map[name] = def;
+
+		}
 
 
+
+	}
 
     //-----------------------------------------------------------------------------
     //      GpuProgramParameters Methods
@@ -1963,6 +2140,17 @@ namespace Ogre
 	{
 		GpuProgram* t = static_cast<GpuProgram*>(target);
 		t->setVertexTextureFetchRequired(StringConverter::parseBool(val));
+	}
+	//-----------------------------------------------------------------------
+	String GpuProgram::CmdManualNamedConstsFile::doGet(const void* target) const
+	{
+		const GpuProgram* t = static_cast<const GpuProgram*>(target);
+		return t->getManualNamedConstantsFile();
+	}
+	void GpuProgram::CmdManualNamedConstsFile::doSet(void* target, const String& val)
+	{
+		GpuProgram* t = static_cast<GpuProgram*>(target);
+		t->setManualNamedConstantsFile(val);
 	}
     //-----------------------------------------------------------------------
     GpuProgramPtr& GpuProgramPtr::operator=(const HighLevelGpuProgramPtr& r)
