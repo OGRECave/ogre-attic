@@ -397,8 +397,8 @@ namespace OgreMayaExporter
 			// Add vertex colour
 			if(params.exportVertCol)
 			{
-				pDecl->addElement(buf, offset, Ogre::VET_FLOAT4, Ogre::VES_DIFFUSE);
-				offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT4);
+				pDecl->addElement(buf, offset, Ogre::VET_COLOUR, Ogre::VES_DIFFUSE);
+				offset += Ogre::VertexElement::getTypeSize(Ogre::VET_COLOUR);
 			}
 			// Add texture coordinates
 			for (i=0; i<m_vertices[0].texcoords.size(); i++)
@@ -459,6 +459,7 @@ namespace OgreMayaExporter
 		Ogre::VertexDeclaration::VertexElementList::iterator ei, eiend;
 		eiend = elems.end();
 		float* pFloat;
+		Ogre::RGBA* pRGBA;
 		// Fill the vertex buffer with shared geometry data
 		long vi;
 		Ogre::ColourValue col;
@@ -485,11 +486,12 @@ namespace OgreMayaExporter
 					*pFloat++ = v.n.z;
 					break;
 				case Ogre::VES_DIFFUSE:
-					elem.baseVertexPointerToElement(pBase, &pFloat);
-					*pFloat++ = v.r;
-					*pFloat++ = v.g;
-					*pFloat++ = v.b;
-					*pFloat++ = v.a;
+					{
+						elem.baseVertexPointerToElement(pBase, &pRGBA);
+						Ogre::ColourValue col(v.r, v.g, v.b, v.a);
+						*pRGBA = Ogre::VertexElement::convertColourValue(col, 
+							Ogre::VertexElement::getBestColourVertexElementType());
+					}
 					break;
 				case Ogre::VES_TEXTURE_COORDINATES:
 					elem.baseVertexPointerToElement(pBase, &pFloat);
