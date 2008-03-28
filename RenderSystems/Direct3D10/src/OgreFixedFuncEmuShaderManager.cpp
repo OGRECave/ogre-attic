@@ -156,6 +156,7 @@ namespace Ogre
 	void FixedFuncPrograms::setVertexProgramUsage( GpuProgramUsage * val )
 	{
 		mVertexProgramUsage = val;
+		mVertexProgramParameters = mVertexProgramUsage->getParameters();
 	}
 	//---------------------------------------------------------------------
 	GpuProgramUsage * FixedFuncPrograms::getFragmentProgramUsage() const
@@ -166,6 +167,7 @@ namespace Ogre
 	void FixedFuncPrograms::setFragmentProgramUsage( GpuProgramUsage * val )
 	{
 		mFragmentProgramUsage = val;
+		mFragmentProgramParameters = mFragmentProgramUsage->getParameters();
 	}
 	//---------------------------------------------------------------------
 	FixedFuncPrograms::FixedFuncPrograms() 
@@ -189,26 +191,18 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void FixedFuncPrograms::_setProgramParameter( const GpuProgramType type, const String paramName, const void * value, const size_t sizeInBytes )
 	{
-		GpuProgramParametersSharedPtr programParameters;
 		switch(type)
 		{
 		case GPT_VERTEX_PROGRAM: 
-			programParameters = getVertexProgramUsage()->getParameters();
+			_updateParameter(getVertexProgramUsageParameters(), paramName, value, sizeInBytes);
 			break;
 		case GPT_FRAGMENT_PROGRAM: 
-			programParameters = getFragmentProgramUsage()->getParameters();
+			_updateParameter(getFragmentProgramUsageParameters(), paramName, value, sizeInBytes);
 			break;
 
 		}
-		const GpuConstantDefinition& def = programParameters->getConstantDefinition(paramName);
-		if (def.isFloat())
-		{
-			memcpy((programParameters->getFloatPointer(def.physicalIndex)), value, sizeInBytes);
-		}
-		else
-		{
-			memcpy((programParameters->getIntPointer(def.physicalIndex)), value, sizeInBytes);
-		}
+		
+
 	}
 	//---------------------------------------------------------------------
 	void FixedFuncPrograms::_setProgramintParameter( const GpuProgramType type, const String paramName, const int & value )
@@ -253,6 +247,29 @@ namespace Ogre
 	void FixedFuncPrograms::setFixedFuncState( const FixedFuncState & val )
 	{
 		mFixedFuncState = val;
+	}
+	//---------------------------------------------------------------------
+	GpuProgramParametersSharedPtr & FixedFuncPrograms::getVertexProgramUsageParameters()
+	{
+		return mVertexProgramParameters;
+	}
+	//---------------------------------------------------------------------
+	GpuProgramParametersSharedPtr & FixedFuncPrograms::getFragmentProgramUsageParameters()
+	{
+		return mFragmentProgramParameters;
+	}
+
+	void FixedFuncPrograms::_updateParameter( GpuProgramParametersSharedPtr & programParameters, const String paramName, const void * value, const size_t sizeInBytes )
+	{
+		const GpuConstantDefinition& def = programParameters->getConstantDefinition(paramName);
+		if (def.isFloat())
+		{
+			memcpy((programParameters->getFloatPointer(def.physicalIndex)), value, sizeInBytes);
+		}
+		else
+		{
+			memcpy((programParameters->getIntPointer(def.physicalIndex)), value, sizeInBytes);
+		}
 	}
 	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------

@@ -81,20 +81,14 @@ namespace Ogre
 		mBoundFragmentProgram = NULL;
 
 		ZeroMemory( &mBlendDesc, sizeof(mBlendDesc));
-		ZeroMemory( &mCurrentBlendDesc, sizeof(mCurrentBlendDesc));
-		mCurrentBlendState = 0;
 
 		ZeroMemory( &mRasterizerDesc, sizeof(mRasterizerDesc));
 		mRasterizerDesc.FrontCounterClockwise = true;
 		mRasterizerDesc.DepthClipEnable = true;
 		mRasterizerDesc.MultisampleEnable = true;
 
-		ZeroMemory( &mCurrentRasterizerDesc, sizeof(mCurrentRasterizerDesc));
-		mCurrentRasterizer = 0;
 
 		ZeroMemory( &mDepthStencilDesc, sizeof(mDepthStencilDesc));
-		ZeroMemory( &mCurrentDepthStencilDesc, sizeof(mCurrentDepthStencilDesc));
-		mCurrentDepthStencilState = 0;
 
 		ZeroMemory( &mDepthStencilDesc, sizeof(mDepthStencilDesc));
 		ZeroMemory( &mScissorRect, sizeof(mScissorRect));
@@ -106,8 +100,6 @@ namespace Ogre
 		mPolygonMode = PM_SOLID;
 
 		ZeroMemory(mTexStageDesc, OGRE_MAX_TEXTURE_LAYERS * sizeof(sD3DTextureStageDesc));
-		ZeroMemory(mSamplerStates, OGRE_MAX_TEXTURE_LAYERS * sizeof(ID3D10SamplerState *));
-		ZeroMemory(mActiveTextures, OGRE_MAX_TEXTURE_LAYERS * sizeof(ID3D10ShaderResourceView *));
 
 		// Create our Direct3D object
 	//	if( NULL == (mpD3D = Direct3DCreate9(D3D_SDK_VERSION)) )
@@ -1412,7 +1404,8 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setTexture( size_t stage, bool enabled, const TexturePtr& tex )
 	{
-		D3D10TexturePtr dt = tex;
+		static D3D10TexturePtr dt;
+		dt = tex;
 		if (dt.isNull())
 		{
 			enabled = false;
@@ -2187,6 +2180,205 @@ namespace Ogre
 
 		// Call super class
 		RenderSystem::_render(op);
+		
+		// TODO: Move this class to the right place.
+		class D3D10RenderOperationState
+		{
+		public:
+			ID3D10BlendState * mBlendState;
+			ID3D10RasterizerState * mRasterizer;
+			ID3D10DepthStencilState * mDepthStencilState;
+			TextureLayerStateList mTextureLayerStateList;
+
+			ID3D10SamplerState * mSamplerStates[OGRE_MAX_TEXTURE_LAYERS];
+			size_t mSamplerStatesCount;
+
+			ID3D10ShaderResourceView * mTextures[OGRE_MAX_TEXTURE_LAYERS];
+			size_t mTexturesCount;
+
+			FixedFuncPrograms * mFixedFuncPrograms;
+
+			~D3D10RenderOperationState()
+			{
+				SAFE_RELEASE( mBlendState );
+				SAFE_RELEASE( mRasterizer );
+				SAFE_RELEASE( mDepthStencilState );
+
+				for (size_t i = 0 ; i < mSamplerStatesCount ; i++)
+				{
+					SAFE_RELEASE( mSamplerStates[i] );
+				}
+
+			}
+		};
+
+
+		// turns out that if I add a data member to Renderable - I will be able to get better performance 
+		//because I can save the D3D10 state for each Renderable. (Assaf 4.2008)
+		// This is the data member I need to add:
+		//		// this should be used only by a render system for internal use, this can't be an array - the delete is for a single object
+		//		mutable void * renderSystemData;
+		// it also needs an init to 0 in the constructor 
+		// and be deleted if it is not 0 in the destructor
+#define ADDED_A_DATA_MEMBER_TO_RENDERABLE 0
+
+#if ADDED_A_DATA_MEMBER_TO_RENDERABLE 
+		D3D10RenderOperationState * opState = (D3D10RenderOperationState *) op.srcRenderable->renderSystemData;
+		if(!opState)
+		{
+			opState =  new D3D10RenderOperationState;
+#else
+	    static D3D10RenderOperationState * tempUntilThePatchToRenderableFromLastRender = NULL;
+		static D3D10RenderOperationState * tempUntilThePatchToRenderable = NULL;
+		tempUntilThePatchToRenderable = new D3D10RenderOperationState;
+		D3D10RenderOperationState * opState = tempUntilThePatchToRenderable;
+		{	
+#endif
+
+			HRESULT hr = mDevice->CreateBlendState(&mBlendDesc, &opState->mBlendState) ;
+			if (FAILED(hr))
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"Failed to create blend state\nError Description:" + errorDescription, 
+					"D3D10RenderSystem::_render" );
+			}
+
+			hr = mDevice->CreateRasterizerState(&mRasterizerDesc, &opState->mRasterizer) ;
+			if (FAILED(hr))
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"Failed to create rasterizer state\nError Description:" + errorDescription, 
+					"D3D10RenderSystem::_render" );
+			}
+
+			hr = mDevice->CreateDepthStencilState(&mDepthStencilDesc, &opState->mDepthStencilState) ;
+			if (FAILED(hr))
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"Failed to create depth stencil state\nError Description:" + errorDescription, 
+					"D3D10RenderSystem::_render" );
+			}
+
+			// samplers mapping
+			size_t numberOfSamplers = 0;
+			opState->mTexturesCount = 0;
+
+			for (size_t n = 0; n < OGRE_MAX_TEXTURE_LAYERS; n++)
+			{
+				sD3DTextureStageDesc & stage = mTexStageDesc[n];
+				if(!stage.used)
+				{
+					break;
+				}
+
+				numberOfSamplers++;
+
+				ID3D10ShaderResourceView * texture;
+				texture = stage.pTex;
+				opState->mTextures[opState->mTexturesCount] = texture;
+				opState->mTexturesCount++;
+
+				stage.samplerDesc.ComparisonFunc = D3D10Mappings::get(mSceneAlphaRejectFunc);
+				stage.samplerDesc.MaxLOD = D3D10_FLOAT32_MAX;
+				stage.currentSamplerDesc = stage.samplerDesc;
+
+				ID3D10SamplerState * samplerState;
+
+				HRESULT hr = mDevice->CreateSamplerState(&stage.samplerDesc, &samplerState) ;
+				if (FAILED(hr))
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
+						"Failed to create sampler state\nError Description:" + errorDescription,
+						"D3D10RenderSystem::_render" );
+				}
+				opState->mSamplerStates[n] = (samplerState);		
+			}
+			opState->mSamplerStatesCount = numberOfSamplers;
+
+
+
+			for (size_t i = 0 ; i < OGRE_MAX_TEXTURE_LAYERS ; i++)
+			{
+				sD3DTextureStageDesc & curDesc = mTexStageDesc[i];
+				if (curDesc.used)
+				{
+					TextureLayerState textureLayerState;
+					textureLayerState.setTextureType(curDesc.type);
+					textureLayerState.setTexCoordCalcMethod(curDesc.autoTexCoordType);
+					textureLayerState.setLayerBlendModeEx(curDesc.layerBlendMode);
+					textureLayerState.setCoordIndex(curDesc.coordIndex);
+					opState->mTextureLayerStateList.push_back(textureLayerState);
+
+				}
+			}
+
+			mFixedFuncState.setTextureLayerStateList(opState->mTextureLayerStateList);
+
+			const VertexBufferDeclaration &  vertexBufferDeclaration = 
+				(static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getVertexBufferDeclaration();
+
+			opState->mFixedFuncPrograms = mFixedFuncEmuShaderManager.getShaderPrograms("hlsl4", 
+				vertexBufferDeclaration,
+				mFixedFuncState
+				);
+
+
+			//op.srcRenderable->renderSystemData = opState;
+		}	
+
+
+		mDevice->OMSetBlendState(opState->mBlendState, 0, 0xffffffff); // TODO - find out where to get the parameters
+		if (mDevice.isError())
+		{
+			String errorDescription = mDevice.getErrorDescription();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"D3D10 device cannot set blend state\nError Description:" + errorDescription,
+				"D3D10RenderSystem::_render");
+		}
+
+		mDevice->RSSetState(opState->mRasterizer);
+		if (mDevice.isError())
+		{
+			String errorDescription = mDevice.getErrorDescription();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"D3D10 device cannot set rasterizer state\nError Description:" + errorDescription,
+				"D3D10RenderSystem::_render");
+		}
+
+		mDevice->OMSetDepthStencilState(opState->mDepthStencilState, mStencilRef); 
+		if (mDevice.isError())
+		{
+			String errorDescription = mDevice.getErrorDescription();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+				"D3D10 device cannot set depth stencil state\nError Description:" + errorDescription,
+				"D3D10RenderSystem::_render");
+		}
+
+
+		if (opState->mSamplerStatesCount > 0) //  if the NumSamplers is 0, the operation effectively does nothing.
+		{
+			mDevice->PSSetSamplers(static_cast<UINT>(0), static_cast<UINT>(opState->mSamplerStatesCount), opState->mSamplerStates);
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set pixel shader samplers\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_render");
+			}
+
+			mDevice->PSSetShaderResources(static_cast<UINT>(0), static_cast<UINT>(opState->mTexturesCount), &opState->mTextures[0]);
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set pixel shader resources\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_render");
+			}
+		}
 
 
 
@@ -2198,33 +2390,9 @@ namespace Ogre
 		{
 			assert (!mBoundFragmentProgram); // not allowed for now
 
+			FixedFuncPrograms * fixedFuncPrograms = opState->mFixedFuncPrograms;
 
-			
-			// update texture layers
-			TextureLayerStateList textureLayerStateList;
-			for (size_t i = 0 ; i < OGRE_MAX_TEXTURE_LAYERS ; i++)
-			{
-				sD3DTextureStageDesc & curDesc = mTexStageDesc[i];
-				if (curDesc.used)
-				{
-					TextureLayerState textureLayerState;
-					textureLayerState.setTextureType(curDesc.type);
-					textureLayerState.setTexCoordCalcMethod(curDesc.autoTexCoordType);
-					textureLayerState.setLayerBlendModeEx(curDesc.layerBlendMode);
-					textureLayerState.setCoordIndex(curDesc.coordIndex);
-					textureLayerStateList.push_back(textureLayerState);
 
-				}
-			}
-
-			mFixedFuncState.setTextureLayerStateList(textureLayerStateList);
-
-				const VertexBufferDeclaration &  vertexBufferDeclaration = 
-					(static_cast<D3D10VertexDeclaration *>(op.vertexData->vertexDeclaration))->getVertexBufferDeclaration();
-				FixedFuncPrograms * fixedFuncPrograms = mFixedFuncEmuShaderManager.getShaderPrograms("hlsl4", 
-					vertexBufferDeclaration,
-					mFixedFuncState
-					);
 
 
 				needToUnmapVS = true;
@@ -2241,15 +2409,7 @@ namespace Ogre
 				bindGpuProgram(fixedFuncPrograms->getFragmentProgramUsage()->getProgram().get());
 				bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
 					fixedFuncPrograms->getFragmentProgramUsage()->getParameters());
-
-
-
-
-						
-
-			
-
-
+		
 		}
 
 		mDevice->GSSetShader( NULL );
@@ -2260,153 +2420,6 @@ namespace Ogre
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
 				"D3D10 device cannot set geometry shader to null\nError Description:" + errorDescription,
 				"D3D10RenderSystem::_render");
-		}
-
-
-
-		// Blend State  - only if changed - we reset
-		if ( 0 != memcmp(&mBlendDesc, &mCurrentBlendDesc, sizeof(D3D10_BLEND_DESC)))
-		{
-			ID3D10BlendState * tempSoNoWarning = mCurrentBlendState; 
-
-			mCurrentBlendDesc = mBlendDesc;
-
-
-			HRESULT hr = mDevice->CreateBlendState(&mCurrentBlendDesc, &mCurrentBlendState) ;
-			if (FAILED(hr))
-			{
-				String errorDescription = mDevice.getErrorDescription();
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"Failed to create blend state\nError Description:" + errorDescription, 
-					"D3D10RenderSystem::_render" );
-			}
-
-			mDevice->OMSetBlendState(mCurrentBlendState, 0, 0xffffffff); // TODO - find out where to get the parameters
-			if (mDevice.isError())
-			{
-				String errorDescription = mDevice.getErrorDescription();
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"D3D10 device cannot set blend state\nError Description:" + errorDescription,
-					"D3D10RenderSystem::_render");
-			}
-
-			SAFE_RELEASE( tempSoNoWarning );
-
-		}
-
-		// Rasterizer  - only if changed - we reset
-		if ( 0 != memcmp(&mRasterizerDesc, &mCurrentRasterizerDesc, sizeof(D3D10_RASTERIZER_DESC)))
-		{
-			ID3D10RasterizerState * tempSoNoWarning = mCurrentRasterizer; 
-
-			mCurrentRasterizerDesc = mRasterizerDesc;
-
-			HRESULT hr = mDevice->CreateRasterizerState(&mCurrentRasterizerDesc, &mCurrentRasterizer) ;
-			if (FAILED(hr))
-			{
-				String errorDescription = mDevice.getErrorDescription();
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"Failed to create rasterizer state\nError Description:" + errorDescription, 
-					"D3D10RenderSystem::_render" );
-			}
-			mDevice->RSSetState(mCurrentRasterizer);
-			if (mDevice.isError())
-			{
-				String errorDescription = mDevice.getErrorDescription();
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"D3D10 device cannot set rasterizer state\nError Description:" + errorDescription,
-					"D3D10RenderSystem::_render");
-			}
-
-			SAFE_RELEASE( tempSoNoWarning );
-		}
-
-		// depth stencil state  - only if changed - we reset
-		if ( 0 != memcmp(&mDepthStencilDesc, &mCurrentDepthStencilDesc, sizeof(D3D10_DEPTH_STENCIL_DESC)))
-		{
-			ID3D10DepthStencilState * tempSoNoWarning = mCurrentDepthStencilState;
-
-			mCurrentDepthStencilDesc = mDepthStencilDesc;
-			HRESULT hr = mDevice->CreateDepthStencilState(&mCurrentDepthStencilDesc, &mCurrentDepthStencilState) ;
-			if (FAILED(hr))
-			{
-				String errorDescription = mDevice.getErrorDescription();
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"Failed to create depth stencil state\nError Description:" + errorDescription, 
-					"D3D10RenderSystem::_render" );
-			}
-			mDevice->OMSetDepthStencilState(mCurrentDepthStencilState, mStencilRef); 
-			if (mDevice.isError())
-			{
-				String errorDescription = mDevice.getErrorDescription();
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"D3D10 device cannot set depth stencil state\nError Description:" + errorDescription,
-					"D3D10RenderSystem::_render");
-			}
-
-			SAFE_RELEASE( tempSoNoWarning );
-		}
-
-		// samplers mapping
-		size_t numberOfSamplers = 0;
-
-		size_t numberOfsamplerStatesToDelete = 0;
-		ID3D10SamplerState * samplerStatesToDelete[OGRE_MAX_TEXTURE_LAYERS];
-		for (size_t n = 0; n < OGRE_MAX_TEXTURE_LAYERS; n++)
-		{
-			sD3DTextureStageDesc & stage = mTexStageDesc[n];
-			if(!stage.used)
-			{
-				break;
-			}
-
-			numberOfSamplers++;
-
-			mActiveTextures[n] = stage.pTex;
-
-			stage.samplerDesc.ComparisonFunc = D3D10Mappings::get(mSceneAlphaRejectFunc);
-			stage.samplerDesc.MaxLOD = D3D10_FLOAT32_MAX;
-
-			if ( 0 != memcmp(&stage.samplerDesc, &stage.currentSamplerDesc, sizeof(D3D10_RASTERIZER_DESC)))
-			{
-				samplerStatesToDelete[numberOfsamplerStatesToDelete] = mSamplerStates[n];
-
-				stage.currentSamplerDesc = stage.samplerDesc;
-				HRESULT hr = mDevice->CreateSamplerState(&stage.samplerDesc, &mSamplerStates[n]) ;
-				if (FAILED(hr))
-				{
-					String errorDescription = mDevice.getErrorDescription();
-					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-						"Failed to create sampler state\nError Description:" + errorDescription,
-						"D3D10RenderSystem::_render" );
-				}
-			}			
-		}
-
-
-		if (numberOfSamplers > 0) //  if the NumSamplers is 0, the operation effectively does nothing.
-		{
-			mDevice->PSSetSamplers(static_cast<UINT>(0), static_cast<UINT>(numberOfSamplers), mSamplerStates);
-			if (mDevice.isError())
-			{
-				String errorDescription = mDevice.getErrorDescription();
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"D3D10 device cannot set pixel shader samplers\nError Description:" + errorDescription,
-					"D3D10RenderSystem::_render");
-			}
-			mDevice->PSSetShaderResources(static_cast<UINT>(0), static_cast<UINT>(numberOfSamplers), mActiveTextures);
-			if (mDevice.isError())
-			{
-				String errorDescription = mDevice.getErrorDescription();
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"D3D10 device cannot set pixel shader resources\nError Description:" + errorDescription,
-					"D3D10RenderSystem::_render");
-			}
-		}
-
-		for ( size_t i = 0 ; i < numberOfsamplerStatesToDelete ; i++ )
-		{
-			SAFE_RELEASE( samplerStatesToDelete[i] );
 		}
 
 		setVertexDeclaration(op.vertexData->vertexDeclaration);
@@ -2538,6 +2551,10 @@ namespace Ogre
 		{
 			unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
 		} 	
+#if !ADDED_A_DATA_MEMBER_TO_RENDERABLE 
+		SAFE_DELETE(tempUntilThePatchToRenderableFromLastRender);
+		tempUntilThePatchToRenderableFromLastRender = tempUntilThePatchToRenderable;
+#endif
 
 	}
     //---------------------------------------------------------------------
@@ -2672,18 +2689,16 @@ namespace Ogre
     void D3D10RenderSystem::bindGpuProgramPassIterationParameters(GpuProgramType gptype)
     {
 
-		GpuProgramParametersSharedPtr activeParams;
 		switch(gptype)
 		{
 		case GPT_VERTEX_PROGRAM:
-			activeParams = mActiveVertexGpuProgramParameters;
+			bindGpuProgramParameters(gptype, mActiveVertexGpuProgramParameters);
 			break;
 
 		case GPT_FRAGMENT_PROGRAM:
-			activeParams = mActiveFragmentGpuProgramParameters;
+			bindGpuProgramParameters(gptype, mActiveFragmentGpuProgramParameters);
 			break;
 		}
-		bindGpuProgramParameters(gptype, activeParams);
     }
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::setClipPlanesImpl(const PlaneList& clipPlanes)
