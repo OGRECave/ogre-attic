@@ -109,7 +109,16 @@ namespace Ogre {
 		ID3D10VertexShader* mpVertexShader;
 		ID3D10PixelShader* mpPixelShader;
 
-		typedef std::vector<D3D10_SHADER_VARIABLE_DESC> ShaderVars;
+		struct ShaderVarWithPosInBuf
+		{
+			bool wasInit;
+			bool isFloat;
+			size_t physicalIndex;
+			void * src;
+
+			D3D10_SHADER_VARIABLE_DESC var;
+		};
+		typedef std::vector<ShaderVarWithPosInBuf> ShaderVars;
 		typedef ShaderVars::iterator ShaderVarsIter; 
 
 		ShaderVars mShaderVars;

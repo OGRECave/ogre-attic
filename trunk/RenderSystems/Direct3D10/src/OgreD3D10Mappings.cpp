@@ -331,93 +331,69 @@ namespace Ogre
 	{
 
 		D3D10_FILTER res;
-		if (comparison)
-		{
-			if ( (min == FO_POINT) && (mag == FO_POINT) && (mip == FO_POINT) )
-			{
-				res = D3D10_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-			}
-			else if ( (min == FO_POINT) && (mag == FO_POINT) && (mip == FO_LINEAR) )
-			{
-				res = D3D10_FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR;
-			}
-			else if ( (min == FO_POINT) && (mag == FO_LINEAR) && (mip == FO_POINT) )
-			{
-				res = D3D10_FILTER_COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT;
-			}
-			else if ( (min == FO_POINT) && (mag == FO_LINEAR) && (mip == FO_LINEAR) )
-			{
-				res = D3D10_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR;
-			}
-			else if ( (min == FO_LINEAR) && (mag == FO_POINT) && (mip == FO_POINT) )
-			{
-				res = D3D10_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
-			}
-			else if ( (min == FO_LINEAR) && (mag == FO_POINT) && (mip == FO_LINEAR) )
-			{
-				res = D3D10_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
-			}
-			else if ( (min == FO_LINEAR) && (mag == FO_LINEAR) && (mip == FO_POINT) )
-			{
-				res = D3D10_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-			}
-			else if ( (min == FO_LINEAR) && (mag == FO_LINEAR) && (mip == FO_LINEAR) )
-			{
-				res = D3D10_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-			}
-			else  if ( (min == FO_ANISOTROPIC) || (mag == FO_ANISOTROPIC) || (mip == FO_ANISOTROPIC) )
-			{
-				res = D3D10_FILTER_COMPARISON_ANISOTROPIC;
-			}
-			else
-			{
-				res = D3D10_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-			}
-		}
-		else
-		{
-			if ( (min == FO_POINT) && (mag == FO_POINT) && (mip == FO_POINT) )
-			{
-				res = D3D10_FILTER_MIN_MAG_MIP_POINT;
-			}
-			else if ( (min == FO_POINT) && (mag == FO_POINT) && (mip == FO_LINEAR) )
-			{
-				res = D3D10_FILTER_MIN_MAG_POINT_MIP_LINEAR;
-			}
-			else if ( (min == FO_POINT) && (mag == FO_LINEAR) && (mip == FO_POINT) )
-			{
-				res = D3D10_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
-			}
-			else if ( (min == FO_POINT) && (mag == FO_LINEAR) && (mip == FO_LINEAR) )
-			{
-				res = D3D10_FILTER_MIN_POINT_MAG_MIP_LINEAR;
-			}
-			else if ( (min == FO_LINEAR) && (mag == FO_POINT) && (mip == FO_POINT) )
-			{
-				res = D3D10_FILTER_MIN_LINEAR_MAG_MIP_POINT;
-			}
-			else if ( (min == FO_LINEAR) && (mag == FO_POINT) && (mip == FO_LINEAR) )
-			{
-				res = D3D10_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
-			}
-			else if ( (min == FO_LINEAR) && (mag == FO_LINEAR) && (mip == FO_POINT) )
-			{
-				res = D3D10_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-			}
-			else if ( (min == FO_LINEAR) && (mag == FO_LINEAR) && (mip == FO_LINEAR) )
-			{
-				res = D3D10_FILTER_MIN_MAG_MIP_LINEAR;
-			}
-			else  if ( (min == FO_ANISOTROPIC) || (mag == FO_ANISOTROPIC) || (mip == FO_ANISOTROPIC) )
-			{
-				res = D3D10_FILTER_ANISOTROPIC;
-			}
-			else
-			{
-				res = D3D10_FILTER_MIN_MAG_MIP_POINT;
-			}
-		}
+#define MARGE_FOR_SWITCH(_comparison_, _min_ , _mag_, _mip_ ) ((_comparison_ << 16) | (_min_ << 8) | (_mag_ << 4) | (_mip_))
 
+		switch((MARGE_FOR_SWITCH(comparison, min, mag, mip)))
+		{
+		case MARGE_FOR_SWITCH(true, FO_POINT, FO_POINT, FO_POINT):
+			res = D3D10_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+			break;
+		case MARGE_FOR_SWITCH(true, FO_POINT, FO_POINT, FO_LINEAR):
+			res = D3D10_FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR;
+			break;
+		case MARGE_FOR_SWITCH(true, FO_POINT, FO_LINEAR, FO_POINT):
+			res = D3D10_FILTER_COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT;
+			break;
+		case MARGE_FOR_SWITCH(true, FO_POINT, FO_LINEAR, FO_LINEAR):
+			res = D3D10_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR;
+			break;
+		case MARGE_FOR_SWITCH(true, FO_LINEAR, FO_POINT, FO_POINT):
+			res = D3D10_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
+			break;
+		case MARGE_FOR_SWITCH(true, FO_LINEAR, FO_POINT, FO_LINEAR):
+			res = D3D10_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+			break;		
+		case MARGE_FOR_SWITCH(true, FO_LINEAR, FO_LINEAR, FO_POINT):
+			res = D3D10_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+			break;
+		case MARGE_FOR_SWITCH(true, FO_LINEAR, FO_LINEAR, FO_LINEAR):
+			res = D3D10_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+			break;
+		case MARGE_FOR_SWITCH(true, FO_ANISOTROPIC, FO_ANISOTROPIC, FO_ANISOTROPIC):
+			res = D3D10_FILTER_COMPARISON_ANISOTROPIC;
+			break;
+
+		case MARGE_FOR_SWITCH(false, FO_POINT, FO_POINT, FO_POINT):
+			res = D3D10_FILTER_MIN_MAG_MIP_POINT;
+			break;
+		case MARGE_FOR_SWITCH(false, FO_POINT, FO_POINT, FO_LINEAR):
+			res = D3D10_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+			break;
+		case MARGE_FOR_SWITCH(false, FO_POINT, FO_LINEAR, FO_POINT):
+			res = D3D10_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
+			break;
+		case MARGE_FOR_SWITCH(false, FO_POINT, FO_LINEAR, FO_LINEAR):
+			res = D3D10_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+			break;
+		case MARGE_FOR_SWITCH(false, FO_LINEAR, FO_POINT, FO_POINT):
+			res = D3D10_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+			break;
+		case MARGE_FOR_SWITCH(false, FO_LINEAR, FO_POINT, FO_LINEAR):
+			res = D3D10_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+			break;		
+		case MARGE_FOR_SWITCH(false, FO_LINEAR, FO_LINEAR, FO_POINT):
+			res = D3D10_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			break;
+		case MARGE_FOR_SWITCH(false, FO_LINEAR, FO_LINEAR, FO_LINEAR):
+			res = D3D10_FILTER_MIN_MAG_MIP_LINEAR;
+			break;
+		case MARGE_FOR_SWITCH(false, FO_ANISOTROPIC, FO_ANISOTROPIC, FO_ANISOTROPIC):
+			res = D3D10_FILTER_ANISOTROPIC;
+			break;
+		default:
+			res = D3D10_FILTER_MIN_MAG_MIP_LINEAR;
+		}	
+		
 		return res;
 	}
 	//---------------------------------------------------------------------

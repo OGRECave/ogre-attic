@@ -43,12 +43,16 @@ namespace Ogre
 	protected:
 		// Vertex program details
 		GpuProgramUsage * mVertexProgramUsage;
+		GpuProgramParametersSharedPtr mVertexProgramParameters;
 		// Fragment program details
 		GpuProgramUsage * mFragmentProgramUsage;
+		GpuProgramParametersSharedPtr mFragmentProgramParameters;
 
 		FixedFuncState mFixedFuncState;
 
 		void _setProgramParameter(const GpuProgramType type, const String paramName, const void * value, const size_t sizeInBytes);
+
+		void _updateParameter( GpuProgramParametersSharedPtr & programParameters, const String paramName, const void * value, const size_t sizeInBytes );
 		void _setProgramintParameter(const GpuProgramType type, const String paramName, const int & value);
 		void _setProgramFloatParameter(const GpuProgramType type, const String paramName, const float & value);
 		void _setProgramMatrix4Parameter(const GpuProgramType type, const String paramName, const Matrix4 & value);
@@ -118,8 +122,10 @@ namespace Ogre
 		FixedFuncPrograms();
 		virtual ~FixedFuncPrograms();
 		GpuProgramUsage * getVertexProgramUsage() const;
+		GpuProgramParametersSharedPtr & getVertexProgramUsageParameters();
 		void setVertexProgramUsage(GpuProgramUsage * val);
 		GpuProgramUsage * getFragmentProgramUsage() const;
+		GpuProgramParametersSharedPtr & getFragmentProgramUsageParameters();
 		void setFragmentProgramUsage(GpuProgramUsage * val);
 		const FixedFuncState & getFixedFuncState() const;
 		void setFixedFuncState(const FixedFuncState & val);

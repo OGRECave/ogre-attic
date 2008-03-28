@@ -204,7 +204,12 @@ namespace Ogre {
 						D3D10_SHADER_VARIABLE_DESC shaderVerDesc;
 						HRESULT hr = varRef->GetDesc(&shaderVerDesc);
 
-						mShaderVars.push_back(shaderVerDesc);
+						ShaderVarWithPosInBuf newVar;
+						newVar.var = shaderVerDesc;
+						newVar.wasInit = false;
+
+
+						mShaderVars.push_back(newVar);
 					}
 				}
 			}
@@ -677,19 +682,29 @@ namespace Ogre {
 		{
 			mConstantBuffer->Map( D3D10_MAP_WRITE_DISCARD, NULL, (void **) &pConstData );
 
-			ShaderVarsIter iter = mShaderVars.begin();
-			ShaderVarsIter iterE = mShaderVars.end();
-			for (; iter != iterE ; iter++)
+			ShaderVarWithPosInBuf * iter = &mShaderVars[0];
+			for (size_t i = 0 ; i < mConstantBufferDesc.Variables ; i++, iter++)
 			{
-				const GpuConstantDefinition& def = params->getConstantDefinition(iter->Name);
-				if (def.isFloat())
+				if (!iter->wasInit)
 				{
-					memcpy(&pConstData[iter->StartOffset], &(params->getFloatConstantList()[def.physicalIndex]) ,sizeof(float) * def.elementSize * def.arraySize);
+					const GpuConstantDefinition& def = params->getConstantDefinition(iter->var.Name);
+					iter->isFloat = def.isFloat();
+					iter->physicalIndex = def.physicalIndex;
+					iter->wasInit = true;
+					
+					if(iter->isFloat)
+					{
+						iter->src = (void *)&(*(params->getFloatConstantList().begin()+iter->physicalIndex));
+					}
+					else
+					{
+						iter->src = (void *)&(*(params->getIntConstantList().begin()+iter->physicalIndex));
+					}
+
 				}
-				else
-				{
-					memcpy(&pConstData[iter->StartOffset], &(params->getIntConstantList()[def.physicalIndex]) , sizeof(int) * def.elementSize * def.arraySize);
-				}
+			
+
+				memcpy( &pConstData[iter->var.StartOffset], iter->src , iter->var.Size);
 			}
 
 			mConstantBuffer->Unmap();

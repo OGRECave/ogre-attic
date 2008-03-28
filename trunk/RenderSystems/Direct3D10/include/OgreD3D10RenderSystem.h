@@ -122,17 +122,11 @@ namespace Ogre
 		unsigned char mSceneAlphaRejectValue; // should be merged with - mBlendDesc
 
 		D3D10_BLEND_DESC mBlendDesc;
-		D3D10_BLEND_DESC mCurrentBlendDesc;
-		ID3D10BlendState * mCurrentBlendState;
 
 		D3D10_RASTERIZER_DESC mRasterizerDesc;
-		D3D10_RASTERIZER_DESC mCurrentRasterizerDesc;
-		ID3D10RasterizerState * mCurrentRasterizer;
 
 		UINT mStencilRef;
 		D3D10_DEPTH_STENCIL_DESC mDepthStencilDesc; 
-		D3D10_DEPTH_STENCIL_DESC mCurrentDepthStencilDesc;
-		ID3D10DepthStencilState * mCurrentDepthStencilState;;
 
 		PolygonMode mPolygonMode;
 
@@ -169,8 +163,6 @@ namespace Ogre
 			bool used;
 		} mTexStageDesc[OGRE_MAX_TEXTURE_LAYERS];
 
-		ID3D10SamplerState * mSamplerStates[OGRE_MAX_TEXTURE_LAYERS];
-		ID3D10ShaderResourceView  * mActiveTextures[OGRE_MAX_TEXTURE_LAYERS];
 
 		// What follows is a set of duplicated lists just to make it
 		// easier to deal with lost devices
