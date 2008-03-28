@@ -413,6 +413,14 @@ namespace Ogre {
         */
         virtual const LightList& queryLights(void) const;
 
+		/** Returns a pointer to the current list of lights for this object.
+		@remarks
+			You should not modify this list outside of MovableObject::Listener::objectQueryLights
+			(say if you want to use it to implement this method, and use the pointer
+			as a return value) and for reading it's only accurate as at the last frame.
+		*/
+		virtual LightList* _getLightList() { return &mLightList; }
+
 		/// Define a default implementation of method from ShadowCaster which implements no shadows
         EdgeData* getEdgeList(void) { return NULL; }
 		/// Define a default implementation of method from ShadowCaster which implements no shadows
