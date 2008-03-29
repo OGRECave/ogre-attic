@@ -94,7 +94,7 @@ namespace Ogre
 		wcstombs(str, mAdapterIdentifier.Description,size);
 		str[size]='\0';
 		String driverDescription=str;
-		delete str;
+		delete [] str;
 		StringUtil::trim(driverDescription);
 
 		return  driverDescription;
