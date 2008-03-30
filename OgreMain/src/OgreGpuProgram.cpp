@@ -1731,7 +1731,7 @@ namespace Ogre
                 break;
             case ACT_DERIVED_LIGHT_SPECULAR_COLOUR:
                 _writeRawConstant(i->physicalIndex,
-                    source->getLightSpecularColour(i->data) * source->getSurfaceSpecularColour(),
+                    source->getLightSpecularColourWithPower(i->data) * source->getSurfaceSpecularColour(),
                     i->elementCount);
                 break;
             case ACT_DERIVED_LIGHT_DIFFUSE_COLOUR_ARRAY:
@@ -1746,7 +1746,7 @@ namespace Ogre
 				for (size_t l = 0; l < i->data; ++l)
                 {
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
-                        source->getLightSpecularColour(l) * source->getSurfaceSpecularColour(),
+                        source->getLightSpecularColourWithPower(l) * source->getSurfaceSpecularColour(),
                         i->elementCount);
                 }
                 break;
