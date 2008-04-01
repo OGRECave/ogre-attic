@@ -169,7 +169,20 @@ they are used the same way as Scene Queries for any other Scene Manager, with
 one difference.  The user must specify the "start zone" for any scene query
 using XXXSceneQuery::setStartZone(zone) where "XXX" is Ray, Sphere, AxisAlignedBox, etc.
 
+KNOWN BUGS:
 
+* Light traversal is not quite correct.  In order to avoid infinite recursion, I had to
+  put in a hack which can potentially result in lighting not traversing into some zones properly.
+  It will probably not be noticeable in most situations, but could potentially show up in
+  very complex portal/zone setups.
+* Some situations can cause infinite recursion crashes.  It is highly recommended to avoid
+  situations where two zones interconnect in such a way that a viewer can look through
+  a portal into one zone and straight through to another portal which leads back to the 
+  zone the camera is in.  (that's bad zone design in the first place from an efficiency
+  standpoint anyway).  Note that the demo app actually creates this situation (you can look
+  directly through the tower from one side to the other) and it handles the situation, but
+  other tests (with more complex scenes) have resulted in infinite recursion crashes.  
+  I am uncertain of the exact cause, but will update with any fixes if/when found.
 
 
 
