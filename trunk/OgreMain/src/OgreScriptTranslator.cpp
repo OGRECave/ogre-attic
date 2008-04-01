@@ -62,6 +62,9 @@ namespace Ogre{
 		
 		if(translator)
 			translator->translate(compiler, node);
+		else
+			compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, node->file, node->line,
+				reinterpret_cast<ObjectAbstractNode*>(node.get())->cls);
 	}
 	//-------------------------------------------------------------------------
 	AbstractNodeList::const_iterator ScriptTranslator::getNodeAt(const AbstractNodeList &nodes, int index)
@@ -482,6 +485,9 @@ namespace Ogre{
 							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
 					}
 					break;
+				default:
+					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
+						String("\"") + prop->name + "\"");
 				}
 			}
 			else if((*i)->type == ANT_OBJECT)
@@ -717,6 +723,9 @@ namespace Ogre{
 
 					}
 					break;
+				default:
+					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
+						String("\"") + prop->name + "\"");
 				}
 			}
 			else if((*i)->type == ANT_OBJECT)
@@ -765,11 +774,19 @@ namespace Ogre{
 					}
 					else
 					{
-						ColourValue val;
-						if(getColour(prop->values.begin(), prop->values.end(), &val))
-							mPass->setAmbient(val);
+						if(prop->values.front()->type == ANT_ATOM && 
+							((AtomAbstractNode*)prop->values.front().get())->id == ID_VERTEXCOLOUR)
+						{
+							mPass->setVertexColourTracking(TVC_AMBIENT);
+						}
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+						{
+							ColourValue val;
+							if(getColour(prop->values.begin(), prop->values.end(), &val))
+								mPass->setAmbient(val);
+							else
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
 					}
 					break;
 				case ID_DIFFUSE:
@@ -783,11 +800,19 @@ namespace Ogre{
 					}
 					else
 					{
-						ColourValue val;
-						if(getColour(prop->values.begin(), prop->values.end(), &val))
-							mPass->setDiffuse(val);
+						if(prop->values.front()->type == ANT_ATOM && 
+							((AtomAbstractNode*)prop->values.front().get())->id == ID_VERTEXCOLOUR)
+						{
+							mPass->setVertexColourTracking(TVC_DIFFUSE);
+						}
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+						{
+							ColourValue val;
+							if(getColour(prop->values.begin(), prop->values.end(), &val))
+								mPass->setDiffuse(val);
+							else
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
 					}
 					break;
 				case ID_SPECULAR:
@@ -801,19 +826,36 @@ namespace Ogre{
 					}
 					else
 					{
-						ColourValue val;
-						if(getColour(prop->values.begin(), prop->values.end(), &val))
-							mPass->setSpecular(val);
-						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-
-						if(prop->values.size() == 5)
+						if(prop->values.front()->type == ANT_ATOM && 
+							((AtomAbstractNode*)prop->values.front().get())->id == ID_VERTEXCOLOUR)
 						{
-							Real val = 0;
-							if(getReal(prop->values.back(), &val))
-								mPass->setShininess(val);
+							mPass->setVertexColourTracking(TVC_SPECULAR);
+
+							if(prop->values.size() >= 2)
+							{
+								Real val = 0;
+								if(getReal(prop->values.back(), &val))
+									mPass->setShininess(val);
+								else
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
+						}
+						else
+						{
+							ColourValue val;
+							if(getColour(prop->values.begin(), prop->values.end(), &val))
+								mPass->setSpecular(val);
 							else
 								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+
+							if(prop->values.size() >= 5)
+							{
+								Real val = 0;
+								if(getReal(prop->values.back(), &val))
+									mPass->setShininess(val);
+								else
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							}
 						}
 					}
 					break;
@@ -828,11 +870,19 @@ namespace Ogre{
 					}
 					else
 					{
-						ColourValue val;
-						if(getColour(prop->values.begin(), prop->values.end(), &val))
-							mPass->setSelfIllumination(val);
+						if(prop->values.front()->type == ANT_ATOM && 
+							((AtomAbstractNode*)prop->values.front().get())->id == ID_VERTEXCOLOUR)
+						{
+							mPass->setVertexColourTracking(TVC_EMISSIVE);
+						}
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+						{
+							ColourValue val;
+							if(getColour(prop->values.begin(), prop->values.end(), &val))
+								mPass->setSelfIllumination(val);
+							else
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+						}
 					}
 					break;
 				case ID_SCENE_BLEND:
@@ -1088,7 +1138,7 @@ namespace Ogre{
 						{
 							if(i1 != prop->values.end())
 							{
-								uint32 val = 0.0;
+								uint32 val = 0;
 								if(getUInt(*i1, &val))
 									mPass->setAlphaRejectSettings(func, val);
 								else
@@ -1808,6 +1858,9 @@ namespace Ogre{
 							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
 					}
 					break;
+				default:
+					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
+						String("\"") + prop->name + "\"");
 				}
 			}
 			else if((*i)->type == ANT_OBJECT)
@@ -2199,8 +2252,8 @@ namespace Ogre{
 					}
 					else
 					{
-						Real val = 0.0f;
-						if(getReal(prop->values.front(), &val))
+						uint32 val = 0;
+						if(getUInt(prop->values.front(), &val))
 							mUnit->setTextureCoordSet(val);
 						else
 							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
@@ -2429,8 +2482,8 @@ namespace Ogre{
 					}
 					else
 					{
-						Real val = 0.0f;
-						if(getReal(prop->values.front(), &val))
+						uint32 val = 0;
+						if(getUInt(prop->values.front(), &val))
 							mUnit->setTextureAnisotropy(val);
 						else
 							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
@@ -3129,6 +3182,9 @@ namespace Ogre{
 						}
 					}
 					break;
+				default:
+					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
+						String("\"") + prop->name + "\"");
 				}				
 			}
 			else if((*i)->type == ANT_OBJECT)
@@ -3860,6 +3916,9 @@ namespace Ogre{
 						}
 					}
 					break;
+				default:
+					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
+						String("\"") + prop->name + "\"");
 				}
 			}
 		}
@@ -4212,137 +4271,141 @@ namespace Ogre{
 				switch(prop->id)
 				{
 				case ID_TEXTURE:
-					size_t atomIndex = 1;
-
-					AbstractNodeList::const_iterator i = getNodeAt(prop->values, 0);
-
-					if((*i)->type != ANT_ATOM)
 					{
-						compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-						return;
-					}
-					// Save the first atom, should be name
-					AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i).get();
+						size_t atomIndex = 1;
 
-					size_t width = 0, height = 0;
-					float widthFactor = 1.0f, heightFactor = 1.0f;
-					bool widthSet = false, heightSet = false, formatSet = false;
-					Ogre::PixelFormatList formats;
+						AbstractNodeList::const_iterator i = getNodeAt(prop->values, 0);
 
-					while (atomIndex < prop->values.size())
-					{
-						i = getNodeAt(prop->values, atomIndex++);
 						if((*i)->type != ANT_ATOM)
 						{
 							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
 							return;
 						}
-						AtomAbstractNode *atom = (AtomAbstractNode*)(*i).get();
+						// Save the first atom, should be name
+						AtomAbstractNode *atom0 = (AtomAbstractNode*)(*i).get();
 
-						switch(atom->id)
+						size_t width = 0, height = 0;
+						float widthFactor = 1.0f, heightFactor = 1.0f;
+						bool widthSet = false, heightSet = false, formatSet = false;
+						Ogre::PixelFormatList formats;
+
+						while (atomIndex < prop->values.size())
 						{
-						case ID_TARGET_WIDTH:
-							width = 0;
-							widthSet = true;
-							break;
-						case ID_TARGET_HEIGHT:
-							height = 0;
-							heightSet = true;
-							break;
-						case ID_TARGET_WIDTH_SCALED:
-						case ID_TARGET_HEIGHT_SCALED:
+							i = getNodeAt(prop->values, atomIndex++);
+							if((*i)->type != ANT_ATOM)
 							{
-								bool *pSetFlag;
-								size_t *pSize;
-								float *pFactor;
-								if (atom->id == ID_TARGET_WIDTH_SCALED)
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								return;
+							}
+							AtomAbstractNode *atom = (AtomAbstractNode*)(*i).get();
+
+							switch(atom->id)
+							{
+							case ID_TARGET_WIDTH:
+								width = 0;
+								widthSet = true;
+								break;
+							case ID_TARGET_HEIGHT:
+								height = 0;
+								heightSet = true;
+								break;
+							case ID_TARGET_WIDTH_SCALED:
+							case ID_TARGET_HEIGHT_SCALED:
 								{
-									pSetFlag = &widthSet;
-									pSize = &width;
-									pFactor = &widthFactor;
+									bool *pSetFlag;
+									size_t *pSize;
+									float *pFactor;
+									if (atom->id == ID_TARGET_WIDTH_SCALED)
+									{
+										pSetFlag = &widthSet;
+										pSize = &width;
+										pFactor = &widthFactor;
+									}
+									else
+									{
+										pSetFlag = &heightSet;
+										pSize = &height;
+										pFactor = &heightFactor;
+									}
+									// advance to next to get scaling
+									i = getNodeAt(prop->values, atomIndex++);
+									if((*i)->type != ANT_ATOM)
+									{
+										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+										return;
+									}
+									atom = (AtomAbstractNode*)(*i).get();
+									if (!StringConverter::isNumber(atom->value))
+									{
+										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+										return;
+									}
+
+									*pSize = 0;
+									*pFactor = StringConverter::parseReal(atom->value);
+									*pSetFlag = true;
+								}
+								break;
+							default:
+								if (StringConverter::isNumber(atom->value))
+								{
+									if (atomIndex == 2)
+									{
+										width = StringConverter::parseInt(atom->value);
+										widthSet = true;
+									}
+									else if (atomIndex == 3)
+									{
+										height = StringConverter::parseInt(atom->value);
+										heightSet = true;
+									}
+									else
+									{
+										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+										return;
+									}
 								}
 								else
 								{
-									pSetFlag = &heightSet;
-									pSize = &height;
-									pFactor = &heightFactor;
-								}
-								// advance to next to get scaling
-								i = getNodeAt(prop->values, atomIndex++);
-								if((*i)->type != ANT_ATOM)
-								{
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-									return;
-								}
-								atom = (AtomAbstractNode*)(*i).get();
-								if (!StringConverter::isNumber(atom->value))
-								{
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-									return;
+									// pixel format?
+									PixelFormat format = PixelUtil::getFormatFromName(atom->value, true);
+									if (format == PF_UNKNOWN)
+									{
+										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+										return;
+									}
+									formats.push_back(format);
+									formatSet = true;
 								}
 
-								*pSize = 0;
-								*pFactor = StringConverter::parseReal(atom->value);
-								*pSetFlag = true;
 							}
-							break;
-						default:
-							if (StringConverter::isNumber(atom->value))
-							{
-								if (atomIndex == 2)
-								{
-									width = StringConverter::parseInt(atom->value);
-									widthSet = true;
-								}
-								else if (atomIndex == 3)
-								{
-									height = StringConverter::parseInt(atom->value);
-									heightSet = true;
-								}
-								else
-								{
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-									return;
-								}
-							}
-							else
-							{
-								// pixel format?
-								PixelFormat format = PixelUtil::getFormatFromName(atom->value, true);
-								if (format == PF_UNKNOWN)
-								{
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-									return;
-								}
-								formats.push_back(format);
-								formatSet = true;
-							}
-
 						}
+						if (!widthSet || !heightSet || !formatSet)
+						{
+							compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
+							return;
+						}
+				
+
+						// No errors, create
+						String name = atom0->value;
+						
+						std::vector<Any> args;
+						args.push_back(Any(&name));
+						args.push_back(Any(1));
+						compiler->_fireEvent("processTextureNames", args, 0);
+
+						CompositionTechnique::TextureDefinition *def = mTechnique->createTextureDefinition(name);
+						def->width = width;
+						def->height = height;
+						def->widthFactor = widthFactor;
+						def->heightFactor = heightFactor;
+						def->formatList = formats;
 					}
-					if (!widthSet || !heightSet || !formatSet)
-					{
-						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
-						return;
-					}
-			
-
-					// No errors, create
-					String name = atom0->value;
-					
-					std::vector<Any> args;
-					args.push_back(Any(&name));
-					args.push_back(Any(1));
-					compiler->_fireEvent("processTextureNames", args, 0);
-
-					CompositionTechnique::TextureDefinition *def = mTechnique->createTextureDefinition(name);
-					def->width = width;
-					def->height = height;
-					def->widthFactor = widthFactor;
-					def->heightFactor = heightFactor;
-					def->formatList = formats;
-
 					break;
+				default:
+					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
+						String("\"") + prop->name + "\"");
 				}
 			}
 		}
@@ -4523,6 +4586,9 @@ namespace Ogre{
 						}
 					}
 					break;
+				default:
+					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
+						String("\"") + prop->name + "\"");
 				}
 			}
 		}
@@ -4905,6 +4971,9 @@ namespace Ogre{
 							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
 					}
 					break;
+				default:
+					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
+						String("\"") + prop->name + "\"");
 				}
 			}
 		}

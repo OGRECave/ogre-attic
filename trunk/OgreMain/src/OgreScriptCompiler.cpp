@@ -197,12 +197,14 @@ namespace Ogre
 		
 	}
 
-	void ScriptCompilerListener::handleError(ScriptCompiler *compiler, uint32 code, const String &file, int line)
+	void ScriptCompilerListener::handleError(ScriptCompiler *compiler, uint32 code, const String &file, int line, const String &msg)
 	{
-		Ogre::String msg = "Compiler error: ";
-		msg = msg + ScriptCompiler::formatErrorCode(code) + " in " + file + " " +
+		Ogre::String str = "Compiler error: ";
+		str = str + ScriptCompiler::formatErrorCode(code) + " in " + file + " " +
 			Ogre::StringConverter::toString(line);
-		Ogre::LogManager::getSingleton().logMessage(msg);
+		if(!msg.empty())
+			str = str + " " + msg;
+		Ogre::LogManager::getSingleton().logMessage(str);
 	}
 
 	bool ScriptCompilerListener::handleEvent(ScriptCompiler *compiler, const String &name, const std::vector<Ogre::Any> &args, Ogre::Any *retval)
@@ -354,23 +356,26 @@ namespace Ogre
 		return mErrors.empty();
 	}
 
-	void ScriptCompiler::addError(uint32 code, const Ogre::String &file, int line)
+	void ScriptCompiler::addError(uint32 code, const Ogre::String &file, int line, const String &msg)
 	{
 		ErrorPtr err(new Error());
 		err->code = code;
 		err->file = file;
 		err->line = line;
+		err->message = msg;
 
 		if(mListener)
 		{
-			mListener->handleError(this, code, file, line);
+			mListener->handleError(this, code, file, line, msg);
 		}
 		else
 		{
-			Ogre::String msg = "Compiler error: ";
-			msg = msg + formatErrorCode(code) + " in " + file + " " +
+			Ogre::String str = "Compiler error: ";
+			str = str + formatErrorCode(code) + " in " + file + " " +
 				Ogre::StringConverter::toString(line);
-			Ogre::LogManager::getSingleton().logMessage(msg);
+			if(!msg.empty())
+				str = str + " " + msg;
+			Ogre::LogManager::getSingleton().logMessage(str);
 		}
 
 		mErrors.push_back(err);
@@ -888,7 +893,7 @@ namespace Ogre
 		mIds["diffuse"] = ID_DIFFUSE;
 		mIds["specular"] = ID_SPECULAR;
 		mIds["emissive"] = ID_EMISSIVE;
-			mIds["vertex_colour"] = ID_VERTEX_COLOUR;
+			mIds["vertexcolour"] = ID_VERTEXCOLOUR;
 		mIds["scene_blend"] = ID_SCENE_BLEND;
 		mIds["colour_blend"] = ID_COLOUR_BLEND;
 			mIds["one"] = ID_ONE;

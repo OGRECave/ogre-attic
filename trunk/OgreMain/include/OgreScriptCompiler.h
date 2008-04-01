@@ -183,7 +183,7 @@ namespace Ogre
 		// The container for errors
 		struct Error
 		{
-			String file;
+			String file, message;
 			int line;
 			uint32 code;
 		};
@@ -200,7 +200,8 @@ namespace Ogre
 			CE_OBJECTNAMEEXPECTED,
 			CE_OBJECTALLOCATIONERROR,
 			CE_INVALIDPARAMETERS,
-			CE_DUPLICATEOVERRIDE
+			CE_DUPLICATEOVERRIDE,
+			CE_UNEXPECTEDTOKEN
 		};
 		static String formatErrorCode(uint32 code);
 	public:
@@ -216,7 +217,7 @@ namespace Ogre
 		/// Compiles resources from the given concrete node list
 		bool compile(const ConcreteNodeListPtr &nodes, const String &group);
 		/// Adds the given error to the compiler's list of errors
-		void addError(uint32 code, const String &file, int line);
+		void addError(uint32 code, const String &file, int line, const String &msg = "");
 		/// Sets the listener used by the compiler
 		void setListener(ScriptCompilerListener *listener);
 		/// Returns the currently set listener
@@ -317,7 +318,7 @@ namespace Ogre
 		/// Allows for responding to and overriding behavior before a CST is translated into an AST
 		virtual void preConversion(ScriptCompiler *compiler, ConcreteNodeListPtr nodes);
 		/// Called when an error occurred
-		virtual void handleError(ScriptCompiler *compiler, uint32 code, const String &file, int line);
+		virtual void handleError(ScriptCompiler *compiler, uint32 code, const String &file, int line, const String &msg);
 		/// Called when an event occurs during translation, return true if handled
 		/**
 		 @remarks	This function is called from the translators when an event occurs that
@@ -516,7 +517,7 @@ namespace Ogre
 		ID_DIFFUSE,
 		ID_SPECULAR,
 		ID_EMISSIVE,
-			ID_VERTEX_COLOUR,
+			ID_VERTEXCOLOUR,
 		ID_SCENE_BLEND,
 			ID_COLOUR_BLEND,
 			ID_ONE,
