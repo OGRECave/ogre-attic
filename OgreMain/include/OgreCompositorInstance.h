@@ -165,6 +165,14 @@ namespace Ogre {
 		*/
 		const String& getTextureInstanceName(const String& name, size_t mrtIndex);
 
+		/** Get the render target for a given render texture name. 
+		@remarks
+			You can use this to add listeners etc, but do not use it to update the
+			targets manually or any other modifications, the compositor instance 
+			is in charge of this.
+		*/
+		RenderTarget* getRenderTarget(const String& name);
+
        
         /** Recursively collect target states (except for final Pass).
             @param compiledState    This vector will contain a list of TargetOperation objects

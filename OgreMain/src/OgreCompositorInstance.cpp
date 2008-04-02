@@ -598,6 +598,11 @@ void CompositorInstance::freeResources()
 	}
 	mLocalMRTs.clear();
 }
+//---------------------------------------------------------------------
+RenderTarget* CompositorInstance::getRenderTarget(const String& name)
+{
+	return getTargetForTex(name);
+}
 //-----------------------------------------------------------------------
 RenderTarget *CompositorInstance::getTargetForTex(const String &name)
 {
