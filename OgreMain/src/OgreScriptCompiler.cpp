@@ -997,8 +997,10 @@ namespace Ogre
 			mIds["modulate"] = ID_MODULATE;
 			mIds["modulate_x2"] = ID_MODULATE_X2;
 			mIds["modulate_x4"] = ID_MODULATE_X4;
+			mIds["add"] = ID_ADD;
 			mIds["add_signed"] = ID_ADD_SIGNED;
 			mIds["add_smooth"] = ID_ADD_SMOOTH;
+			mIds["subtract"] = ID_SUBTRACT;
 			mIds["blend_diffuse_alpha"] = ID_BLEND_DIFFUSE_ALPHA;
 			mIds["blend_texture_alpha"] = ID_BLEND_TEXTURE_ALPHA;
 			mIds["blend_current_alpha"] = ID_BLEND_CURRENT_ALPHA;
