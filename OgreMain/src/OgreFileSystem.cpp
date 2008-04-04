@@ -264,6 +264,14 @@ namespace Ogre {
         struct stat tagStat;
         bool ret = (stat(full_path.c_str(), &tagStat) == 0);
 
+		// stat will return true if the filename is absolute, but we need to check
+		// the file is actually in this archive
+        if (ret && is_absolute_path(filename.c_str()))
+		{
+			// only valid if full path starts with our base
+			ret = Ogre::StringUtil::startsWith(full_path, mName);
+		}
+
 		return ret;
 	}
     //-----------------------------------------------------------------------
