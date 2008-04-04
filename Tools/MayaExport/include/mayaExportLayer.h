@@ -68,6 +68,7 @@
 // OGRE API
 #include "Ogre.h"
 #include "OgreDefaultHardwareBufferManager.h"
+#include "OgreHardwareVertexBuffer.h"
 
 // standard libraries
 #include <math.h>

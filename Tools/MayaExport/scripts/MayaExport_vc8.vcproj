@@ -522,6 +522,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\materialSet.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\mesh.cpp"
 				>
 			</File>

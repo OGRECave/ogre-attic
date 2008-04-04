@@ -24,6 +24,8 @@
 #ifndef __SINGLETON_H__
 #define __SINGLETON_H__
 
+#include <assert.h>
+
 // Copied frome Ogre::Singleton, created by Steve Streeting for Ogre
 
 namespace OgreMayaExporter 

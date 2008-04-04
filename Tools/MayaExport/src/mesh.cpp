@@ -963,7 +963,7 @@ namespace OgreMayaExporter
 			// save texture coordinates
 			for (k=0; k<vInfo.u.size(); k++)
 			{
-				texcoords newTexCoords;
+				texcoord newTexCoords;
 				newTexCoords.u = vInfo.u[k];
 				newTexCoords.v = vInfo.v[k];
 				newTexCoords.w = 0;
@@ -980,7 +980,7 @@ namespace OgreMayaExporter
 			vertex* pV = &m_sharedGeom.vertices[i];
 			for (j=pV->texcoords.size(); j<m_uvsets.size(); j++)
 			{
-				texcoords newTexCoords;
+				texcoord newTexCoords;
 				newTexCoords.u = 0;
 				newTexCoords.v = 0;
 				newTexCoords.w = 0;

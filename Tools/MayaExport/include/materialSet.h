@@ -107,8 +107,6 @@ namespace OgreMayaExporter
 		Material* m_pDefaultMat;
 	};
 
-	template<> MaterialSet* Singleton<MaterialSet>::ms_Singleton = 0;
-
 };	//end namespace
 
 #endif

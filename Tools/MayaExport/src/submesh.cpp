@@ -226,7 +226,7 @@ namespace OgreMayaExporter
 					// save texture coordinates
 					for (k=0; k<vInfo.u.size(); k++)
 					{
-						texcoords newTexCoords;
+						texcoord newTexCoords;
 						newTexCoords.u = vInfo.u[k];
 						newTexCoords.v = vInfo.v[k];
 						newTexCoords.w = 0;

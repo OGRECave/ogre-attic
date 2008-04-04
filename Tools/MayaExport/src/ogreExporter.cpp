@@ -118,7 +118,8 @@ namespace OgreMayaExporter
 	{
 		if (m_params.exportAnimCurves)
 		{
-			MItDependencyGraph animIter( dagPath.node(),
+			MObject dagPathNode = dagPath.node();
+			MItDependencyGraph animIter( dagPathNode,
 				MFn::kAnimCurve,
 				MItDependencyGraph::kUpstream,
 				MItDependencyGraph::kDepthFirst,
@@ -533,3 +534,33 @@ namespace OgreMayaExporter
 	}
 
 } // end namespace
+
+
+// Routine for registering the command within Maya
+MStatus initializePlugin( MObject obj )
+{
+	MStatus   status;
+	MFnPlugin plugin( obj, "OgreExporter", "7.0", "Any");
+	status = plugin.registerCommand( "ogreExport", OgreMayaExporter::OgreExporter::creator );
+	if (!status) {
+		status.perror("registerCommand");
+		return status;
+	}
+	
+	return status;
+}
+
+// Routine for unregistering the command within Maya
+MStatus uninitializePlugin( MObject obj)
+{
+	MStatus   status;
+	MFnPlugin plugin( obj );
+	status = plugin.deregisterCommand( "ogreExport" );
+	if (!status) {
+		status.perror("deregisterCommand");
+		return status;
+	}
+	
+	return status;
+}
+
