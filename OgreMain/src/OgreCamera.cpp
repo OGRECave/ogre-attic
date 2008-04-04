@@ -637,9 +637,10 @@ namespace Ogre {
         Vector3 vw_bl = inv.transformAffine(vp_bl);
         Vector3 vw_br = inv.transformAffine(vp_br);
 
+		mWindowClipPlanes.clear();
         if (mProjType == PT_PERSPECTIVE)
         {
-            Vector3 position = getPosition();
+            Vector3 position = getPositionForViewUpdate();
             mWindowClipPlanes.push_back(Plane(position, vw_bl, vw_ul));
             mWindowClipPlanes.push_back(Plane(position, vw_ul, vw_ur));
             mWindowClipPlanes.push_back(Plane(position, vw_ur, vw_br));
