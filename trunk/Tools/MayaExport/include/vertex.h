@@ -27,7 +27,7 @@
 	typedef struct texcoordstag
 	{
 		float u, v, w;				//texture coordinates	
-	} texcoords;
+	} texcoord;
 
 	/***** structure for vertex bone assignements *****/
 	typedef struct vbatag
@@ -42,7 +42,7 @@
 		double x, y, z;						//vertex coordinates
 		MVector n;							//vertex normal
 		float r,g,b,a;						//vertex colour
-		std::vector<texcoords> texcoords;	//vertex texture coordinates
+		std::vector<texcoord> texcoords;	//vertex texture coordinates
 		std::vector<vba> vbas;				//vertex bone assignements
 		long index;							//vertex index in the maya mesh to which this vertex refers
 	} vertex;

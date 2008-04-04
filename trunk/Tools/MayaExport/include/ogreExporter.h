@@ -105,33 +105,5 @@ namespace OgreMayaExporter
 		return false;
 	}
 
-	// Routine for registering the command within Maya
-	MStatus initializePlugin( MObject obj )
-	{
-		MStatus   status;
-		MFnPlugin plugin( obj, "OgreExporter", "7.0", "Any");
-		status = plugin.registerCommand( "ogreExport", OgreExporter::creator );
-		if (!status) {
-			status.perror("registerCommand");
-			return status;
-		}
-
-		return status;
-	}
-
-	// Routine for unregistering the command within Maya
-	MStatus uninitializePlugin( MObject obj)
-	{
-		MStatus   status;
-		MFnPlugin plugin( obj );
-		status = plugin.deregisterCommand( "ogreExport" );
-		if (!status) {
-			status.perror("deregisterCommand");
-			return status;
-		}
-
-		return status;
-	}
-
 }	//end namespace
 #endif

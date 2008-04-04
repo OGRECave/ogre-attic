@@ -358,7 +358,7 @@ namespace OgreMayaExporter
 		m_emissive = pPhong->incandescence();
 		//specular colour
 		m_specular = pPhong->specularColor();
-		m_specular.a = pPhong->cosPower();
+		m_specular.a = pPhong->cosPower()*1.28;
 		delete pPhong;
 		return MS::kSuccess;
 	}
@@ -406,7 +406,7 @@ namespace OgreMayaExporter
 		m_emissive = pBlinn->incandescence();
 		//specular colour
 		m_specular = pBlinn->specularColor();
-		m_specular.a = 1.0 / pBlinn->eccentricity();
+		m_specular.a = 128.0-(128.0*pBlinn->eccentricity());
 		delete pBlinn;
 		return MS::kSuccess;
 	}
@@ -579,6 +579,9 @@ namespace OgreMayaExporter
 		//set lighting off option if requested
 		if (m_lightingOff)
 			params.outMaterial << "\t\t\tlighting off\n\n";
+		//set phong shading if requested (default is gouraud)
+		if (m_type == MT_PHONG)
+			params.outMaterial << "\t\t\tshading phong\n";
 		//ambient colour
 		params.outMaterial << "\t\t\tambient " << m_ambient.r << " " << m_ambient.g << " " << m_ambient.b
 			<< " " << m_ambient.a << "\n";

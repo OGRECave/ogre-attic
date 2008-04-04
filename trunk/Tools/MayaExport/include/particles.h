@@ -16,7 +16,11 @@
 
 #include <math.h>
 #include <vector>
+#ifdef MAC_PLUGIN
+#include <ext/hash_map>
+#else
 #include <hash_map>
+#endif
 #include <maya/MDagPath.h>
 #include "paramList.h"
 #include "mayaExportLayer.h"
@@ -90,7 +94,11 @@ struct SParticleData
 	SParticleData(): nFrame( 0 ), nSprite( 0 ), pos( 0, 0, 0 ), color( 1, 1, 1, 1 ), scale( 1, 1 ), fRotation( 0 ) {}
 };
 typedef std::vector<SParticleData> CParticlesTrack;
+#ifdef MAC_PLUGIN
+typedef __gnu_cxx::hash_map<int, CParticlesTrack> CParticlesData;
+#else
 typedef stdext::hash_map<int, CParticlesTrack> CParticlesData;
+#endif
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class T>
 inline void Interpolate( const T &v1, const T &v2, float fCoeff, T *pRes )
