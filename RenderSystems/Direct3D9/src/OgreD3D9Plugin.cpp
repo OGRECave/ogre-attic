@@ -51,7 +51,11 @@ namespace Ogre
 #ifdef OGRE_STATIC_LIB
 		HINSTANCE hInst = GetModuleHandle( NULL );
 #else
+#  if OGRE_DEBUG_MODE == 1
+		HINSTANCE hInst = GetModuleHandle( "RenderSystem_Direct3D9_d.dll" );
+#  else
 		HINSTANCE hInst = GetModuleHandle( "RenderSystem_Direct3D9.dll" );
+#  endif
 #endif
 		mRenderSystem = new D3D9RenderSystem( hInst );
 		// Register the render system
