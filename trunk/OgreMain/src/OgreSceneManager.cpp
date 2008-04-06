@@ -5847,6 +5847,11 @@ SceneManager::getMovableObjectCollection(const String& typeName) const
 MovableObject* SceneManager::createMovableObject(const String& name, 
 	const String& typeName, const NameValuePairList* params)
 {
+	// Nasty hack to make generalised Camera functions work without breaking add-on SMs
+	if (typeName == "Camera")
+	{
+		return createCamera(name);
+	}
 	MovableObjectFactory* factory = 
 		Root::getSingleton().getMovableObjectFactory(typeName);
 	// Check for duplicate names
@@ -5872,6 +5877,12 @@ MovableObject* SceneManager::createMovableObject(const String& name,
 //---------------------------------------------------------------------
 void SceneManager::destroyMovableObject(const String& name, const String& typeName)
 {
+	// Nasty hack to make generalised Camera functions work without breaking add-on SMs
+	if (typeName == "Camera")
+	{
+		destroyCamera(name);
+		return;
+	}
 	MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
 	MovableObjectFactory* factory = 
 		Root::getSingleton().getMovableObjectFactory(typeName);
@@ -5890,6 +5901,12 @@ void SceneManager::destroyMovableObject(const String& name, const String& typeNa
 //---------------------------------------------------------------------
 void SceneManager::destroyAllMovableObjectsByType(const String& typeName)
 {
+	// Nasty hack to make generalised Camera functions work without breaking add-on SMs
+	if (typeName == "Camera")
+	{
+		destroyAllCameras();
+		return;
+	}
 	MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
 	MovableObjectFactory* factory = 
 		Root::getSingleton().getMovableObjectFactory(typeName);
@@ -5944,6 +5961,12 @@ void SceneManager::destroyAllMovableObjects(void)
 //---------------------------------------------------------------------
 MovableObject* SceneManager::getMovableObject(const String& name, const String& typeName) const
 {
+	// Nasty hack to make generalised Camera functions work without breaking add-on SMs
+	if (typeName == "Camera")
+	{
+		return getCamera(name);
+	}
+
 	const MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
 	
 	{
@@ -5962,6 +5985,11 @@ MovableObject* SceneManager::getMovableObject(const String& name, const String& 
 //-----------------------------------------------------------------------
 bool SceneManager::hasMovableObject(const String& name, const String& typeName) const
 {
+	// Nasty hack to make generalised Camera functions work without breaking add-on SMs
+	if (typeName == "Camera")
+	{
+		return hasCamera(name);
+	}
 	OGRE_LOCK_MUTEX(mMovableObjectCollectionMapMutex)
 
 	MovableObjectCollectionMap::const_iterator i = 
