@@ -385,17 +385,17 @@ namespace Ogre {
 
         // Sky plane
         bool mSkyPlaneEnabled;
-        bool mSkyPlaneDrawFirst;
+        uint8 mSkyPlaneRenderQueue;
         Plane mSkyPlane;
         SkyPlaneGenParameters mSkyPlaneGenParameters;
         // Sky box
         bool mSkyBoxEnabled;
-        bool mSkyBoxDrawFirst;
+        uint8 mSkyBoxRenderQueue;
         Quaternion mSkyBoxOrientation;
         SkyBoxGenParameters mSkyBoxGenParameters;
         // Sky dome
         bool mSkyDomeEnabled;
-        bool mSkyDomeDrawFirst;
+        uint8 mSkyDomeRenderQueue;
         Quaternion mSkyDomeOrientation;
         SkyDomeGenParameters mSkyDomeGenParameters;
 
@@ -1641,10 +1641,60 @@ namespace Ogre {
             @param groupName
                 The name of the resource group to which to assign the plane mesh.
         */
+
         virtual void setSkyPlane(
             bool enable,
             const Plane& plane, const String& materialName, Real scale = 1000,
             Real tiling = 10, bool drawFirst = true, Real bow = 0, 
+            int xsegments = 1, int ysegments = 1, 
+            const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        /** Enables / disables a 'sky plane' i.e. a plane at constant
+            distance from the camera representing the sky.
+            @remarks
+                You can create sky planes yourself using the standard mesh and
+                entity methods, but this creates a plane which the camera can
+                never get closer or further away from - it moves with the camera.
+                (NB you could create this effect by creating a world plane which
+                was attached to the same SceneNode as the Camera too, but this
+                would only apply to a single camera whereas this plane applies to
+                any camera using this scene manager).
+            @note
+                To apply scaling, scrolls etc to the sky texture(s) you
+                should use the TextureUnitState class methods.
+            @param
+                enable True to enable the plane, false to disable it
+            @param
+                plane Details of the plane, i.e. it's normal and it's
+                distance from the camera.
+            @param
+                materialName The name of the material the plane will use
+            @param
+                scale The scaling applied to the sky plane - higher values
+                mean a bigger sky plane - you may want to tweak this
+                depending on the size of plane.d and the other
+                characteristics of your scene
+            @param
+                tiling How many times to tile the texture across the sky.
+                Applies to all texture layers. If you need finer control use
+                the TextureUnitState texture coordinate transformation methods.
+            @param
+                renderQueue The render queue to use when rendering this object
+			@param
+				bow If zero, the plane will be completely flat (like previous
+				versions.  If above zero, the plane will be curved, allowing
+				the sky to appear below camera level.  Curved sky planes are 
+				simular to skydomes, but are more compatable with fog.
+            @param xsegments, ysegments
+                Determines the number of segments the plane will have to it. This
+                is most important when you are bowing the plane, but may also be useful
+                if you need tesselation on the plane to perform per-vertex effects.
+            @param groupName
+                The name of the resource group to which to assign the plane mesh.
+        */        
+        virtual void _setSkyPlane(
+            bool enable,
+            const Plane& plane, const String& materialName, Real scale = 1000,
+            Real tiling = 10, uint8 renderQueue = RENDER_QUEUE_SKIES_EARLY, Real bow = 0, 
             int xsegments = 1, int ysegments = 1, 
             const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
@@ -1701,6 +1751,43 @@ namespace Ogre {
         virtual void setSkyBox(
             bool enable, const String& materialName, Real distance = 5000,
             bool drawFirst = true, const Quaternion& orientation = Quaternion::IDENTITY,
+            const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+        /** Enables / disables a 'sky box' i.e. a 6-sided box at constant
+            distance from the camera representing the sky.
+            @remarks
+                You could create a sky box yourself using the standard mesh and
+                entity methods, but this creates a plane which the camera can
+                never get closer or further away from - it moves with the camera.
+                (NB you could create this effect by creating a world box which
+                was attached to the same SceneNode as the Camera too, but this
+                would only apply to a single camera whereas this skybox applies
+                to any camera using this scene manager).
+            @par
+                The material you use for the skybox can either contain layers
+                which are single textures, or they can be cubic textures, i.e.
+                made up of 6 images, one for each plane of the cube. See the
+                TextureUnitState class for more information.
+            @param
+                enable True to enable the skybox, false to disable it
+            @param
+                materialName The name of the material the box will use
+            @param
+                distance Distance in world coorinates from the camera to
+                each plane of the box. The default is normally OK.
+            @param
+                renderQueue The render queue to use when rendering this object
+            @param
+                orientation Optional parameter to specify the orientation
+                of the box. By default the 'top' of the box is deemed to be
+                in the +y direction, and the 'front' at the -z direction.
+                You can use this parameter to rotate the sky if you want.
+            @param groupName
+                The name of the resource group to which to assign the plane mesh.
+        */
+        virtual void _setSkyBox(
+            bool enable, const String& materialName, Real distance = 5000,
+            uint8 renderQueue = RENDER_QUEUE_SKIES_EARLY, const Quaternion& orientation = Quaternion::IDENTITY,
             const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 		/** Return whether a skybox is enabled */
@@ -1766,10 +1853,63 @@ namespace Ogre {
                 You can use this parameter to rotate the sky if you want.
             @param groupName
                 The name of the resource group to which to assign the plane mesh.
-        */
+                */
         virtual void setSkyDome(
             bool enable, const String& materialName, Real curvature = 10,
             Real tiling = 8, Real distance = 4000, bool drawFirst = true,
+            const Quaternion& orientation = Quaternion::IDENTITY,
+            int xsegments = 16, int ysegments = 16, int ysegments_keep = -1,
+            const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+		/** Enables / disables a 'sky dome' i.e. an illusion of a curved sky.
+            @remarks
+                A sky dome is actually formed by 5 sides of a cube, but with
+                texture coordinates generated such that the surface appears
+                curved like a dome. Sky domes are appropriate where you need a
+                realistic looking sky where the scene is not going to be
+                'fogged', and there is always a 'floor' of some sort to prevent
+                the viewer looking below the horizon (the distortion effect below
+                the horizon can be pretty horrible, and there is never anyhting
+                directly below the viewer). If you need a complete wrap-around
+                background, use the setSkyBox method instead. You can actually
+                combine a sky box and a sky dome if you want, to give a positional
+                backdrop with an overlayed curved cloud layer.
+            @par
+                Sky domes work well with 2D repeating textures like clouds. You
+                can change the apparant 'curvature' of the sky depending on how
+                your scene is viewed - lower curvatures are better for 'open'
+                scenes like landscapes, whilst higher curvatures are better for
+                say FPS levels where you don't see a lot of the sky at once and
+                the exaggerated curve looks good.
+            @param
+                enable True to enable the skydome, false to disable it
+            @param
+                materialName The name of the material the dome will use
+            @param
+                curvature The curvature of the dome. Good values are
+                between 2 and 65. Higher values are more curved leading to
+                a smoother effect, lower values are less curved meaning
+                more distortion at the horizons but a better distance effect.
+            @param
+                tiling How many times to tile the texture(s) across the
+                dome.
+            @param
+                distance Distance in world coorinates from the camera to
+                each plane of the box the dome is rendered on. The default
+                is normally OK.
+            @param
+                renderQueue The render queue to use when rendering this object
+            @param
+                orientation Optional parameter to specify the orientation
+                of the dome. By default the 'top' of the dome is deemed to
+                be in the +y direction, and the 'front' at the -z direction.
+                You can use this parameter to rotate the sky if you want.
+            @param groupName
+                The name of the resource group to which to assign the plane mesh.
+                */        
+        virtual void _setSkyDome(
+            bool enable, const String& materialName, Real curvature = 10,
+            Real tiling = 8, Real distance = 4000, uint8 renderQueue = RENDER_QUEUE_SKIES_EARLY,
             const Quaternion& orientation = Quaternion::IDENTITY,
             int xsegments = 16, int ysegments = 16, int ysegments_keep = -1,
             const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);

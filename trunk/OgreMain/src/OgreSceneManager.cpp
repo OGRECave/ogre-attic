@@ -1367,13 +1367,13 @@ bool SceneManager::materialLess::operator() (const Material* x, const Material* 
 }
 
 //-----------------------------------------------------------------------
-void SceneManager::setSkyPlane(
+void SceneManager::_setSkyPlane(
                                bool enable,
                                const Plane& plane,
                                const String& materialName,
                                Real gscale,
                                Real tiling,
-                               bool drawFirst,
+                               uint8 renderQueue,
                                Real bow, 
                                int xsegments, int ysegments, 
                                const String& groupName)
@@ -1395,7 +1395,7 @@ void SceneManager::setSkyPlane(
         // Ensure loaded
         m->load();
 
-        mSkyPlaneDrawFirst = drawFirst;
+        mSkyPlaneRenderQueue = renderQueue;
 
         // Set up the plane
         MeshPtr planeMesh = MeshManager::getSingleton().getByName(meshName);
@@ -1456,11 +1456,27 @@ void SceneManager::setSkyPlane(
 	mSkyPlaneGenParameters.skyPlaneYSegments = ysegments;
 }
 //-----------------------------------------------------------------------
-void SceneManager::setSkyBox(
+void SceneManager::setSkyPlane(
+                               bool enable,
+                               const Plane& plane,
+                               const String& materialName,
+                               Real gscale,
+                               Real tiling,
+                               bool drawFirst,
+                               Real bow, 
+                               int xsegments, int ysegments, 
+                               const String& groupName)
+{
+	_setSkyPlane(enable, plane, materialName, gscale, tiling, 
+		static_cast<uint8>(drawFirst?RENDER_QUEUE_SKIES_EARLY: RENDER_QUEUE_SKIES_LATE), 
+		bow, xsegments, ysegments, groupName);
+}
+//-----------------------------------------------------------------------
+void SceneManager::_setSkyBox(
                              bool enable,
                              const String& materialName,
                              Real distance,
-                             bool drawFirst,
+                             uint8 renderQueue,
                              const Quaternion& orientation,
                              const String& groupName)
 {
@@ -1488,7 +1504,7 @@ void SceneManager::setSkyBox(
 		if (pass->getNumTextureUnitStates() > 0 && pass->getTextureUnitState(0)->is3D())
 			t3d = true;
 
-        mSkyBoxDrawFirst = drawFirst;
+        mSkyBoxRenderQueue = renderQueue;
 
         // Create node 
         if (!mSkyBoxNode)
@@ -1508,8 +1524,7 @@ void SceneManager::setSkyBox(
 			mSkyBoxObj->clear();
 		}
 		
-		mSkyBoxObj->setRenderQueueGroup(mSkyBoxDrawFirst? 
-			RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE);
+		mSkyBoxObj->setRenderQueueGroup(mSkyBoxRenderQueue);
 
 		if (t3d)
 		{
@@ -1663,13 +1678,26 @@ void SceneManager::setSkyBox(
 	mSkyBoxGenParameters.skyBoxDistance = distance;
 }
 //-----------------------------------------------------------------------
-void SceneManager::setSkyDome(
+void SceneManager::setSkyBox(
+                             bool enable,
+                             const String& materialName,
+                             Real distance,
+                             bool drawFirst,
+                             const Quaternion& orientation,
+                             const String& groupName)
+{
+	_setSkyBox(enable, materialName, distance, 
+		static_cast<uint8>(drawFirst?RENDER_QUEUE_SKIES_EARLY: RENDER_QUEUE_SKIES_LATE), 
+		orientation, groupName);
+}
+//-----------------------------------------------------------------------
+void SceneManager::_setSkyDome(
                               bool enable,
                               const String& materialName,
                               Real curvature,
                               Real tiling,
                               Real distance,
-                              bool drawFirst,
+                              uint8 renderQueue,
                               const Quaternion& orientation,
                               int xsegments, int ysegments, int ySegmentsToKeep,
                               const String& groupName)
@@ -1688,7 +1716,8 @@ void SceneManager::setSkyDome(
         // Ensure loaded
         m->load();
 
-        mSkyDomeDrawFirst = drawFirst;
+        //mSkyDomeDrawFirst = drawFirst;
+        mSkyDomeRenderQueue = renderQueue;
 
         // Create node 
         if (!mSkyDomeNode)
@@ -1731,6 +1760,22 @@ void SceneManager::setSkyDome(
 	mSkyDomeGenParameters.skyDomeXSegments = xsegments;
 	mSkyDomeGenParameters.skyDomeYSegments = ysegments;
 	mSkyDomeGenParameters.skyDomeYSegments_keep = ySegmentsToKeep;
+}
+//-----------------------------------------------------------------------
+void SceneManager::setSkyDome(
+                              bool enable,
+                              const String& materialName,
+                              Real curvature,
+                              Real tiling,
+                              Real distance,
+                              bool drawFirst,
+                              const Quaternion& orientation,
+                              int xsegments, int ysegments, int ySegmentsToKeep,
+                              const String& groupName)
+{
+	_setSkyDome(enable, materialName, curvature, tiling, distance, 
+		static_cast<uint8>(drawFirst?RENDER_QUEUE_SKIES_EARLY: RENDER_QUEUE_SKIES_LATE), 
+		orientation, xsegments, ysegments, ySegmentsToKeep, groupName);
 }
 //-----------------------------------------------------------------------
 MeshPtr SceneManager::createSkyboxPlane(
@@ -3484,12 +3529,9 @@ void SceneManager::_queueSkiesForRendering(Camera* cam)
         mSkyDomeNode->setPosition(cam->getDerivedPosition());
     }
 
-    uint8 qid;
     if (mSkyPlaneEnabled)
     {
-        qid = mSkyPlaneDrawFirst? 
-RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
-        getRenderQueue()->addRenderable(mSkyPlaneEntity->getSubEntity(0), qid, OGRE_RENDERABLE_DEFAULT_PRIORITY);
+        getRenderQueue()->addRenderable(mSkyPlaneEntity->getSubEntity(0), mSkyPlaneRenderQueue, OGRE_RENDERABLE_DEFAULT_PRIORITY);
     }
 
     if (mSkyBoxEnabled)
@@ -3500,13 +3542,10 @@ RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
 	uint plane;
     if (mSkyDomeEnabled)
     {
-        qid = mSkyDomeDrawFirst? 
-RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
-
         for (plane = 0; plane < 5; ++plane)
         {
             getRenderQueue()->addRenderable(
-                mSkyDomeEntity[plane]->getSubEntity(0), qid, OGRE_RENDERABLE_DEFAULT_PRIORITY);
+                mSkyDomeEntity[plane]->getSubEntity(0), mSkyDomeRenderQueue, OGRE_RENDERABLE_DEFAULT_PRIORITY);
         }
     }
 }
