@@ -150,9 +150,20 @@ namespace Ogre
 		/// Override since windows don't usually have alpha
 		PixelFormat suggestPixelFormat() const { return PF_BYTE_RGB; }
 
+        /** Returns true if the window will automatically de-activate itself when it loses focus.
+        */
+        bool isDeactivatedOnFocusChange() const;
+
+        /** Indicates whether the window will automatically deactivate itself when it loses focus.
+          * \param deactivate a value of 'true' will cause the window to deactivate itself when it loses focus.  'false' will allow it to continue to render even when window focus is lost.
+          * \note 'true' is the default behavior.
+          */
+        void setDeactivateOnFocusChange(bool deactivate);
+
     protected:
         bool mIsFullScreen;
         bool mIsPrimary;
+        bool mAutoDeactivatedOnFocusChange;
         int mLeft;
         int mTop;
         

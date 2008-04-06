@@ -148,10 +148,21 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 	{
 	case WM_ACTIVATE:
 	{
-		bool active = (LOWORD(wParam) != WA_INACTIVE);
-		win->setActive( active );
-		for( ; start != end; ++start )
-			(start->second)->windowFocusChange(win);
+        bool active = (LOWORD(wParam) != WA_INACTIVE);
+        if( active )
+        {
+		    win->setActive( true );
+        }
+        else
+        {
+            if( win->isDeactivatedOnFocusChange() )
+            {
+    		    win->setActive( false );
+            }
+        }
+
+	    for( ; start != end; ++start )
+		    (start->second)->windowFocusChange(win);
 		break;
 	}
 	case WM_SYSKEYDOWN:
@@ -363,9 +374,14 @@ OSStatus WindowEventUtilities::_CarbonWindowHandler(EventHandlerCallRef nextHand
                 (start->second)->windowFocusChange(curWindow);
             break;
         case kEventWindowDeactivated:
-            curWindow->setActive( false );
+            if( curWindow->isDeactivatedOnFocusChange() )
+            {
+                curWindow->setActive( false );
+            }
+
             for( ; start != end; ++start )
                 (start->second)->windowFocusChange(curWindow);
+
             break;
         case kEventWindowShown:
         case kEventWindowExpanded:
