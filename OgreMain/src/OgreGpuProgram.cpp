@@ -503,8 +503,8 @@ namespace Ogre
 
 		writeFileHeader();
 
-		writeInts(&pConsts->floatBufferSize, 1);
-		writeInts(&pConsts->intBufferSize, 1);
+		writeInts(((uint32*)&pConsts->floatBufferSize), 1);
+		writeInts(((uint32*)&pConsts->intBufferSize), 1);
 
 		// simple export of all the named constants, no chunks
 		// name, physical index
@@ -515,12 +515,12 @@ namespace Ogre
 			const GpuConstantDefinition& def = i->second;
 
 			writeString(name);
-			writeInts(&def.physicalIndex, 1);
-			writeInts(&def.logicalIndex, 1);
+			writeInts(((uint32*)&def.physicalIndex), 1);
+			writeInts(((uint32*)&def.logicalIndex), 1);
 			uint32 constType = static_cast<uint32>(def.constType);
 			writeInts(&constType, 1);
-			writeInts(&def.elementSize, 1);
-			writeInts(&def.arraySize, 1);		
+			writeInts(((uint32*)&def.elementSize), 1);
+			writeInts(((uint32*)&def.arraySize), 1);		
 		}
 
 		fclose(mpfFile);
@@ -539,8 +539,8 @@ namespace Ogre
 		// simple file structure, no chunks
 		pDest->map.clear();
 
-		readInts(stream, &pDest->floatBufferSize, 1);
-		readInts(stream, &pDest->intBufferSize, 1);
+		readInts(stream, ((uint32*)&pDest->floatBufferSize), 1);
+		readInts(stream, ((uint32*)&pDest->intBufferSize), 1);
 
 		while (!stream->eof())
 		{
@@ -549,13 +549,13 @@ namespace Ogre
 			// Hmm, deal with trailing information
 			if (name.empty())
 				continue;
-			readInts(stream, &def.physicalIndex, 1);
-			readInts(stream, &def.logicalIndex, 1);
+			readInts(stream, ((uint32*)&def.physicalIndex), 1);
+			readInts(stream, ((uint32*)&def.logicalIndex), 1);
 			uint constType;
 			readInts(stream, &constType, 1);
 			def.constType = static_cast<GpuConstantType>(constType);
-			readInts(stream, &def.elementSize, 1);
-			readInts(stream, &def.arraySize, 1);
+			readInts(stream, ((uint32*)&def.elementSize), 1);
+			readInts(stream, ((uint32*)&def.arraySize), 1);
 
 			pDest->map[name] = def;
 
