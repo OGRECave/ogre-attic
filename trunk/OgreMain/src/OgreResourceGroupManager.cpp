@@ -559,7 +559,10 @@ namespace Ogre {
 		{
 			// Found in the index
 			pArch = rit->second;
-			return pArch->open(resourceName);
+			DataStreamPtr stream = pArch->open(resourceName);
+			if (mLoadingListener)
+				mLoadingListener->resourceStreamOpened(resourceName, groupName, resourceBeingLoaded, stream);
+			return stream;
 		}
         else 
         {
@@ -571,7 +574,10 @@ namespace Ogre {
             {
                 // Found in the index
                 pArch = rit->second;
-                return pArch->open(resourceName);
+				DataStreamPtr stream = pArch->open(resourceName);
+				if (mLoadingListener)
+					mLoadingListener->resourceStreamOpened(resourceName, groupName, resourceBeingLoaded, stream);
+				return stream;
             }
 		    else
 		    {
@@ -584,6 +590,8 @@ namespace Ogre {
                     if (arch->exists(resourceName))
 				    {
                         DataStreamPtr ptr = arch->open(resourceName);
+						if (mLoadingListener)
+							mLoadingListener->resourceStreamOpened(resourceName, groupName, resourceBeingLoaded, ptr);
 					    return ptr;
 				    }
 			    }
@@ -791,6 +799,8 @@ namespace Ogre {
                         DataStreamPtr stream = fii->archive->open(fii->filename);
                         if (!stream.isNull())
                         {
+							if (mLoadingListener)
+								mLoadingListener->resourceStreamOpened(fii->filename, grp->name, 0, stream);
                             su->parseScript(stream, grp->name);
                         }
                     }
