@@ -503,8 +503,6 @@ namespace Ogre {
 		ZeroMemory(&mConstantBufferDesc, sizeof(mConstantBufferDesc)) ;
 		ZeroMemory(&mShaderDesc, sizeof(mShaderDesc)) ;
 
-
-
 		if (createParamDictionary("D3D10HLSLProgram"))
 		{
 			setupBaseParamDictionary();

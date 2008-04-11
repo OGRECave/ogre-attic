@@ -140,6 +140,17 @@ namespace Ogre
 		D3D10HLSLProgram* mBoundVertexProgram;
 		D3D10HLSLProgram* mBoundFragmentProgram;
 
+
+		ID3D10BlendState * mBoundBlendState;
+		ID3D10RasterizerState * mBoundRasterizer;
+		ID3D10DepthStencilState * mBoundDepthStencilState;
+		ID3D10SamplerState * mBoundSamplerStates[OGRE_MAX_TEXTURE_LAYERS];
+		size_t mBoundSamplerStatesCount;
+
+		ID3D10ShaderResourceView * mBoundTextures[OGRE_MAX_TEXTURE_LAYERS];
+		size_t mBoundTexturesCount;
+
+
 		/// structure holding texture unit settings for every stage
 		struct sD3DTextureStageDesc
 		{

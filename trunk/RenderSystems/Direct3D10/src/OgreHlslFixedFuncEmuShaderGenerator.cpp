@@ -480,10 +480,10 @@ namespace Ogre
 		{
 			if (bHasColor)
 			{
-				shaderSource = shaderSource + "output.Color.x = ((input.DiffuseColor0 >> 24) & 0xFF) / 255.0f;\n";
-				shaderSource = shaderSource + "output.Color.y = ((input.DiffuseColor0 >> 16) & 0xFF) / 255.0f;\n"; 
-				shaderSource = shaderSource + "output.Color.z = ((input.DiffuseColor0 >> 8) & 0xFF) / 255.0f;\n";
-				shaderSource = shaderSource + "output.Color.w = (input.DiffuseColor0 & 0xFF) / 255.0f;\n";
+				shaderSource = shaderSource + "output.Color.w = ((input.DiffuseColor0 >> 24) & 0xFF) / 255.0f;\n";
+				shaderSource = shaderSource + "output.Color.x = ((input.DiffuseColor0 >> 16) & 0xFF) / 255.0f;\n"; 
+				shaderSource = shaderSource + "output.Color.y = ((input.DiffuseColor0 >> 8) & 0xFF) / 255.0f;\n";
+				shaderSource = shaderSource + "output.Color.z = (input.DiffuseColor0 & 0xFF) / 255.0f;\n";
 			}
 			else
 			{
