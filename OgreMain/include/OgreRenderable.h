@@ -56,10 +56,23 @@ namespace Ogre {
     */
     class _OgreExport Renderable
     {
+	public:
+		/** An internal class that should be used only by a render system for internal use 
+		@remarks
+		This class was created so a render system can associate internal data to this class.
+		The need for this class started when the DX10 render system needed to save state objects.
+		*/
+		class RenderSystemData {}; 
     public:
-		Renderable() : mPolygonModeOverrideable(true), mUseIdentityProjection(false), mUseIdentityView(false) {}
+		Renderable() : mPolygonModeOverrideable(true), mUseIdentityProjection(false), mUseIdentityView(false), mRenderSystemData(NULL){}
         /** Virtual destructor needed as class has virtual methods. */
-        virtual ~Renderable() { }
+        virtual ~Renderable() 
+		{
+			if (mRenderSystemData)
+			{
+				delete mRenderSystemData;
+			}
+		}
         /** Retrieves a weak reference to the material this renderable object uses.
         @remarks
             Note that the Renderable also has the option to override the getTechnique method
@@ -306,14 +319,33 @@ namespace Ogre {
 				Any* pAny = 0) = 0;
 		};
 
+		/** Sets render system private data
+		@remarks
+		This should only be used by a render system
+		*/
+		virtual RenderSystemData * getRenderSystemData() const 
+		{ 
+			return mRenderSystemData; 
+		}
+		/** gets render system private data
+		@remarks
+		This should only be used by a render system
+		*/
+		virtual void setRenderSystemData(RenderSystemData * val) const
+		{ 
+			mRenderSystemData = val; 
+		}
+
+
     protected:
         typedef std::map<size_t, Vector4> CustomParameterMap;
         CustomParameterMap mCustomParameters;
 		bool mPolygonModeOverrideable;
         bool mUseIdentityProjection;
         bool mUseIdentityView;
-		Any mUserAny;
-    };
+		Any mUserAny;		
+		mutable RenderSystemData * mRenderSystemData;// this should be used only by a render system for internal use
+	};
 
 
 
