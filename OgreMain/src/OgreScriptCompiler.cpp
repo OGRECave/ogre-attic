@@ -58,6 +58,11 @@ namespace Ogre
 		return node;
 	}
 
+	String AtomAbstractNode::getValue() const
+	{
+		return value;
+	}
+
 	// ObjectAbstractNode
 	ObjectAbstractNode::ObjectAbstractNode(AbstractNode *ptr)
 		:AbstractNode(ptr), abstract(false), id(0)
@@ -89,6 +94,11 @@ namespace Ogre
 		}
 		node->mEnv = mEnv;
 		return node;
+	}
+
+	String ObjectAbstractNode::getValue() const
+	{
+		return cls;
 	}
 
 	void ObjectAbstractNode::addVariable(const Ogre::String &name)
@@ -147,6 +157,11 @@ namespace Ogre
 		return node;
 	}
 
+	String PropertyAbstractNode::getValue() const
+	{
+		return name;
+	}
+
 	// ImportAbstractNode
 	ImportAbstractNode::ImportAbstractNode()
 		:AbstractNode(0)
@@ -165,6 +180,11 @@ namespace Ogre
 		return node;
 	}
 
+	String ImportAbstractNode::getValue() const
+	{
+		return target;
+	}
+
 	// VariableAccessAbstractNode
 	VariableAccessAbstractNode::VariableAccessAbstractNode(AbstractNode *ptr)
 		:AbstractNode(ptr)
@@ -180,6 +200,11 @@ namespace Ogre
 		node->type = type;
 		node->name = name;
 		return node;
+	}
+
+	String VariableAccessAbstractNode::getValue() const
+	{
+		return name;
 	}
 
 	// ScriptCompilerListener
@@ -337,15 +362,6 @@ namespace Ogre
 		// Translate the nodes
 		for(AbstractNodeList::iterator i = ast->begin(); i != ast->end(); ++i)
 		{
-			/*
-			if((*i)->type == ANT_OBJECT)
-			{
-				ObjectAbstractNode *obj = reinterpret_cast<ObjectAbstractNode*>((*i).get());
-				if(obj->name == "jaiqua" || obj->name == "Ogre/HardwareSkinningTwoWeights" ||
-					obj->name == "Ogre/HardwareSkinningTwoWeightsShadowCaster")
-					logAST(0, *i);
-			}
-			*/
 			if((*i)->type == ANT_OBJECT && reinterpret_cast<ObjectAbstractNode*>((*i).get())->abstract)
 				continue;
 			ScriptTranslator *translator = ScriptCompilerManager::getSingleton().getTranslator(*i);
@@ -618,7 +634,7 @@ namespace Ogre
 			size_t maxOverrideIndex = 0;
 
 			// Loop through destination children searching for name-matching overrides
-			for(AbstractNodeList::iterator i = dest->children.begin(); i != dest->children.end(); ++i)
+			for(AbstractNodeList::iterator i = dest->children.begin(); i != dest->children.end(); )
 			{
 				if((*i)->type == ANT_OBJECT)
 				{
@@ -629,29 +645,63 @@ namespace Ogre
 					indices[node] = maxOverrideIndex;
 					overridden[node] = false;
 
+					// special treatment for materials with * in their name
+					bool nodeHasWildcard=node->name.find('*') != String::npos;
+
 					// Find the matching name node
 					for(size_t j = 0; j < overrides.size(); ++j)
 					{
 						ObjectAbstractNode *temp = reinterpret_cast<ObjectAbstractNode*>(overrides[j].first.get());
-						if(temp->cls == node->cls && !node->name.empty() && temp->name == node->name)
+						// Consider a match a node that has a wildcard and matches an input name
+						bool wildcardMatch = nodeHasWildcard && 
+							(StringUtil::match(temp->name,node->name,true) || 
+								(node->name.size() == 1 && temp->name.empty()));
+						if(temp->cls == node->cls && !node->name.empty() && (temp->name == node->name || wildcardMatch))
 						{
 							// Pair these two together unless it's already paired
 							if(overrides[j].second == dest->children.end())
 							{
-								overrides[j] = std::make_pair(overrides[j].first, i);
+								AbstractNodeList::iterator currentIterator = i;
+								ObjectAbstractNode *currentNode = node;
+								if (wildcardMatch)
+								{
+									//If wildcard is matched, make a copy of current material and put it before the iterator, matching its name to the parent. Use same reinterpret cast as above when node is set
+									AbstractNodePtr newNode((*i)->clone());
+									currentIterator = dest->children.insert(currentIterator, newNode);
+									currentNode = reinterpret_cast<ObjectAbstractNode*>((*currentIterator).get());
+									currentNode->name = temp->name;//make the regex match its matcher
+								}
+								overrides[j] = std::make_pair(overrides[j].first, currentIterator);
 								// Store the max override index for this matched pair
 								overrideIndex = j;
 								overrideIndex = maxOverrideIndex = std::max(overrideIndex, maxOverrideIndex);
-								indices[node] = overrideIndex;
-								overridden[node] = true;
+								indices[currentNode] = overrideIndex;
+								overridden[currentNode] = true;
 							}
 							else
 							{
 								addError(CE_DUPLICATEOVERRIDE, node->file, node->line);
 							}
-							break;
+
+							if(!wildcardMatch)
+								break;
 						}
 					}
+
+					if (nodeHasWildcard)
+					{
+						//if the node has a wildcard it will be deleted since it was duplicated for every match
+						AbstractNodeList::iterator deletable=i++;
+						dest->children.erase(deletable);
+					}
+					else
+					{
+						++i; //Behavior in absence of regex, just increment iterator
+					}
+				}
+				else 
+				{
+					++i; //Behavior in absence of replaceable object, just increment iterator to find another
 				}
 			}
 

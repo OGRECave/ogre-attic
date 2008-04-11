@@ -100,7 +100,10 @@ namespace Ogre
 		Any context; // A holder for translation context data
 	public:
 		AbstractNode(AbstractNode *ptr);
-		virtual AbstractNode *clone() const = 0; 
+		/// Returns a new AbstractNode which is a replica of this one.
+		virtual AbstractNode *clone() const = 0;
+		/// Returns a string value depending on the type of the AbstractNode.
+		virtual String getValue() const = 0;
 	};
 
 	/** This is an abstract node which cannot be broken down further */
@@ -112,6 +115,7 @@ namespace Ogre
 	public:
 		AtomAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
+		String getValue() const;
 	private:
 		void parseNumber() const;
 	};
@@ -130,6 +134,7 @@ namespace Ogre
 	public:
 		ObjectAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
+		String getValue() const;
 
 		void addVariable(const String &name);
 		void setVariable(const String &name, const String &value);
@@ -147,6 +152,7 @@ namespace Ogre
 	public:
 		PropertyAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
+		String getValue() const;
 	};
 
 	/** This abstract node represents an import statement */
@@ -157,6 +163,7 @@ namespace Ogre
 	public:
 		ImportAbstractNode();
 		AbstractNode *clone() const;
+		String getValue() const;
 	};
 
 	/** This abstract node represents a variable assignment */
@@ -167,6 +174,7 @@ namespace Ogre
 	public:
 		VariableAccessAbstractNode(AbstractNode *ptr);
 		AbstractNode *clone() const;
+		String getValue() const;
 	};
 
 	class ScriptCompilerListener;
