@@ -72,9 +72,11 @@ namespace Ogre {
 		const Renderable* srcRenderable;
 
 
+
         RenderOperation() :
             vertexData(0), operationType(OT_TRIANGLE_LIST), useIndexes(true),
-                indexData(0) {}
+                indexData(0), srcRenderable(0) {}
+
 
 	};
 }
