@@ -2182,7 +2182,7 @@ namespace Ogre
 		RenderSystem::_render(op);
 		
 		// TODO: Move this class to the right place.
-		class D3D10RenderOperationState
+		class D3D10RenderOperationState : public Renderable::RenderSystemData
 		{
 		public:
 			ID3D10BlendState * mBlendState;
@@ -2212,28 +2212,20 @@ namespace Ogre
 			}
 		};
 
+		D3D10RenderOperationState * opState = NULL;
+		bool unstandardRenderOperation = false;
+		if (op.srcRenderable)
+		{
+			opState = (D3D10RenderOperationState *) op.srcRenderable->getRenderSystemData();
+		}
+		else
+		{
+			unstandardRenderOperation = true;
+		}
 
-		// turns out that if I add a data member to Renderable - I will be able to get better performance 
-		//because I can save the D3D10 state for each Renderable. (Assaf 4.2008)
-		// This is the data member I need to add:
-		//		// this should be used only by a render system for internal use, this can't be an array - the delete is for a single object
-		//		mutable void * renderSystemData;
-		// it also needs an init to 0 in the constructor 
-		// and be deleted if it is not 0 in the destructor
-#define ADDED_A_DATA_MEMBER_TO_RENDERABLE 0
-
-#if ADDED_A_DATA_MEMBER_TO_RENDERABLE 
-		D3D10RenderOperationState * opState = (D3D10RenderOperationState *) op.srcRenderable->renderSystemData;
 		if(!opState)
 		{
 			opState =  new D3D10RenderOperationState;
-#else
-	    static D3D10RenderOperationState * tempUntilThePatchToRenderableFromLastRender = NULL;
-		static D3D10RenderOperationState * tempUntilThePatchToRenderable = NULL;
-		tempUntilThePatchToRenderable = new D3D10RenderOperationState;
-		D3D10RenderOperationState * opState = tempUntilThePatchToRenderable;
-		{	
-#endif
 
 			HRESULT hr = mDevice->CreateBlendState(&mBlendDesc, &opState->mBlendState) ;
 			if (FAILED(hr))
@@ -2327,49 +2319,75 @@ namespace Ogre
 				);
 
 
-			//op.srcRenderable->renderSystemData = opState;
-		}	
+			if (!unstandardRenderOperation)
+			{
+				op.srcRenderable->setRenderSystemData(opState);
+			}
 
-
-		mDevice->OMSetBlendState(opState->mBlendState, 0, 0xffffffff); // TODO - find out where to get the parameters
-		if (mDevice.isError())
-		{
-			String errorDescription = mDevice.getErrorDescription();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"D3D10 device cannot set blend state\nError Description:" + errorDescription,
-				"D3D10RenderSystem::_render");
-		}
-
-		mDevice->RSSetState(opState->mRasterizer);
-		if (mDevice.isError())
-		{
-			String errorDescription = mDevice.getErrorDescription();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"D3D10 device cannot set rasterizer state\nError Description:" + errorDescription,
-				"D3D10RenderSystem::_render");
-		}
-
-		mDevice->OMSetDepthStencilState(opState->mDepthStencilState, mStencilRef); 
-		if (mDevice.isError())
-		{
-			String errorDescription = mDevice.getErrorDescription();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-				"D3D10 device cannot set depth stencil state\nError Description:" + errorDescription,
-				"D3D10RenderSystem::_render");
 		}
 
 
-		if (opState->mSamplerStatesCount > 0) //  if the NumSamplers is 0, the operation effectively does nothing.
+		if (unstandardRenderOperation || opState->mBlendState != mBoundBlendState)
 		{
-			mDevice->PSSetSamplers(static_cast<UINT>(0), static_cast<UINT>(opState->mSamplerStatesCount), opState->mSamplerStates);
+			mBoundBlendState = opState->mBlendState ;
+			mDevice->OMSetBlendState(opState->mBlendState, 0, 0xffffffff); // TODO - find out where to get the parameters
 			if (mDevice.isError())
 			{
 				String errorDescription = mDevice.getErrorDescription();
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-					"D3D10 device cannot set pixel shader samplers\nError Description:" + errorDescription,
+					"D3D10 device cannot set blend state\nError Description:" + errorDescription,
 					"D3D10RenderSystem::_render");
 			}
+		}
 
+		if (unstandardRenderOperation || opState->mRasterizer != mBoundRasterizer)
+		{
+			mBoundRasterizer = opState->mRasterizer ;
+
+			mDevice->RSSetState(opState->mRasterizer);
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set rasterizer state\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_render");
+			}
+		}
+		
+
+		if (unstandardRenderOperation || opState->mDepthStencilState != mBoundDepthStencilState)
+		{
+			mBoundDepthStencilState = opState->mDepthStencilState ;
+
+			mDevice->OMSetDepthStencilState(opState->mDepthStencilState, mStencilRef); 
+			if (mDevice.isError())
+			{
+				String errorDescription = mDevice.getErrorDescription();
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+					"D3D10 device cannot set depth stencil state\nError Description:" + errorDescription,
+					"D3D10RenderSystem::_render");
+			}
+		}
+
+
+		if (opState->mSamplerStatesCount > 0 ) //  if the NumSamplers is 0, the operation effectively does nothing.
+		{
+			// Assaf: seem I have better performance without this check... TODO - remove?
+		//	if ((mBoundSamplerStatesCount != opState->mSamplerStatesCount) || ( 0 != memcmp(opState->mSamplerStates, mBoundSamplerStates, mBoundSamplerStatesCount) ) )
+			{
+				//mBoundSamplerStatesCount = opState->mSamplerStatesCount;
+				//memcpy(mBoundSamplerStates,opState->mSamplerStates, mBoundSamplerStatesCount);
+				mDevice->PSSetSamplers(static_cast<UINT>(0), static_cast<UINT>(opState->mSamplerStatesCount), opState->mSamplerStates);
+				if (mDevice.isError())
+				{
+					String errorDescription = mDevice.getErrorDescription();
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"D3D10 device cannot set pixel shader samplers\nError Description:" + errorDescription,
+						"D3D10RenderSystem::_render");
+				}
+
+
+			}
 			mDevice->PSSetShaderResources(static_cast<UINT>(0), static_cast<UINT>(opState->mTexturesCount), &opState->mTextures[0]);
 			if (mDevice.isError())
 			{
@@ -2551,10 +2569,12 @@ namespace Ogre
 		{
 			unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
 		} 	
-#if !ADDED_A_DATA_MEMBER_TO_RENDERABLE 
-		SAFE_DELETE(tempUntilThePatchToRenderableFromLastRender);
-		tempUntilThePatchToRenderableFromLastRender = tempUntilThePatchToRenderable;
-#endif
+
+		if (unstandardRenderOperation)
+		{
+			delete opState;
+		}
+
 
 	}
     //---------------------------------------------------------------------
