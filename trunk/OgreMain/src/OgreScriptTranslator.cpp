@@ -64,7 +64,7 @@ namespace Ogre{
 			translator->translate(compiler, node);
 		else
 			compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, node->file, node->line,
-				reinterpret_cast<ObjectAbstractNode*>(node.get())->cls);
+				"token \"" + reinterpret_cast<ObjectAbstractNode*>(node.get())->cls + "\" is not recognized");
 	}
 	//-------------------------------------------------------------------------
 	AbstractNodeList::const_iterator ScriptTranslator::getNodeAt(const AbstractNodeList &nodes, int index)
@@ -401,7 +401,8 @@ namespace Ogre{
 			try{
 				mMaterial = Ogre::any_cast<Ogre::Material*>(retval);
 			}catch(...){
-				compiler->addError(ScriptCompiler::CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
+				compiler->addError(ScriptCompiler::CE_OBJECTALLOCATIONERROR, obj->file, obj->line, 
+					"failed to find or create material \"" + obj->name + "\"");
 				return;
 			}
 		}
@@ -425,7 +426,8 @@ namespace Ogre{
 							if(getReal(*j, &v))
 								lods.push_back(v);
 							else
-								compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line,
+									"lod_distances expects only numbers as arguments");
 						}
 						mMaterial->setLodLevels(lods);
 					}
@@ -437,7 +439,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"receive_shadows only supports 1 argument");
 					}
 					else
 					{
@@ -445,7 +448,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mMaterial->setReceiveShadows(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"receive_shadows argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
 					}
 					break;
 				case ID_TRANSPARENCY_CASTS_SHADOWS:
@@ -455,7 +459,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"transparency_casts_shadows only supports 1 argument");
 					}
 					else
 					{
@@ -463,7 +468,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mMaterial->setTransparencyCastsShadows(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"transparency_casts_shadows argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
 					}
 					break;
 				case ID_SET_TEXTURE_ALIAS:
@@ -473,7 +479,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 3)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"set_texture_alias only supports 2 arguments");
 					}
 					else
 					{
@@ -482,12 +489,13 @@ namespace Ogre{
 						if(getString(*i0, &name) && getString(*i1, &value))
 							mTextureAliases.insert(std::make_pair(name, value));
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"set_texture_alias must have 2 string argument");
 					}
 					break;
 				default:
 					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
-						String("\"") + prop->name + "\"");
+						"token \"" + prop->name + "\" is not recognized");
 				}
 			}
 			else if((*i)->type == ANT_OBJECT)
@@ -543,7 +551,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"scheme only supports 1 argument");
 					}
 					else
 					{
@@ -552,7 +561,8 @@ namespace Ogre{
 						if(getString(*i0, &scheme))
 							mTechnique->setSchemeName(scheme);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"scheme must have 1 string argument");
 					}
 					break;
 				case ID_LOD_INDEX:
@@ -562,7 +572,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"lod_index only supports 1 argument");
 					}
 					else
 					{
@@ -571,7 +582,8 @@ namespace Ogre{
 						if(getUInt(*i0, &v))
 							mTechnique->setLodIndex(v);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"lod_index cannot accept argument \"" + (*i0)->getValue() + "\"");
 					}
 					break;
 				case ID_SHADOW_CASTER_MATERIAL_NAME:
@@ -581,7 +593,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"shadow_caster_material_name only accepts 1 argument");
 					}
 					else
 					{
@@ -596,7 +609,8 @@ namespace Ogre{
 							mTechnique->setShadowCasterMaterial(matName);
 						}
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"shadow_caster_material_name cannot accept argument \"" + (*i0)->getValue() + "\"");
 					}
 					break;
 				case ID_SHADOW_RECEIVER_MATERIAL_NAME:
@@ -606,7 +620,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"shadow_receiver_material_name only accepts 1 argument");
 					}
 					else
 					{
@@ -621,17 +636,20 @@ namespace Ogre{
 							mTechnique->setShadowReceiverMaterial(matName);
 						}
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"shadow_receiver_material_name cannot accept argument \"" + (*i0)->getValue() + "\"");
 					}
 					break;
 				case ID_GPU_VENDOR_RULE:
 					if(prop->values.size() < 2)
 					{
-						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line,
+							"gpu_vendor_rule must have 2 arguments");
 					}
 					else if(prop->values.size() > 2)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"gpu_vendor_rule must have 2 arguments");
 					}
 					else
 					{
@@ -652,12 +670,14 @@ namespace Ogre{
 							}
 							else
 							{
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"gpu_vendor_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
 							}
 
 							String vendor;
 							if(!getString(*i1, &vendor))
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"gpu_vendor_rule cannot accept \"" + (*i1)->getValue() + "\" as second argument");
 
 							rule.vendor = RenderSystemCapabilities::vendorFromString(vendor);
 
@@ -668,7 +688,8 @@ namespace Ogre{
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"gpu_vendor_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
 						}
 
 					}
@@ -676,11 +697,13 @@ namespace Ogre{
 				case ID_GPU_DEVICE_RULE:
 					if(prop->values.size() < 2)
 					{
-						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line,
+							"gpu_device_rule must have at least 2 arguments");
 					}
 					else if(prop->values.size() > 3)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"gpu_device_rule must have at most 3 arguments");
 					}
 					else
 					{
@@ -701,31 +724,35 @@ namespace Ogre{
 							}
 							else
 							{
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"gpu_device_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
 							}
 
 							if(!getString(*i1, &rule.devicePattern))
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"gpu_device_rule cannot accept \"" + (*i1)->getValue() + "\" as second argument");
 
 							if (prop->values.size() == 3)
 							{
 								AbstractNodeList::const_iterator i2 = getNodeAt(prop->values, 2);
 								if (!getBoolean(*i2, &rule.caseSensitive))
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+										"gpu_device_rule third argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
 							}
 
 							mTechnique->addGPUDeviceNameRule(rule);
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"gpu_device_rule cannot accept \"" + (*i0)->getValue() + "\" as first argument");
 						}
 
 					}
 					break;
 				default:
 					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
-						String("\"") + prop->name + "\"");
+						"token \"" + prop->name + "\" is not recognized");
 				}
 			}
 			else if((*i)->type == ANT_OBJECT)
@@ -770,7 +797,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 4)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"ambient must have at most 4 parameters");
 					}
 					else
 					{
@@ -785,7 +813,8 @@ namespace Ogre{
 							if(getColour(prop->values.begin(), prop->values.end(), &val))
 								mPass->setAmbient(val);
 							else
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"ambient support only number arguments or \"vertexcolor\" directive");
 						}
 					}
 					break;
@@ -796,7 +825,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 4)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"diffuse must have at most 4 arguments");
 					}
 					else
 					{
@@ -811,7 +841,8 @@ namespace Ogre{
 							if(getColour(prop->values.begin(), prop->values.end(), &val))
 								mPass->setDiffuse(val);
 							else
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"ambient support only number arguments or \"vertexcolour\" directive");
 						}
 					}
 					break;
@@ -822,7 +853,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 5)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"specular must have at most 5 arguments");
 					}
 					else
 					{
@@ -837,7 +869,8 @@ namespace Ogre{
 								if(getReal(prop->values.back(), &val))
 									mPass->setShininess(val);
 								else
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+										"specular does not support \"" + prop->values.back()->getValue() + "\" as its second argument");
 							}
 						}
 						else
@@ -846,7 +879,8 @@ namespace Ogre{
 							if(getColour(prop->values.begin(), prop->values.end(), &val))
 								mPass->setSpecular(val);
 							else
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"specular support only number arguments or \"vertexcolour\" directive");
 
 							if(prop->values.size() >= 5)
 							{
@@ -854,7 +888,8 @@ namespace Ogre{
 								if(getReal(prop->values.back(), &val))
 									mPass->setShininess(val);
 								else
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+										"specular does not support \"" + prop->values.back()->getValue() + "\" as its fifth argument");
 							}
 						}
 					}
@@ -866,7 +901,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 4)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"emissive must have at most 4 arguments");
 					}
 					else
 					{
@@ -881,7 +917,8 @@ namespace Ogre{
 							if(getColour(prop->values.begin(), prop->values.end(), &val))
 								mPass->setSelfIllumination(val);
 							else
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"emissive supports only numbers as arguments or \"vertexcolour\" directive");
 						}
 					}
 					break;
@@ -892,7 +929,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 2)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"scene_blend supports at most 2 arguments");
 					}
 					else if(prop->values.size() == 1)
 					{
@@ -914,12 +952,14 @@ namespace Ogre{
 								mPass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
 								break;
 							default:
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"unknow directive \"" + atom->value + "\" for argument 1");
 							}
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"scene_blend does not support \"" + prop->values.front()->getValue() + "\" for argument 1");
 						}
 					}
 					else
@@ -932,7 +972,8 @@ namespace Ogre{
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"scene_blend does not support \"" + (*i0)->getValue() + "\" and \"" + (*i1)->getValue() + "\" as arguments");
 						}				
 					}
 					break;
@@ -943,11 +984,13 @@ namespace Ogre{
 					}
 					else if(prop->values.size() == 3)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"separate_scene_blend must have 2 or 4 arguments");
 					}
 					else if(prop->values.size() > 4)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"separate_scene_blend must have 2 or 4 arguments");
 					}
 					else if(prop->values.size() == 2)
 					{
@@ -971,7 +1014,8 @@ namespace Ogre{
 								sbt0 = SBT_TRANSPARENT_ALPHA;
 								break;
 							default:
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"separate_scene_blend does not support \"" + atom0->value + "\" as argument 1");
 								return;
 							}
 							
@@ -990,7 +1034,8 @@ namespace Ogre{
 								sbt1 = SBT_TRANSPARENT_ALPHA;
 								break;
 							default:
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"separate_scene_blend does not support \"" + atom1->value + "\" as argument 2");
 								return;
 							}
 
@@ -998,7 +1043,8 @@ namespace Ogre{
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"separate_scene_blend does not support \"" + (*i0)->getValue() + "\" as argument 1");
 						}
 					}
 					else
@@ -1015,12 +1061,14 @@ namespace Ogre{
 							}
 							else
 							{
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									"one of the arguments to separate_scene_blend is not a valid scene blend factor directive");
 							}
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"one of the arguments to separate_scene_blend is not a valid scene blend factor directive");
 						}
 					}
 					break;
@@ -1031,7 +1079,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"depth_check must have 1 argument");
 					}
 					else
 					{
@@ -1039,7 +1088,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mPass->setDepthCheckEnabled(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"depth_check third argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
 					}
 					break;
 				case ID_DEPTH_WRITE:
@@ -1049,7 +1099,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"depth_write must have 1 argument");
 					}
 					else
 					{
@@ -1057,7 +1108,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mPass->setDepthWriteEnabled(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"depth_write third argument must be \"true\", \"false\", \"yes\", \"no\", \"on\", or \"off\"");
 					}
 					break;
 				case ID_DEPTH_BIAS:
@@ -1067,7 +1119,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 2)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"depth_bias must have at most 2 arguments");
 					}
 					else
 					{
@@ -1081,7 +1134,8 @@ namespace Ogre{
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								"depth_bias does not support \"" + (*i0)->getValue() + "\" for argument 1");
 						}
 					}
 					break;
@@ -1092,7 +1146,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"depth_func must have 1 argument");
 					}
 					else
 					{
@@ -1100,7 +1155,8 @@ namespace Ogre{
 						if(getCompareFunction(prop->values.front(), &func))
 							mPass->setDepthFunction(func);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid CompareFunction");
 					}
 					break;
 				case ID_ITERATION_DEPTH_BIAS:
@@ -1860,7 +1916,7 @@ namespace Ogre{
 					break;
 				default:
 					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
-						String("\"") + prop->name + "\"");
+						"token \"" + prop->name + "\" is not recognized");
 				}
 			}
 			else if((*i)->type == ANT_OBJECT)
@@ -3184,7 +3240,7 @@ namespace Ogre{
 					break;
 				default:
 					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
-						String("\"") + prop->name + "\"");
+						"token \"" + prop->name + "\" is not recognized");
 				}				
 			}
 			else if((*i)->type == ANT_OBJECT)
@@ -3918,7 +3974,7 @@ namespace Ogre{
 					break;
 				default:
 					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
-						String("\"") + prop->name + "\"");
+						"token \"" + prop->name + "\" is not recognized");
 				}
 			}
 		}
@@ -4240,6 +4296,11 @@ namespace Ogre{
 			{
 				processNode(compiler, *i);
 			}
+			else
+			{
+				compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, (*i)->file, (*i)->line,
+					"token not recognized");
+			}
 		}
 	}
 
@@ -4405,7 +4466,7 @@ namespace Ogre{
 					break;
 				default:
 					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
-						String("\"") + prop->name + "\"");
+						"token \"" + prop->name + "\" is not recognized");
 				}
 			}
 		}
@@ -4588,7 +4649,7 @@ namespace Ogre{
 					break;
 				default:
 					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
-						String("\"") + prop->name + "\"");
+						"token \"" + prop->name + "\" is not recognized");
 				}
 			}
 		}
@@ -4973,7 +5034,7 @@ namespace Ogre{
 					break;
 				default:
 					compiler->addError(ScriptCompiler::CE_UNEXPECTEDTOKEN, prop->file, prop->line, 
-						String("\"") + prop->name + "\"");
+						"token \"" + prop->name + "\" is not recognized");
 				}
 			}
 		}
