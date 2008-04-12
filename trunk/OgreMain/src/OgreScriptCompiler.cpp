@@ -583,6 +583,11 @@ namespace Ogre
 						for(AbstractNodeList::iterator j = newNodes->begin(); j != newNodes->end(); ++j)
 							overlayObject(*j, obj);
 					}
+					else
+					{
+						addError(CE_OBJECTBASENOTFOUND, obj->file, obj->line,
+							"base object named \"" + obj->base + "\" not found in script definition");
+					}
 				}
 
 				// Recurse into children
@@ -1431,13 +1436,13 @@ namespace Ogre
 		:mListener(0)
 	{
 		OGRE_LOCK_AUTO_MUTEX
-        mScriptPatterns.push_back("*.os");
 #if OGRE_USE_NEW_COMPILERS == 1
 		mScriptPatterns.push_back("*.program");
 		mScriptPatterns.push_back("*.material");
 		mScriptPatterns.push_back("*.particle");
 		mScriptPatterns.push_back("*.compositor");
 #endif
+        mScriptPatterns.push_back("*.os");
 		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 
 		OGRE_THREAD_POINTER_SET(mScriptCompiler, new ScriptCompiler());
