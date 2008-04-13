@@ -300,7 +300,7 @@ namespace Ogre
 		size_t finalWidth, finalHeight;
 		if (roundUpSize*roundUpSize*0.5 >= rawSize)
 		{
-			finalHeight = roundUpSize * 0.5;
+			finalHeight = static_cast<size_t>(roundUpSize * 0.5);
 		}
 		else
 		{
