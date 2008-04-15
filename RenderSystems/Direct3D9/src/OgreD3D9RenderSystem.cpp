@@ -2418,12 +2418,20 @@ namespace Ogre
 		HRESULT hr;
 		DWORD oldVal;
 		
-		if ( FAILED( hr = mpD3DDevice->GetTextureStageState(stage, type, &oldVal) ) )
-			return hr;
-		if ( oldVal == value )
-			return D3D_OK;
+		// can only set fixed-function texture stage state
+		if (stage < 8)
+		{
+			if ( FAILED( hr = mpD3DDevice->GetTextureStageState(stage, type, &oldVal) ) )
+				return hr;
+			if ( oldVal == value )
+				return D3D_OK;
+			else
+				return mpD3DDevice->SetTextureStageState(stage, type, value);
+		}
 		else
-			return mpD3DDevice->SetTextureStageState(stage, type, value);
+		{
+			return D3D_OK;
+		}
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setViewport( Viewport *vp )
