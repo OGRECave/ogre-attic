@@ -201,6 +201,9 @@ namespace Ogre {
         /** Returns true if this object is attached to a SceneNode or TagPoint. */
         virtual bool isAttached(void) const;
 
+		/** Detaches an object from a parent SceneNode or TagPoint, if attached. */
+		virtual void detatchFromParent(void);
+
         /** Returns true if this object is attached to a SceneNode or TagPoint, 
 			and this SceneNode / TagPoint is currently in an active part of the
 			scene graph. */
