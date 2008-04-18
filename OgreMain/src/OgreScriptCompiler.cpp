@@ -935,8 +935,8 @@ namespace Ogre
 
 		mIds["scheme"] = ID_SCHEME;
 		mIds["lod_index"] = ID_LOD_INDEX;
-		mIds["shadow_caster_material_name"] = ID_SHADOW_CASTER_MATERIAL_NAME;
-		mIds["shadow_receiver_material_name"] = ID_SHADOW_RECEIVER_MATERIAL_NAME;
+		mIds["shadow_caster_material"] = ID_SHADOW_CASTER_MATERIAL;
+		mIds["shadow_receiver_material"] = ID_SHADOW_RECEIVER_MATERIAL;
 		mIds["gpu_vendor_rule"] = ID_GPU_VENDOR_RULE;
 		mIds["gpu_device_rule"] = ID_GPU_DEVICE_RULE;
 		mIds["include"] = ID_INCLUDE;
@@ -1015,6 +1015,7 @@ namespace Ogre
 		mIds["point_sprites"] = ID_POINT_SPRITES;
 		mIds["point_size_min"] = ID_POINT_SIZE_MIN;
 		mIds["point_size_max"] = ID_POINT_SIZE_MAX;
+		mIds["point_size_attenuation"] = ID_POINT_SIZE_ATTENUATION;
 
 		mIds["texture_alias"] = ID_TEXTURE_ALIAS;
 		mIds["texture"] = ID_TEXTURE;
