@@ -586,7 +586,7 @@ namespace Ogre{
 								"lod_index cannot accept argument \"" + (*i0)->getValue() + "\"");
 					}
 					break;
-				case ID_SHADOW_CASTER_MATERIAL_NAME:
+				case ID_SHADOW_CASTER_MATERIAL:
 					if(prop->values.empty())
 					{
 						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
@@ -594,7 +594,7 @@ namespace Ogre{
 					else if(prop->values.size() > 1)
 					{
 						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
-							"shadow_caster_material_name only accepts 1 argument");
+							"shadow_caster_material only accepts 1 argument");
 					}
 					else
 					{
@@ -610,10 +610,10 @@ namespace Ogre{
 						}
 						else
 							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
-								"shadow_caster_material_name cannot accept argument \"" + (*i0)->getValue() + "\"");
+								"shadow_caster_material cannot accept argument \"" + (*i0)->getValue() + "\"");
 					}
 					break;
-				case ID_SHADOW_RECEIVER_MATERIAL_NAME:
+				case ID_SHADOW_RECEIVER_MATERIAL:
 					if(prop->values.empty())
 					{
 						compiler->addError(ScriptCompiler::CE_STRINGEXPECTED, prop->file, prop->line);
@@ -621,7 +621,7 @@ namespace Ogre{
 					else if(prop->values.size() > 1)
 					{
 						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
-							"shadow_receiver_material_name only accepts 1 argument");
+							"shadow_receiver_material only accepts 1 argument");
 					}
 					else
 					{
