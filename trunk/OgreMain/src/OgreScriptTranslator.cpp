@@ -1826,48 +1826,57 @@ namespace Ogre{
 							{
 								AbstractNodeList::const_iterator i1 = getNodeAt(prop->values, 1), i2 = getNodeAt(prop->values, 2), 
 									i3 = getNodeAt(prop->values, 3);
-								Real constant = 0.0f, linear = 1.0f, quadratic = 0.0f;
 
-								if(i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
+								if (prop->values.size() > 1)
 								{
-									AtomAbstractNode *atom = (AtomAbstractNode*)(*i1).get();
-									if(StringConverter::isNumber(atom->value))
-										constant = StringConverter::parseReal(atom->value);
+
+									Real constant = 0.0f, linear = 1.0f, quadratic = 0.0f;
+
+									if(i1 != prop->values.end() && (*i1)->type == ANT_ATOM)
+									{
+										AtomAbstractNode *atom = (AtomAbstractNode*)(*i1).get();
+										if(StringConverter::isNumber(atom->value))
+											constant = StringConverter::parseReal(atom->value);
+										else
+											compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+									}
 									else
-										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+									{
+										compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
+									}
+
+									if(i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
+									{
+										AtomAbstractNode *atom = (AtomAbstractNode*)(*i2).get();
+										if(StringConverter::isNumber(atom->value))
+											linear = StringConverter::parseReal(atom->value);
+										else
+											compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+									}
+									else
+									{
+										compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
+									}
+
+									if(i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
+									{
+										AtomAbstractNode *atom = (AtomAbstractNode*)(*i3).get();
+										if(StringConverter::isNumber(atom->value))
+											quadratic = StringConverter::parseReal(atom->value);
+										else
+											compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+									}
+									else
+									{
+										compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
+									}
+
+									mPass->setPointAttenuation(true, constant, linear, quadratic);
 								}
 								else
 								{
-									compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
+									mPass->setPointAttenuation(true);
 								}
-
-								if(i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
-								{
-									AtomAbstractNode *atom = (AtomAbstractNode*)(*i2).get();
-									if(StringConverter::isNumber(atom->value))
-										linear = StringConverter::parseReal(atom->value);
-									else
-										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-								}
-								else
-								{
-									compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
-								}
-
-								if(i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
-								{
-									AtomAbstractNode *atom = (AtomAbstractNode*)(*i3).get();
-									if(StringConverter::isNumber(atom->value))
-										quadratic = StringConverter::parseReal(atom->value);
-									else
-										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-								}
-								else
-								{
-									compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
-								}
-
-								mPass->setPointAttenuation(true, constant, linear, quadratic);
 							}
 							else
 							{
