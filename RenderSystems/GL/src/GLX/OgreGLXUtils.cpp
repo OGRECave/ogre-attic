@@ -322,7 +322,7 @@ namespace Ogre {
             get_visual_attribs(dpy, &visuals[i], &vis);
 
            	/* always skip visuals that are slow */
-         	if (vis.visualCaveat == GLX_SLOW_VISUAL_EXT)
+         	if (vis.visualCaveat != GLX_NONE_EXT)
          	    continue;
 		 	/* skip visual if it doesn't have the desired number of multisamples */
 			if (multiSample != -1 && vis.numSamples != multiSample)
