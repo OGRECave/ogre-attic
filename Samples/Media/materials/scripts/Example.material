@@ -778,7 +778,6 @@ vertex_program Examples/GrassWaverTexVp cg
     default_params
       {
         param_named_auto worldViewProj worldviewproj_matrix        
-        param_named_auto camObjPos camera_position_object_space  
         param_named_auto offset custom 999
     }
 }
