@@ -52,8 +52,6 @@ void grassTex_vp(
 
 			  uniform float4x4 worldViewProj,
               
-              uniform float4 camObjPos,
-              
 			  uniform float4 ambient,
 			  uniform float4 objSpaceLight,
 			  uniform float4 lightColour,
@@ -67,16 +65,6 @@ void grassTex_vp(
 	oPosition = mul(worldViewProj, mypos);
     // Texture Coord
 	oUv.xy = uv.xy;      
-    // Normal
-    // Make vec from vertex to camera
-    float4 EyeVec = camObjPos - mypos;
-    // Dot the v to eye and the normal to see if they point
-    //  in the same direction or opposite
-    float aligned = dot(normal, EyeVec); // -1..1
-    // If aligned is negative, we need to flip the normal
-    if (aligned < 0)  
-        normal = -normal;  
-    //oNormal = normal; 
 }
 
 /// grass_vp ambient

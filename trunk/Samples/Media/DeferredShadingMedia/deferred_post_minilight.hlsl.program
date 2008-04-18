@@ -23,7 +23,7 @@ fragment_program DeferredShading/post/hlsl/LightMaterial_ps hlsl
 		param_named_auto worldView worldview_matrix
 		
 		param_named_auto lightDiffuseColor custom 1
-		param_named_auto lightSpecularColor custom 2
+		//param_named_auto lightSpecularColor custom 2
 		param_named_auto lightFalloff custom 3
 	}
 }

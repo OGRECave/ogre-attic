@@ -1,5 +1,8 @@
 // Materials for deferred shading test
 
+// bring in shared material definitions
+import * from "deferred.material"
+
 // Sky box
 material Test13/SkyBox
 {
