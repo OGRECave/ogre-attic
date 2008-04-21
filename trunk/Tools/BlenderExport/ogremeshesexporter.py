@@ -528,7 +528,7 @@ else:
 				# get available actions
 				parent = GetArmatureObject(bObject)
 				if (parent is not None):
-					actionList = [action for action in self.armatureActionDict.values() if action.hasEffectOn(parent.getData())]
+					actionList = [action for action in self.armatureActionDict.values() if action.hasEffectOn(parent.getData(mesh=True))]
 				# move linked action to first position in returned list
 				bAction = bObject.getAction()
 				if bAction is not None:
@@ -813,7 +813,7 @@ else:
 				   @return <code>True</code> if shape keys still present, else <code>False</code>.
 				"""
 				isValid = False
-				bKey = self.bObject.getData().getKey()
+				bKey = self.bObject.getData(mesh=True).key
 				if bKey is not None:
 					if (len(bKey.blocks) > 0):
 						isValid = True
@@ -825,7 +825,7 @@ else:
 			 	   @return instance or <code>None</code> if object has no shape key.
 				"""
 				manager = None
-				bKey =  bMeshObject.getData().getKey()
+				bKey =  bMeshObject.getData(mesh=True).key
 				if bKey is not None:
 					if (len(bKey.blocks) > 0):
 						manager = PoseAnimationProxyManager(bMeshObject)
@@ -872,7 +872,7 @@ else:
 				   @return <code>True</code> if shape keys still present, else <code>False</code>.
 				"""
 				isValid = False
-				bKey = self.bObject.getData().getKey()
+				bKey = self.bObject.getData(mesh=True).key
 				if bKey is not None:
 					if (len(bKey.blocks) > 0):
 						isValid = True
@@ -884,7 +884,7 @@ else:
 			 	   @return instance or <code>None</code> if object has no shape key.
 				"""
 				manager = None
-				bKey =  bMeshObject.getData().getKey()
+				bKey =  bMeshObject.getData(mesh=True).key
 				if bKey is not None:
 					if (len(bKey.blocks) > 0):
 						manager = MorphAnimationProxyManager(bMeshObject)
@@ -1152,7 +1152,9 @@ else:
 				self.selectedDict = {}
 				# for every currently selected mesh object
 				for bMeshObject in [bObject for bObject in Blender.Object.GetSelected() if (bObject.getType() == 'Mesh')]:
-					name = bMeshObject.getName()
+					name = bMeshObject.getData(True)
+					if self.selectedDict.has_key(name):
+						continue
 					self.selectedList.append(name)
 					self.selectedDict[name] = bMeshObject
 					# morph animation
@@ -1254,7 +1256,7 @@ else:
 				for proxyManager in self.armatureAnimationProxyManagerDict.values():
 					proxyManager.savePackageSettings()
 				return
-			def export(self, exportPath, materialScriptName, colouredAmbient, gameEngineMaterials, convertXML, copyTextures):
+			def export(self, exportPath, exportMaterial, materialScriptName, colouredAmbient, gameEngineMaterials, fixUpAxis, convertXML, copyTextures):
 				# create MaterialManager
 				if len(self.selectedList):
 					materialManager = MaterialManager(exportPath, materialScriptName)
@@ -1270,9 +1272,13 @@ else:
 						if self.armatureAnimationProxyManagerDict.has_key(name):
 							self.armatureAnimationProxyManagerDict[name].toAnimations(meshExporter.getArmatureExporter())
 						# export
-						meshExporter.export(exportPath, materialManager, Matrix(*matrixOne), colouredAmbient, gameEngineMaterials, convertXML)
+						if (fixUpAxis):
+							meshExporter.export(exportPath, materialManager, Matrix(*matrixFlip), colouredAmbient, gameEngineMaterials, convertXML)
+						else:
+							meshExporter.export(exportPath, materialManager, Matrix(*matrixOne), colouredAmbient, gameEngineMaterials, convertXML)
 					# export materials
-					materialManager.export(exportPath, materialScriptName, copyTextures)
+					if (exportMaterial):
+						materialManager.export(exportPath, materialScriptName, copyTextures)
 				else:
 					Log.getSingleton().logWarning("No mesh object selected for export!")
 				return
@@ -1565,10 +1571,12 @@ else:
 		class MeshExporterApplication:
 			def __init__(self):
 				# initialize global settings to default value
+				self.exportMaterial = ToggleModel(True)
 				self.materalScriptName = BasenameModel(Blender.Scene.GetCurrent().getName() + '.material')
 				self.exportPath = DirnameModel(Blender.Get('filename'))
 				self.colouredAmbient = ToggleModel(0)
 				self.gameEngineMaterials = ToggleModel(0)
+				self.fixUpAxis = ToggleModel(0)
 				self.convertXML = ToggleModel(0)
 				self.copyTextures = ToggleModel(0)
 				# load package settings if applicable
@@ -1587,20 +1595,26 @@ else:
 				Spacer(vLayout, Size([0, 10]))
 				mbox = Box(vLayout, L("Material Settings"), 0 , 10)
 				mvLayout = VerticalLayout(mbox)
-				StringView(mvLayout, Size([200, 20]), self.materalScriptName, T("Material File: "), \
+				mvhLayout1 = HorizontalLayout(mvLayout)
+				ToggleView(mvhLayout1, Size([150, 20]), self.exportMaterial, \
+					T("Export Materials"), \
+					T("Uncheck this to not export materials when exporting mesh."))
+				StringView(mvhLayout1, Size([Size.INFINITY, 20], [150, 20]), self.materalScriptName, T("Material File: "), \
 					T("All material definitions go in this file (relative to the export path)."))
-				mvhLayout = HorizontalLayout(mvLayout)
-				ToggleView(mvhLayout, Size([Size.INFINITY, 20], [150, 20]), self.colouredAmbient, \
+				mvhLayout2 = HorizontalLayout(mvLayout)
+				ToggleView(mvhLayout2, Size([Size.INFINITY, 20], [150, 20]), self.colouredAmbient, \
 					T("Coloured Ambient"), \
 					T("Use Amb factor times diffuse colour as ambient instead of Amb factor times white."))
-				ToggleView(mvhLayout, Size([Size.INFINITY, 20], [150, 20]), self.gameEngineMaterials, \
+				ToggleView(mvhLayout2, Size([Size.INFINITY, 20], [150, 20]), self.gameEngineMaterials, \
 					T("Game Engine Materials"), \
 					T("Export game engine materials instead of rendering materials."))
-				ToggleView(mvLayout, Size([Size.INFINITY, 20], [150, 20]), self.copyTextures, \
+				ToggleView(mvLayout, Size([Size.INFINITY, 20], [200, 20]), self.copyTextures, \
 					T("Copy Textures"), \
 					T("Copy texture files into export path."))
 				## global settings
 				Spacer(vLayout, Size([0, 10]))
+				ToggleView(vLayout, Size([Size.INFINITY, 20], [150, 20]), self.fixUpAxis, T("Fix Up Axis to Y"), \
+					T("Fix up axis as Y instead of Z."))
 				ToggleView(vLayout, Size([Size.INFINITY, 20], [150, 20]), self.convertXML, T("OgreXMLConverter"), \
 					T("Run OgreXMLConverter on the exported XML files."))
 				# path panel
@@ -1626,6 +1640,9 @@ else:
 				self.mainScreen.activate()
 				return
 			def _loadPackageSettings(self):
+				exportMaterial = PackageSettings.getSingleton().getSetting('exportMaterial')
+				if exportMaterial is not None:
+					self.exportMaterial.setValue(exportMaterial)
 				materalScriptName = PackageSettings.getSingleton().getSetting('materalScriptName')
 				if materalScriptName is not None:
 					self.materalScriptName.setValue(materalScriptName)
@@ -1638,6 +1655,9 @@ else:
 				copyTextures = PackageSettings.getSingleton().getSetting('copyTextures')
 				if copyTextures is not None:
 					self.copyTextures.setValue(copyTextures)
+				fixUpAxis = PackageSettings.getSingleton().getSetting('fixUpAxis')
+				if fixUpAxis is not None:
+					self.fixUpAxis.setValue(fixUpAxis)
 				convertXML = PackageSettings.getSingleton().getSetting('convertXML')
 				if convertXML is not None:
 					self.convertXML.setValue(convertXML)
@@ -1647,10 +1667,12 @@ else:
 				return
 			def _savePackageSettings(self):
 				self.selectedObjectManager.savePackageSettings()
+				PackageSettings.getSingleton().setSetting('exportMaterial', self.exportMaterial.getValue())
 				PackageSettings.getSingleton().setSetting('materalScriptName', self.materalScriptName.getValue())
 				PackageSettings.getSingleton().setSetting('colouredAmbient', self.colouredAmbient.getValue())
 				PackageSettings.getSingleton().setSetting('gameEngineMaterials', self.gameEngineMaterials.getValue())
 				PackageSettings.getSingleton().setSetting('copyTextures', self.copyTextures.getValue())
+				PackageSettings.getSingleton().setSetting('fixUpAxis', self.fixUpAxis.getValue())
 				PackageSettings.getSingleton().setSetting('convertXML', self.convertXML.getValue())
 				PackageSettings.getSingleton().setSetting('exportPath', self.exportPath.getValue())
 				PackageSettings.getSingleton().save()
@@ -1716,9 +1738,11 @@ else:
 					self.app._savePackageSettings()
 					Log.getSingleton().logInfo("Exporting...")
 					self.app.selectedObjectManager.export(self.app.exportPath.getValue(), \
+						self.app.exportMaterial.getValue(), \
 						self.app.materalScriptName.getValue(), \
 						self.app.colouredAmbient.getValue(), \
 						self.app.gameEngineMaterials.getValue(), \
+						self.app.fixUpAxis.getValue(), \
 						self.app.convertXML.getValue(), \
 						self.app.copyTextures.getValue())
 					Log.getSingleton().logInfo("Done.")
