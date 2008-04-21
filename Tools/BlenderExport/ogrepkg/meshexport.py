@@ -53,14 +53,14 @@ class Vertex:
 		# imples position
 		# vertex in basis shape
 		self.bMVert = bMFace.v[bIndex]
-		bKey = self.bMesh.getKey()
+		bKey = self.bMesh.key
 		if (bKey and len(bKey.blocks)):
 			# first shape key is rest position
 			self.bMVert = bKey.blocks[0].data[self.bMVert.index]
 		## Face properties in Blender
 		self.normal = None
 		self.colourDiffuse = None
-		self.texcoord = None
+		self.texcoords = []
 		## bookkeeping
 		# vertexbuffer position in vertexbuffer
 		self.index = index
@@ -98,8 +98,7 @@ class Vertex:
 			Log.getSingleton().logWarning("Error in normalize! Face of mesh \"%s\" too small." % bMesh.name)
 			self.normal = Vector([0,0,0])
 		## colourDiffuse
-		#Mesh#if bMesh.vertexColors:
-		if bMesh.hasVertexColours():
+		if bMesh.vertexColors:
 			bMCol = bMFace.col[bIndex]
 			if OGRE_OPENGL_VERTEXCOLOUR:
 				self.colourDiffuse = (bMCol.b/255.0, bMCol.g/255.0, bMCol.r/255.0, bMCol.a/255.0)
@@ -130,12 +129,13 @@ class Vertex:
 							self.colourDiffuse = (bMCol.r/255.0, bMCol.g/255.0, bMCol.b/255.0, bMCol.a/255.0)
 		## texcoord
 		# origin in OGRE is top-left
-		#Mesh#if bMesh.faceUV:
-		if bMesh.hasFaceUV():
-			self.texcoord = (bMFace.uv[bIndex][0], 1 - bMFace.uv[bIndex][1])
-		#Mesh#elif bMesh.vertexUV:
-		elif bMesh.hasVertexUV():
-			self.texcoord = (self.bMVert.uvco[0], 1 - self.bMVert.uvco[1])
+		for uvlayer in bMesh.getUVLayerNames():
+			bMesh.activeUVLayer = uvlayer
+			if bMesh.faceUV:
+				self.texcoords.append((bMFace.uv[bIndex][0], 1 - bMFace.uv[bIndex][1]))
+			elif bMesh.vertexUV:
+				self.texcoords.append((self.bMVert.uvco[0], 1 - self.bMVert.uvco[1]))
+
 		return
 	def __eq__(self, other):
 		"""Tests if this vertex is equal to another vertex in the Ogre sense.
@@ -151,14 +151,8 @@ class Vertex:
 		elif ((self.normal - other.normal).length > Vertex.THRESHOLD):
 			# normals don't match
 			pass
-		elif ((self.texcoord and not(other.texcoord)) or 
-			(not(self.texcoord) and other.texcoord)):
-			# mixed existence of texture coordinates
-			pass
-		elif (self.texcoord and 
-			((math.fabs(self.texcoord[0] - other.texcoord[0]) > Vertex.THRESHOLD)
-			or (math.fabs(self.texcoord[1] - other.texcoord[1]) > Vertex.THRESHOLD))):
-			# texture coordinates exist but do not match
+		elif (not(self.matchTexCoords(other))):
+			# texture coordinates do not match
 			pass
 		elif ((self.colourDiffuse and not(other.colourDiffuse)) or 
 			(not(self.colourDiffuse) and other.colourDiffuse)):
@@ -174,16 +168,22 @@ class Vertex:
 		else:
 			isEqual = 1
 		return isEqual
+	def matchTexCoords(self, other):
+		if (len(self.texcoords) != len(other.texcoords)):
+			return False
+		else:
+			for id in range(len(self.texcoords)):
+				if ((math.fabs(self.texcoords[id][0] - other.texcoords[id][0]) > Vertex.THRESHOLD)
+				or (math.fabs(self.texcoords[id][1] - other.texcoords[id][1]) > Vertex.THRESHOLD)):
+					return False
+		return True
 	def hasDiffuseColours(self):
 		available = False
 		if self.colourDiffuse is not None:
 			available = True
 		return available
 	def nTextureCoords(self):
-		nCoords = 0
-		if self.texcoord is not None:
-			nCoords += 1
-		return nCoords
+		return len(self.texcoords)
 	def writePosition(self, fileObject, indentation=0):
 		fileObject.write(indent(indentation) + "<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" \
 			% tuple(self.getPosition()))
@@ -198,9 +198,9 @@ class Vertex:
 				% self.colourDiffuse)
 		return
 	def writeTexcoord(self, fileObject, indentation=0):
-		if self.texcoord:
+		for id in range(len(self.texcoords)):
 			fileObject.write(indent(indentation) + "<texcoord u=\"%.6f\" v=\"%.6f\"/>\n"\
-				% self.texcoord)
+				% self.texcoords[id])
 		return
 	def writeVertex(self, fileObject, indentation=0):
 		fileObject.write(indent(indentation) + "<vertex>\n")
@@ -324,8 +324,10 @@ class VertexManager:
 			firstVertex = self.vertexList[0]
 			if firstVertex.hasDiffuseColours():
 				fileObject.write(" colours_diffuse=\"true\"")
-			if (firstVertex.nTextureCoords() > 0):
-				fileObject.write(" texture_coords=\"1\" texture_coord_dimensions_0=\"2\"")
+			# set texture coordinate count.
+			coords = firstVertex.nTextureCoords()
+			if (coords > 0):
+				fileObject.write(" texture_coords=\"%d\"" % coords)
 		fileObject.write(">\n")
 		for vertex in self.vertexList:
 			vertex.writeVertex(fileObject, indentation + 2)
@@ -543,7 +545,7 @@ class PoseManager:
 		self.poseList = []
 		# create poses
 		# each keyblock creates a pose for every submesh
-		bKey = self.bMesh.getKey()
+		bKey = self.bMesh.key
 		if bKey:
 			for bKeyBlock in bKey.blocks:
 				for submesh in self.submeshManager:
@@ -775,7 +777,7 @@ class VertexAnimationExporter:
 		return (len(self.morphAnimationList) or len(self.poseAnimationList))
 	def export(self, parentTransform):
 		# generate poses
-		self.poseManager = PoseManager(self.meshExporter.getObject().getData(), self.meshExporter.getSubmeshManager(), parentTransform)
+		self.poseManager = PoseManager(self.meshExporter.getObject().getData(mesh=True), self.meshExporter.getSubmeshManager(), parentTransform)
 		if self.hasAnimation():
 			# sample animations
 			animationNameList = []
@@ -888,7 +890,7 @@ class MeshExporter:
 		"""Generates submeshes of the mesh.
 		"""
 		#NMesh# Blender.Mesh.Mesh does not provide access to mesh shape keys, use Blender.NMesh.NMesh
-		bMesh = self.bObject.getData()
+		bMesh = self.bObject.getData(mesh=True)
 		self.submeshManager = SubmeshManager(bMesh, parentTransform, self.armatureExporter)
 		for bMFace in bMesh.faces:
 			faceMaterial = materialManager.getMaterial(bMesh, bMFace, colouredAmbient, gameEngineMaterials)
