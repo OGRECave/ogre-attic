@@ -116,10 +116,10 @@ namespace Ogre {
        *
        * @param blendMaskSizeHint 
        *   The number of bones of the skeleton owning this AnimationState.
-       * @param fill
-       *   If true, the all blend mask entries will be set to 1.0.
+	   * @param initialWeight
+	   *   The value all the blend mask entries will be initialised with (negative to skip initialisation)
        */
-      void createBlendMask(size_t blendMaskSizeHint, bool fill = true);
+      void createBlendMask(size_t blendMaskSizeHint, float initialWeight = 1.0f);
       /// destroy the currently set blend mask
       void destroyBlendMask();
       /** @brief set the blend mask data (might be dangerous)
