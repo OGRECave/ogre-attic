@@ -213,13 +213,13 @@ namespace Ogre
       _setBlendMaskData(&(*blendMask)[0]);
     }
 	//---------------------------------------------------------------------
-    void AnimationState::createBlendMask(size_t blendMaskSizeHint, bool fill)
+    void AnimationState::createBlendMask(size_t blendMaskSizeHint, float initialWeight)
     {
       if(!mBlendMask)
       {
-        if(fill)
+        if(initialWeight >= 0)
         {
-          mBlendMask = new BoneBlendMask(blendMaskSizeHint, 1.f);
+          mBlendMask = new BoneBlendMask(blendMaskSizeHint, initialWeight);
         }
         else
         {
