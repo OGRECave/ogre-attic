@@ -994,6 +994,9 @@ namespace Ogre
 			mIds["gouraud"] = ID_GOURAUD;
 			mIds["phong"] = ID_PHONG;
 		mIds["polygon_mode"] = ID_POLYGON_MODE;
+			mIds["solid"] = ID_SOLID;
+			mIds["wireframe"] = ID_WIREFRAME;
+			mIds["points"] = ID_POINTS;
 		mIds["polygon_mode_overrideable"] = ID_POLYGON_MODE_OVERRIDEABLE;
 		mIds["fog_override"] = ID_FOG_OVERRIDE;
 			mIds["none"] = ID_NONE;
