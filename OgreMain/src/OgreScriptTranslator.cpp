@@ -513,6 +513,7 @@ namespace Ogre{
 			compiler->getListener()->handleEvent(compiler, "preApplyTextureAliases", args, 0);
 		}
 		mMaterial->applyTextureAliases(mTextureAliases);
+		mTextureAliases.clear();
 	}
 	
 	/**************************************************************************
@@ -1166,7 +1167,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"iteration_depth_bias must have 1 argument");
 					}
 					else
 					{
@@ -1174,7 +1176,8 @@ namespace Ogre{
 						if(getFloat(prop->values.front(), &val))
 							mPass->setIterationDepthBias(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+							prop->values.front()->getValue() + " is not a valid float value");
 					}
 					break;
 				case ID_ALPHA_REJECTION:
@@ -1184,7 +1187,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 2)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"alpha_rejection must have at most 2 arguments");
 					}
 					else
 					{
@@ -1198,13 +1202,15 @@ namespace Ogre{
 								if(getUInt(*i1, &val))
 									mPass->setAlphaRejectSettings(func, val);
 								else
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+										(*i1)->getValue() + " is not a valid integer");
 							}
 							else
 								mPass->setAlphaRejectFunction(func);
 						}
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								(*i0)->getValue() + " is not a valid CompareFunction");
 					}
 					break;
 				case ID_LIGHT_SCISSOR:
@@ -1214,7 +1220,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"light_scissor must have only 1 argument");
 					}
 					else
 					{
@@ -1222,7 +1229,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mPass->setLightScissoringEnabled(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid boolean");
 					}
 					break;
 				case ID_LIGHT_CLIP_PLANES:
@@ -1232,7 +1240,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"light_clip_planes must have at most 1 argument");
 					}
 					else
 					{
@@ -1240,7 +1249,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mPass->setLightClipPlanesEnabled(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid boolean");
 					}
 					break;
 				case ID_TRANSPARENT_SORTING:
@@ -1250,7 +1260,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"transparent_sorting must have at most 1 argument");
 					}
 					else
 					{
@@ -1258,7 +1269,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mPass->setTransparentSortingEnabled(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid boolean");
 					}
 					break;
 				case ID_ILLUMINATION_STAGE:
@@ -1268,7 +1280,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"illumination_stage must have at most 1 argument");
 					}
 					else
 					{
@@ -1287,12 +1300,14 @@ namespace Ogre{
 								mPass->setIlluminationStage(IS_DECAL);
 								break;
 							default:
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									prop->values.front()->getValue() + " is not a valid IlluminationStage");
 							}
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid IlluminationStage");
 						}
 					}
 					break;
@@ -1303,7 +1318,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"cull_hardware must have at most 1 argument");
 					}
 					else
 					{
@@ -1322,12 +1338,14 @@ namespace Ogre{
 								mPass->setCullingMode(CULL_NONE);
 								break;
 							default:
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									prop->values.front()->getValue() + " is not a valid CullingMode");
 							}
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid CullingMode");
 						}
 					}
 					break;
@@ -1338,7 +1356,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"cull_software must have at most 1 argument");
 					}
 					else
 					{
@@ -1357,12 +1376,14 @@ namespace Ogre{
 								mPass->setManualCullingMode(MANUAL_CULL_NONE);
 								break;
 							default:
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									prop->values.front()->getValue() + " is not a valid ManualCullingMode");
 							}
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid ManualCullingMode");
 						}
 					}
 					break;
@@ -1373,7 +1394,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"normalise_normals must have at most 1 argument");
 					}
 					else
 					{
@@ -1381,7 +1403,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mPass->setNormaliseNormals(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid boolean");
 					}
 					break;
 				case ID_LIGHTING:
@@ -1391,7 +1414,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"lighting must have at most 1 argument");
 					}
 					else
 					{
@@ -1399,7 +1423,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mPass->setLightingEnabled(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid boolean");
 					}
 					break;
 				case ID_SHADING:
@@ -1409,7 +1434,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"shading must have at most 1 argument");
 					}
 					else
 					{
@@ -1428,12 +1454,14 @@ namespace Ogre{
 								mPass->setShadingMode(SO_PHONG);
 								break;
 							default:
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									prop->values.front()->getValue() + " is not a valid shading mode (flat, gouraud, or phong)");
 							}
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid shading mode (flat, gouraud, or phong)");
 						}
 					}
 					break;
@@ -1444,7 +1472,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"polygon_mode must have at most 1 argument");
 					}
 					else
 					{
@@ -1463,12 +1492,14 @@ namespace Ogre{
 								mPass->setPolygonMode(PM_WIREFRAME);
 								break;
 							default:
-								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+									prop->values.front()->getValue() + " is not a valid polygon mode (solid, points, or wireframe)");
 							}
 						}
 						else
 						{
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid polygon mode (solid, points, or wireframe)");
 						}
 					}
 					break;
@@ -1479,7 +1510,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"polygon_mode_overrideable must have at most 1 argument");
 					}
 					else
 					{
@@ -1487,7 +1519,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mPass->setPolygonModeOverrideable(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid boolean");
 					}
 					break;
 				case ID_FOG_OVERRIDE:
@@ -1497,7 +1530,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 8)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"fog_override must have at most 8 arguments");
 					}
 					else
 					{
@@ -1529,14 +1563,16 @@ namespace Ogre{
 										mode = FOG_EXP2;
 										break;
 									default:
-										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-										return;
+										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+											(*i1)->getValue() + " is not a valid FogMode");
+										break;
 									}
 								}
 								else
 								{
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-									return;
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+										(*i1)->getValue() + " is not a valid FogMode");
+									break;
 								}
 							}
 
@@ -1544,8 +1580,9 @@ namespace Ogre{
 							{
 								if(!getColour(i2, prop->values.end(), &clr))
 								{
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-									return;
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+										(*i2)->getValue() + " is not a valid colour");
+									break;
 								}
 							}
 
@@ -1553,8 +1590,9 @@ namespace Ogre{
 							{
 								if(!getReal(*i2, &dens))
 								{
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
-									return;
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+										(*i2)->getValue() + " is not a valid number");
+									break;
 								}
 								++i2;
 							}
@@ -1563,7 +1601,8 @@ namespace Ogre{
 							{
 								if(!getReal(*i2, &start))
 								{
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+										(*i2)->getValue() + " is not a valid number");
 									return;
 								}
 								++i2;
@@ -1573,7 +1612,8 @@ namespace Ogre{
 							{
 								if(!getReal(*i2, &end))
 								{
-									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+									compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+										(*i2)->getValue() + " is not a valid number");
 									return;
 								}
 								++i2;
@@ -1582,7 +1622,8 @@ namespace Ogre{
 							mPass->setFog(val, mode, clr, dens, start, end);
 						}
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid boolean");
 					}
 					break;
 				case ID_COLOUR_WRITE:
@@ -1592,7 +1633,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"colour_write must have at most 1 argument");
 					}
 					else
 					{
@@ -1600,7 +1642,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mPass->setColourWriteEnabled(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid boolean");
 					}
 					break;
 				case ID_MAX_LIGHTS:
@@ -1610,7 +1653,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"max_lights must have at most 1 argument");
 					}
 					else
 					{
@@ -1618,7 +1662,8 @@ namespace Ogre{
 						if(getUInt(prop->values.front(), &val))
 							mPass->setMaxSimultaneousLights(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid integer");
 					}
 					break;
 				case ID_START_LIGHT:
@@ -1628,7 +1673,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"start_light must have at most 1 argument");
 					}
 					else
 					{
@@ -1636,7 +1682,8 @@ namespace Ogre{
 						if(getUInt(prop->values.front(), &val))
 							mPass->setStartLight(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid integer");
 					}
 					break;
 				case ID_ITERATION:
@@ -1672,7 +1719,8 @@ namespace Ogre{
 										mPass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
 										break;
 									default:
-										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+											prop->values.front()->getValue() + " is not a valid light type (point, directional, or spot)");
 									}
 								}
 								else
@@ -1707,7 +1755,8 @@ namespace Ogre{
 												mPass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
 												break;
 											default:
-												compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+												compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+													prop->values.front()->getValue() + " is not a valid light type (point, directional, or spot)");
 											}
 										}
 										else
@@ -1741,7 +1790,8 @@ namespace Ogre{
 														mPass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
 														break;
 													default:
-														compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+														compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+															prop->values.front()->getValue() + " is not a valid light type (point, directional, or spot)");
 													}
 												}
 												else
@@ -1751,12 +1801,14 @@ namespace Ogre{
 											}
 											else
 											{
-												compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
+												compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line,
+													prop->values.front()->getValue() + " is not a valid number");
 											}
 										}
 										else
 										{
-											compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
+											compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line,
+												prop->values.front()->getValue() + " is not a valid number");
 										}
 									}
 								}
@@ -1779,7 +1831,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"point_size must have at most 1 argument");
 					}
 					else
 					{
@@ -1787,7 +1840,8 @@ namespace Ogre{
 						if(getReal(prop->values.front(), &val))
 							mPass->setPointSize(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid number");
 					}
 					break;
 				case ID_POINT_SPRITES:
@@ -1797,7 +1851,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"point_sprites must have at most 1 argument");
 					}
 					else
 					{
@@ -1805,7 +1860,8 @@ namespace Ogre{
 						if(getBoolean(prop->values.front(), &val))
 							mPass->setPointSpritesEnabled(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid boolean");
 					}
 					break;
 				case ID_POINT_SIZE_ATTENUATION:
@@ -1815,7 +1871,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 4)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"point_size_attenuation must have at most 4 arguments");
 					}
 					else
 					{
@@ -1842,7 +1899,8 @@ namespace Ogre{
 									}
 									else
 									{
-										compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
+										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+											(*i1)->getValue() + " is not a valid number");
 									}
 
 									if(i2 != prop->values.end() && (*i2)->type == ANT_ATOM)
@@ -1855,7 +1913,8 @@ namespace Ogre{
 									}
 									else
 									{
-										compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
+										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+											(*i2)->getValue() + " is not a valid number");
 									}
 
 									if(i3 != prop->values.end() && (*i3)->type == ANT_ATOM)
@@ -1868,7 +1927,8 @@ namespace Ogre{
 									}
 									else
 									{
-										compiler->addError(ScriptCompiler::CE_NUMBEREXPECTED, prop->file, prop->line);
+										compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+											(*i3)->getValue() + " is not a valid number");
 									}
 
 									mPass->setPointAttenuation(true, constant, linear, quadratic);
@@ -1884,7 +1944,8 @@ namespace Ogre{
 							}
 						}
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid boolean");
 					}
 					break;
 				case ID_POINT_SIZE_MIN:
@@ -1894,7 +1955,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"point_size_min must have at most 1 argument");
 					}
 					else
 					{
@@ -1902,7 +1964,8 @@ namespace Ogre{
 						if(getReal(prop->values.front(), &val))
 							mPass->setPointMinSize(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid number");
 					}
 					break;
 				case ID_POINT_SIZE_MAX:
@@ -1912,7 +1975,8 @@ namespace Ogre{
 					}
 					else if(prop->values.size() > 1)
 					{
-						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line);
+						compiler->addError(ScriptCompiler::CE_FEWERPARAMETERSEXPECTED, prop->file, prop->line,
+							"point_size_max must have at most 1 argument");
 					}
 					else
 					{
@@ -1920,7 +1984,8 @@ namespace Ogre{
 						if(getReal(prop->values.front(), &val))
 							mPass->setPointMaxSize(val);
 						else
-							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line);
+							compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
+								prop->values.front()->getValue() + " is not a valid number");
 					}
 					break;
 				default:
