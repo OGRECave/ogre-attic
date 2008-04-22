@@ -67,6 +67,7 @@ namespace Ogre
     class PCZLight;
 
     typedef std::map<String, PCZone*> ZoneMap;
+	typedef std::list<PCZone*> PCZoneList;
     typedef std::list < Portal * > PortalList;
 	typedef std::list < SceneNode * > NodeList;
 	typedef std::set < PCZSceneNode * > PCZSceneNodeList;
@@ -237,6 +238,9 @@ namespace Ogre
 		virtual void getAABB(AxisAlignedBox &);
 		void setPortalsUpdated(bool updated)   { mPortalsUpdated = updated;    }
 		bool getPortalsUpdated(void)      { return mPortalsUpdated;   }
+		/* get & set the user data */
+		void * getUserData(void) {return mUserData;}
+		void setUserData(void * userData) {mUserData = userData;}
 		/** list of Portals which this zone contains (each portal leads to another zone)
 		*/
 		PortalList mPortals;
@@ -262,6 +266,9 @@ namespace Ogre
         PCZSceneNodeList mVisitorNodeList;
 		// flag recording whether any portals in this zone have moved 
 		bool mPortalsUpdated;   
+		// user defined data pointer - NOT allocated or deallocated by the zone!  
+		// you must clean it up yourself!
+		void * mUserData;
 
     };
 

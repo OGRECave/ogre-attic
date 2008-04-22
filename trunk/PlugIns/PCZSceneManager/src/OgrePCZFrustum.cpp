@@ -356,7 +356,7 @@ namespace Ogre
 					// the portal edge was actually completely culled by one of  culling planes
 					visible = false;
 				}
-                pit++;
+				pit++;
             }
 			if (visible)
 			{

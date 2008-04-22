@@ -156,7 +156,7 @@ namespace Ogre
 	}
 
 	// delete a portal instance by pointer
-	void PCZSceneManager::destroyPortal(String & portalName)
+	void PCZSceneManager::destroyPortal(const String & portalName)
 	{
 		// find the portal from the master portal list
 		Portal * p;
@@ -223,7 +223,7 @@ namespace Ogre
 	}
 
 	/* Get a zone by name */
-	PCZone * PCZSceneManager::getZoneByName(String & zoneName)
+	PCZone * PCZSceneManager::getZoneByName(const String & zoneName)
 	{
 		ZoneMap::iterator i;
 		PCZone * zone;
@@ -643,7 +643,7 @@ namespace Ogre
 
 	//-----------------------------------------------------------------------
 	/* Create a zone with the given name and parent zone */
-	PCZone * PCZSceneManager::createZone(String& zoneType, String& instanceName)
+	PCZone * PCZSceneManager::createZone(const String& zoneType, const String& instanceName)
 	{
 		if (mZones.find(instanceName) != mZones.end())
 		{
