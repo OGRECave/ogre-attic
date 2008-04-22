@@ -231,7 +231,7 @@ namespace Ogre
 		Portal * mTargetPortal;
         /// Corners of the portal - coordinates are relative to the sceneNode
 		// NOTE: there are 4 corners if the portal is a quad type
-		//       there are 8 corners if the portal is an AABB type
+		//       there are 2 corners if the portal is an AABB type
 		//       there are 2 corners if the portal is a sphere type (center and point on sphere)
         Vector3 * mCorners;
 		/// Direction ("Norm") of the portal - 

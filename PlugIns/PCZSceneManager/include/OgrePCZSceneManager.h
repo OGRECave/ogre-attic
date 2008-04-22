@@ -96,7 +96,7 @@ namespace Ogre
 
 		/** Delete a portal instance by name
 		*/
-		void destroyPortal(String & portalName);
+		void destroyPortal(const String & portalName);
 
 		/** Create a zone from a file (type of file
 		  * depends on the zone type
@@ -230,7 +230,7 @@ namespace Ogre
 		void addPCZSceneNode(PCZSceneNode * sn, PCZone * zone);
 
 		/* Create a zone with the given name  */
-		PCZone * createZone(String& zoneType, String& instanceName);
+		PCZone * createZone(const String& zoneType, const String& instanceName);
 
 		/* destroy an existing zone within the scene */
 		void destroyZone(PCZone* zone, bool destroySceneNodes);
@@ -288,7 +288,7 @@ namespace Ogre
 		}
 		
 		/* Get a zone by name */
-		PCZone * getZoneByName(String & zoneName);
+		PCZone * getZoneByName(const String & zoneName);
 		
         /** Sets the portal visibility flag */
         void setShowPortals( bool b )
