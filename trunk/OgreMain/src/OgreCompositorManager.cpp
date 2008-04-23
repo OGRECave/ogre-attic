@@ -126,7 +126,7 @@ void CompositorManager::initialise(void)
 		CompositionPass *pass = tp->createPass();
 		pass->setType(CompositionPass::PT_RENDERSCENE);
 		/// Render everything, including skies
-		pass->setFirstRenderQueue(RENDER_QUEUE_SKIES_EARLY);
+		pass->setFirstRenderQueue(RENDER_QUEUE_BACKGROUND);
 		pass->setLastRenderQueue(RENDER_QUEUE_SKIES_LATE);
 	}
 
