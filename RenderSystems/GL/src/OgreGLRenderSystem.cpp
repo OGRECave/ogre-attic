@@ -222,7 +222,11 @@ namespace Ogre {
         // Check for hardware mipmapping support.
         if(GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap)
         {
-            mCapabilities->setCapability(RSC_AUTOMIPMAP);
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+			// Apple ATI drivers have faults in hardware mipmap generation
+			if (mGLSupport->getGLVendor().find("ATI") == std::string::npos)
+#endif
+				mCapabilities->setCapability(RSC_AUTOMIPMAP);
         }
 
         // Check for blending support
@@ -454,12 +458,16 @@ namespace Ogre {
 		// Check for texture compression
         if(GLEW_VERSION_1_3 || GLEW_ARB_texture_compression)
         {   
-            mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION);
+			mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION);
          
             // Check for dxt compression
             if(GLEW_EXT_texture_compression_s3tc)
             {
-                mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
+#if defined(__APPLE__) && defined(__PPC__)
+			// Apple on ATI & PPC has errors in DXT
+			if (mGLSupport->getGLVendor().find("ATI") == std::string::npos)
+#endif
+					mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
             }
             // Check for vtc compression
             if(GLEW_NV_texture_compression_vtc)
@@ -559,7 +567,7 @@ namespace Ogre {
 			{
 				GLint buffers;
 				glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &buffers);
-				mCapabilities->setNumMultiRenderTargets(std::min(buffers, OGRE_MAX_MULTIPLE_RENDER_TARGETS));
+				mCapabilities->setNumMultiRenderTargets(std::min<int>(buffers, OGRE_MAX_MULTIPLE_RENDER_TARGETS));
 				if(!GLEW_VERSION_2_0)
 				{
 					// Before GL version 2.0, we need to get one of the extensions
