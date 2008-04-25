@@ -6,7 +6,8 @@ The Portal-Connected-Zone Scene Manager (PCZSM) is a plugin for Ogre3D (see
 www.ogre3d.org for more information about Ogre3d) which allows traversal of
 a scene which is non-homogeneous in structure.  Specifically, the PCZSM uses
 "Zones" which have their own hierarchy.  Zones are connected to other zones
-by "Portals" which can be envisioned as 4-point convex planar polygons.  
+by "Portals" which can be envisioned as 4-point convex planar polygons (or
+Spheres or AAB's).  
 
 This document gives basic information on the usage of the PCZSceneManager.
 It is not complete, and will change & expand as needed.  Note that as of
@@ -31,7 +32,7 @@ LOADING & INITIALIZATION:
 
 The PCZSM is loaded just like any other Scene Manager plugin.  Included in
 the standard PCZSM plugin is the "default" zone.  If the user wishes to
-utilize the OctreeZone or TerrainZone, the "PLugin_OctreeZone" should be
+utilize the OctreeZone or TerrainZone, the "Plugin_OctreeZone" should be
 loaded *after* the PCZSM plugin is loaded.  
 
 Before using the PCZSM, the PCZSceneManager::init(zoneType) function should be called. 
@@ -81,6 +82,11 @@ NOTE: Portals currently only connect different zones.  The user can't
 connect portals to the same zone yet (i.e. no teleporters).  This functionality
 could be added later.
 
+NEW IN VERSION 1.4.5: Portals can be "closed" (and opened) by calling Portal::close()
+(and Portal::open()).  Closing a portal prevents the scene manager from traversing
+through the portal and also prevents scenenodes & ray queries from crossing the portal.
+Basically, it turns a portal "off".
+
 NEW IN VERSION 1.2: Portals can take 3 different forms: quad portals, AAB portals, 
 and Sphere portals.  AAB and Sphere portals do not add any culling planes to the
 frustum, and just serve to serve as enclosures for zones which aren't naturally
@@ -114,17 +120,14 @@ scene traversal.  In other words, portals always exist in pairs - one in
 each zone connected and co-existing in the same location, but facing in 
 opposite directions.  
 
-While it is technically not required that a portal be associated with a 
-scene node, it is STRONGLY recommended.  Use Portal::setNode() to associate
-the portal with a scene node.  Once the portal is associated with a scene
-node, it will move with the scene node (including rotations or translations).
+It is REQUIRED that a portal be associated with a scene node.  Use Portal::setNode() 
+to associate the portal with a scene node.  Once the portal is associated with a 
+scene node, it will move with the scene node (including rotations or translations).
 Because of this, it is also highly recommended (although not required) that
 the node a portal is associated with be located at the center of the portal.
 
 NOTE: Scaling of a portal is not yet *tested*.  Scaling a node should scale 
-the portal (but don't cry to me if it doesn't work right yet...) Also, if you 
-don't associate the portal with a scene node, you will NOT be able to move it 
-short of redefining the cornerpoints manually (and who wants to do that?).   
+the portal (but don't cry to me if it doesn't work right yet...)   
 
 Once all portals in the scene have been created, the user can either manually 
 assign their zone targets (i.e. the zone which they connect to) or they can
@@ -143,9 +146,9 @@ locality of all entities - including cameras and lights.  Consequently,
 when a camera (or light) is created, the user should also attach the camera
 (or light) to a scene node and use that node to manipulate the object.
 
-SceneNodes should be assigned (by the user) to a zone upon creation of the 
-SceneNode.  Use the function "PCZSceneManager::setNodeHomeZone(node, zone)" 
-to do this.  
+SceneNodes can be assigned (by the user) to a zone upon creation of the 
+SceneNode.  Use the functions "PCZSceneNode::setHomeZone(PCZone * zone)" followed
+by "PCZone::_addNode(PCZSceneNode * node)" to do this.  
 
 If the user doesn't do this, the PCZSM will try to figure out which zone the 
 node belongs in using volumetric testing, but since there are situations when 
@@ -175,15 +178,5 @@ KNOWN BUGS:
   put in a hack which can potentially result in lighting not traversing into some zones properly.
   It will probably not be noticeable in most situations, but could potentially show up in
   very complex portal/zone setups.
-* Some situations can cause infinite recursion crashes.  It is highly recommended to avoid
-  situations where two zones interconnect in such a way that a viewer can look through
-  a portal into one zone and straight through to another portal which leads back to the 
-  zone the camera is in.  (that's bad zone design in the first place from an efficiency
-  standpoint anyway).  Note that the demo app actually creates this situation (you can look
-  directly through the tower from one side to the other) and it handles the situation, but
-  other tests (with more complex scenes) have resulted in infinite recursion crashes.  
-  I am uncertain of the exact cause, but will update with any fixes if/when found.
-
-
 
 /////////////////////////////////////////////////////////////////////////////

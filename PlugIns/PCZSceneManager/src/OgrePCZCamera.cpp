@@ -143,6 +143,12 @@ namespace Ogre
     //       called including portal corners, frustum planes, etc.
     bool PCZCamera::isVisible (Portal * portal, FrustumPlane *culledBy)
     {
+		// if portal isn't open, it's not visible
+		if (!portal->isOpen())
+		{
+			return false;
+		}
+
         // check the extra frustum first
         if (!mExtraCullingFrustum.isVisible(portal))
         {

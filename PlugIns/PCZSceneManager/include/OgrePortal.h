@@ -179,6 +179,14 @@ namespace Ogre
 		/* Adjust the portal so that it is centered and oriented on the given node
 		*/
 		void adjustNodeToMatch(SceneNode *);
+		/* open the portal */
+		void open();
+		/* close the portal */
+		void close();
+		/* check if portal is open */
+		bool isOpen() {return mOpen;}
+		
+
 		enum PortalIntersectResult
 		{
 			NO_INTERSECT,
@@ -269,6 +277,8 @@ namespace Ogre
 		bool mLocalsUpToDate;
 		// previous world transform
 		Matrix4 prevWorldTransform;
+		// flag open or closed
+		bool mOpen;
     };
 
 }

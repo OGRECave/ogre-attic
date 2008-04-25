@@ -58,6 +58,8 @@ Portal::Portal(const String & name, const PORTAL_TYPE type)
 	mLocalsUpToDate = false;
 	// set prevWorldTransform to a zero'd out matrix
 	prevWorldTransform = Matrix4::ZERO;
+	// default to open
+	mOpen = true;
 	switch (mType)
 	{
 	default:
@@ -435,35 +437,51 @@ void Portal::adjustNodeToMatch(SceneNode *node )
 	return;
 }
 
+// Open a portal (allows scene traversal and crossing)
+void Portal::open()
+{
+	mOpen = true;
+}
+
+// Close a portal (disallows scene traversal and crossing)
+void Portal::close()
+{
+	mOpen = false;
+}
+
 // Check if a portal intersects an AABB
 // NOTE: This check is not exact.
 bool Portal::intersects(const AxisAlignedBox & aab)
 {
-	switch(mType)
+	// Only check if portal is open
+	if (mOpen)
 	{
-	case PORTAL_TYPE_QUAD:
-		// since ogre doesn't have built in support for a quad, just check
-		// if the box intersects both the sphere of the portal and the plane
-		// this can result in false positives, but they will be minimal
-		if (!aab.intersects(mDerivedSphere))
+		switch(mType)
 		{
-			return false;
+		case PORTAL_TYPE_QUAD:
+			// since ogre doesn't have built in support for a quad, just check
+			// if the box intersects both the sphere of the portal and the plane
+			// this can result in false positives, but they will be minimal
+			if (!aab.intersects(mDerivedSphere))
+			{
+				return false;
+			}
+			if (aab.intersects(mDerivedPlane))
+			{
+				return true;
+			}
+			break;
+		case PORTAL_TYPE_AABB:
+			{
+				// aab to aab check
+				AxisAlignedBox aabb;
+				aabb.setExtents(mDerivedCorners[0], mDerivedCorners[1]);
+				return (aab.intersects(aabb));
+			}
+		case PORTAL_TYPE_SPHERE:
+			// aab to sphere check
+			return (aab.intersects(mDerivedSphere));
 		}
-		if (aab.intersects(mDerivedPlane))
-		{
-			return true;
-		}
-		break;
-	case PORTAL_TYPE_AABB:
-		{
-			// aab to aab check
-			AxisAlignedBox aabb;
-			aabb.setExtents(mDerivedCorners[0], mDerivedCorners[1]);
-			return (aab.intersects(aabb));
-		}
-	case PORTAL_TYPE_SPHERE:
-		// aab to sphere check
-		return (aab.intersects(mDerivedSphere));
 	}
 	return false; 
 }
@@ -472,30 +490,34 @@ bool Portal::intersects(const AxisAlignedBox & aab)
 // NOTE: This check is not exact.
 bool Portal::intersects(const Sphere & sphere)
 {
-	switch(mType)
+	// Only check if portal is open
+	if (mOpen)
 	{
-	case PORTAL_TYPE_QUAD:
-		// since ogre doesn't have built in support for a quad, just check
-		// if the sphere intersects both the sphere of the portal and the plane
-		// this can result in false positives, but they will be minimal
-		if (!sphere.intersects(mDerivedSphere))
+		switch(mType)
 		{
-			return false;
+		case PORTAL_TYPE_QUAD:
+			// since ogre doesn't have built in support for a quad, just check
+			// if the sphere intersects both the sphere of the portal and the plane
+			// this can result in false positives, but they will be minimal
+			if (!sphere.intersects(mDerivedSphere))
+			{
+				return false;
+			}
+			if (sphere.intersects(mDerivedPlane))
+			{
+				return true;
+			}
+			break;
+		case PORTAL_TYPE_AABB:
+			{
+				// aab to aab check
+				AxisAlignedBox aabb;
+				aabb.setExtents(mDerivedCorners[0], mDerivedCorners[1]);
+				return (aabb.intersects(sphere));
+			}
+		case PORTAL_TYPE_SPHERE:
+			return (mDerivedSphere.intersects(sphere));
 		}
-		if (sphere.intersects(mDerivedPlane))
-		{
-			return true;
-		}
-		break;
-	case PORTAL_TYPE_AABB:
-		{
-			// aab to aab check
-			AxisAlignedBox aabb;
-			aabb.setExtents(mDerivedCorners[0], mDerivedCorners[1]);
-			return (aabb.intersects(sphere));
-		}
-	case PORTAL_TYPE_SPHERE:
-		return (mDerivedSphere.intersects(sphere));
 	}
 	return false;
 }
@@ -505,123 +527,132 @@ bool Portal::intersects(const Sphere & sphere)
 // NOTE: UNTESTED as of 5/30/07 (EC)
 bool Portal::intersects(const PlaneBoundedVolume & pbv)
 {
-	switch(mType)
+	// Only check if portal is open
+	if (mOpen)
 	{
-	case PORTAL_TYPE_QUAD:
+		switch(mType)
 		{
-			// first check sphere of the portal
+		case PORTAL_TYPE_QUAD:
+			{
+				// first check sphere of the portal
+				if (!pbv.intersects(mDerivedSphere))
+				{
+					return false;
+				}
+				// if the portal corners are all outside one of the planes of the pbv, 
+				// then the portal does not intersect the pbv. (this can result in 
+				// some false positives, but it's the best I can do for now)
+				PlaneList::const_iterator it = pbv.planes.begin();
+				while (it != pbv.planes.end())
+				{
+					const Plane& plane = *it;
+					// check if all 4 corners of the portal are on negative side of the pbv
+					bool allOutside = true;
+					for (int i=0;i<4;i++)
+					{
+						if (plane.getSide(mDerivedCorners[i]) != pbv.outside)
+						{
+							allOutside = false;
+						}
+					}
+					if (allOutside)
+					{
+						return false;
+					}
+					it++;
+				};
+			}
+			break;
+		case PORTAL_TYPE_AABB:
+			{
+				AxisAlignedBox aabb;
+				aabb.setExtents(mDerivedCorners[0], mDerivedCorners[1]);
+				if (!pbv.intersects(aabb))
+				{
+					return false;
+				}
+			}
+			break;
+		case PORTAL_TYPE_SPHERE:
 			if (!pbv.intersects(mDerivedSphere))
 			{
 				return false;
 			}
-			// if the portal corners are all outside one of the planes of the pbv, 
-			// then the portal does not intersect the pbv. (this can result in 
-			// some false positives, but it's the best I can do for now)
-			PlaneList::const_iterator it = pbv.planes.begin();
-			while (it != pbv.planes.end())
-			{
-				const Plane& plane = *it;
-				// check if all 4 corners of the portal are on negative side of the pbv
-				bool allOutside = true;
-				for (int i=0;i<4;i++)
-				{
-					if (plane.getSide(mDerivedCorners[i]) != pbv.outside)
-					{
-						allOutside = false;
-					}
-				}
-				if (allOutside)
-				{
-					return false;
-				}
-				it++;
-			};
+			break;
 		}
-		break;
-	case PORTAL_TYPE_AABB:
-		{
-			AxisAlignedBox aabb;
-			aabb.setExtents(mDerivedCorners[0], mDerivedCorners[1]);
-			if (!pbv.intersects(aabb))
-			{
-				return false;
-			}
-		}
-		break;
-	case PORTAL_TYPE_SPHERE:
-		if (!pbv.intersects(mDerivedSphere))
-		{
-			return false;
-		}
-		break;
 	}
-	return true;
+	return false;
 }
 
 // Check if a portal intersects a ray
 // NOTE: Kinda using my own invented routine here for quad portals... Better do a lot of testing!
 bool Portal::intersects(const Ray & ray )
 {
-	if (mType == PORTAL_TYPE_QUAD)
+	// Only check if portal is open
+	if (mOpen)
 	{
-		// since ogre doesn't have built in support for a quad, I'm going to first
-		// find the intersection point (if any) of the ray and the portal plane.  Then
-		// using the intersection point, I take the cross product of each side of the portal
-		// (0,1,intersect), (1,2, intersect), (2,3, intersect), and (3,0,intersect).  If
-		// all 4 cross products have vectors pointing in the same direction, then the
-		// intersection point is within the portal, otherwise it is outside.
-
-		std::pair<bool, Real> result = ray.intersects(mDerivedPlane);
-
-		if (result.first == true)
+		if (mType == PORTAL_TYPE_QUAD)
 		{
-			// the ray intersects the plane, now walk around the edges 
-			Vector3 isect = ray.getPoint(result.second);
-			Vector3 cross, vect1, vect2;
-			Vector3 cross2, vect3, vect4;
-			vect1 = mDerivedCorners[1] - mDerivedCorners[0];
-			vect2 = isect - mDerivedCorners[0];
-			cross = vect1.crossProduct(vect2);
-			vect3 = mDerivedCorners[2] - mDerivedCorners[1];
-			vect4 = isect - mDerivedCorners[1];
-			cross2 = vect3.crossProduct(vect4);
-			if (cross.dotProduct(cross2) < 0)
-			{
-				return false;
-			}
-			vect1 = mDerivedCorners[3] - mDerivedCorners[2];
-			vect2 = isect - mDerivedCorners[2];
-			cross = vect1.crossProduct(vect2);
-			if (cross.dotProduct(cross2) < 0)
-			{
-				return false;
-			}
-			vect1 = mDerivedCorners[0] - mDerivedCorners[3];
-			vect2 = isect - mDerivedCorners[3];
-			cross = vect1.crossProduct(vect2);
-			if (cross.dotProduct(cross2) < 0)
-			{
-				return false;
-			}
-			// all cross products pointing same way, so intersect
-			// must be on the inside of the portal!
-			return true;
-		}
+			// since ogre doesn't have built in support for a quad, I'm going to first
+			// find the intersection point (if any) of the ray and the portal plane.  Then
+			// using the intersection point, I take the cross product of each side of the portal
+			// (0,1,intersect), (1,2, intersect), (2,3, intersect), and (3,0,intersect).  If
+			// all 4 cross products have vectors pointing in the same direction, then the
+			// intersection point is within the portal, otherwise it is outside.
 
-		return false;
+			std::pair<bool, Real> result = ray.intersects(mDerivedPlane);
+
+			if (result.first == true)
+			{
+				// the ray intersects the plane, now walk around the edges 
+				Vector3 isect = ray.getPoint(result.second);
+				Vector3 cross, vect1, vect2;
+				Vector3 cross2, vect3, vect4;
+				vect1 = mDerivedCorners[1] - mDerivedCorners[0];
+				vect2 = isect - mDerivedCorners[0];
+				cross = vect1.crossProduct(vect2);
+				vect3 = mDerivedCorners[2] - mDerivedCorners[1];
+				vect4 = isect - mDerivedCorners[1];
+				cross2 = vect3.crossProduct(vect4);
+				if (cross.dotProduct(cross2) < 0)
+				{
+					return false;
+				}
+				vect1 = mDerivedCorners[3] - mDerivedCorners[2];
+				vect2 = isect - mDerivedCorners[2];
+				cross = vect1.crossProduct(vect2);
+				if (cross.dotProduct(cross2) < 0)
+				{
+					return false;
+				}
+				vect1 = mDerivedCorners[0] - mDerivedCorners[3];
+				vect2 = isect - mDerivedCorners[3];
+				cross = vect1.crossProduct(vect2);
+				if (cross.dotProduct(cross2) < 0)
+				{
+					return false;
+				}
+				// all cross products pointing same way, so intersect
+				// must be on the inside of the portal!
+				return true;
+			}
+
+			return false;
+		}
+		else if (mType == PORTAL_TYPE_AABB)
+		{
+			AxisAlignedBox aabb;
+			aabb.setExtents(mDerivedCorners[0], mDerivedCorners[1]);
+			std::pair<bool, Real> result = ray.intersects(aabb);
+			return result.first;
+		}
+		else // sphere
+		{
+			std::pair<bool, Real> result = ray.intersects(mDerivedSphere);
+			return result.first;
+		}
 	}
-	else if (mType == PORTAL_TYPE_AABB)
-	{
-		AxisAlignedBox aabb;
-		aabb.setExtents(mDerivedCorners[0], mDerivedCorners[1]);
-		std::pair<bool, Real> result = ray.intersects(aabb);
-		return result.first;
-	}
-	else // sphere
-	{
-		std::pair<bool, Real> result = ray.intersects(mDerivedSphere);
-		return result.first;
-	}
+	return false;
 }
 
 
@@ -632,145 +663,150 @@ bool Portal::intersects(const Ray & ray )
 */
 Portal::PortalIntersectResult Portal::intersects(PCZSceneNode * pczsn)
 {
-	if (pczsn == mNode)
+	// Only check if portal is open
+	if (mOpen)
 	{
-		// ignore the scene node if it is the node the portal is associated with
-		return Portal::NO_INTERSECT;
-	}
-	// most complicated case - if the portal is a quad:
-	if (mType == PORTAL_TYPE_QUAD)
-	{
-		// the node is modeled as a line segment (prevPostion to currentPosition)
-		// intersection test is then between the capsule and the line segment.
-		Segment nodeSegment;
-		nodeSegment.set(pczsn->getPrevPosition(), pczsn->_getDerivedPosition());
-
-		// we model the portal as a line swept sphere (mPrevDerivedCP to mDerivedCP).
-		Capsule portalCapsule;
-		portalCapsule.set(mPrevDerivedCP, mDerivedCP, mRadius);
-
-		if (portalCapsule.intersects(nodeSegment))
+		if (pczsn == mNode)
 		{
-			// the portal intersected the node at some time from last frame to this frame. 
-			// Now check if node "crossed" the portal
-			// a crossing occurs if the "side" of the final position of the node compared
-			// to the final position of the portal is negative AND the initial position
-			// of the node compared to the initial position of the portal is non-negative
-			if (mDerivedPlane.getSide(pczsn->_getDerivedPosition()) == Plane::NEGATIVE_SIDE &&
-				mPrevDerivedPlane.getSide(pczsn->getPrevPosition()) != Plane::NEGATIVE_SIDE)
+			// ignore the scene node if it is the node the portal is associated with
+			return Portal::NO_INTERSECT;
+		}
+		// most complicated case - if the portal is a quad:
+		if (mType == PORTAL_TYPE_QUAD)
+		{
+			// the node is modeled as a line segment (prevPostion to currentPosition)
+			// intersection test is then between the capsule and the line segment.
+			Segment nodeSegment;
+			nodeSegment.set(pczsn->getPrevPosition(), pczsn->_getDerivedPosition());
+
+			// we model the portal as a line swept sphere (mPrevDerivedCP to mDerivedCP).
+			Capsule portalCapsule;
+			portalCapsule.set(mPrevDerivedCP, mDerivedCP, mRadius);
+
+			if (portalCapsule.intersects(nodeSegment))
 			{
-				// safety check - make sure the node has at least one dimension which is
-				// small enough to fit through the portal! (avoid the "elephant fitting 
-				// through a mouse hole" case)
-				Vector3 nodeHalfVector = pczsn->_getWorldAABB().getHalfSize();
-				Vector3 portalBox = Vector3(mRadius, mRadius, mRadius);
-				portalBox.makeFloor(nodeHalfVector);
-				if (portalBox.x < mRadius)
+				// the portal intersected the node at some time from last frame to this frame. 
+				// Now check if node "crossed" the portal
+				// a crossing occurs if the "side" of the final position of the node compared
+				// to the final position of the portal is negative AND the initial position
+				// of the node compared to the initial position of the portal is non-negative
+				if (mDerivedPlane.getSide(pczsn->_getDerivedPosition()) == Plane::NEGATIVE_SIDE &&
+					mPrevDerivedPlane.getSide(pczsn->getPrevPosition()) != Plane::NEGATIVE_SIDE)
 				{
-					// crossing occurred!
+					// safety check - make sure the node has at least one dimension which is
+					// small enough to fit through the portal! (avoid the "elephant fitting 
+					// through a mouse hole" case)
+					Vector3 nodeHalfVector = pczsn->_getWorldAABB().getHalfSize();
+					Vector3 portalBox = Vector3(mRadius, mRadius, mRadius);
+					portalBox.makeFloor(nodeHalfVector);
+					if (portalBox.x < mRadius)
+					{
+						// crossing occurred!
+						return Portal::INTERSECT_CROSS;
+					}
+				}
+			}
+			// there was no crossing of the portal by the node, but it might be touching
+			// the portal.  We check for this by checking the bounding box of the node vs.
+			// the sphere of the portal
+			if (mDerivedSphere.intersects(pczsn->_getWorldAABB()) &&
+				mDerivedPlane.getSide(pczsn->_getWorldAABB()) == Plane::BOTH_SIDE )
+			{
+				// intersection but no crossing
+				// note this means that the node is CURRENTLY touching the portal.
+				if (mDerivedPlane.getSide(pczsn->_getDerivedPosition()) != Plane::NEGATIVE_SIDE)
+				{
+					// the node is on the positive (front) or exactly on the CP of the portal
+					return Portal::INTERSECT_NO_CROSS;
+				}
+				else
+				{
+					// the node is on the negative (back) side of the portal - it might be in the wrong zone!
+					return Portal::INTERSECT_BACK_NO_CROSS;
+				}
+			}
+			// no intersection CURRENTLY.  (there might have been an intersection
+			// during the time between last frame and this frame, but it wasn't a portal
+			// crossing, and it isn't touching anymore, so it doesn't matter.
+			return Portal::NO_INTERSECT;
+		}
+		else if (mType == PORTAL_TYPE_AABB)
+		{
+			// for aabb's we check if the center point went from being inside to being outside
+			// the aabb (or vice versa) for crossing.  
+			AxisAlignedBox aabb;
+			aabb.setExtents(mDerivedCorners[0], mDerivedCorners[1]);
+			bool previousInside = aabb.contains(pczsn->getPrevPosition());
+			bool currentInside = aabb.contains(pczsn->_getDerivedPosition());
+			if (mDirection == Vector3::UNIT_Z)
+			{
+				// portal norm is "outward" pointing, look for going from outside to inside
+				if (previousInside == false &&
+					currentInside == true)
+				{
 					return Portal::INTERSECT_CROSS;
 				}
 			}
-		}
-		// there was no crossing of the portal by the node, but it might be touching
-		// the portal.  We check for this by checking the bounding box of the node vs.
-		// the sphere of the portal
-		if (mDerivedSphere.intersects(pczsn->_getWorldAABB()) &&
-			mDerivedPlane.getSide(pczsn->_getWorldAABB()) == Plane::BOTH_SIDE )
-		{
-			// intersection but no crossing
-			// note this means that the node is CURRENTLY touching the portal.
-			if (mDerivedPlane.getSide(pczsn->_getDerivedPosition()) != Plane::NEGATIVE_SIDE)
+			else
 			{
-				// the node is on the positive (front) or exactly on the CP of the portal
-				return Portal::INTERSECT_NO_CROSS;
+				// portal norm is "inward" pointing, look for going from inside to outside
+				if (previousInside == true &&
+					currentInside == false)
+				{
+					return Portal::INTERSECT_CROSS;
+				}
+			}
+			// doesn't cross, but might be touching.  This is a little tricky because we only
+			// care if the node aab is NOT fully contained in the portal aabb because we consider
+			// the surface of the portal aabb the actual 'portal'.  First, check to see if the 
+			// aab of the node intersects the aabb portal
+			if (aabb.intersects(pczsn->_getWorldAABB()))
+			{
+				// now check if the intersection between the two is not the same as the
+				// full node aabb, if so, then this means that the node is not fully "contained"
+				// which is what we are looking for.
+				AxisAlignedBox overlap = aabb.intersection(pczsn->_getWorldAABB());
+				if (overlap != pczsn->_getWorldAABB())
+				{
+					return Portal::INTERSECT_NO_CROSS;
+				}
+			}
+			return Portal::NO_INTERSECT;
+		}
+		else
+		{
+			// for spheres we check if the center point went from being inside to being outside
+			// the sphere surface (or vice versa) for crossing.  
+			Real previousDistance2 = mPrevDerivedCP.squaredDistance(pczsn->getPrevPosition());
+			Real currentDistance2 = mDerivedCP.squaredDistance(pczsn->_getDerivedPosition());
+			Real mRadius2 = mRadius * mRadius;
+			if (mDirection == Vector3::UNIT_Z)
+			{
+				// portal norm is "outward" pointing, look for going from outside to inside 
+				if (previousDistance2 >= mRadius2 &&
+					currentDistance2 < mRadius2)
+				{
+					return Portal::INTERSECT_CROSS;
+				}
 			}
 			else
 			{
-				// the node is on the negative (back) side of the portal - it might be in the wrong zone!
-				return Portal::INTERSECT_BACK_NO_CROSS;
+				// portal norm is "inward" pointing, look for going from inside to outside
+				if (previousDistance2 <= mRadius2 &&
+					currentDistance2 > mRadius2)
+				{
+					return Portal::INTERSECT_CROSS;
+				}
 			}
-		}
-		// no intersection CURRENTLY.  (there might have been an intersection
-		// during the time between last frame and this frame, but it wasn't a portal
-		// crossing, and it isn't touching anymore, so it doesn't matter.
-		return Portal::NO_INTERSECT;
-	}
-	else if (mType == PORTAL_TYPE_AABB)
-	{
-		// for aabb's we check if the center point went from being inside to being outside
-		// the aabb (or vice versa) for crossing.  
-		AxisAlignedBox aabb;
-		aabb.setExtents(mDerivedCorners[0], mDerivedCorners[1]);
-		bool previousInside = aabb.contains(pczsn->getPrevPosition());
-		bool currentInside = aabb.contains(pczsn->_getDerivedPosition());
-		if (mDirection == Vector3::UNIT_Z)
-		{
-			// portal norm is "outward" pointing, look for going from outside to inside
-			if (previousInside == false &&
-				currentInside == true)
-			{
-				return Portal::INTERSECT_CROSS;
-			}
-		}
-		else
-		{
-			// portal norm is "inward" pointing, look for going from inside to outside
-			if (previousInside == true &&
-				currentInside == false)
-			{
-				return Portal::INTERSECT_CROSS;
-			}
-		}
-		// doesn't cross, but might be touching.  This is a little tricky because we only
-		// care if the node aab is NOT fully contained in the portal aabb because we consider
-		// the surface of the portal aabb the actual 'portal'.  First, check to see if the 
-		// aab of the node intersects the aabb portal
-		if (aabb.intersects(pczsn->_getWorldAABB()))
-		{
-			// now check if the intersection between the two is not the same as the
-			// full node aabb, if so, then this means that the node is not fully "contained"
-			// which is what we are looking for.
-			AxisAlignedBox overlap = aabb.intersection(pczsn->_getWorldAABB());
-			if (overlap != pczsn->_getWorldAABB())
+			// no crossing, but might be touching - check distance 
+			if (Math::Sqrt(Math::Abs(mRadius2 - currentDistance2)) <= mRadius)
 			{
 				return Portal::INTERSECT_NO_CROSS;
 			}
+			return Portal::NO_INTERSECT;
 		}
-		return Portal::NO_INTERSECT;
 	}
-	else
-	{
-		// for spheres we check if the center point went from being inside to being outside
-		// the sphere surface (or vice versa) for crossing.  
-		Real previousDistance2 = mPrevDerivedCP.squaredDistance(pczsn->getPrevPosition());
-		Real currentDistance2 = mDerivedCP.squaredDistance(pczsn->_getDerivedPosition());
-		Real mRadius2 = mRadius * mRadius;
-		if (mDirection == Vector3::UNIT_Z)
-		{
-			// portal norm is "outward" pointing, look for going from outside to inside 
-			if (previousDistance2 >= mRadius2 &&
-				currentDistance2 < mRadius2)
-			{
-				return Portal::INTERSECT_CROSS;
-			}
-		}
-		else
-		{
-			// portal norm is "inward" pointing, look for going from inside to outside
-			if (previousDistance2 <= mRadius2 &&
-				currentDistance2 > mRadius2)
-			{
-				return Portal::INTERSECT_CROSS;
-			}
-		}
-		// no crossing, but might be touching - check distance 
-		if (Math::Sqrt(Math::Abs(mRadius2 - currentDistance2)) <= mRadius)
-		{
-			return Portal::INTERSECT_NO_CROSS;
-		}
-		return Portal::NO_INTERSECT;
-	}
+	return Portal::NO_INTERSECT; 
 
 }
 
@@ -778,94 +814,97 @@ Portal::PortalIntersectResult Portal::intersects(PCZSceneNode * pczsn)
 */
 bool Portal::crossedPortal(Portal * otherPortal)
 {
-	// we model both portals as line swept spheres (mPrevDerivedCP to mDerivedCP).
-	// intersection test is then between the capsules.
-	// BUGBUG! This routine needs to check for case where one or both objects
-	//         don't move - resulting in simple sphere tests
-	// BUGBUG! If one (or both) portals are aabb's this is REALLY not accurate.
-	Capsule portalCapsule, otherPortalCapsule;
-	portalCapsule.set( mPrevDerivedCP, mDerivedCP, mRadius);
-
-	otherPortalCapsule.set(otherPortal->getPrevDerivedCP(), 
-						   otherPortal->getDerivedCP(),
-						   otherPortal->getRadius());
-
-	if (portalCapsule.intersects(otherPortalCapsule))
+	// Only check if portal is open
+	if (otherPortal->isOpen())
 	{
-		// the portal intersected the other portal at some time from last frame to this frame. 
-		// Now check if this portal "crossed" the other portal
-		switch (otherPortal->getType())
-		{
-		case PORTAL_TYPE_QUAD:
-			// a crossing occurs if the "side" of the final position of this portal compared
-			// to the final position of the other portal is negative AND the initial position
-			// of this portal compared to the initial position of the other portal is non-negative
-			// NOTE: This function assumes that this portal is the smaller portal potentially crossing
-			//       over the otherPortal which is larger.
-			if (otherPortal->getDerivedPlane().getSide(mDerivedCP) == Plane::NEGATIVE_SIDE &&
-				otherPortal->getPrevDerivedPlane().getSide(mPrevDerivedCP) != Plane::NEGATIVE_SIDE)
-			{
-				// crossing occurred!
-				return true;
-			}
-			break;
-		case PORTAL_TYPE_AABB:
-			{
-				// for aabb's we check if the center point went from being inside to being outside
-				// the aabb (or vice versa) for crossing.  
-				AxisAlignedBox aabb;
-				aabb.setExtents(otherPortal->getDerivedCorner(0), otherPortal->getDerivedCorner(1));
-				bool previousInside = aabb.contains(mPrevDerivedCP);
-				bool currentInside = aabb.contains(mDerivedCP);
-				if (otherPortal->getDerivedDirection() == Vector3::UNIT_Z)
-				{
-					// portal norm is "outward" pointing, look for going from outside to inside
-					if (previousInside == false &&
-						currentInside == true)
-					{
-						return true;
-					}
-				}
-				else
-				{
-					// portal norm is "inward" pointing, look for going from inside to outside
-					if (previousInside == true &&
-						currentInside == false)
-					{
-						return true;
-					}
-				}
-			}
-			break;
-		case PORTAL_TYPE_SPHERE:
-			{
-				// for spheres we check if the center point went from being inside to being outside
-				// the sphere surface (or vice versa) for crossing.  
-				Real previousDistance2 = mPrevDerivedCP.squaredDistance(otherPortal->getPrevDerivedCP());
-				Real currentDistance2 = mDerivedCP.squaredDistance(otherPortal->getDerivedCP());
-				Real mRadius2 = Math::Sqr(otherPortal->getRadius());
-				if (otherPortal->getDerivedDirection() == Vector3::UNIT_Z)
-				{
-					// portal norm is "outward" pointing, look for going from outside to inside 
-					if (previousDistance2 >= mRadius2 &&
-						currentDistance2 < mRadius2)
-					{
-						return true;
-					}
-				}
-				else
-				{
-					// portal norm is "inward" pointing, look for going from inside to outside
-					if (previousDistance2 <= mRadius2 &&
-						currentDistance2 > mRadius2)
-					{
-						return true;
-					}
-				}
-			}
-			break;
-		}
+		// we model both portals as line swept spheres (mPrevDerivedCP to mDerivedCP).
+		// intersection test is then between the capsules.
+		// BUGBUG! This routine needs to check for case where one or both objects
+		//         don't move - resulting in simple sphere tests
+		// BUGBUG! If one (or both) portals are aabb's this is REALLY not accurate.
+		Capsule portalCapsule, otherPortalCapsule;
+		portalCapsule.set( mPrevDerivedCP, mDerivedCP, mRadius);
 
+		otherPortalCapsule.set(otherPortal->getPrevDerivedCP(), 
+							   otherPortal->getDerivedCP(),
+							   otherPortal->getRadius());
+
+		if (portalCapsule.intersects(otherPortalCapsule))
+		{
+			// the portal intersected the other portal at some time from last frame to this frame. 
+			// Now check if this portal "crossed" the other portal
+			switch (otherPortal->getType())
+			{
+			case PORTAL_TYPE_QUAD:
+				// a crossing occurs if the "side" of the final position of this portal compared
+				// to the final position of the other portal is negative AND the initial position
+				// of this portal compared to the initial position of the other portal is non-negative
+				// NOTE: This function assumes that this portal is the smaller portal potentially crossing
+				//       over the otherPortal which is larger.
+				if (otherPortal->getDerivedPlane().getSide(mDerivedCP) == Plane::NEGATIVE_SIDE &&
+					otherPortal->getPrevDerivedPlane().getSide(mPrevDerivedCP) != Plane::NEGATIVE_SIDE)
+				{
+					// crossing occurred!
+					return true;
+				}
+				break;
+			case PORTAL_TYPE_AABB:
+				{
+					// for aabb's we check if the center point went from being inside to being outside
+					// the aabb (or vice versa) for crossing.  
+					AxisAlignedBox aabb;
+					aabb.setExtents(otherPortal->getDerivedCorner(0), otherPortal->getDerivedCorner(1));
+					bool previousInside = aabb.contains(mPrevDerivedCP);
+					bool currentInside = aabb.contains(mDerivedCP);
+					if (otherPortal->getDerivedDirection() == Vector3::UNIT_Z)
+					{
+						// portal norm is "outward" pointing, look for going from outside to inside
+						if (previousInside == false &&
+							currentInside == true)
+						{
+							return true;
+						}
+					}
+					else
+					{
+						// portal norm is "inward" pointing, look for going from inside to outside
+						if (previousInside == true &&
+							currentInside == false)
+						{
+							return true;
+						}
+					}
+				}
+				break;
+			case PORTAL_TYPE_SPHERE:
+				{
+					// for spheres we check if the center point went from being inside to being outside
+					// the sphere surface (or vice versa) for crossing.  
+					Real previousDistance2 = mPrevDerivedCP.squaredDistance(otherPortal->getPrevDerivedCP());
+					Real currentDistance2 = mDerivedCP.squaredDistance(otherPortal->getDerivedCP());
+					Real mRadius2 = Math::Sqr(otherPortal->getRadius());
+					if (otherPortal->getDerivedDirection() == Vector3::UNIT_Z)
+					{
+						// portal norm is "outward" pointing, look for going from outside to inside 
+						if (previousDistance2 >= mRadius2 &&
+							currentDistance2 < mRadius2)
+						{
+							return true;
+						}
+					}
+					else
+					{
+						// portal norm is "inward" pointing, look for going from inside to outside
+						if (previousDistance2 <= mRadius2 &&
+							currentDistance2 > mRadius2)
+						{
+							return true;
+						}
+					}
+				}
+				break;
+			}
+		}
 	}
 	// there was no crossing of the portal by this portal. It might be touching
 	// the other portal (but we don't care currently)

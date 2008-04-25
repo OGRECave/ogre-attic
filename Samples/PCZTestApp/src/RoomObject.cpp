@@ -9,9 +9,11 @@
 #include "OgrePortal.h"
 
 using namespace Ogre;
+static int count = 0;
 
-PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene)
+PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene, String & name)
 {
+	count++;
 	mPortalCount = 0;
 	Ogre::PCZSceneManager * pczSM = (Ogre::PCZSceneManager*)scene;
 
@@ -19,11 +21,11 @@ PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene)
 	createPoints(Vector3(60.0, 40.0, 60.0), Vector3(4.0, 10.0, 4.0));
 
 	// create the building exterior
-    Entity *exterior = pczSM->createEntity( "building_exterior", "building_exterior.mesh" );
+	Entity *exterior = pczSM->createEntity( name + "_building_exterior", "building_exterior.mesh" );
 
 	// make the enclosure a child node of the root scene node
 	PCZSceneNode * exteriorNode;
-    exteriorNode = (PCZSceneNode*)scene->getRootSceneNode()->createChildSceneNode("building_exterior_node",  Vector3( 0.0f, 0.0f, 0.0f ) );
+    exteriorNode = (PCZSceneNode*)scene->getRootSceneNode()->createChildSceneNode(name +"_building_exterior_node",  Vector3( 0.0f, 0.0f, 0.0f ) );
 	exteriorNode->attachObject(exterior);
 	pczSM->addPCZSceneNode(exteriorNode, pczSM->getDefaultZone());
 
@@ -39,16 +41,16 @@ PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene)
 	createPoints(Vector3(20.0, 10.0, 20.0), Vector3(4.0, 10.0, 4.0));
 
 	// create an interior room
-    Entity *room = pczSM->createEntity( "room1", "room_nzpz.mesh" );
+    Entity *room = pczSM->createEntity( name +"_room1", "room_nzpz.mesh" );
 
 	// add the room as a child node to the enclosure node
 	PCZSceneNode * roomNode;
-	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( "room1_node", Vector3( 0.0f, 0.0f, 20.0f ) );
+	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( name +"_room1_node", Vector3( 0.0f, 0.0f, 20.0f ) );
 	roomNode->attachObject(room);
 
 	// room needs it's own zone
 	Ogre::String zoneType = "ZoneType_Default";
-	Ogre::String zoneName = "room1_zone";
+	Ogre::String zoneName = name +"_room1_zone";
 	PCZone * newZone = pczSM->createZone(zoneType, zoneName);
 	newZone->setEnclosureNode(roomNode);
 	pczSM->addPCZSceneNode(roomNode, newZone);
@@ -62,14 +64,14 @@ PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene)
 				  false);
 
 	// create another interior room
-    room = pczSM->createEntity( "room2", "room_nxpxnypynzpz.mesh" );
+    room = pczSM->createEntity( name +"_room2", "room_nxpxnypynzpz.mesh" );
 
 	// add the room as a child node to the enclosure node
-	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( "room2_node", Vector3( 0.0f, 0.0f, 0.0f ) );
+	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( name +"_room2_node", Vector3( 0.0f, 0.0f, 0.0f ) );
 	roomNode->attachObject(room);
 
 	// room needs it's own zone
-	zoneName = "room2_zone";
+	zoneName = name +"_room2_zone";
 	newZone = pczSM->createZone(zoneType, zoneName);
 	newZone->setEnclosureNode(roomNode);
 	pczSM->addPCZSceneNode(roomNode, newZone);
@@ -83,14 +85,14 @@ PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene)
 				  false);
 
 	// create another interior room
-    room = pczSM->createEntity( "room3", "room_nzpz.mesh" );
+    room = pczSM->createEntity( name +"_room3", "room_nzpz.mesh" );
 
 	// add the room as a child node to the enclosure node
-	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( "room3_node", Vector3( 0.0f, 0.0f, -20.0f ) );
+	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( name +"_room3_node", Vector3( 0.0f, 0.0f, -20.0f ) );
 	roomNode->attachObject(room);
 
 	// room needs it's own zone
-	zoneName = "room3_zone";
+	zoneName = name +"_room3_zone";
 	newZone = pczSM->createZone(zoneType, zoneName);
 	newZone->setEnclosureNode(roomNode);
 	pczSM->addPCZSceneNode(roomNode, newZone);
@@ -104,14 +106,14 @@ PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene)
 				  false);
 
 	// create another interior room
-    room = pczSM->createEntity( "room4", "room_nxpx.mesh" );
+    room = pczSM->createEntity( name +"_room4", "room_nxpx.mesh" );
 
 	// add the room as a child node to the enclosure node
-	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( "room4_node", Vector3( -20.0f, 0.0f, 0.0f ) );
+	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( name +"_room4_node", Vector3( -20.0f, 0.0f, 0.0f ) );
 	roomNode->attachObject(room);
 
 	// room needs it's own zone
-	zoneName = "room4_zone";
+	zoneName = name +"_room4_zone";
 	newZone = pczSM->createZone(zoneType, zoneName);
 	newZone->setEnclosureNode(roomNode);
 	pczSM->addPCZSceneNode(roomNode, newZone);
@@ -125,14 +127,14 @@ PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene)
 				  false);
 
 	// create another interior room
-    room = pczSM->createEntity( "room5", "room_nxpx.mesh" );
+    room = pczSM->createEntity( name +"_room5", "room_nxpx.mesh" );
 
 	// add the room as a child node to the enclosure node
-	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( "room5_node", Vector3( 20.0f, 0.0f, 0.0f ) );
+	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( name +"_room5_node", Vector3( 20.0f, 0.0f, 0.0f ) );
 	roomNode->attachObject(room);
 
 	// room needs it's own zone
-	zoneName = "room5_zone";
+	zoneName = name +"_room5_zone";
 	newZone = pczSM->createZone(zoneType, zoneName);
 	newZone->setEnclosureNode(roomNode);
 	pczSM->addPCZSceneNode(roomNode, newZone);
@@ -146,14 +148,14 @@ PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene)
 				  false);
 
 	// create another interior room
-    room = pczSM->createEntity( "room6", "room_ny.mesh" );
+    room = pczSM->createEntity( name +"_room6", "room_ny.mesh" );
 
 	// add the room as a child node to the enclosure node
-	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( "room6_node", Vector3( 0.0f, 10.0f, 0.0f ) );
+	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( name +"_room6_node", Vector3( 0.0f, 10.0f, 0.0f ) );
 	roomNode->attachObject(room);
 
 	// room needs it's own zone
-	zoneName = "room6_zone";
+	zoneName = name +"_room6_zone";
 	newZone = pczSM->createZone(zoneType, zoneName);
 	newZone->setEnclosureNode(roomNode);
 	pczSM->addPCZSceneNode(roomNode, newZone);
@@ -167,14 +169,14 @@ PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene)
 				  false);
 
 	// create another interior room
-    room = pczSM->createEntity( "room7", "room_py.mesh" );
+    room = pczSM->createEntity( name +"_room7", "room_py.mesh" );
 
 	// add the room as a child node to the enclosure node
-	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( "room7_node", Vector3( 0.0f, -50.0f, 0.0f ) );
+	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( name +"_room7_node", Vector3( 0.0f, -50.0f, 0.0f ) );
 	roomNode->attachObject(room);
 
 	// room needs it's own zone
-	zoneName = "room7_zone";
+	zoneName = name +"_room7_zone";
 	newZone = pczSM->createZone(zoneType, zoneName);
 	newZone->setEnclosureNode(roomNode);
 	pczSM->addPCZSceneNode(roomNode, newZone);
@@ -191,14 +193,14 @@ PCZSceneNode * RoomObject::createTestBuilding(Ogre::SceneManager *scene)
 	createPoints(Vector3(20.0, 40.0, 20.0), Vector3(4.0, 10.0, 4.0));
 
 	// create another interior room
-    room = pczSM->createEntity( "room8", "room_nypy_4y.mesh" );
+    room = pczSM->createEntity( name +"_room8", "room_nypy_4y.mesh" );
 
 	// add the room as a child node to the enclosure node
-	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( "room8_node", Vector3( 0.0f, -25.0f, 0.0f ) );
+	roomNode = (PCZSceneNode*)exteriorNode->createChildSceneNode( name +"_room8_node", Vector3( 0.0f, -25.0f, 0.0f ) );
 	roomNode->attachObject(room);
 
 	// room needs it's own zone
-	zoneName = "room8_zone";
+	zoneName = name +"_room8_zone";
 	newZone = pczSM->createZone(zoneType, zoneName);
 	newZone->setEnclosureNode(roomNode);
 	pczSM->addPCZSceneNode(roomNode, newZone);

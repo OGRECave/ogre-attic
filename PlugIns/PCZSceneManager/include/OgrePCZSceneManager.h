@@ -239,6 +239,9 @@ namespace Ogre
         */
         void _updateHomeZone( PCZSceneNode *, bool );
 
+		// Find the smallest zone which contains the point
+		PCZone * findZoneForPoint(Vector3 & point);
+
 		// create any zone-specific data necessary for all zones for the given node
 		void createZoneSpecificNodeData(PCZSceneNode *);
 

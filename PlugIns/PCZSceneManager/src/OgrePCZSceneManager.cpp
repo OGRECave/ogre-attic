@@ -771,37 +771,7 @@ namespace Ogre
 			// the node hasn't had it's home zone set yet, so do our best to
 			// find the home zone using volume testing.  
 			Vector3 nodeCenter = pczsn->_getDerivedPosition();
-			PCZone * zone;
-			PCZone * bestZone = mDefaultZone;
-			Real bestVolume = Ogre::Math::POS_INFINITY;
-
-			ZoneMap::iterator zit = mZones.begin();
-
-			while ( zit != mZones.end() )
-			{
-				zone = zit->second;
-				AxisAlignedBox aabb;
-				zone->getAABB(aabb);
-				SceneNode * enclosureNode = zone->getEnclosureNode();
-				if (enclosureNode != 0)
-				{
-					// since this is the "local" AABB, add in world translation of the enclosure node
-					aabb.setMinimum(aabb.getMinimum() + enclosureNode->_getDerivedPosition());
-					aabb.setMaximum(aabb.getMaximum() + enclosureNode->_getDerivedPosition());
-				}
-				if (aabb.contains(nodeCenter))
-				{
-					if (aabb.volume() < bestVolume)
-					{
-						// this zone is "smaller" than the current best zone, so make it
-						// the new best zone
-						bestZone = zone;
-						bestVolume = aabb.volume();
-					}
-				}
-				// proceed to next zone in the list
-				++zit;
-			}
+			PCZone * bestZone = findZoneForPoint(nodeCenter);
 			// set the best zone as the node's home zone
 			pczsn->setHomeZone(bestZone);
 			// add the node to the zone
@@ -811,6 +781,44 @@ namespace Ogre
 		return;
 
     }
+
+	/* Find the best (smallest) zone that contains a point
+	*/
+	PCZone * PCZSceneManager::findZoneForPoint(Vector3 & point)
+	{
+		PCZone * zone;
+		PCZone * bestZone = mDefaultZone;
+		Real bestVolume = Ogre::Math::POS_INFINITY;
+
+		ZoneMap::iterator zit = mZones.begin();
+
+		while ( zit != mZones.end() )
+		{
+			zone = zit->second;
+			AxisAlignedBox aabb;
+			zone->getAABB(aabb);
+			SceneNode * enclosureNode = zone->getEnclosureNode();
+			if (enclosureNode != 0)
+			{
+				// since this is the "local" AABB, add in world translation of the enclosure node
+				aabb.setMinimum(aabb.getMinimum() + enclosureNode->_getDerivedPosition());
+				aabb.setMaximum(aabb.getMaximum() + enclosureNode->_getDerivedPosition());
+			}
+			if (aabb.contains(point))
+			{
+				if (aabb.volume() < bestVolume)
+				{
+					// this zone is "smaller" than the current best zone, so make it
+					// the new best zone
+					bestZone = zone;
+					bestVolume = aabb.volume();
+				}
+			}
+			// proceed to next zone in the list
+			++zit;
+		}
+		return bestZone;
+	}
 
 	// create any zone-specific data necessary for all zones for the given node
 	void PCZSceneManager::createZoneSpecificNodeData(PCZSceneNode * node)

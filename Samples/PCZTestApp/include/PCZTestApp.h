@@ -235,7 +235,7 @@ protected:
 		std::string zoneName("Terrain1_Zone");
 		PCZone * terrainZone = createTerrainZone(zoneName, terrain_cfg);
 
-		// Create another terrain zone
+/*		// Create another terrain zone
         terrain_cfg = "terrain.cfg";
 		zoneName = "Terrain2_Zone";
 		terrainZone = createTerrainZone(zoneName, terrain_cfg);
@@ -290,16 +290,23 @@ protected:
 		terrainZone = createTerrainZone(zoneName, terrain_cfg);
 		// move terrain next to first terrain
 		terrainZone->getEnclosureNode()->setPosition(1500, 0, -1500);
-
+*/
 		// set far clip plane to one terrain zone width (we have a LOT of terrain here, so we need to do far clipping!)
         mCamera->setFarClipDistance(1500);
 
 		// create test buildinig
 		RoomObject roomObj;
-		buildingNode = roomObj.createTestBuilding(mSceneMgr);
+		buildingNode = roomObj.createTestBuilding(mSceneMgr, String("1"));
 		buildingNode->setPosition(500, 165, 570);
-		Ogre::Radian r = Radian(3.1416/7.0);
-		buildingNode->rotate(Vector3::UNIT_Y, r);
+		//Ogre::Radian r = Radian(3.1416/7.0);
+		//buildingNode->rotate(Vector3::UNIT_Y, r);
+
+		// create another test buildinig
+		RoomObject roomObj2;
+		buildingNode = roomObj2.createTestBuilding(mSceneMgr, String("2"));
+		buildingNode->setPosition(400, 165, 570);
+		//Ogre::Radian r = Radian(3.1416/7.0);
+		//buildingNode->rotate(Vector3::UNIT_Y, r);
 
         // Position camera in the center of the building
         mCameraNode->setPosition(buildingNode->getPosition());

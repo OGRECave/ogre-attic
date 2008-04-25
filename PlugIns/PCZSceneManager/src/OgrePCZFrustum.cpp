@@ -151,7 +151,13 @@ namespace Ogre
     //       called including portal corners, frustum planes, etc.
     bool PCZFrustum::isVisible(Portal * portal)
     {
-        // if the frustum has no planes, just return true
+		// if portal isn't open, it's not visible
+		if (!portal->isOpen())
+		{
+			return false;
+		}
+
+		// if the frustum has no planes, just return true
         if (mActiveCullingPlanes.size() == 0)
         {
             return true;
@@ -328,9 +334,9 @@ namespace Ogre
 			return addedcullingplanes;
 		}
 
-        // For portal Quads: Up to 4 planes can be added by a portal quad
-        // each plane is created from 2 corners (world space) of the portal
-        // and the frustum origin (world space).
+        // For portal Quads: Up to 4 planes can be added by the sides of a portal quad.
+        // Each plane is created from 2 corners (world space) of the portal and the
+        // frustum origin (world space).
 		int i,j;
 		Plane::Side pt0_side, pt1_side;
 		bool visible;
@@ -369,6 +375,16 @@ namespace Ogre
 				addedcullingplanes++;
 			}
         }
+		// if we added ANY planes from the quad portal, we should add the plane of the
+		// portal itself as an additional culling plane.
+		if (addedcullingplanes > 0)
+		{
+			PCPlane * newPlane = getUnusedCullingPlane();
+			newPlane->redefine(portal->getDerivedCorner(2), portal->getDerivedCorner(1), portal->getDerivedCorner(0));
+			newPlane->setPortal(portal);
+			mActiveCullingPlanes.push_back(newPlane);
+			addedcullingplanes++;
+		}
 		return addedcullingplanes;
     }
 
