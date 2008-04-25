@@ -27,8 +27,8 @@ import string
 import pickle
 import Blender
 
-matrixOne = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
-matrixFlip = [[1,0,0,0],[0,0,-1,0],[0,1,0,0],[0,0,0,1]]
+#matrixOne = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
+#matrixFlip = [[1,0,0,0],[0,0,-1,0],[0,1,0,0],[0,0,0,1]]
 
 def indent(indent):
 	"""Indentation.

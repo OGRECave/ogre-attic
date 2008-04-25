@@ -42,21 +42,22 @@ class Vertex:
 	"""
 	"""
 	THRESHOLD = 1e-6
-	def __init__(self, bMesh, bMFace, bIndex, index, parentTransform, armatureExporter=None):
+	def __init__(self, bMesh, bMFace, bIndex, index, fixUpAxis, armatureExporter=None):
 		"""Represents an Ogre vertex.
 		   
 		   @param bIndex Index in the vertex list of the NMFace.
 		   @param index Vertexbuffer position.
-		   @param parentTransform Additional transformation to apply to the vertex.
+		   @param fixUpAxis Additional transformation to apply to the vertex.
 		"""
 		self.bMesh = bMesh
 		# imples position
 		# vertex in basis shape
 		self.bMVert = bMFace.v[bIndex]
+		self.basisPos = self.bMVert.co
 		bKey = self.bMesh.key
 		if (bKey and len(bKey.blocks)):
 			# first shape key is rest position
-			self.bMVert = bKey.blocks[0].data[self.bMVert.index]
+			self.basisPos = bKey.blocks[0].data[self.bMVert.index]
 		## Face properties in Blender
 		self.normal = None
 		self.colourDiffuse = None
@@ -64,14 +65,14 @@ class Vertex:
 		## bookkeeping
 		# vertexbuffer position in vertexbuffer
 		self.index = index
-		self.parentTransform = parentTransform
+		self.fixUpAxis = fixUpAxis
 		# implies influences
 		self.armatureExporter = armatureExporter
 		### populated attributes
 		## normal
 		if bMFace.smooth:
 			# key blocks don't have normals
-			self.normal = self._applyParentTransform(bMFace.v[bIndex].no)
+			self.normal = self._applyfixUpAxis(bMFace.v[bIndex].no)
 		else:
 			# create face normal
 			# 1 - 2
@@ -81,14 +82,14 @@ class Vertex:
 			if (bKey and len(bKey.blocks)):
 				# first shape key is rest position
 				blockData = bKey.blocks[0].data
-				v1 = self._applyParentTransform(blockData[bMFace.v[0].index].co)
-				v2 = self._applyParentTransform(blockData[bMFace.v[1].index].co)
-				v3 = self._applyParentTransform(blockData[bMFace.v[2].index].co)
+				v1 = self._applyfixUpAxis(blockData[bMFace.v[0].index].co)
+				v2 = self._applyfixUpAxis(blockData[bMFace.v[1].index].co)
+				v3 = self._applyfixUpAxis(blockData[bMFace.v[2].index].co)
 			else:
 				# self.normal = CrossVecs(bMFace.v[1].co - bMFace.v[0].co, bMFace.v[2].co - bMFace.v[0].co)
-				v1 = self._applyParentTransform(bMFace.v[0].co)
-				v2 = self._applyParentTransform(bMFace.v[1].co)
-				v3 = self._applyParentTransform(bMFace.v[2].co)
+				v1 = self._applyfixUpAxis(bMFace.v[0].co)
+				v2 = self._applyfixUpAxis(bMFace.v[1].co)
+				v3 = self._applyfixUpAxis(bMFace.v[2].co)
 			self.normal = CrossVecs(v2 - v1, v3 - v1)
 		# self.normal.normalize() does not throw ZeroDivisionError exception
 		normalLength = self.normal.length
@@ -140,7 +141,7 @@ class Vertex:
 	def __eq__(self, other):
 		"""Tests if this vertex is equal to another vertex in the Ogre sense.
 		
-		   Does no take parentTransform into account!
+		   Does no take fixUpAxis into account!
 		   Also, it does not compare the index.
 		"""
 		isEqual = 0
@@ -249,30 +250,30 @@ class Vertex:
 	def getPosition(self):
 		"""Returns position vector of the rest position.
 		"""
-		return self._applyParentTransform(self.bMVert.co)
+		return self._applyfixUpAxis(self.basisPos)
 	def getCurrentFramePosition(self, bDeformedNMesh):
 		"""Returns position of this vertex in the current frame of the possibly deformed mesh.
 		"""
-		return self._applyParentTransform(bDeformedNMesh.verts[self.bMVert.index].co)
+		return self._applyfixUpAxis(bDeformedNMesh.verts[self.bMVert.index].co)
 	def getCurrentFrameRelativePosition(self, bDeformedNMesh):
 		"""Returns relative position of this vertex in the current frame of the possibly deformed mesh.
 		"""
 		return (self.getCurrentFramePosition(bDeformedNMesh) - self.getPosition())
-	def _applyParentTransform(self, vector):
+	def _applyfixUpAxis(self, vector):
 		"""Applies transformation to threedimensional vector.
 		"""
-		vec = Vector(vector)
-		vec.resize4D()
-		vec = vec * self.parentTransform
-		vec.resize3D()
+		if (self.fixUpAxis):
+			vec = Vector(vector.x, vector.z, -vector.y)
+		else:
+			return vector
 		return vec
 
 class VertexManager:
 	"""
 	"""
-	def __init__(self, bMesh, parentTransform, armatureExporter=None):
+	def __init__(self, bMesh, fixUpAxis, armatureExporter=None):
 		self.bMesh = bMesh
-		self.parentTransform = parentTransform
+		self.fixUpAxis = fixUpAxis
 		# needed for boneassignments
 		self.armatureExporter = armatureExporter
 		# key: index, value: list of vertices with same MVert
@@ -294,7 +295,7 @@ class VertexManager:
 		   @param bIndex Index in the vertex list of the MFace.
 		   @return Corresponding vertex.
 		"""
-		vertex = Vertex(self.bMesh, bMFace, bIndex, len(self.vertexList), self.parentTransform, self.armatureExporter)
+		vertex = Vertex(self.bMesh, bMFace, bIndex, len(self.vertexList), self.fixUpAxis, self.armatureExporter)
 		if self.vertexDict.has_key(bMFace.v[bIndex].index):
 			# check Ogre vertices for that Blender vertex
 			vertexList = self.vertexDict[bMFace.v[bIndex].index]
@@ -357,7 +358,7 @@ class VertexManager:
 class Submesh:
 	"""Ogre submesh.
 	"""
-	def __init__(self, bMesh, material, index, parentTransform, armatureExporter = None):
+	def __init__(self, bMesh, material, index, fixUpAxis, armatureExporter = None):
 		"""Constructor.
 		
 		   @param index Index of submesh in submeshes list.
@@ -365,9 +366,9 @@ class Submesh:
 		self.bMesh = bMesh
 		self.materialName = material.getName()
 		self.index = index
-		self.parentTransform = parentTransform
+		self.fixUpAxis = fixUpAxis
 		self.armatureExporter = armatureExporter
-		self.vertexManager = VertexManager(self.bMesh, self.parentTransform, self.armatureExporter)
+		self.vertexManager = VertexManager(self.bMesh, self.fixUpAxis, self.armatureExporter)
 		# list of (tuple of vertice indices)
 		self.faces =[]
 		return
@@ -435,9 +436,9 @@ class Submesh:
 class SubmeshManager:
 	"""
 	"""
-	def __init__(self, bMesh, parentTransform, armatureExporter=None):
+	def __init__(self, bMesh, fixUpAxis, armatureExporter=None):
 		self.bMesh = bMesh
-		self.parentTransform = parentTransform
+		self.fixUpAxis = fixUpAxis
 		self.armatureExporter = armatureExporter
 		# key: material name, value: Submesh
 		self.submeshDict = {}
@@ -455,7 +456,7 @@ class SubmeshManager:
 		else:
 			# return new Submesh
 			index = len(self.submeshList)
-			submesh = Submesh(self.bMesh, material, index, self.parentTransform, self.armatureExporter)
+			submesh = Submesh(self.bMesh, material, index, self.fixUpAxis, self.armatureExporter)
 			self.submeshDict[material.getName()] = submesh
 			self.submeshList.append(submesh)
 		return submesh
@@ -483,7 +484,7 @@ class Pose:
 	"""
 	"""
 	THRESHOLD = 1e-7
-	def __init__(self, bKeyBlock, submesh, index, parentTransform):
+	def __init__(self, bKeyBlock, submesh, index, fixUpAxis):
 		"""Constructor.
 		
 		   @param index Index of pose in poses list.
@@ -491,13 +492,13 @@ class Pose:
 		self.bKeyBlock = bKeyBlock
 		self.submesh = submesh
 		self.index = index
-		self.parentTransform = parentTransform
+		self.fixUpAxis = fixUpAxis
 		# list of pose offset tuples (vertexIndex, deltaX, deltaY, deltaZ)
 		self.poseoffsetList	= []
 		# calculate poseoffsets
 		poseVertexList = self.bKeyBlock.data
 		for vertex in self.submesh.getVertexManager():
-			offset = self._applyParentTransform(poseVertexList[vertex.getMVert().index]) \
+			offset = self._applyfixUpAxis(poseVertexList[vertex.getMVert().index]) \
 				 - vertex.getPosition()
 			if (offset.length > Pose.THRESHOLD):
 				self.poseoffsetList.append((vertex.getIndex(), offset.x, offset.y, offset.z))
@@ -524,22 +525,21 @@ class Pose:
 					% poseoffset)
 			fileObject.write(indent(indentation) + "</pose>\n")		
 		return
-	def _applyParentTransform(self, vector):
+	def _applyfixUpAxis(self, vector):
 		"""Applies transformation to threedimensional vector.
 		"""
-		vec = Vector(vector)
-		vec.resize4D()
-		vec = vec * self.parentTransform
-		vec.resize3D()
+		if (self.fixUpAxis):
+			vec = Vector(vector.x, vector.z, -vector.y)
+		else:
+			return vector
 		return vec
 	
 class PoseManager:
 	"""
 	"""
-	def __init__(self, bMesh, submeshManager, parentTransform):
+	def __init__(self, bMesh, submeshManager, fixUpAxis):
 		self.bMesh = bMesh
 		self.submeshManager = submeshManager
-		self.parentTransform = parentTransform
 		# key: submesh, value: poseList
 		self.poseListDict = {}
 		self.poseList = []
@@ -550,7 +550,7 @@ class PoseManager:
 			for bKeyBlock in bKey.blocks:
 				for submesh in self.submeshManager:
 					index = len(self.poseList)
-					pose = Pose(bKeyBlock, submesh, index, self.parentTransform)
+					pose = Pose(bKeyBlock, submesh, index, fixUpAxis)
 					if (pose.nPoseoffsets() > 0):
 						# add nonempty pose to list and dict
 						self.poseList.append(pose)
@@ -721,7 +721,8 @@ class MorphAnimation(VertexAnimation):
 		timeList.sort()
 		for time in timeList:
 			Blender.Set('curframe', frameNumberDict[time])
-			bDeformedNMesh = Blender.NMesh.GetRawFromObject(bObject.getName())
+			#~ bDeformedNMesh = Blender.NMesh.GetRawFromObject(bObject.getName())
+			bDeformedNMesh = bObject.getData(mesh=True)
 			for track in self.trackList:
 				track.addKeyframe(bDeformedNMesh, time)
 		return
@@ -775,9 +776,9 @@ class VertexAnimationExporter:
 		return
 	def hasAnimation(self):
 		return (len(self.morphAnimationList) or len(self.poseAnimationList))
-	def export(self, parentTransform):
+	def export(self, fixUpAxis):
 		# generate poses
-		self.poseManager = PoseManager(self.meshExporter.getObject().getData(mesh=True), self.meshExporter.getSubmeshManager(), parentTransform)
+		self.poseManager = PoseManager(self.meshExporter.getObject().getData(mesh=True), self.meshExporter.getSubmeshManager(), fixUpAxis)
 		if self.hasAnimation():
 			# sample animations
 			animationNameList = []
@@ -855,7 +856,7 @@ class MeshExporter:
 		# populated on export
 		self.submeshManager = None
 		return
-	def export(self, dir, materialManager=MaterialManager(), parentTransform=Matrix(*matrixOne), colouredAmbient=False, gameEngineMaterials=False, convertXML=False):
+	def export(self, dir, materialManager=MaterialManager(), fixUpAxis=True, colouredAmbient=False, gameEngineMaterials=False, convertXML=False):
 		# leave editmode
 		editmode = Blender.Window.EditMode()
 		if editmode:
@@ -863,11 +864,11 @@ class MeshExporter:
 		Log.getSingleton().logInfo("Exporting mesh \"%s\"" % self.getName())
 		## export possible armature
 		if self.armatureExporter:
-			self.armatureExporter.export(dir, parentTransform, convertXML)
+			self.armatureExporter.export(dir, fixUpAxis, convertXML)
 		## export meshdata
-		self._generateSubmeshes(parentTransform, materialManager, colouredAmbient, gameEngineMaterials)
+		self._generateSubmeshes(fixUpAxis, materialManager, colouredAmbient, gameEngineMaterials)
 		## export vertex animations
-		self.vertexAnimationExporter.export(parentTransform)
+		self.vertexAnimationExporter.export(fixUpAxis)
 		## write files
 		self._write(dir, convertXML)
 		## cleanup
@@ -886,12 +887,12 @@ class MeshExporter:
 		return self.armatureExporter
 	def getSubmeshManager(self):
 		return self.submeshManager
-	def _generateSubmeshes(self, parentTransform, materialManager, colouredAmbient, gameEngineMaterials):
+	def _generateSubmeshes(self, fixUpAxis, materialManager, colouredAmbient, gameEngineMaterials):
 		"""Generates submeshes of the mesh.
 		"""
 		#NMesh# Blender.Mesh.Mesh does not provide access to mesh shape keys, use Blender.NMesh.NMesh
 		bMesh = self.bObject.getData(mesh=True)
-		self.submeshManager = SubmeshManager(bMesh, parentTransform, self.armatureExporter)
+		self.submeshManager = SubmeshManager(bMesh, fixUpAxis, self.armatureExporter)
 		for bMFace in bMesh.faces:
 			faceMaterial = materialManager.getMaterial(bMesh, bMFace, colouredAmbient, gameEngineMaterials)
 			if faceMaterial:
