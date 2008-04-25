@@ -330,8 +330,8 @@ namespace Ogre
 				Portal * p2 = (*it2);
 				// only check against bigger portals (this will also prevent checking against self)
 				// and only against portals which point to another zone
-				if (pRadius < p2->getRadius()
-					&& p2->getTargetZone() != this)
+				if (pRadius < p2->getRadius() && 
+					p2->getTargetZone() != this)
 				{
 					// Portal#2 is bigger than Portal1, check for crossing
 					if (p->crossedPortal(p2) && p->getCurrentHomeZone() != p2->getTargetZone())
@@ -356,7 +356,8 @@ namespace Ogre
 					if (pRadius < p3->getRadius())
 					{
 						// Portal#3 is bigger than Portal#1, check for crossing
-						if (p->crossedPortal(p3) && p->getCurrentHomeZone() != p3->getTargetZone())
+						if (p->crossedPortal(p3) && 
+							p->getCurrentHomeZone() != p3->getTargetZone())
 						{
 							// Portal#1 crossed Portal#3 - switch target zones for Portal#1
 							p->setTargetZone(p3->getTargetZone());
@@ -643,7 +644,7 @@ namespace Ogre
             while ( pit != mPortals.end() )
             {
                 Portal * portal = *pit;
-			    // check portal versus boundign box
+			    // check portal versus bounding box
 			    if (portal->intersects(t))
 			    {
                     // make sure portal hasn't already been recursed through

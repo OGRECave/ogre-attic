@@ -4,7 +4,14 @@ Some items are specific, some are not, it's just a list to keep notes for myself
 
 UPDATES:
 -------------
-
+* Portals can now be closed & opened (see Portal::close() and Portal::open()).
+  Closing a portal prevents scene traversal through the portal and also prevents
+  scene nodes from crossing the portal. (4/24/08)
+* Infinite Recursion bug for scene traversal FIXED.  This was fixed by adding an
+  additional culling plane drawn from the actual plane of quad portals.  The infinite recursion
+  bug occurred in situations where a viewer was outside a building, could look straight through
+  the building back to the outside, and then into another building similarly set up.  This
+  situation is still VERY bad from a performance standpoint, but at least it doesn't crash.  (4/24/08)
 * The PCZFrustum now uses a Culling Plane Reservoir which eliminates the constant memory
   allocations/de-allocations for PCPlanes during the culling process. (03/18/08)
 * Light zones now only update affected list when portals move or lights move (Thanks Aulcard)
@@ -17,11 +24,6 @@ KNOWN BUGS:
   put in a hack which can potentially result in light not traversing into some zones properly.
   It will probably not be noticeable in most situations, but could potentially show up in
   very complex portal/zone setups.
-* Some situations can cause infinite recursion crashes.  It is highly recommended to avoid
-  situations where two zones interconnect in such a way that a viewer can look through
-  a portal into one zone and straight through to another portal which leads back to the 
-  zone the camera is in.  (that's bad zone design in the first place from an efficiency
-  standpoint anyway).
 
 TODO:
 -------------

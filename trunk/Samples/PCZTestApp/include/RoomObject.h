@@ -62,7 +62,7 @@ public:
 		DOOR_ALL	= 0xFF
 	};
 
-	Ogre::PCZSceneNode * createTestBuilding(Ogre::SceneManager *scene);
+	Ogre::PCZSceneNode * createTestBuilding(Ogre::SceneManager *scene, Ogre::String & name);
 
 	Ogre::ManualObject*createRoom(Ogre::SceneManager *scene, 
 								  const Ogre::String &name, 
