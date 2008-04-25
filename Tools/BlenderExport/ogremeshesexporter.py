@@ -1272,10 +1272,7 @@ else:
 						if self.armatureAnimationProxyManagerDict.has_key(name):
 							self.armatureAnimationProxyManagerDict[name].toAnimations(meshExporter.getArmatureExporter())
 						# export
-						if (fixUpAxis):
-							meshExporter.export(exportPath, materialManager, Matrix(*matrixFlip), colouredAmbient, gameEngineMaterials, convertXML)
-						else:
-							meshExporter.export(exportPath, materialManager, Matrix(*matrixOne), colouredAmbient, gameEngineMaterials, convertXML)
+						meshExporter.export(exportPath, materialManager, fixUpAxis, colouredAmbient, gameEngineMaterials, convertXML)
 					# export materials
 					if (exportMaterial):
 						materialManager.export(exportPath, materialScriptName, copyTextures)

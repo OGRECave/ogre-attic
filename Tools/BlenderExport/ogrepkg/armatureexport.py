@@ -125,7 +125,7 @@ class ArmatureAnimation:
 		return
 	def getName(self):
 		return self.name
-	def export(self, armatureExporter, fps):
+	def export(self, fixUpAxis, armatureExporter, fps):
 		"""Export animation to OGRE.
 		
 		   @fps frames per second. Has to be larger than zero.
@@ -151,14 +151,14 @@ class ArmatureAnimation:
 		## create track for all OGRE bones
 		stack = []
 		for bone in armatureExporter.getRootSkeletonBoneList():
-			stack.append(SkeletonAnimationTrack(armatureExporter, bone))
+			stack.append(SkeletonAnimationTrack(fixUpAxis, armatureExporter, bone))
 		rootTrackList = stack[:]
 		self.trackList = stack[:]
 		# precondition: stack contains all root tracks
 		while (len(stack) > 0):
 			parentTrack = stack.pop(0)
 			for bone in parentTrack.getSkeletonBone().getChildren():
-				track = SkeletonAnimationTrack(armatureExporter, bone, parentTrack)
+				track = SkeletonAnimationTrack(fixUpAxis, armatureExporter, bone, parentTrack)
 				stack.append(track)
 				self.trackList.append(track)
 		# postcondition: every SkeletonBone has a corresponding track
@@ -189,7 +189,8 @@ class ArmatureAnimation:
 		
 		# restore current settings
 		# FIXME: does not work with multiple actions
-		actionAtExportTime.setActive(armatureExporter.getArmatureObject())
+		if (actionAtExportTime is not None):
+			actionAtExportTime.setActive(armatureExporter.getArmatureObject())
 		Blender.Set('curframe', frameAtExportTime)
 		armatureExporter.getArmatureObject().evaluatePose(frameAtExportTime)
 		return
@@ -207,13 +208,14 @@ class ArmatureAnimation:
 class SkeletonBone:
 	"""Bone of an Ogre sekeleton.
 	"""
-	def __init__(self, armatureExporter, bBone, parent=None):
+	def __init__(self, fixUpAxis, armatureExporter, bBone, parent=None):
 		"""Constructor.
 		
 		   @param armatureExporter ArmatureExporter, required for bone ids.
 		   @param bBone Blender bone.
 		   @param parent Parent SkeletonBone.
 		"""
+		self.fixUpAxis = fixUpAxis
 		self.armatureExporter = armatureExporter
 		self.bBone = bBone
 		self.parent = parent
@@ -257,9 +259,12 @@ class SkeletonBone:
 		"""
 		# Warning: Blender uses left multiplication vector*matrix
 		# get bone matrix of OGRE parent bone
-		inverseParentMatrix = Matrix([1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1])
 		if self.parent is not None:
 			inverseParentMatrix = self.parent.getInverseTotalTransformation()
+		elif (self.fixUpAxis):
+			inverseParentMatrix = Matrix([1,0,0,0],[0,0,-1,0],[0,1,0,0],[0,0,0,1])
+		else:
+			inverseParentMatrix = Matrix([1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1])
 		
 		# bone matrix relative to armature object
 		self.ogreRestMatrix = Blender.Mathutils.Matrix(*self.bBone.matrix['ARMATURESPACE'])
@@ -274,7 +279,6 @@ class SkeletonBone:
 	def writeBone(self, f, indentation=0):
 		f.write(indent(indentation) + "<bone id=\"%d\" name=\"%s\">\n"
 			% (self.armatureExporter.getBoneIndex(self.getName()), self.getName()))
-		# get transformation values
 		positionTuple = tuple(self.ogreRestMatrix.translationPart())
 		rotationQuaternion = self.ogreRestMatrix.toQuat()
 		rotationQuaternion.normalize()
@@ -291,11 +295,12 @@ class SkeletonBone:
 		return
 
 class SkeletonAnimationTrack:
-	def __init__(self, armatureExporter, skeletonBone, parent=None):
+	def __init__(self, fixUpAxis, armatureExporter, skeletonBone, parent=None):
 		"""Animation track for an OGRE bone.
 		
 		   @param parent parent track.
 		"""
+		self.fixUpAxis = fixUpAxis
 		self.armatureExporter = armatureExporter
 		self.skeletonBone = skeletonBone
 		self.parent = parent
@@ -367,17 +372,21 @@ class SkeletonAnimationTrack:
 		# calculate difference to parent bone
 		if self.parent is not None:
 			poseTransformation *= self.parent.getInverseLastKeyframeTotalTransformation()
+		elif (self.fixUpAxis):
+			poseTransformation *= Matrix([1,0,0,0],[0,0,-1,0],[0,1,0,0],[0,0,0,1])
 		
 		# get transformation values
 		# translation relative to parent coordinate system orientation
 		# and as difference to rest pose translation
 		translation = poseTransformation.translationPart()
 		translation -= self.ogreRestPose.translationPart()
-		translationTuple = tuple(translation)
+		
 		# rotation relative to local coordiante system
 		# calculate difference to rest pose
 		poseTransformation *= self.inverseOgreRestPose
+		translationTuple = tuple(translation)
 		rotationQuaternion = poseTransformation.toQuat()
+		
 		rotationQuaternion.normalize()
 		angle = float(rotationQuaternion.angle)/180*math.pi
 		axisTuple = tuple(rotationQuaternion.axis)
@@ -465,10 +474,10 @@ class ArmatureExporter:
 		"""
 		self.animationList.append(animation)
 		return
-	def export(self, dir, parentTransform, convertXML=False):
-		self._convertBoneHierarchy()
+	def export(self, dir, fixUpAxis, convertXML=False):
+		self._convertBoneHierarchy(fixUpAxis)
 		self._convertRestpose()
-		self._convertAnimations()
+		self._convertAnimations(fixUpAxis)
 		self.write(dir, convertXML)
 		return
 	def getName(self):
@@ -520,7 +529,7 @@ class ArmatureExporter:
 		return
 	def _generateActionList(self):
 		return
-	def _convertBoneHierarchy(self):
+	def _convertBoneHierarchy(self, fixUpAxis):
 		self.skeletonBoneList = []
 		## find root bones
 		self.rootSkeletonBoneList = []
@@ -536,7 +545,7 @@ class ArmatureExporter:
 						found = True
 				if not(found):
 					# bone is root bone
-					rootBone = SkeletonBone(self, bBone)
+					rootBone = SkeletonBone(fixUpAxis, self, bBone)
 					self.rootSkeletonBoneList.append(rootBone)
 					self.skeletonBoneList.append(rootBone)
 		# postcondition: rootSkeletonBoneList contains root bones
@@ -555,7 +564,7 @@ class ArmatureExporter:
 						children.extend(bBone.children)
 					else:
 						# child found
-						child = SkeletonBone(self, bBone, parent)
+						child = SkeletonBone(fixUpAxis, self, bBone, parent)
 						stack.append(child)
 						self.skeletonBoneList.append(child)
 		# postcondition: all bones processed, self.skeletonBoneList contains all bones to export		
@@ -606,7 +615,7 @@ class ArmatureExporter:
 					% (bone.getName(), bone.getParent().getName()))
 		f.write(indent(indentation) + "</bonehierarchy>\n")
 		return
-	def _convertAnimations(self):
+	def _convertAnimations(self, fixUpAxis):
 		if (len(self.animationList) > 0):
 			# store current settings
 			frameAtExportTime = Blender.Get('curframe')
@@ -624,7 +633,7 @@ class ArmatureExporter:
 							% (animationName, self.getName()))
 				animationNameList.append(animationName)
 				# export
-				animation.export(self, fps)
+				animation.export(fixUpAxis, self, fps)
 			
 			# restore current settings
 			Blender.Set('curframe', frameAtExportTime)
