@@ -69,22 +69,29 @@ namespace Ogre {
 		GLhandleARB mGLHandle;
 		/// flag indicating that the program object has been successfully linked
 		GLint		mLinked;
-		// Custom attribute bindings
-		/// 'tangent' attribute
-		GLuint mTangentAttrib;
-		/// 'binormal' attribute
-		GLuint mBinormalAttrib;
-		/// 'blendIndices' attribute
-		GLuint mBlendIndicesAttrib;
-		/// 'blendWeights' attribute
-		GLuint mBlendWeightsAttrib;
-        /// flag indicating skeletal animation is being performed
-        bool mSkeletalAnimation;
+		/// flag indicating skeletal animation is being performed
+		bool mSkeletalAnimation;
 
 		/// build uniform references from active named uniforms
 		void buildGLUniformReferences(void);
 		/// extract attributes
 		void extractAttributes(void);
+
+		typedef std::set<GLuint> AttributeSet;
+		// Custom attribute bindings
+		AttributeSet mValidAttributes;
+
+		/// Name / attribute list
+		struct CustomAttribute
+		{
+			String name;
+			GLuint attrib;
+			CustomAttribute(const String& _name, GLuint _attrib)
+				:name(_name), attrib(_attrib) {}
+		};
+
+		static CustomAttribute msCustomAttributes[];
+
 
 		
 
@@ -125,9 +132,9 @@ namespace Ogre {
         bool isSkeletalAnimationIncluded(void) const { return mSkeletalAnimation; }
 
 		/// Get the index of a non-standard attribute bound in the linked code
-		GLuint getAttributeIndex(VertexElementSemantic semantic);
+		GLuint getAttributeIndex(VertexElementSemantic semantic, uint index);
 		/// Is a non-standard attribute bound in the linked code?
-		bool isAttributeValid(VertexElementSemantic semantic);
+		bool isAttributeValid(VertexElementSemantic semantic, uint index);
 
 	};
 

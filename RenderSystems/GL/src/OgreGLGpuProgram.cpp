@@ -51,32 +51,61 @@ GLGpuProgram::~GLGpuProgram()
     unload(); 
 }
 
-GLuint GLGpuProgram::getAttributeIndex(VertexElementSemantic semantic)
+GLuint GLGpuProgram::getAttributeIndex(VertexElementSemantic semantic, uint index)
 {
-	// default implementation
-	switch(semantic)
-	{
-		case VES_POSITION:
-		case VES_NORMAL:
-		case VES_DIFFUSE:
-		case VES_SPECULAR:
-		case VES_TEXTURE_COORDINATES:
-			assert(false && "Shouldn't be calling this for standard attributes!");
-			break;
-		case VES_BLEND_INDICES:
-			return 7; // default binding
-		case VES_BLEND_WEIGHTS:
-			return 1; // default binding
-		case VES_TANGENT:
-			return 14; // default binding
-		case VES_BINORMAL:
-			return 15; // default binding
-	}
-
-	return 0;
+	return getFixedAttributeIndex(semantic, index);
 }
 
-bool GLGpuProgram::isAttributeValid(VertexElementSemantic semantic)
+GLuint GLGpuProgram::getFixedAttributeIndex(VertexElementSemantic semantic, uint index)
+{
+	// Some drivers (e.g. OS X on nvidia) incorrectly determine the attribute binding automatically
+	// and end up aliasing existing built-ins. So avoid! Fixed builtins are: 
+
+	//  a  builtin				custom attrib name
+	// ----------------------------------------------
+	//	0  gl_Vertex			vertex
+	//  1  n/a					blendWeights		
+	//	2  gl_Normal			normal
+	//	3  gl_Color				colour
+	//	4  gl_SecondaryColor	secondary_colour
+	//	5  gl_FogCoord			fog_coord
+	//  7  n/a					blendIndices
+	//	8  gl_MultiTexCoord0	uv0
+	//	9  gl_MultiTexCoord1	uv1
+	//	10 gl_MultiTexCoord2	uv2
+	//	11 gl_MultiTexCoord3	uv3
+	//	12 gl_MultiTexCoord4	uv4
+	//	13 gl_MultiTexCoord5	uv5
+	//	14 gl_MultiTexCoord6	uv6, tangent
+	//	15 gl_MultiTexCoord7	uv7, binormal
+	switch(semantic)
+	{
+	case VES_POSITION:
+		return 0;
+	case VES_BLEND_WEIGHTS:
+		return 1;
+	case VES_NORMAL:
+		return 2;
+	case VES_DIFFUSE:
+		return 3;
+	case VES_SPECULAR:
+		return 4;
+	case VES_BLEND_INDICES:
+		return 7;
+	case VES_TEXTURE_COORDINATES:
+		return 8 + index;
+	case VES_TANGENT:
+		return 14;
+	case VES_BINORMAL:
+		return 15;
+	default:
+		assert(false && "Missing attribute!");
+		return 0;
+	};
+
+}
+
+bool GLGpuProgram::isAttributeValid(VertexElementSemantic semantic, uint index)
 {
 	// default implementation
 	switch(semantic)
@@ -86,8 +115,7 @@ bool GLGpuProgram::isAttributeValid(VertexElementSemantic semantic)
 		case VES_DIFFUSE:
 		case VES_SPECULAR:
 		case VES_TEXTURE_COORDINATES:
-			assert(false && "Shouldn't be calling this for standard attributes!");
-			break;
+			return false;
 		case VES_BLEND_WEIGHTS:
 		case VES_BLEND_INDICES:
 		case VES_BINORMAL:

@@ -309,26 +309,71 @@ void GLTextureBuffer::upload(const PixelBox &data)
 		// for compressed formats
 		switch(mTarget) {
 			case GL_TEXTURE_1D:
-				glCompressedTexSubImage1DARB(GL_TEXTURE_1D, mLevel, 
-					data.left,
-					data.getWidth(),
-					format, data.getConsecutiveSize(),
-					data.data);
+				// some systems (e.g. old Apple) don't like compressed subimage calls
+				// so prefer non-sub versions
+				if (data.left == 0 && data.top == 0)
+				{
+					glCompressedTexImage1DARB(GL_TEXTURE_1D, mLevel,
+						format,
+						data.getWidth(),
+						0,
+						data.getConsecutiveSize(),
+						data.data);
+				}
+				else
+				{
+					glCompressedTexSubImage1DARB(GL_TEXTURE_1D, mLevel, 
+						data.left,
+						data.getWidth(),
+						format, data.getConsecutiveSize(),
+						data.data);
+				}
 				break;
 			case GL_TEXTURE_2D:
 			case GL_TEXTURE_CUBE_MAP:
-				glCompressedTexSubImage2DARB(mFaceTarget, mLevel, 
-					data.left, data.top, 
-					data.getWidth(), data.getHeight(),
-					format, data.getConsecutiveSize(),
-					data.data);
+				// some systems (e.g. old Apple) don't like compressed subimage calls
+				// so prefer non-sub versions
+				if (data.left == 0 && data.top == 0)
+				{
+					glCompressedTexImage2DARB(mFaceTarget, mLevel,
+						format,
+						data.getWidth(),
+						data.getHeight(),
+						0,
+						data.getConsecutiveSize(),
+						data.data);
+				}
+				else
+				{
+					glCompressedTexSubImage2DARB(mFaceTarget, mLevel, 
+						data.left, data.top, 
+						data.getWidth(), data.getHeight(),
+						format, data.getConsecutiveSize(),
+						data.data);
+				}
 				break;
 			case GL_TEXTURE_3D:
-				glCompressedTexSubImage3DARB(GL_TEXTURE_3D, mLevel, 
-					data.left, data.top, data.front,
-					data.getWidth(), data.getHeight(), data.getDepth(),
-					format, data.getConsecutiveSize(),
-					data.data);
+				// some systems (e.g. old Apple) don't like compressed subimage calls
+				// so prefer non-sub versions
+				if (data.left == 0 && data.top == 0)
+				{
+					glCompressedTexImage3DARB(GL_TEXTURE_3D, mLevel,
+						format,
+						data.getWidth(),
+						data.getHeight(),
+						data.getDepth(),
+						0,
+						data.getConsecutiveSize(),
+						data.data);
+				}
+				else
+				{			
+					glCompressedTexSubImage3DARB(GL_TEXTURE_3D, mLevel, 
+						data.left, data.top, data.front,
+						data.getWidth(), data.getHeight(), data.getDepth(),
+						format, data.getConsecutiveSize(),
+						data.data);
+				}
 				break;
 		}
 		

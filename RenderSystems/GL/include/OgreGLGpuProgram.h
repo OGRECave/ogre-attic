@@ -64,10 +64,13 @@ namespace Ogre {
 			This can be used to identify the attribute index to bind non-builtin
 			attributes like tangent and binormal.
 		*/
-		virtual GLuint getAttributeIndex(VertexElementSemantic semantic);
+		virtual GLuint getAttributeIndex(VertexElementSemantic semantic, uint index);
 		/** Test whether attribute index for a given semantic is valid. 
 		*/
-		virtual bool isAttributeValid(VertexElementSemantic semantic);
+		virtual bool isAttributeValid(VertexElementSemantic semantic, uint index);
+
+		/** Get the fixed attribute bindings normally used by GL for a semantic. */
+		static GLuint getFixedAttributeIndex(VertexElementSemantic semantic, uint index);
 
     protected:
 		/** Overridden from GpuProgram, do nothing */

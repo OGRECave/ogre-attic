@@ -135,36 +135,36 @@ namespace Ogre {
 		
 	}
 	//-----------------------------------------------------------------------------
-	GLuint GLSLGpuProgram::getAttributeIndex(VertexElementSemantic semantic)
+	GLuint GLSLGpuProgram::getAttributeIndex(VertexElementSemantic semantic, uint index)
 	{
 		// get link program - only call this in the context of bound program
 		GLSLLinkProgram* linkProgram = GLSLLinkProgramManager::getSingleton().getActiveLinkProgram();
 
-		if (linkProgram->isAttributeValid(semantic))
+		if (linkProgram->isAttributeValid(semantic, index))
 		{
-			return linkProgram->getAttributeIndex(semantic);
+			return linkProgram->getAttributeIndex(semantic, index);
 		}
 		else
 		{
 			// fall back to default implementation, allow default bindings
-			return GLGpuProgram::getAttributeIndex(semantic);
+			return GLGpuProgram::getAttributeIndex(semantic, index);
 		}
 		
 	}
 	//-----------------------------------------------------------------------------
-	bool GLSLGpuProgram::isAttributeValid(VertexElementSemantic semantic)
+	bool GLSLGpuProgram::isAttributeValid(VertexElementSemantic semantic, uint index)
 	{
 		// get link program - only call this in the context of bound program
 		GLSLLinkProgram* linkProgram = GLSLLinkProgramManager::getSingleton().getActiveLinkProgram();
 
-		if (linkProgram->isAttributeValid(semantic))
+		if (linkProgram->isAttributeValid(semantic, index))
 		{
 			return true;
 		}
 		else
 		{
 			// fall back to default implementation, allow default bindings
-			return GLGpuProgram::isAttributeValid(semantic);
+			return GLGpuProgram::isAttributeValid(semantic, index);
 		}
 	}
 

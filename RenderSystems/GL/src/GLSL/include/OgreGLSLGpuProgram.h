@@ -79,10 +79,10 @@ namespace Ogre {
 		GLSLProgram* getGLSLProgram(void) const { return mGLSLProgram; }
 
 		/// @copydoc GLGpuProgram::getAttributeIndex
-		GLuint getAttributeIndex(VertexElementSemantic semantic);
+		GLuint getAttributeIndex(VertexElementSemantic semantic, uint index);
 		
 		/// @copydoc GLGpuProgram::isAttributeValid
-		bool isAttributeValid(VertexElementSemantic semantic);
+		bool isAttributeValid(VertexElementSemantic semantic, uint index);
 		
 
     protected:
