@@ -2236,6 +2236,7 @@ namespace Ogre {
             op.vertexData->vertexDeclaration->getElements();
         VertexDeclaration::VertexElementList::const_iterator elem, elemEnd;
         elemEnd = decl.end();
+		std::vector<GLuint> attribsBound;
 
         for (elem = decl.begin(); elem != elemEnd; ++elem)
         {
@@ -2261,95 +2262,103 @@ namespace Ogre {
 
             unsigned int i = 0;
 			VertexElementSemantic sem = elem->getSemantic();
-            switch(sem)
-            {
-            case VES_POSITION:
-                glVertexPointer(VertexElement::getTypeCount(
-                    elem->getType()), 
-                    GLHardwareBufferManager::getGLType(elem->getType()), 
-                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-                    pBufferData);
-                glEnableClientState( GL_VERTEX_ARRAY );
-                break;
-            case VES_NORMAL:
-                glNormalPointer(
-                    GLHardwareBufferManager::getGLType(elem->getType()), 
-                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-                    pBufferData);
-                glEnableClientState( GL_NORMAL_ARRAY );
-                break;
-            case VES_DIFFUSE:
-                glColorPointer(4, 
-                    GLHardwareBufferManager::getGLType(elem->getType()), 
-                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-                    pBufferData);
-                glEnableClientState( GL_COLOR_ARRAY );
-                break;
-            case VES_SPECULAR:
-				if (GLEW_EXT_secondary_color)
-				{
-					glSecondaryColorPointerEXT(4, 
-						GLHardwareBufferManager::getGLType(elem->getType()), 
-						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-						pBufferData);
-					glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
-				}
-                break;
-            case VES_TEXTURE_COORDINATES:
-
-				if (mCurrentVertexProgram)
-				{
-					// Programmable pipeline - direct UV assignment
-					glClientActiveTextureARB(GL_TEXTURE0 + elem->getIndex());
-					glTexCoordPointer(
-						VertexElement::getTypeCount(elem->getType()), 
-						GLHardwareBufferManager::getGLType(elem->getType()),
-						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-						pBufferData);
-					glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-				}
-				else
-				{
-					// fixed function matching to units based on tex_coord_set
-					for (i = 0; i < mDisabledTexUnitsFrom; i++)
-					{
-						// Only set this texture unit's texcoord pointer if it
-						// is supposed to be using this element's index
-						if (mTextureCoordIndex[i] == elem->getIndex())
-						{
-							glClientActiveTextureARB(GL_TEXTURE0 + i);
-							glTexCoordPointer(
-								VertexElement::getTypeCount(elem->getType()), 
-								GLHardwareBufferManager::getGLType(elem->getType()),
-								static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-									pBufferData);
-							glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-						}
-					}
-				}
-                break;
-            case VES_BLEND_INDICES:
-            case VES_BLEND_WEIGHTS:
-			case VES_TANGENT:
-			case VES_BINORMAL:
-				if (mCurrentVertexProgram)
-				{
-					GLuint attrib = mCurrentVertexProgram->getAttributeIndex(sem);
-	                glVertexAttribPointerARB(
-    	                attrib,
-        	            VertexElement::getTypeCount(elem->getType()), 
-            	        GLHardwareBufferManager::getGLType(elem->getType()), 
-                	    GL_FALSE, // normalisation disabled
-                    	static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-	                    pBufferData);
-    	            glEnableVertexAttribArrayARB(attrib);
-					
-				}
-                break;
-            default:
-                break;
-            };
-
+ 
+ 			bool isCustomAttrib = false;
+ 			if (mCurrentVertexProgram)
+ 				isCustomAttrib = mCurrentVertexProgram->isAttributeValid(sem, elem->getIndex());
+ 
+ 			// Custom attribute support
+ 			// tangents, binormals, blendweights etc always via this route
+ 			// builtins may be done this way too
+ 			if (isCustomAttrib)
+ 			{
+ 				GLint attrib = mCurrentVertexProgram->getAttributeIndex(sem, elem->getIndex());
+ 				glVertexAttribPointerARB(
+ 					attrib,
+ 					VertexElement::getTypeCount(elem->getType()), 
+  					GLHardwareBufferManager::getGLType(elem->getType()), 
+ 					GL_FALSE, // normalisation disabled
+  					static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+  					pBufferData);
+ 				glEnableVertexAttribArrayARB(attrib);
+ 
+ 				attribsBound.push_back(attrib);
+ 			}
+ 			else
+ 			{
+ 				// fixed-function & builtin attribute support
+ 				switch(sem)
+  				{
+ 				case VES_POSITION:
+ 					glVertexPointer(VertexElement::getTypeCount(
+ 						elem->getType()), 
+  						GLHardwareBufferManager::getGLType(elem->getType()), 
+  						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+  						pBufferData);
+ 					glEnableClientState( GL_VERTEX_ARRAY );
+ 					break;
+ 				case VES_NORMAL:
+ 					glNormalPointer(
+ 						GLHardwareBufferManager::getGLType(elem->getType()), 
+  						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+  						pBufferData);
+ 					glEnableClientState( GL_NORMAL_ARRAY );
+ 					break;
+ 				case VES_DIFFUSE:
+ 					glColorPointer(4, 
+  						GLHardwareBufferManager::getGLType(elem->getType()), 
+  						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+  						pBufferData);
+ 					glEnableClientState( GL_COLOR_ARRAY );
+ 					break;
+ 				case VES_SPECULAR:
+ 					if (GLEW_EXT_secondary_color)
+ 					{
+ 						glSecondaryColorPointerEXT(4, 
+ 							GLHardwareBufferManager::getGLType(elem->getType()), 
+ 							static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+ 							pBufferData);
+ 						glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
+ 					}
+ 					break;
+ 				case VES_TEXTURE_COORDINATES:
+  
+ 					if (mCurrentVertexProgram)
+ 					{
+ 						// Programmable pipeline - direct UV assignment
+ 						glClientActiveTextureARB(GL_TEXTURE0 + elem->getIndex());
+ 						glTexCoordPointer(
+ 							VertexElement::getTypeCount(elem->getType()), 
+ 							GLHardwareBufferManager::getGLType(elem->getType()),
+ 							static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+ 							pBufferData);
+ 						glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+ 					}
+ 					else
+ 					{
+ 						// fixed function matching to units based on tex_coord_set
+ 						for (i = 0; i < mDisabledTexUnitsFrom; i++)
+ 						{
+ 							// Only set this texture unit's texcoord pointer if it
+ 							// is supposed to be using this element's index
+ 							if (mTextureCoordIndex[i] == elem->getIndex())
+ 							{
+ 								glClientActiveTextureARB(GL_TEXTURE0 + i);
+ 								glTexCoordPointer(
+ 									VertexElement::getTypeCount(elem->getType()), 
+ 									GLHardwareBufferManager::getGLType(elem->getType()),
+ 									static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+ 									pBufferData);
+ 								glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+ 							}
+ 						}
+ 					}
+ 					break;
+ 				default:
+ 					break;
+ 				};
+ 			} // isCustomAttrib
+  
         }
 
         glClientActiveTextureARB(GL_TEXTURE0);
@@ -2418,6 +2427,7 @@ namespace Ogre {
         {
             glClientActiveTextureARB(GL_TEXTURE0 + i);
             glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		std::vector<GLuint> attribsBound;
         }
         glClientActiveTextureARB(GL_TEXTURE0);
         glDisableClientState( GL_NORMAL_ARRAY );
@@ -2426,35 +2436,14 @@ namespace Ogre {
 		{
 			glDisableClientState( GL_SECONDARY_COLOR_ARRAY );
 		}
-        if (mCurrentVertexProgram)
-        {
-			// unbind any custom attributes
-			if (mCurrentVertexProgram->isAttributeValid(VES_BLEND_INDICES))
-			{
-				glDisableVertexAttribArrayARB(
-					mCurrentVertexProgram->getAttributeIndex(
-						VES_BLEND_INDICES)); 
-			}
-			if (mCurrentVertexProgram->isAttributeValid(VES_BLEND_WEIGHTS))
-			{
-				glDisableVertexAttribArrayARB(
-					mCurrentVertexProgram->getAttributeIndex(
-						VES_BLEND_WEIGHTS)); 
-			}
-			if (mCurrentVertexProgram->isAttributeValid(VES_TANGENT))
-			{
-				glDisableVertexAttribArrayARB(
-					mCurrentVertexProgram->getAttributeIndex(
-						VES_TANGENT)); 
-			}
-			if (mCurrentVertexProgram->isAttributeValid(VES_BINORMAL))
-			{
-				glDisableVertexAttribArrayARB(
-					mCurrentVertexProgram->getAttributeIndex(
-						VES_BINORMAL)); 
-			}
-        }
-        glColor4f(1,1,1,1);
+ 		// unbind any custom attributes
+		for (std::vector<GLuint>::iterator ai = attribsBound.begin(); ai != attribsBound.end(); ++ai)
+ 		{
+ 			glDisableVertexAttribArrayARB(*ai); 
+ 
+  		}
+		
+		glColor4f(1,1,1,1);
 		if (GLEW_EXT_secondary_color)
 		{
 			glSecondaryColor3fEXT(0.0f, 0.0f, 0.0f);

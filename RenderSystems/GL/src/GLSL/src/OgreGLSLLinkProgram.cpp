@@ -36,17 +36,48 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
+	//  a  builtin				custom attrib name
+	// ----------------------------------------------
+	//	0  gl_Vertex			vertex
+	//  1  n/a					blendWeights		
+	//	2  gl_Normal			normal
+	//	3  gl_Color				colour
+	//	4  gl_SecondaryColor	secondary_colour
+	//	5  gl_FogCoord			fog_coord
+	//  7  n/a					blendIndices
+	//	8  gl_MultiTexCoord0	uv0
+	//	9  gl_MultiTexCoord1	uv1
+	//	10 gl_MultiTexCoord2	uv2
+	//	11 gl_MultiTexCoord3	uv3
+	//	12 gl_MultiTexCoord4	uv4
+	//	13 gl_MultiTexCoord5	uv5
+	//	14 gl_MultiTexCoord6	uv6, tangent
+	//	15 gl_MultiTexCoord7	uv7, binormal
+	GLSLLinkProgram::CustomAttribute GLSLLinkProgram::msCustomAttributes[] = {
+		CustomAttribute("vertex", GLGpuProgram::getFixedAttributeIndex(VES_POSITION, 0)),
+		CustomAttribute("blendWeights", GLGpuProgram::getFixedAttributeIndex(VES_BLEND_WEIGHTS, 0)),
+		CustomAttribute("normal", GLGpuProgram::getFixedAttributeIndex(VES_NORMAL, 0)),
+		CustomAttribute("colour", GLGpuProgram::getFixedAttributeIndex(VES_DIFFUSE, 0)),
+		CustomAttribute("secondary_colour", GLGpuProgram::getFixedAttributeIndex(VES_SPECULAR, 0)),
+		CustomAttribute("blendIndices", GLGpuProgram::getFixedAttributeIndex(VES_BLEND_INDICES, 0)),
+		CustomAttribute("uv0", GLGpuProgram::getFixedAttributeIndex(VES_TEXTURE_COORDINATES, 0)),
+		CustomAttribute("uv1", GLGpuProgram::getFixedAttributeIndex(VES_TEXTURE_COORDINATES, 1)),
+		CustomAttribute("uv2", GLGpuProgram::getFixedAttributeIndex(VES_TEXTURE_COORDINATES, 2)),
+		CustomAttribute("uv3", GLGpuProgram::getFixedAttributeIndex(VES_TEXTURE_COORDINATES, 3)),
+		CustomAttribute("uv4", GLGpuProgram::getFixedAttributeIndex(VES_TEXTURE_COORDINATES, 4)),
+		CustomAttribute("uv5", GLGpuProgram::getFixedAttributeIndex(VES_TEXTURE_COORDINATES, 5)),
+		CustomAttribute("uv6", GLGpuProgram::getFixedAttributeIndex(VES_TEXTURE_COORDINATES, 6)),
+		CustomAttribute("uv7", GLGpuProgram::getFixedAttributeIndex(VES_TEXTURE_COORDINATES, 7)),
+		CustomAttribute("tangent", GLGpuProgram::getFixedAttributeIndex(VES_TANGENT, 0)),
+		CustomAttribute("binormal", GLGpuProgram::getFixedAttributeIndex(VES_BINORMAL, 0)),
+	};
+
 	//-----------------------------------------------------------------------
-#define NO_ATTRIB 0xFFFF
 	GLSLLinkProgram::GLSLLinkProgram(GLSLGpuProgram* vertexProgram, GLSLGpuProgram* fragmentProgram)
         : mVertexProgram(vertexProgram)
 		, mFragmentProgram(fragmentProgram)
 		, mUniformRefsBuilt(false)
         , mLinked(false)
-		, mTangentAttrib(NO_ATTRIB)
-		, mBinormalAttrib(NO_ATTRIB)
-		, mBlendIndicesAttrib(NO_ATTRIB)
-		, mBlendWeightsAttrib(NO_ATTRIB)
 
 	{
 			checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram", "Error prior to Creating GLSL Program Object", 0 );
@@ -81,6 +112,17 @@ namespace Ogre {
 	{
 		if (!mLinked)
 		{
+			// Some drivers (e.g. OS X on nvidia) incorrectly determine the attribute binding automatically
+			// and end up aliasing existing built-ins. So avoid! Bind all possible attribs
+			// the linker will resolve which ones were actually used
+
+			size_t numAttribs = sizeof(msCustomAttributes)/sizeof(CustomAttribute);
+			for (size_t i = 0; i < numAttribs; ++i)
+			{
+				const CustomAttribute& a = msCustomAttributes[i];
+				glBindAttribLocationARB(mGLHandle, a.attrib, a.name.c_str());
+			}
+
 			glLinkProgramARB( mGLHandle );
 			glGetObjectParameterivARB( mGLHandle, GL_OBJECT_LINK_STATUS_ARB, &mLinked );
 			// force logging and raise exception if not linked
@@ -104,53 +146,28 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void GLSLLinkProgram::extractAttributes(void)
 	{
-		GLint attrib = glGetAttribLocationARB(mGLHandle, "tangent");
-		mTangentAttrib = (attrib == -1)? NO_ATTRIB : (GLuint)attrib;
-		
-		attrib = glGetAttribLocationARB(mGLHandle, "binormal");
-		mBinormalAttrib = (attrib == -1)? NO_ATTRIB : (GLuint)attrib;
+		size_t numAttribs = sizeof(msCustomAttributes)/sizeof(CustomAttribute);
 
-		attrib = glGetAttribLocationARB(mGLHandle, "blendIndices");
-		mBlendIndicesAttrib = (attrib == -1)? NO_ATTRIB : (GLuint)attrib;
+		for (size_t i = 0; i < numAttribs; ++i)
+		{
+			const CustomAttribute& a = msCustomAttributes[i];
+			GLint attrib = glGetAttribLocationARB(mGLHandle, a.name.c_str());
 
-		attrib = glGetAttribLocationARB(mGLHandle, "blendWeights");
-		mBlendWeightsAttrib = (attrib == -1)? NO_ATTRIB : (GLuint)attrib;
-
+			if (attrib != -1)
+			{
+				mValidAttributes.insert(a.attrib);
+			}
+		}
 	}
 	//-----------------------------------------------------------------------
-	GLuint GLSLLinkProgram::getAttributeIndex(VertexElementSemantic semantic)
+	GLuint GLSLLinkProgram::getAttributeIndex(VertexElementSemantic semantic, uint index)
 	{
-		switch(semantic)
-		{
-		case VES_TANGENT:
-			return mTangentAttrib;
-		case VES_BINORMAL:
-			return mBinormalAttrib;
-		case VES_BLEND_WEIGHTS:
-			return mBlendWeightsAttrib;
-		case VES_BLEND_INDICES:
-			return mBlendIndicesAttrib;
-		default:
-			assert(false && "Shouldn't be calling this with standard attribs!");
-			return 0;
-		};
+		return GLGpuProgram::getFixedAttributeIndex(semantic, index);
 	}
 	//-----------------------------------------------------------------------
-	bool GLSLLinkProgram::isAttributeValid(VertexElementSemantic semantic)
+	bool GLSLLinkProgram::isAttributeValid(VertexElementSemantic semantic, uint index)
 	{
-		switch(semantic)
-		{
-		case VES_TANGENT:
-			return mTangentAttrib != NO_ATTRIB;
-		case VES_BINORMAL:
-			return mBinormalAttrib != NO_ATTRIB;
-		case VES_BLEND_WEIGHTS:
-			return mBlendWeightsAttrib != NO_ATTRIB;
-		case VES_BLEND_INDICES:
-			return mBlendIndicesAttrib != NO_ATTRIB;
-		default:
-			return false;
-		};
+		return mValidAttributes.find(getAttributeIndex(semantic, index)) != mValidAttributes.end();
 	}
 	//-----------------------------------------------------------------------
 	void GLSLLinkProgram::buildGLUniformReferences(void)
