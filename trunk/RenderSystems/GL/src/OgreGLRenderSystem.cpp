@@ -227,11 +227,15 @@ namespace Ogre {
 		// Supports fixed-function
 		rsc->setCapability(RSC_FIXED_FUNCTION);
 
-		// Check for hardware mipmapping support.
-		if(GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap)
-		{
-			rsc->setCapability(RSC_AUTOMIPMAP);
-		}
+        // Check for hardware mipmapping support.
+        if(GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap)
+        {
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+			// Apple ATI drivers have faults in hardware mipmap generation
+			if (mGLSupport->getGLVendor().find("ATI") == std::string::npos)
+#endif
+				rsc->setCapability(RSC_AUTOMIPMAP);
+        }
 
 		// Check for blending support
 		if(GLEW_VERSION_1_3 || 
@@ -405,21 +409,25 @@ namespace Ogre {
 		}
 
 		// Check for texture compression
-		if(GLEW_VERSION_1_3 || GLEW_ARB_texture_compression)
-		{   
+        if(GLEW_VERSION_1_3 || GLEW_ARB_texture_compression)
+        {   
 			rsc->setCapability(RSC_TEXTURE_COMPRESSION);
-
-			// Check for dxt compression
-			if(GLEW_EXT_texture_compression_s3tc)
-			{
-				rsc->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
-			}
-			// Check for vtc compression
-			if(GLEW_NV_texture_compression_vtc)
-			{
-				rsc->setCapability(RSC_TEXTURE_COMPRESSION_VTC);
-			}
-		}
+         
+            // Check for dxt compression
+            if(GLEW_EXT_texture_compression_s3tc)
+            {
+#if defined(__APPLE__) && defined(__PPC__)
+			// Apple on ATI & PPC has errors in DXT
+			if (mGLSupport->getGLVendor().find("ATI") == std::string::npos)
+#endif
+					rsc->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
+            }
+            // Check for vtc compression
+            if(GLEW_NV_texture_compression_vtc)
+            {
+                rsc->setCapability(RSC_TEXTURE_COMPRESSION_VTC);
+            }
+        }
 
 		// Scissor test is standard in GL 1.2 (is it emulated on some cards though?)
 		rsc->setCapability(RSC_SCISSOR_TEST);
@@ -487,7 +495,7 @@ namespace Ogre {
 			{
 				GLint buffers;
 				glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &buffers);
-				rsc->setNumMultiRenderTargets(std::min(buffers, (GLint)OGRE_MAX_MULTIPLE_RENDER_TARGETS));
+				rsc->setNumMultiRenderTargets(std::min<int>(buffers, (GLint)OGRE_MAX_MULTIPLE_RENDER_TARGETS));
 				rsc->setCapability(RSC_MRT_DIFFERENT_BIT_DEPTHS);
 				if(!GLEW_VERSION_2_0)
 				{
@@ -2414,10 +2422,11 @@ GL_RGB_SCALE : GL_ALPHA_SCALE, 1);
 
 		void* pBufferData = 0;
 
-		const VertexDeclaration::VertexElementList& decl = 
-			op.vertexData->vertexDeclaration->getElements();
-		VertexDeclaration::VertexElementList::const_iterator elem, elemEnd;
-		elemEnd = decl.end();
+        const VertexDeclaration::VertexElementList& decl = 
+            op.vertexData->vertexDeclaration->getElements();
+        VertexDeclaration::VertexElementList::const_iterator elem, elemEnd;
+        elemEnd = decl.end();
+		std::vector<GLuint> attribsBound;
 
 		for (elem = decl.begin(); elem != elemEnd; ++elem)
 		{
@@ -2443,96 +2452,104 @@ GL_RGB_SCALE : GL_ALPHA_SCALE, 1);
 
 			unsigned int i = 0;
 			VertexElementSemantic sem = elem->getSemantic();
-			switch(sem)
-			{
-			case VES_POSITION:
-				glVertexPointer(VertexElement::getTypeCount(
-					elem->getType()), 
-					GLHardwareBufferManager::getGLType(elem->getType()), 
-					static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-					pBufferData);
-				glEnableClientState( GL_VERTEX_ARRAY );
-				break;
-			case VES_NORMAL:
-				glNormalPointer(
-					GLHardwareBufferManager::getGLType(elem->getType()), 
-					static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-					pBufferData);
-				glEnableClientState( GL_NORMAL_ARRAY );
-				break;
-			case VES_DIFFUSE:
-				glColorPointer(4, 
-					GLHardwareBufferManager::getGLType(elem->getType()), 
-					static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-					pBufferData);
-				glEnableClientState( GL_COLOR_ARRAY );
-				break;
-			case VES_SPECULAR:
-				if (GLEW_EXT_secondary_color)
-				{
-					glSecondaryColorPointerEXT(4, 
-						GLHardwareBufferManager::getGLType(elem->getType()), 
-						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-						pBufferData);
-					glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
-				}
-				break;
-			case VES_TEXTURE_COORDINATES:
-
-				if (mCurrentVertexProgram)
-				{
-					// Programmable pipeline - direct UV assignment
-					glClientActiveTextureARB(GL_TEXTURE0 + elem->getIndex());
-					glTexCoordPointer(
-						VertexElement::getTypeCount(elem->getType()), 
-						GLHardwareBufferManager::getGLType(elem->getType()),
-						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-						pBufferData);
-					glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-				}
-				else
-				{
-					// fixed function matching to units based on tex_coord_set
-					for (i = 0; i < mDisabledTexUnitsFrom; i++)
-					{
-						// Only set this texture unit's texcoord pointer if it
-						// is supposed to be using this element's index
-						if (mTextureCoordIndex[i] == elem->getIndex())
-						{
-							glClientActiveTextureARB(GL_TEXTURE0 + i);
-							glTexCoordPointer(
-								VertexElement::getTypeCount(elem->getType()), 
-								GLHardwareBufferManager::getGLType(elem->getType()),
-								static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-								pBufferData);
-							glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-						}
-					}
-				}
-				break;
-			case VES_BLEND_INDICES:
-			case VES_BLEND_WEIGHTS:
-			case VES_TANGENT:
-			case VES_BINORMAL:
-				if (mCurrentVertexProgram)
-				{
-					GLuint attrib = mCurrentVertexProgram->getAttributeIndex(sem);
-					glVertexAttribPointerARB(
-						attrib,
-						VertexElement::getTypeCount(elem->getType()), 
-						GLHardwareBufferManager::getGLType(elem->getType()), 
-						GL_FALSE, // normalisation disabled
-						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-						pBufferData);
-					glEnableVertexAttribArrayARB(attrib);
-
-				}
-				break;
-			default:
-				break;
-			};
-
-		}
+ 
+ 			bool isCustomAttrib = false;
+ 			if (mCurrentVertexProgram)
+ 				isCustomAttrib = mCurrentVertexProgram->isAttributeValid(sem, elem->getIndex());
+ 
+ 			// Custom attribute support
+ 			// tangents, binormals, blendweights etc always via this route
+ 			// builtins may be done this way too
+ 			if (isCustomAttrib)
+ 			{
+ 				GLint attrib = mCurrentVertexProgram->getAttributeIndex(sem, elem->getIndex());
+ 				glVertexAttribPointerARB(
+ 					attrib,
+ 					VertexElement::getTypeCount(elem->getType()), 
+  					GLHardwareBufferManager::getGLType(elem->getType()), 
+ 					GL_FALSE, // normalisation disabled
+  					static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+  					pBufferData);
+ 				glEnableVertexAttribArrayARB(attrib);
+ 
+ 				attribsBound.push_back(attrib);
+ 			}
+ 			else
+ 			{
+ 				// fixed-function & builtin attribute support
+ 				switch(sem)
+  				{
+ 				case VES_POSITION:
+ 					glVertexPointer(VertexElement::getTypeCount(
+ 						elem->getType()), 
+  						GLHardwareBufferManager::getGLType(elem->getType()), 
+  						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+  						pBufferData);
+ 					glEnableClientState( GL_VERTEX_ARRAY );
+ 					break;
+ 				case VES_NORMAL:
+ 					glNormalPointer(
+ 						GLHardwareBufferManager::getGLType(elem->getType()), 
+  						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+  						pBufferData);
+ 					glEnableClientState( GL_NORMAL_ARRAY );
+ 					break;
+ 				case VES_DIFFUSE:
+ 					glColorPointer(4, 
+  						GLHardwareBufferManager::getGLType(elem->getType()), 
+  						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+  						pBufferData);
+ 					glEnableClientState( GL_COLOR_ARRAY );
+ 					break;
+ 				case VES_SPECULAR:
+ 					if (GLEW_EXT_secondary_color)
+ 					{
+ 						glSecondaryColorPointerEXT(4, 
+ 							GLHardwareBufferManager::getGLType(elem->getType()), 
+ 							static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+ 							pBufferData);
+ 						glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
+ 					}
+ 					break;
+ 				case VES_TEXTURE_COORDINATES:
+  
+ 					if (mCurrentVertexProgram)
+ 					{
+ 						// Programmable pipeline - direct UV assignment
+ 						glClientActiveTextureARB(GL_TEXTURE0 + elem->getIndex());
+ 						glTexCoordPointer(
+ 							VertexElement::getTypeCount(elem->getType()), 
+ 							GLHardwareBufferManager::getGLType(elem->getType()),
+ 							static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+ 							pBufferData);
+ 						glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+ 					}
+ 					else
+ 					{
+ 						// fixed function matching to units based on tex_coord_set
+ 						for (i = 0; i < mDisabledTexUnitsFrom; i++)
+ 						{
+ 							// Only set this texture unit's texcoord pointer if it
+ 							// is supposed to be using this element's index
+ 							if (mTextureCoordIndex[i] == elem->getIndex())
+ 							{
+ 								glClientActiveTextureARB(GL_TEXTURE0 + i);
+ 								glTexCoordPointer(
+ 									VertexElement::getTypeCount(elem->getType()), 
+ 									GLHardwareBufferManager::getGLType(elem->getType()),
+ 									static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+ 									pBufferData);
+ 								glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+ 							}
+ 						}
+ 					}
+ 					break;
+ 				default:
+ 					break;
+ 				};
+ 			} // isCustomAttrib
+  
+        }
 
 		glClientActiveTextureARB(GL_TEXTURE0);
 
@@ -2609,47 +2626,26 @@ GL_RGB_SCALE : GL_ALPHA_SCALE, 1);
 			} while (updatePassIterationRenderState());
 		}
 
-		glDisableClientState( GL_VERTEX_ARRAY );
-		for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
-		{
-			glClientActiveTextureARB(GL_TEXTURE0 + i);
-			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		}
-		glClientActiveTextureARB(GL_TEXTURE0);
-		glDisableClientState( GL_NORMAL_ARRAY );
-		glDisableClientState( GL_COLOR_ARRAY );
+        glDisableClientState( GL_VERTEX_ARRAY );
+        for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
+        {
+            glClientActiveTextureARB(GL_TEXTURE0 + i);
+            glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+        }
+        glClientActiveTextureARB(GL_TEXTURE0);
+        glDisableClientState( GL_NORMAL_ARRAY );
+        glDisableClientState( GL_COLOR_ARRAY );
 		if (GLEW_EXT_secondary_color)
 		{
 			glDisableClientState( GL_SECONDARY_COLOR_ARRAY );
 		}
-		if (mCurrentVertexProgram)
-		{
-			// unbind any custom attributes
-			if (mCurrentVertexProgram->isAttributeValid(VES_BLEND_INDICES))
-			{
-				glDisableVertexAttribArrayARB(
-					mCurrentVertexProgram->getAttributeIndex(
-					VES_BLEND_INDICES)); 
-			}
-			if (mCurrentVertexProgram->isAttributeValid(VES_BLEND_WEIGHTS))
-			{
-				glDisableVertexAttribArrayARB(
-					mCurrentVertexProgram->getAttributeIndex(
-					VES_BLEND_WEIGHTS)); 
-			}
-			if (mCurrentVertexProgram->isAttributeValid(VES_TANGENT))
-			{
-				glDisableVertexAttribArrayARB(
-					mCurrentVertexProgram->getAttributeIndex(
-					VES_TANGENT)); 
-			}
-			if (mCurrentVertexProgram->isAttributeValid(VES_BINORMAL))
-			{
-				glDisableVertexAttribArrayARB(
-					mCurrentVertexProgram->getAttributeIndex(
-					VES_BINORMAL)); 
-			}
-		}
+ 		// unbind any custom attributes
+		for (std::vector<GLuint>::iterator ai = attribsBound.begin(); ai != attribsBound.end(); ++ai)
+ 		{
+ 			glDisableVertexAttribArrayARB(*ai); 
+ 
+  		}
+		
 		glColor4f(1,1,1,1);
 		if (GLEW_EXT_secondary_color)
 		{

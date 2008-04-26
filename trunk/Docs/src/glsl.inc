@@ -119,16 +119,26 @@ GLSL can access most of the GL states directly so you do not need to pass these 
 @subheading Binding vertex attributes
 GLSL natively supports automatic binding of the most common incoming per-vertex attributes (e.g. gl_Vertex, gl_Normal, gl_MultiTexCoord0 etc). However, there are some which are not automatically bound, which must be declared in the shader using the 'attribute <type> <name>' syntax, and the vertex data bound to it by Ogre. @*@*
 
-In addition to the built in attributes described in section 7.3 of the GLSL manual, Ogre supports the following automatically bound attributes:
+In addition to the built in attributes described in section 7.3 of the GLSL manual, Ogre supports a number of automatically bound custom vertex attributes. There are some drivers that do not behave correctly when mixing built-in vertex attributes like gl_Normal and custom vertex attributes, so for maximum compatibility you may well wish to use all custom attributes in shaders where you need at least one (e.g. for skeletal animation). 
 @table @asis
+@item vertex
+Binds VES_POSITION, declare as 'attribute vec4 vertex;'.
+@item normal
+Binds VES_NORMAL, declare as 'attribute vec3 normal;'.
+@item colour
+Binds VES_DIFFUSE, declare as 'attribute vec4 colour;'.
+@item secondary_colour
+Binds VES_SPECULAR, declare as 'attribute vec4 secondary_colour;'.
+@item uv0 - uv7
+Binds VES_TEXTURE_COORDINATES, declare as 'attribute vec4 uv0;'. Note that uv6 and uv7 share attributes with tangent and binormal respectively so cannot both be present.
 @item tangent
-If you declare an attribute as 'attribute vec3 tangent;' at the top of your GLSL vertex program, Ogre will automatically bind vertex elements of type VES_TANGENT to it. Note that for maximum compatibility with shader versions, by default tangents are placed in a spare texture coordinate by default rather than a tangent element, but you can control this using OgreXmlConverter / OgreMeshUpgrader, or via your exporter.
+Binds VES_TANGENT, declare as 'attribute vec3 tangent;'.
 @item binormal
-If you declare an attribute as 'attribute vec3 binormal;' at the top of your GLSL vertex program, Ogre will automatically bind vertex elements of type VES_BINORMAL to it. Note that none of the Ogre tools produce binormals since they can be easily calculated from normals and tangents in a vertex program.
+Binds VES_BINORMAL, declare as 'attribute vec3 binormal;'.
 @item blendIndices
-If you declare an attribute as 'attribute vec4 blendIndices;' at the top of your GLSL vertex program, Ogre will automatically bind vertex elements of type VES_BLEND_INDICES to it. 
+Binds VES_BLEND_INDICES, declare as 'attribute vec4 blendIndices;'.
 @item blendWeights
-If you declare an attribute as 'attribute vec4 blendWeights;' at the top of your GLSL vertex program, Ogre will automatically bind vertex elements of type VES_BLEND_WEIGHTS to it.
+Binds VES_BLEND_WEIGHTS, declare as 'attribute vec4 blendWeights;'.
 
 @subheading Preprocessor definitions
 GLSL supports using preprocessor definitions in your code - some are defined by the implementation, but you can also define your own, say in order to use the same source code for a few different variants of the same technique. In order to use this feature, include preprocessor conditions in your GLSL code, of the kind #ifdef SYMBOL, #if SYMBOL==2 etc. Then in your program definition, use the 'preprocessor_defines' option, following it with a string if definitions.  Definitions are separated by ';' or ',' and may optionally have a '=' operator within them to specify a definition value. Those without an '=' will implicitly have a definition of 1. For example:@*@*
