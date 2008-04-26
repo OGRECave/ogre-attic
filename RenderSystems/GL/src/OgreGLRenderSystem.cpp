@@ -2427,7 +2427,6 @@ namespace Ogre {
         {
             glClientActiveTextureARB(GL_TEXTURE0 + i);
             glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		std::vector<GLuint> attribsBound;
         }
         glClientActiveTextureARB(GL_TEXTURE0);
         glDisableClientState( GL_NORMAL_ARRAY );
