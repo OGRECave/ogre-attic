@@ -1,0 +1,6 @@
+** THIS CVS REPOSITORY WILL NO LONGER BE UPDATED **
+
+We have moved to Subversion, the new repository location is:
+
+https://svn.ogre3d.org/svnroot/ogre/trunk
+
