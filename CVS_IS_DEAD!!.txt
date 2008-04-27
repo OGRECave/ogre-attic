@@ -2,5 +2,5 @@
 
 We have moved to Subversion, the new repository location is:
 
-https://svn.ogre3d.org/svnroot/ogre/trunk
+https://svn.ogre3d.org/svnroot/ogre/branches/v1-4
 
