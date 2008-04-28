@@ -32,10 +32,10 @@ Torus Knot Software Ltd.
 #include "OgreLogManager.h"
 #include "OgreRoot.h"
 #include "OgreException.h"
-
+#include "OgreStringConverter.h"
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #include <X11/Xlib.h>
-void GLXProc( const XEvent &event );
+void GLXProc( Ogre::RenderWindow *win, const XEvent &event );
 #endif
 
 using namespace Ogre;
@@ -55,19 +55,32 @@ void WindowEventUtilities::messagePump()
 		DispatchMessage( &msg );
 	}
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-	//GLX Message Pump (Display is probably Common for all RenderWindows.. But, to be safe loop
-	//through all)
-	Windows::iterator i = _msWindows.begin(), e = _msWindows.end();
-	for( ; i != e; ++i )
+	//GLX Message Pump
+	Windows::iterator win = _msWindows.begin();
+	Windows::iterator end = _msWindows.end();
+
+	Display* xDisplay = 0; // same for all windows
+	
+	for (; win != end; win++)
 	{
-		::Display* display;
-		(*i)->getCustomAttribute("DISPLAY", &display);
-		while(XPending(display) > 0)
-		{
-			XEvent event;
-			XNextEvent(display, &event);
-			GLXProc(event);
-		}
+	    XID xid;
+	    XEvent event;
+
+	    if (!xDisplay)
+		(*win)->getCustomAttribute("XDISPLAY", &xDisplay);
+
+	    (*win)->getCustomAttribute("WINDOW", &xid);
+
+	    while (XCheckWindowEvent (xDisplay, xid, StructureNotifyMask | VisibilityChangeMask | FocusChangeMask, &event))
+	    {
+		GLXProc(*win, event);
+	    }
+
+	    // The ClientMessage event does not appear under any Event Mask
+	    while (XCheckTypedWindowEvent (xDisplay, xid, ClientMessage, &event))
+	    {
+		GLXProc(*win, event);
+	    }
 	}
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE && !defined __OBJC__
 	// OSX Message Pump
@@ -141,8 +154,9 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 
 	//LogManager* log = LogManager::getSingletonPtr();
 	//Iterator of all listeners registered to this RenderWindow
-	WindowEventListeners::iterator start = _msListeners.lower_bound(win),
-						end = _msListeners.upper_bound(win);
+	WindowEventListeners::iterator index,
+        start = _msListeners.lower_bound(win),
+        end = _msListeners.upper_bound(win);
 
 	switch( uMsg )
 	{
@@ -200,19 +214,19 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 	case WM_MOVE:
 		//log->logMessage("WM_MOVE");
 		win->windowMovedOrResized();
-		for( ; start != end; ++start )
-			(start->second)->windowMoved(win);
+		for(index = start; index != end; ++index)
+			(index->second)->windowMoved(win);
 		break;
 	case WM_DISPLAYCHANGE:
 		win->windowMovedOrResized();
-		for( ; start != end; ++start )
-			(start->second)->windowResized(win);
+		for(index = start; index != end; ++index)
+			(index->second)->windowResized(win);
 		break;
 	case WM_SIZE:
 		//log->logMessage("WM_SIZE");
 		win->windowMovedOrResized();
-		for( ; start != end; ++start )
-			(start->second)->windowResized(win);
+		for(index = start; index != end; ++index)
+			(index->second)->windowResized(win);
 		break;
 	case WM_GETMINMAXINFO:
 		// Prevent the window from going smaller than some minimu size
@@ -223,15 +237,15 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 	{
 		//log->logMessage("WM_CLOSE");
 		bool close = true;
-		for( ; start != end; ++start )
+		for(index = start; index != end; ++index)
 		{
-			if (!(start->second)->windowClosing(win))
+			if (!(index->second)->windowClosing(win))
 				close = false;
 		}
 		if (!close) return 0;
 
-		for(start = _msListeners.lower_bound(win); start != end; ++start )
-			(start->second)->windowClosed(win);
+		for(index = _msListeners.lower_bound(win); index != end; ++index)
+			(index->second)->windowClosed(win);
 		win->destroy();
 		return 0;
 	}
@@ -241,29 +255,10 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 }
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 //--------------------------------------------------------------------------------//
-void GLXProc( const XEvent &event )
+void GLXProc( RenderWindow *win, const XEvent &event )
 {
-	//We have to find appropriate window based on window id ( kindof hackish :/,
-	//but at least this only happens when there is a Window's event - and not that often
-	WindowEventUtilities::Windows::iterator i = WindowEventUtilities::_msWindows.begin(),
-						e = WindowEventUtilities::_msWindows.end();
-	RenderWindow* win = 0;
-	for(; i != e; ++i )
-	{
-		std::size_t wind = 0;
-		(*i)->getCustomAttribute("WINDOW", &wind);
-		if( event.xany.window == wind )
-		{
-			win = *i;
-			break;
-		}
-	}
-
-	//Sometimes, seems we get other windows, so just ignore
-	if( win == 0 ) return;
-
-	//Now that we have the correct RenderWindow for the generated Event, get an iterator for the listeners
-	WindowEventUtilities::WindowEventListeners::iterator 
+	//An iterator for the window listeners
+	WindowEventUtilities::WindowEventListeners::iterator index,
 		start = WindowEventUtilities::_msListeners.lower_bound(win),
 		end   = WindowEventUtilities::_msListeners.upper_bound(win);
 
@@ -274,52 +269,74 @@ void GLXProc( const XEvent &event )
 		::Atom atom;
 		win->getCustomAttribute("ATOM", &atom);
 		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)atom)
-		{	//Window Closed (via X button)
+		{	//Window closed by window manager
 			//Send message first, to allow app chance to unregister things that need done before
 			//window is shutdown
 			bool close = true;
-			for( ; start != end; ++start )
+            for(index = start ; index != end; ++index)
 			{
-				if (!(start->second)->windowClosing(win))
+				if (!(index->second)->windowClosing(win))
 					close = false;
 			}
 			if (!close) return;
 
-			for( ; start != end; ++start )
-				(start->second)->windowClosed(win);
+            for(index = start ; index != end; ++index)
+                (index->second)->windowClosed(win);
 			win->destroy();
 		}
 		break;
 	}
-	case ConfigureNotify:	//Moving or Resizing
-		unsigned int width, height, depth;
-		int left, top;
-		win->getMetrics(width, height, depth, left, top);
+	case DestroyNotify:
+	{
+		if (!win->isClosed())
+		{
+			// Window closed without window manager warning.
+            for(index = start ; index != end; ++index)
+                (index->second)->windowClosed(win);
+			win->destroy();
+		}
+		break;
+	}
+	case ConfigureNotify:
+	{    
+        // This could be slightly more efficient if windowMovedOrResized took arguments:
+		unsigned int oldWidth, oldHeight, oldDepth;
+		int oldLeft, oldTop;
+		win->getMetrics(oldWidth, oldHeight, oldDepth, oldLeft, oldTop);
+		win->windowMovedOrResized();
 
-		//determine if moving or sizing:
-		if( left == event.xconfigure.x && top == event.xconfigure.y )
-		{	//Resize width, height
-			win->windowMovedOrResized();
-			for( ; start != end; ++start )
-				(start->second)->windowResized(win);
+		unsigned int newWidth, newHeight, newDepth;
+		int newLeft, newTop;
+		win->getMetrics(newWidth, newHeight, newDepth, newLeft, newTop);
+
+		if (newLeft != oldLeft || newTop != oldTop)
+		{
+            for(index = start ; index != end; ++index)
+                (index->second)->windowMoved(win);
 		}
-		else if( width == event.xconfigure.width && height == event.xconfigure.height )
-		{	//Moving x, y
-			win->windowMovedOrResized();
-			for( ; start != end; ++start )
-				(start->second)->windowMoved(win);
+
+		if (newWidth != oldWidth || newHeight != oldHeight)
+		{
+            for(index = start ; index != end; ++index)
+                (index->second)->windowResized(win);
 		}
+		break;
+	}
+	case FocusIn:     // Gained keyboard focus
+	case FocusOut:    // Lost keyboard focus
+        for(index = start ; index != end; ++index)
+            (index->second)->windowFocusChange(win);
 		break;
 	case MapNotify:   //Restored
 		win->setActive( true );
-		for( ; start != end; ++start )
-			(start->second)->windowFocusChange(win);
+        for(index = start ; index != end; ++index)
+            (index->second)->windowFocusChange(win);
 		break;
 	case UnmapNotify: //Minimised
 		win->setActive( false );
 		win->setVisible( false );
-		for( ; start != end; ++start )
-			(start->second)->windowFocusChange(win);
+        for(index = start ; index != end; ++index)
+            (index->second)->windowFocusChange(win);
 		break;
 	case VisibilityNotify:
 		switch(event.xvisibility.state)
@@ -337,10 +354,8 @@ void GLXProc( const XEvent &event )
 			win->setVisible( false );
 			break;
 		}
-
-		//Notify Listeners that focus of window has changed in some way
-		for( ; start != end; ++start )
-			(start->second)->windowFocusChange(win);
+        for(index = start ; index != end; ++index)
+            (index->second)->windowFocusChange(win);
 		break;
 	default:
 		break;
@@ -358,7 +373,8 @@ OSStatus WindowEventUtilities::_CarbonWindowHandler(EventHandlerCallRef nextHand
     if(!curWindow) return eventNotHandledErr;
     
     //Iterator of all listeners registered to this RenderWindow
-	WindowEventListeners::iterator start = _msListeners.lower_bound(curWindow),
+	WindowEventListeners::iterator index,
+        start = _msListeners.lower_bound(curWindow),
         end = _msListeners.upper_bound(curWindow);
     
     // We only get called if a window event happens

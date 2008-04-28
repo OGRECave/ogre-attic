@@ -478,6 +478,7 @@ void GLXConfigurator::SetConfigOption(const std::string &optionName, const std::
 		// No renderer set -- how can this be called?
 		return;
 	mRenderer->setConfigOption(optionName, valueName);
+	SetRenderer(mRenderer);
 }
 
 //------------------------------------------------------------------------------------//

@@ -30,75 +30,73 @@ Torus Knot Software Ltd.
 #define __GLXUtils_H__
 
 #include "OgrePrerequisites.h"
-#include <X11/Xlib.h>
-#include <GL/glx.h>
+#include <GL/glew.h>
+#include <GL/glxew.h>
 
-namespace Ogre {
-   /**
-     * Class that acquires and stores properties of a frame buffer configuration
-     */
-    class _OgrePrivate FBConfigData 
-    {
-    public:
-        FBConfigData();
-        FBConfigData(Display *dpy, GLXFBConfig config);
-        String toString() const;
-        
-        int configID;
-        int visualID;
-        int bufferSize;
-        int level;
-        int doubleBuffer;
-        int stereo;
-        int auxBuffers;
-        int renderType;
-        int redSize;
-        int greenSize;
-        int blueSize;
-        int alphaSize;
-        int depthSize;
-        int stencilSize;
-        int accumRedSize;
-        int accumGreenSize;        
-        int accumBlueSize;
-        int accumAlphaSize;        
-        int drawableType;
-        int caveat;
-        int maxPBufferWidth;
-        int maxPBufferHeight;
-        int maxPBufferPixels;        
-    };
-
-    class _OgrePrivate GLXUtils
-    {
-    public:
-        /**
-         * Loads an icon from an Ogre resource into the X Server. This currently only
-         * works for 24 and 32 bit displays. The image must be findable by the Ogre
-         * resource system, and of format PF_A8R8G8B8.
-         *
-         * @param mDisplay,rootWindow   X resources to use
-         * @param name           Name of image to load
-         * @param pix         Receiver for the output pixmap
-         * @param mask           Receiver for the output mask (alpha bitmap)
-         * @returns true on success
-         */        
-        static bool LoadIcon(Display *mDisplay, Window rootWindow, const std::string &name, Pixmap *pix, Pixmap *mask);
-        /*
-         * Examine all visuals to find the so-called best one.
-         * We prefer deepest RGBA buffer with depth, stencil and accum
-         * that has no caveats. This will only choose formats with a multisample
-		 * that equals multisample
-		 * @returns -1 in case of failure, otherwise a valid visual ID
-         * @author Brian Paul (from the glxinfo source)
-         */
-        static int findBestVisual(Display *dpy, int scrnum, int multisample = -1);
-        /**
-         * Find best FBConfig given a list required and a list of desired properties
-         */
-        static GLXFBConfig findBestMatch(Display *dpy, int scrnum, const int *attribs, const int *ideal);
-        
-    };
+namespace Ogre 
+{
+	class _OgrePrivate GLXUtils
+	{
+	public:
+		// Portable replacements for some GLX 1.3 function pointers
+		
+		static PFNGLXCHOOSEFBCONFIGPROC chooseFBConfig;
+		static PFNGLXCREATENEWCONTEXTPROC createNewContext;
+		static PFNGLXGETFBCONFIGATTRIBPROC getFBConfigAttrib;
+		static PFNGLXGETVISUALFROMFBCONFIGPROC getVisualFromFBConfig;
+		
+		/**
+		 * Get the GLXFBConfig used to create a ::GLXContext
+		 *
+		 * @param display	X Display
+		 * @param drawable   GLXContext 
+		 * @returns		  GLXFBConfig used to create the context
+		 */
+		static GLXFBConfig getFBConfigFromContext (Display *display, ::GLXContext context);
+		
+		/**
+		 * Get the GLXFBConfig used to create a GLXDrawable.
+		 * Caveat: GLX version 1.3 is needed when the drawable is a GLXPixmap
+		 *
+		 * @param display	X Display
+		 * @param drawable   GLXDrawable 
+		 * @param width	  Receiver for the drawable width
+		 * @param height	 Receiver for the drawable height
+		 * @returns		  GLXFBConfig used to create the drawable
+		 */
+		static GLXFBConfig getFBConfigFromDrawable (Display *display, GLXDrawable drawable, 
+								unsigned int *width, unsigned int *height);
+		
+		/**
+		 * Initialise the parts of GLXEW needed to create a GL Context
+		 *
+		 * @param display	X Display
+		 */
+		static void initialiseGLXEW (Display *display);
+		
+		/**
+		 * Select an FBConfig given a list of required and a list of desired properties
+		 *
+		 * @param display	X Display
+		 * @param minAttribs FBConfig attributes that must be provided with minimum values
+		 * @param maxAttribs FBConfig attributes that are preferred with maximum values
+		 * @returns		  GLXFBConfig with attributes or 0 when unsupported. 
+		 */
+		static GLXFBConfig selectFBConfig(Display *display, const int *minAttribs, const int *maxAttribs);
+		
+		/**
+		 * Loads an icon from an Ogre resource into the X Server. This currently only
+		 * works for 24 and 32 bit displays. The image must be findable by the Ogre
+		 * resource system, and of format PF_A8R8G8B8.
+		 *
+		 * @param display	X display
+		 * @param name	   Name of image to load
+		 * @param pix		Receiver for the output pixmap
+		 * @param mask	   Receiver for the output mask (alpha bitmap)
+		 * @returns true on success
+		 */		
+		static bool loadIcon(Display *display, const std::string &name, Pixmap *pix, Pixmap *mask);
+	};
    
 };
 

@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+	(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -35,6 +35,7 @@ Torus Knot Software Ltd.
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreGLXUtils.h"
+#include "OgreGLXGLSupport.h"
 #include "OgreGLPixelFormat.h"
 #include "OgreWindowEventUtilities.h"
 
@@ -46,537 +47,656 @@ Torus Knot Software Ltd.
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
-#ifndef NO_XRANDR
 #include <X11/extensions/Xrandr.h>
-#endif
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glx.h>
-
+extern "C"
+{
+	int 
+	safeXErrorHandler (Display *display, XErrorEvent *event)
+	{
+		// Ignore all XErrorEvents
+		return 0;
+	}
+	int (*oldXErrorHandler)(Display *, XErrorEvent*);
+}
 
 namespace Ogre
 {
-
-//-------------------------------------------------------------------------------------------------//
-GLXWindow::GLXWindow(Display *display) :
-	mDisplay(display), mWindow(0), mGlxContext(0), mVisualInfo(0), mDelVisualInfo(false), 
-	mDelWindow(false), mClosed(false), mVisible(true), mOldMode(-1),
-	mContext(0)
-{
-	mActive = false;
-	mIsFullScreen = false;
-}
-
-//-------------------------------------------------------------------------------------------------//
-GLXWindow::~GLXWindow() 
-{
-	destroy();
-
-	if (mDelVisualInfo && mVisualInfo)
-		XFree(mVisualInfo);
-
-	if(mGlxContext)
-		glXDestroyContext(mDisplay, mGlxContext);
-	
-	if(mDelWindow && mWindow)
-		XDestroyWindow(mDisplay, mWindow);
-
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::create(const String& name, unsigned int width, unsigned int height,
-	            bool fullScreen, const NameValuePairList *miscParams)
-{
-	LogManager::getSingleton().logMessage("GLXWindow::create");
-
-	String title = name;
-	size_t fsaa_samples = 0;
-
-	// We will attempt to create new window on default screen op display 0
-	// unless external window handle passed below
-	int screen = DefaultScreen(mDisplay);
-	int depth = DisplayPlanes(mDisplay, screen);
-	Window rootWindow = RootWindow(mDisplay,screen);
-	Window parentWindow = rootWindow;
-
-	// Make sure the window is centered if no left and top in parameters
-	size_t left = (int)DisplayWidth(mDisplay, screen)/2 - width/2;
-	size_t top = (int)DisplayHeight(mDisplay, screen)/2 - height/2;
-	
-	// Maybe user already created the window and passed its visualinfo in miscParams
-	XVisualInfo *	extVisualHandler = NULL;
-
-        // Unless parentWindowHandle is given in miscParams we're top-level
-	mTopLevel = true;
-   
-	LogManager::getSingleton().logMessage("Parsing miscParams");
-	if(miscParams)
+	//-------------------------------------------------------------------------------------------------//
+	GLXWindow::GLXWindow(GLXGLSupport *glsupport) :
+		mGLSupport(glsupport), mContext(0)
 	{
-		// Parse miscellenous parameters
-		NameValuePairList::const_iterator opt;
-		// Full screen anti aliasing
-		opt = miscParams->find("FSAA");
-		if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
-			fsaa_samples = StringConverter::parseUnsignedInt(opt->second);
-		// left (x)
-		opt = miscParams->find("left");
-		if(opt != miscParams->end())
-			left = StringConverter::parseUnsignedInt(opt->second);
-		// top (y)
-		opt = miscParams->find("top");
-		if(opt != miscParams->end())
-			top = StringConverter::parseUnsignedInt(opt->second);
-		// Window title
-		opt = miscParams->find("title");
-		if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
-			title = opt->second;
-		opt = miscParams->find("parentWindowHandle");
-		if(opt != miscParams->end()) {  // embedding OGRE
-			std::vector<String> tokens = StringUtil::split(opt->second, " :");
-			String new_display = tokens[0];
-			String new_screen = tokens[1];
-			String wid = tokens[2];
-
-			// Now set things to their correct values
-			// This must be the ugliest line of code I have ever written :P
-			mDisplay = reinterpret_cast<Display*>(StringConverter::parseUnsignedLong(new_display));
-			screen = StringConverter::parseUnsignedInt(new_screen);
-			parentWindow = StringConverter::parseUnsignedLong(wid);
-
-			depth = DisplayPlanes(mDisplay, screen);
-			rootWindow = RootWindow(mDisplay, screen);
-
-			left = top = 0;
-			fullScreen = false; // Can't be full screen if embedded in an app!
+		mWindow = 0;
+		
+		mIsTopLevel = false;
+		mIsFullScreen = false;
+		mIsExternal = false;
+		mIsExternalGLControl = false;
+		mClosed = false;
+		mActive = false;
+	}
+	
+	//-------------------------------------------------------------------------------------------------//
+	GLXWindow::~GLXWindow() 
+	{
+		Display* xDisplay = mGLSupport->getXDisplay();
+		
+		destroy();
+		
+		// Ignore fatal XErrorEvents from stale handles.
+		oldXErrorHandler = XSetErrorHandler(safeXErrorHandler);
+		
+		if (mWindow)
+		{
+			XDestroyWindow(xDisplay, mWindow);
 		}
 		
-		opt = miscParams->find("externalWindowHandle");
-		if(opt != miscParams->end()) // embedding OGRE in already created window
+		if (mContext) 
 		{
-			std::vector<String> tokens = StringUtil::split(opt->second, " :");
-			String new_display = tokens[0];
-			String new_screen = tokens[1];
-			String wid = tokens[2];
+			delete mContext;
+		}
+		
+		XSetErrorHandler(oldXErrorHandler);
+		
+		mContext = 0;
+		mWindow = 0;
+	}
+	
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::create(const String& name, uint width, uint height,
+			   bool fullScreen, const NameValuePairList *miscParams)
+	{
+		Display *xDisplay = mGLSupport->getXDisplay();
+		String title = name;
+		uint samples = 0;
+		short frequency = 0;
+		bool vsync = false;
+		int gamma = 0;
+		::GLXContext glxContext = 0;
+		::GLXDrawable glxDrawable = 0;
+		Window externalWindow = 0;
+		Window parentWindow = DefaultRootWindow(xDisplay);
+		int left = DisplayWidth(xDisplay, DefaultScreen(xDisplay))/2 - width/2;
+		int top  = DisplayHeight(xDisplay, DefaultScreen(xDisplay))/2 - height/2;
+		
+		mIsFullScreen = fullScreen;
+		
+		if(miscParams)
+		{
+			NameValuePairList::const_iterator opt;
+			NameValuePairList::const_iterator end = miscParams->end();
 			
-			mDisplay = reinterpret_cast<Display*>(StringConverter::parseUnsignedLong(new_display)); 
-			screen = StringConverter::parseUnsignedInt(new_screen); 
-			mWindow = StringConverter::parseUnsignedLong(wid);
-			
-			if(tokens.size() > 3) // external visual was already setup
+			// NB: Do not try to implement the externalGLContext option.
+			//
+			//	 Accepting a non-current context would expose us to the 
+			//	 risk of segfaults when we made it current. Since the
+			//	 application programmers would be responsible for these
+			//	 segfaults, they are better discovering them in their code.
+		
+			if ((opt = miscParams->find("currentGLContext")) != end &&
+				StringConverter::parseBool(opt->second))
 			{
-				extVisualHandler = reinterpret_cast<XVisualInfo*>(StringConverter::parseUnsignedLong(tokens[3]));
+				if (! glXGetCurrentContext())
+				{
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "currentGLContext was specified with no current GL context", "GLXWindow::create");
+				}
+				
+				glxContext = glXGetCurrentContext();
+				glxDrawable = glXGetCurrentDrawable();
 			}
 			
-			depth = DisplayPlanes(mDisplay, screen);
-			rootWindow = RootWindow(mDisplay, screen);
+			// Note: Some platforms support AA inside ordinary windows
+			if((opt = miscParams->find("FSAA")) != end) 
+				samples = StringConverter::parseUnsignedInt(opt->second);
 			
-			left = top = 0;
-			fullScreen = false; // Can't be full screen if embedded in an app!
-			mTopLevel = false;  // Can't be top-level if embedded         
-		}
+			if((opt = miscParams->find("displayFrequency")) != end) 
+				frequency = (short)StringConverter::parseInt(opt->second);
+			
+			if((opt = miscParams->find("vsync")) != end) 
+				vsync = StringConverter::parseBool(opt->second);
 
-	}
+			if ((opt = miscParams->find("gamma")) != end)
+				gamma = StringConverter::parseBool(opt->second);
 
-	// Check for full screen mode if FSAA was asked for
-	if(!fullScreen && fsaa_samples>0)
-	{
-		LogManager::getSingleton().logMessage("GLXWindow::create -- FSAA only supported in fullscreen mode");
-		fsaa_samples = 0;
-	}
-	// Disable FSAA for now -- it doesn't work on NVIDIA
-	fsaa_samples = 0;
-
-#ifndef NO_XRANDR
-	// Attempt mode switch for fullscreen -- only if RANDR extension is there
-	int dummy;
-	if(fullScreen && ! XQueryExtension(mDisplay, "RANDR", &dummy, &dummy, &dummy)) 
-	{
-		LogManager::getSingleton().logMessage("GLXWindow::create -- Could not switch to full screen mode: No XRANDR extension found");
-	} 
-	else if(fullScreen) 
-	{
-		// Use Xrandr extension to switch video modes. This is much better than
-		// XVidMode as you can't scroll away from the full-screen applications.
-		XRRScreenConfiguration *config;
-		XRRScreenSize *sizes;
-		Rotation current_rotation;
-		int nsizes;
-
-		// Get current screen info
-		config = XRRGetScreenInfo(mDisplay, rootWindow);
-		// Get available sizes
-		if(config)
-			sizes = XRRConfigSizes (config, &nsizes);
-
-		if(config && nsizes > 0) {
-			// Get current size and rotation
-			mOldMode = XRRConfigCurrentConfiguration (config, &current_rotation);
-			// Find smallest matching mode
-			int mode = -1;
-			int mode_width = INT_MAX;
-			int mode_height = INT_MAX;
-			for(size_t i=0; i<nsizes; i++) 
+			if((opt = miscParams->find("left")) != end) 
+				left = StringConverter::parseInt(opt->second);
+			
+			if((opt = miscParams->find("top")) != end) 
+				top = StringConverter::parseInt(opt->second);
+			
+			if((opt = miscParams->find("title")) != end) 
+				title = opt->second;
+			
+			if ((opt = miscParams->find("externalGLControl")) != end)
+				mIsExternalGLControl = StringConverter::parseBool(opt->second);
+			
+			if((opt = miscParams->find("parentWindowHandle")) != end) 
 			{
-				if(sizes[i].width >= static_cast<int>(width) && 
-					sizes[i].height >= static_cast<int>(height) &&
-				    sizes[i].width < mode_width && 
-					sizes[i].height < mode_height) 
+				std::vector<String> tokens = StringUtil::split(opt->second, " :");
+				
+				if (tokens.size() == 3)
 				{
-					mode = i;
-					mode_width = sizes[i].width;
-					mode_height = sizes[i].height;
+					// deprecated display:screen:xid format
+					parentWindow = StringConverter::parseUnsignedLong(tokens[2]);
+				}
+				else
+				{
+					// xid format
+					parentWindow = StringConverter::parseUnsignedLong(tokens[0]);
 				}
 			}
-			if(mode >= 0) {
-				// Finally, set the screen configuration
-				LogManager::getSingleton().logMessage("GLXWindow::create -- Entering full screen mode");
-				XRRSetScreenConfig(mDisplay, config, rootWindow, mode, current_rotation, CurrentTime);
-			} else {
-				LogManager::getSingleton().logMessage("GLXWindow::create -- Could not switch to full screen mode: No conforming mode was found");
+			else if((opt = miscParams->find("externalWindowHandle")) != end) 
+			{
+				std::vector<String> tokens = StringUtil::split(opt->second, " :");
+				
+				LogManager::getSingleton().logMessage(
+													  "GLXWindow::create: The externalWindowHandle parameter is deprecated.\n"
+													  "Use the parentWindowHandle or currentGLContext parameter instead.");
+				
+				if (tokens.size() == 3)
+				{
+					// Old display:screen:xid format
+					// The old GLX code always created a "parent" window in this case:
+					parentWindow = StringConverter::parseUnsignedLong(tokens[2]);
+				}
+				else if (tokens.size() == 4)
+				{
+					// Old display:screen:xid:visualinfo format
+					externalWindow = StringConverter::parseUnsignedLong(tokens[2]);
+				}
+				else
+				{
+					// xid format
+					externalWindow = StringConverter::parseUnsignedLong(tokens[0]);
+				}
 			}
-			// Free configuration data
-			XRRFreeScreenConfigInfo(config);
-		} else {
-			LogManager::getSingleton().logMessage("GLXWindow::create -- Could not switch to full screen mode: XRRGetScreenInfo failed");
 		}
-	}
-#endif
-
-	if(extVisualHandler == NULL) // user didn't create visual ( and window ) himself 
-	{
-		// Apply some magic algorithm to get the best visual
-		int best_visual = GLXUtils::findBestVisual(mDisplay, screen, fsaa_samples);
-		if(best_visual == -1)
+		
+		// Ignore fatal XErrorEvents during parameter validation:
+		oldXErrorHandler = XSetErrorHandler(safeXErrorHandler);
+		// Validate parentWindowHandle
+		
+		if (parentWindow != DefaultRootWindow(xDisplay))
 		{
-			best_visual = GLXUtils::findBestVisual(mDisplay, screen);
-			LogManager::getSingleton().logMessage("GLXWindow::create -- Requested FSAA of "+
-					StringConverter::toString(fsaa_samples)+" was not acquirable, defaulting to first suitable visual");
+			XWindowAttributes windowAttrib;
+			
+			if (! XGetWindowAttributes(xDisplay, parentWindow, &windowAttrib) ||
+				windowAttrib.root != DefaultRootWindow(xDisplay))
+			{
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Invalid parentWindowHandle (wrong server or screen)", "GLXWindow::create");
+			}
 		}
-		LogManager::getSingleton().logMessage("GLXWindow::create -- Best visual is "+StringConverter::toString(best_visual));
-
-		// Get information about this so-called-best visual
-		XVisualInfo templ;
-		int nmatch;
-		templ.visualid = best_visual;
-		mVisualInfo = XGetVisualInfo(mDisplay, VisualIDMask, &templ, &nmatch);
-		mDelVisualInfo = true;
-		if(mVisualInfo==0 || nmatch==0) {
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "GLXWindow: error choosing visual", "GLXWindow::create");
+		
+		// Validate externalWindowHandle
+		
+		if (externalWindow != 0)
+		{
+			XWindowAttributes windowAttrib;
+			
+			if (! XGetWindowAttributes(xDisplay, externalWindow, &windowAttrib) ||
+				windowAttrib.root != DefaultRootWindow(xDisplay))
+			{
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Invalid externalWindowHandle (wrong server or screen)", "GLXWindow::create");
+			}
+			glxDrawable = externalWindow;
 		}
 
-		XSetWindowAttributes attr;
-		unsigned long mask;
-		attr.background_pixel = 0;
-		attr.border_pixel = 0;
-		attr.colormap = XCreateColormap(mDisplay,rootWindow,mVisualInfo->visual,AllocNone);
-		attr.event_mask = StructureNotifyMask | VisibilityChangeMask;
-		if(fullScreen) {
-			mask = CWBackPixel | CWColormap | CWOverrideRedirect | CWSaveUnder | CWBackingStore | CWEventMask;
-			attr.override_redirect = True;
-			attr.backing_store = NotUseful;
-			attr.save_under = False;
-			// Fullscreen windows are always in the top left origin
+		// Derive fbConfig
+		
+		::GLXFBConfig fbConfig = 0;
+		
+		if (glxDrawable)
+		{
+			fbConfig = mGLSupport->getFBConfigFromDrawable (glxDrawable, &width, &height);
+		}
+
+		if (! fbConfig && glxContext)
+		{
+			fbConfig = mGLSupport->getFBConfigFromContext (glxContext);
+			
+			if (! fbConfig)
+			{
+				// This should never happen.
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unexpected failure to determine a GLXFBConfig","GLXWindow::create");
+			}
+		}
+		
+		mIsExternal = (glxDrawable != 0);
+		
+		XSetErrorHandler(oldXErrorHandler);
+		
+		if (! fbConfig)
+		{
+			int minAttribs[] = {
+				GLX_DRAWABLE_TYPE,  GLX_WINDOW_BIT,
+				GLX_RENDER_TYPE,	GLX_RGBA_BIT,
+				GLX_RED_SIZE,	   1,
+				GLX_BLUE_SIZE,	  1,
+				GLX_GREEN_SIZE,	 1,
+				None
+			};
+			
+			int maxAttribs[] = {
+				GLX_SAMPLES,		samples,
+				GLX_DOUBLEBUFFER,   1,
+				GLX_STENCIL_SIZE,   INT_MAX,
+				GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT, 1,
+				None
+			};
+
+			fbConfig = mGLSupport->selectFBConfig(minAttribs, maxAttribs);
+
+			if (gamma != 0)
+			{
+				mGLSupport->getFBConfigAttrib(fbConfig, GL_FRAMEBUFFER_SRGB_CAPABLE_EXT, &gamma);
+			}
+
+			mHwGamma = (gamma != 0);
+		}
+		
+		mIsTopLevel = (! mIsExternal && parentWindow == DefaultRootWindow(xDisplay));
+		
+		if (! mIsTopLevel)
+		{
+			mIsFullScreen = false;
 			left = top = 0;
-		} else
-			mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
-	
-		// Create window on server
-		mWindow = XCreateWindow(mDisplay,parentWindow,left,top,width,height,0,mVisualInfo->depth,InputOutput,mVisualInfo->visual,mask,&attr);
-		mDelWindow = true;
-		if(!mWindow) {
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "GLXWindow: XCreateWindow failed", "GLXWindow::create");
 		}
+		
+		if (mIsFullScreen) 
+		{
+			mGLSupport->switchMode (width, height, frequency);
+		}
+		
+		if (! mIsExternal)
+		{
+			XSetWindowAttributes attr;
+			ulong mask;
+			XVisualInfo *visualInfo = mGLSupport->getVisualFromFBConfig (fbConfig);
+			
+			attr.background_pixel = 0;
+			attr.border_pixel = 0;
+			attr.colormap = XCreateColormap(xDisplay, DefaultRootWindow(xDisplay), visualInfo->visual, AllocNone);
+			attr.event_mask = StructureNotifyMask | VisibilityChangeMask | FocusChangeMask;
+			mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
+			
+			if(mIsFullScreen && mGLSupport->mAtomFullScreen == None) 
+			{
+				LogManager::getSingleton().logMessage("GLXWindow::switchFullScreen: Your WM has no fullscreen support");
+				
+				// A second best approach for outdated window managers
+				attr.backing_store = NotUseful;
+				attr.save_under = False;
+				attr.override_redirect = True;
+				mask |= CWSaveUnder | CWBackingStore | CWOverrideRedirect;
+				left = top = 0;
+			} 
+			
+			// Create window on server
+			mWindow = XCreateWindow(xDisplay, parentWindow, left, top, width, height, 0, visualInfo->depth, InputOutput, visualInfo->visual, mask, &attr);
+			
+			XFree(visualInfo);
+			
+			if(!mWindow) 
+			{
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to create an X Window", "GLXWindow::create");
+			}
+			
+			if (mIsTopLevel)
+			{
+				XWMHints *wmHints;
+				XSizeHints *sizeHints;
+				
+				if ((wmHints = XAllocWMHints()) != NULL) 
+				{
+					wmHints->initial_state = NormalState;
+					wmHints->input = True;
+					wmHints->flags = StateHint | InputHint;
+					
+					int depth = DisplayPlanes(xDisplay, DefaultScreen(xDisplay));
+					
+					// Check if we can give it an icon
+					if(depth == 24 || depth == 32) 
+					{
+						if(mGLSupport->loadIcon("GLX_icon.png", &wmHints->icon_pixmap, &wmHints->icon_mask))
+						{
+							wmHints->flags |= IconPixmapHint | IconMaskHint;
+						}
+					}
+				}
+				
+				// Is this really necessary ? Which broken WM might need it?
+				if ((sizeHints = XAllocSizeHints()) != NULL)
+				{
+					sizeHints->flags = USPosition;
+				}
+				
+				XTextProperty titleprop;
+				char *lst = (char*)title.c_str();
+				XStringListToTextProperty((char **)&lst, 1, &titleprop);
+				XSetWMProperties(xDisplay, mWindow, &titleprop, NULL, NULL, 0, sizeHints, wmHints, NULL);
+				
+				XFree(titleprop.value);
+				XFree(wmHints);
+				XFree(sizeHints);
+				
+				XSetWMProtocols(xDisplay, mWindow, &mGLSupport->mAtomDeleteWindow, 1);
+				
+				XWindowAttributes windowAttrib;
+				
+				XGetWindowAttributes(xDisplay, mWindow, &windowAttrib);
+				
+				left = windowAttrib.x;
+				top = windowAttrib.y;
+				width = windowAttrib.width;
+				height = windowAttrib.height;
+			}
+			
+			glxDrawable = mWindow;
+			
+			XMapWindow(xDisplay, mWindow);
+			
+			if (mIsFullScreen)
+			{
+				switchFullScreen (true);
+			}
+			XFlush(xDisplay);
+			
+			WindowEventUtilities::_addRenderWindow(this);
+		}
+		
+		mContext = new GLXContext(mGLSupport, fbConfig, glxDrawable);
+		
+		::GLXDrawable oldDrawable = glXGetCurrentDrawable();
+		::GLXContext  oldContext  = glXGetCurrentContext();
+		
+		mContext->setCurrent();
+		
+		if (! mIsExternalGLControl && GLXEW_SGI_swap_control)
+		{
+			glXSwapIntervalSGI (vsync ? 1 : 0);
+		}
+		
+		mContext->endCurrent();
+		
+		glXMakeCurrent (mGLSupport->getGLDisplay(), oldDrawable, oldContext);
+		
+		int fbConfigID;
+		
+		mGLSupport->getFBConfigAttrib(fbConfig, GLX_FBCONFIG_ID, &fbConfigID);
+		
+		LogManager::getSingleton().logMessage("GLXWindow::create used FBConfigID = " + StringConverter::toString(fbConfigID));
+		
+		mName = name;
+		mWidth = width;
+		mHeight = height;
+		mLeft = left;
+		mTop = top;
+		mActive = true;
+		mClosed = false;
+	}
 	
-		// Make sure the window is in normal state
-		XWMHints *wm_hints;
-		if ((wm_hints = XAllocWMHints()) != NULL) {
-			wm_hints->initial_state = NormalState;
-			wm_hints->input = True;
-			wm_hints->flags = StateHint | InputHint;
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::destroy(void)
+	{
+		if (mClosed)
+			return;
+		
+		mClosed = true;
+		mActive = false;
+		
+		if (! mIsExternal)
+			WindowEventUtilities::_removeRenderWindow(this);
+		
+		if (mIsFullScreen) 
+		{
+			mGLSupport->switchMode();
+			switchFullScreen(false);
+		}
+	}
 	
-			// Check if we can give it an icon
-			if(depth == 24 || depth == 32) {
-				// Woot! The right bit depth, we can load an icon
-				if(GLXUtils::LoadIcon(mDisplay, rootWindow, "GLX_icon.png", &wm_hints->icon_pixmap, &wm_hints->icon_mask))
-					wm_hints->flags |= IconPixmapHint | IconMaskHint;
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::setFullscreen(bool fullscreen, uint width, uint height)
+	{
+		short frequency = 0;
+		
+		if (mClosed || ! mIsTopLevel)
+			return;
+		
+		if (fullscreen == mIsFullScreen && width == mWidth && height == mHeight)
+			return;
+		
+		if (mIsFullScreen != fullscreen && &mGLSupport->mAtomFullScreen == None)
+		{
+			// Without WM support it is best to give up.
+			LogManager::getSingleton().logMessage("GLXWindow::switchFullScreen: Your WM has no fullscreen support");
+			return;
+		}
+		else if (fullscreen)
+		{
+			mGLSupport->switchMode(width, height, frequency);
+		}
+		else
+		{
+			mGLSupport->switchMode();
+		}
+		
+		if (mIsFullScreen != fullscreen)
+		{
+			switchFullScreen(fullscreen);
+		}
+		
+		if (! mIsFullScreen)
+		{
+			resize(width, height);
+			reposition(mLeft, mTop);
+		}
+	}
+
+	//-------------------------------------------------------------------------------------------------//
+	bool GLXWindow::isClosed() const
+	{
+		return mClosed;
+	}
+	
+	//-------------------------------------------------------------------------------------------------//
+	bool GLXWindow::isVisible() const
+	{
+		return mVisible;
+	}
+	
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::setVisible(bool visible)
+	{
+		mVisible = visible;
+	}
+	
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::reposition(int left, int top)
+	{
+		if (mClosed || ! mIsTopLevel)
+			return;
+		
+		XMoveWindow(mGLSupport->getXDisplay(), mWindow, left, top);
+	}
+
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::resize(uint width, uint height)
+	{
+		if (mClosed)
+			return;
+		
+		if(mWidth == width && mHeight == height)
+			return;
+		
+		if(width != 0 && height != 0)
+		{
+			if (mIsTopLevel)
+			{
+				XResizeWindow(mGLSupport->getXDisplay(), mWindow, width, height);
+			}
+			else
+			{
+				mWidth = width;
+				mHeight = height;
+				
+				for (ViewportList::iterator it = mViewportList.begin();	it != mViewportList.end(); ++it)
+					(*it).second->_updateDimensions();
 			}
 		}
-	
-		// Set size and location hints
-		XSizeHints *size_hints;
-		if ((size_hints = XAllocSizeHints()) != NULL) {
-			// Otherwise some window managers ignore our position request
-			size_hints->flags = USPosition;
-		}
-	
-		// Make text property from title
-		XTextProperty titleprop;
-		char *lst = (char*)title.c_str();
-		XStringListToTextProperty((char **)&lst, 1, &titleprop);
-	
-		XSetWMProperties(mDisplay, mWindow, &titleprop, NULL, NULL, 0, size_hints, wm_hints, NULL);
-	
-		// We don't like memory leaks. Free the clientside storage, but not the
-		// pixmaps as they're still being used by the server.
-		XFree(titleprop.value);
-		XFree(wm_hints);
-		XFree(size_hints);
-	
-		// Acquire atom to recognize window close events
-		mAtomDeleteWindow = XInternAtom(mDisplay,"WM_DELETE_WINDOW",False);
-		XSetWMProtocols(mDisplay,mWindow,&mAtomDeleteWindow,1);
-	
-		// Map window unto screen and focus it.
-		XMapWindow(mDisplay,mWindow);
-	
-		// Make sure the server is up to date and focus the window
-		XFlush(mDisplay);
-
-		//Register only Ogre created windows (users can register their own)
-		WindowEventUtilities::_addRenderWindow(this);
-	}
-	else
-	{
-		LogManager::getSingleton().logMessage("GLXWindow::create -- using external window handle");
-		mVisualInfo = extVisualHandler;
-		mDelVisualInfo = false;
 	}
 
-	GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
-	GLXContext* mainContext = static_cast<GLXContext*>( rs->_getMainContext() );
-	if ( mainContext == 0 )
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::windowMovedOrResized()
 	{
-		// Finally, create a GL context
-		// we want to share it with main
-		mGlxContext = glXCreateContext(mDisplay,mVisualInfo,NULL,True);
-	}
-		else
-			mGlxContext = glXCreateContext(mDisplay,mVisualInfo,mainContext->mCtx,True);
-	
-	if(!mGlxContext)
-		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "glXCreateContext failed", "GLXWindow::create");
-
-	mName = name;
-	mWidth = width;
-	mHeight = height;
-	mIsFullScreen = fullScreen;
-
-	//Get the attributes of the screen
-	XWindowAttributes temp;
-	XGetWindowAttributes(mDisplay, mWindow, &temp);
-	mLeft = temp.x;
-	mTop = temp.y;
-
-	// Create OGRE GL context
-	mContext = new GLXContext(mDisplay, mWindow, mGlxContext, mVisualInfo);
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::destroy(void)
-{
-	WindowEventUtilities::_removeRenderWindow(this);
-
-	// Unregister and destroy OGRE GLContext
-	delete mContext;
-
-	// Destroy GL context
-	if(mGlxContext)
-		glXDestroyContext(mDisplay, mGlxContext);
-
-	if(mDelWindow && mWindow)
-		XDestroyWindow(mDisplay, mWindow);
-
-
-#ifndef NO_XRANDR
-	if(mIsFullScreen) 
-	{
-		// Restore original video mode.
-		Window rootWindow = DefaultRootWindow(mDisplay);
-		XRRScreenConfiguration *config;
-
-		// Get current screen info
-		config = XRRGetScreenInfo(mDisplay, rootWindow);
-		if(config) 
+		if (mClosed || !mWindow)
+			return;
+		
+		Display* xDisplay = mGLSupport->getXDisplay();
+		XWindowAttributes windowAttrib;
+		
+		if (mIsTopLevel && !mIsFullScreen)
 		{
-			Rotation current_rotation;
-			XRRConfigCurrentConfiguration (config, &current_rotation);
-			//std::cerr << "Restore mode " << mOldMode << std::endl;
-			LogManager::getSingleton().logMessage("GLXWindow::~GLXWindow -- Leaving full screen mode");
-			XRRSetScreenConfig(mDisplay, config, rootWindow, mOldMode, current_rotation, CurrentTime);
-			XRRFreeScreenConfigInfo(config);
-		} 
-		else 
-		{
-			LogManager::getSingleton().logMessage("GLXWindow::~GLXWindow -- Could not switch from full screen mode: XRRGetScreenInfo failed");
+			Window parent, root, *children;
+			uint nChildren;
+			
+			XQueryTree(xDisplay, mWindow, &root, &parent, &children, &nChildren);
+			
+			if (children)
+				XFree(children);
+			
+			XGetWindowAttributes(xDisplay, parent, &windowAttrib);
+			
+			mLeft = windowAttrib.x;
+			mTop  = windowAttrib.y;
 		}
-	}
-#endif
-	
-	mContext = 0;
-	mWindow = 0;
-	mGlxContext = 0;
-	mActive = false;
-	mVisible = false;
-	mClosed = true;
-
-	Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
-}
-
-//-------------------------------------------------------------------------------------------------//
-bool GLXWindow::isActive() const
-{
-	return mActive;
-}
-
-//-------------------------------------------------------------------------------------------------//
-bool GLXWindow::isClosed() const
-{
-	return mClosed;
-}
-
-//-------------------------------------------------------------------------------------------------//
-bool GLXWindow::isVisible() const
-{
-	return mVisible;
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::setVisible(bool visible)
-{
-	mVisible = visible;
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::reposition(int left, int top)
-{
-	XMoveWindow(mDisplay,mWindow,left,top);
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::resize(unsigned int width, unsigned int height)
-{
-	// Check if the window size really changed
-	if(mWidth == width && mHeight == height)
-		return;
-
-	mWidth = width;
-	mHeight = height;
-
-	if (!mTopLevel)
-	{
+		
+		XGetWindowAttributes(xDisplay, mWindow, &windowAttrib);
+		
+		if (mWidth == windowAttrib.width && mHeight == windowAttrib.height)
+			return;
+		
+		mWidth = windowAttrib.width;
+		mHeight = windowAttrib.height;
+		
 		for (ViewportList::iterator it = mViewportList.begin();	it != mViewportList.end(); ++it)
 			(*it).second->_updateDimensions();
 	}
-	else
+	
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::swapBuffers(bool waitForVSync)
 	{
-		XResizeWindow(mDisplay, mWindow, width, height); /// Ogre handles window
+		if (mClosed || mIsExternalGLControl) 
+			return;
+		
+		glXSwapBuffers(mGLSupport->getGLDisplay(), mContext->mDrawable);
 	}
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::windowMovedOrResized()
-{
-	//Get the new attributes of the screen
-	XWindowAttributes temp;
-	XGetWindowAttributes(mDisplay, mWindow, &temp);
-	mLeft = temp.x;
-	mTop  = temp.y;
-
-	//Only update viewport dimensions if they did actually change
-	if (static_cast<int>(mWidth) == temp.width && static_cast<int>(mHeight) == temp.height)
-		return;
-
-	mWidth = temp.width;
-	mHeight = temp.height;
-
-	// Notify viewports of resize
-	ViewportList::iterator it, itend;
-	itend = mViewportList.end();
-	for( it = mViewportList.begin(); it != itend; ++it )
-		(*it).second->_updateDimensions();
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::swapBuffers(bool waitForVSync)
-{
-	glXSwapBuffers(mDisplay,mWindow);
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::getCustomAttribute( const String& name, void* pData )
-{
-	if( name == "DISPLAY" ) 
+	
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::getCustomAttribute( const String& name, void* pData )
 	{
-		*static_cast<Display**>(pData) = mDisplay;
-		return;
-	}
-	else if( name == "ATOM" ) 
-	{
-		*static_cast< ::Atom* >(pData) = mAtomDeleteWindow;
-		return;
-	} 
-	else if( name == "WINDOW" ) 
-	{
-		*static_cast<Window*>(pData) = mWindow;
-		return;
-	} 
-	else if( name == "GLCONTEXT" ) 
-	{
-		*static_cast<GLXContext**>(pData) = mContext;
-		return;
-	} 
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer)
-{
-	if ((dst.left < 0) || (dst.right > mWidth) ||
-		(dst.top < 0) || (dst.bottom > mHeight) ||
-		(dst.front != 0) || (dst.back != 1))
-	{
-		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-					"Invalid box.",
-					"GLXWindow::copyContentsToMemory" );
-	}
-
-	if (buffer == FB_AUTO)
-	{
-		buffer = mIsFullScreen? FB_FRONT : FB_BACK;
-	}
-
-	GLenum format = Ogre::GLPixelUtil::getGLOriginFormat(dst.format);
-	GLenum type = Ogre::GLPixelUtil::getGLOriginDataType(dst.format);
-
-	if ((format == GL_NONE) || (type == 0))
-	{
-		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-					"Unsupported format.",
-					"GLXWindow::copyContentsToMemory" );
-	}
-
-	glReadBuffer((buffer == FB_FRONT)? GL_FRONT : GL_BACK);
-	glReadPixels((GLint)dst.left, (GLint)dst.top,
-				 (GLsizei)dst.getWidth(), (GLsizei)dst.getHeight(),
-				 format, type, dst.data);
-
-	//vertical flip
-	{
-		size_t rowSpan = dst.getWidth() * PixelUtil::getNumElemBytes(dst.format);
-		size_t height = dst.getHeight();
-		uchar *tmpData = new uchar[rowSpan * height];
-		uchar *srcRow = (uchar *)dst.data, *tmpRow = tmpData + (height - 1) * rowSpan;
-
-		while (tmpRow >= tmpData)
+		if( name == "DISPLAY NAME" ) 
 		{
-			memcpy(tmpRow, srcRow, rowSpan);
-			srcRow += rowSpan;
-			tmpRow -= rowSpan;
+			*static_cast<String*>(pData) = mGLSupport->getDisplayName();
+			return;
 		}
-		memcpy(dst.data, tmpData, rowSpan * height);
-
-		delete [] tmpData;
+		else if( name == "DISPLAY" ) 
+		{
+			*static_cast<Display**>(pData) = mGLSupport->getGLDisplay();
+			return;
+		}
+		else if( name == "GLCONTEXT" ) 
+		{
+			*static_cast<GLXContext**>(pData) = mContext;
+			return;
+		} 
+		else if( name == "XDISPLAY" ) 
+		{
+			*static_cast<Display**>(pData) = mGLSupport->getXDisplay();
+			return;
+		}
+		else if( name == "ATOM" ) 
+		{
+			*static_cast< ::Atom* >(pData) = mGLSupport->mAtomDeleteWindow;
+			return;
+		} 
+		else if( name == "WINDOW" ) 
+		{
+			*static_cast<Window*>(pData) = mWindow;
+			return;
+		} 
 	}
- }
+	
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer)
+	{
+		if (mClosed)
+			return;
+		
+		if ((dst.left < 0) || (dst.right > mWidth) ||
+			(dst.top < 0) || (dst.bottom > mHeight) ||
+			(dst.front != 0) || (dst.back != 1))
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid box.", "GLXWindow::copyContentsToMemory" );
+		}
+		
+		if (buffer == FB_AUTO)
+		{
+			buffer = mIsFullScreen? FB_FRONT : FB_BACK;
+		}
+		
+		GLenum format = Ogre::GLPixelUtil::getGLOriginFormat(dst.format);
+		GLenum type = Ogre::GLPixelUtil::getGLOriginDataType(dst.format);
+		
+		if ((format == GL_NONE) || (type == 0))
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Unsupported format.", "GLXWindow::copyContentsToMemory" );
+		}
+		
+		glReadBuffer((buffer == FB_FRONT)? GL_FRONT : GL_BACK);
+		glReadPixels((GLint)dst.left, (GLint)dst.top,
+					 (GLsizei)dst.getWidth(), (GLsizei)dst.getHeight(),
+					 format, type, dst.data);
+		
+		//vertical flip
+		{
+			size_t rowSpan = dst.getWidth() * PixelUtil::getNumElemBytes(dst.format);
+			size_t height = dst.getHeight();
+			uchar *tmpData = new uchar[rowSpan * height];
+			uchar *srcRow = (uchar *)dst.data, *tmpRow = tmpData + (height - 1) * rowSpan;
+			
+			while (tmpRow >= tmpData)
+			{
+				memcpy(tmpRow, srcRow, rowSpan);
+				srcRow += rowSpan;
+				tmpRow -= rowSpan;
+			}
+			memcpy(dst.data, tmpData, rowSpan * height);
+			
+			delete [] tmpData;
+		}
+	}
 
+	//-------------------------------------------------------------------------------------------------//
+	void GLXWindow::switchFullScreen(bool fullscreen)
+	{
+		if (&mGLSupport->mAtomFullScreen != None)
+		{
+			Display* xDisplay = mGLSupport->getXDisplay();
+			XClientMessageEvent xMessage;
+			
+			xMessage.type = ClientMessage;
+			xMessage.serial = 0;
+			xMessage.send_event = True;
+			xMessage.window = mWindow;
+			xMessage.message_type = mGLSupport->mAtomState;
+			xMessage.format = 32;
+			xMessage.data.l[0] = (fullscreen ? 1 : 0);
+			xMessage.data.l[1] = mGLSupport->mAtomFullScreen;
+			xMessage.data.l[2] = 0;
+			
+			XSendEvent(xDisplay, DefaultRootWindow(xDisplay), False, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent*)&xMessage); 
+			
+			mIsFullScreen = fullscreen;
+		}
+	}
 }

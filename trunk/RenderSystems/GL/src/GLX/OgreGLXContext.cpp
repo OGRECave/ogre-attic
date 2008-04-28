@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+	(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -30,55 +30,52 @@ Torus Knot Software Ltd.
 #include "OgreGLRenderSystem.h"
 #include "OgreRoot.h"
 #include "OgreGLXContext.h"
+#include "OgreGLXUtils.h"
+#include "OgreGLXGLSupport.h"
 
-namespace Ogre {
-
-    GLXContext::GLXContext(::Display *dpy,
-                ::GLXDrawable drawable,
-                ::GLXContext ctx, 
-				::XVisualInfo* visualInfo) :
-        mDpy(dpy), mDrawable(drawable), mCtx(ctx), mVisualInfo(visualInfo)
+namespace Ogre 
+{
+	GLXContext::GLXContext(GLXGLSupport* glsupport, ::GLXFBConfig fbconfig, ::GLXDrawable drawable) :
+		mGLSupport(glsupport), mDrawable(drawable), mContext(0), mFBConfig(fbconfig)
 	{
-                  
-    }
-    GLXContext::GLXContext(::Display *dpy,
-                ::GLXDrawable drawable,
-                ::GLXContext ctx, 
-				::GLXFBConfig fbconfig) :
-        mDpy(dpy), mDrawable(drawable), mCtx(ctx), mVisualInfo(0), mFBConfig(fbconfig)
-	{
-                  
-    }
-    GLXContext::~GLXContext() {
-		// Unregister and destroy this context
-		// This will disable it if it was still active
-		// NB have to do this is subclass to ensure any methods called back
-		// are on this subclass and not half-destructed superclass
-		GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
-		rs->_unregisterContext(this);
-    }
-
-    void GLXContext::setCurrent() {
-        glXMakeCurrent(mDpy, mDrawable, mCtx);
-    }
-	void GLXContext::endCurrent() {
-		glXMakeCurrent(mDpy, None, NULL);
+		GLRenderSystem *renderSystem = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+		GLXContext* mainContext = static_cast<GLXContext*>(renderSystem->_getMainContext());
+		::GLXContext shareContext = 0;
+		
+		if (mainContext)
+		{
+			shareContext = mainContext->mContext;
+		}
+		
+		mContext = mGLSupport->createNewContext(mFBConfig, GLX_RGBA_TYPE, shareContext, GL_TRUE);
+		
+		if (! mContext)
+		{
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to create a suitable GLXContext", "GLXContext::GLXContext");
+		}
 	}
-
+	
+	GLXContext::~GLXContext() 	
+	{
+		GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+		
+		glXDestroyContext(mGLSupport->getGLDisplay(), mContext);
+		
+		rs->_unregisterContext(this);
+	}
+	
+	void GLXContext::setCurrent() 
+	{
+		glXMakeCurrent(mGLSupport->getGLDisplay(), mDrawable, mContext);
+	}
+	
+	void GLXContext::endCurrent() 
+	{
+		glXMakeCurrent(mGLSupport->getGLDisplay(), None, None);
+	}
+	
 	GLContext* GLXContext::clone() const
 	{
-		// Create a new context, share lists with existing
-
-		if (mVisualInfo) // window context clone
-		{
-			::GLXContext newCtx = glXCreateContext(mDpy, mVisualInfo, mCtx,True);
-			return new GLXContext(mDpy, mDrawable, newCtx, mVisualInfo);
-		}
-		else // non-window
-		{
-			::GLXContext newCtx = glXCreateNewContext(mDpy, mFBConfig, GLX_RGBA_TYPE, mCtx, True);
-			return new GLXContext(mDpy, mDrawable, newCtx, mFBConfig);
-		}      
+		return new GLXContext(mGLSupport, mFBConfig, mDrawable);
 	} 
-
 }

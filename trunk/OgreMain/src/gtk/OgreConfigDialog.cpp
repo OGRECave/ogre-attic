@@ -89,8 +89,16 @@ void ConfigDialog::rendererChanged (GtkComboBox *widget, gpointer data)
         if (strcmp (renderer, (*r)->getName ().c_str ()) == 0)
         {
             This->mSelectedRenderSystem = *r;
-            This->setupRendererParams ();
+	    This->setupRendererParams ();
         }
+}
+
+gboolean ConfigDialog::refreshParams (gpointer data)
+{
+    ConfigDialog *This = static_cast<ConfigDialog *> (data);
+    
+    This->setupRendererParams ();
+    return FALSE;
 }
 
 void ConfigDialog::optionChanged (GtkComboBox *widget, gpointer data)
@@ -102,6 +110,8 @@ void ConfigDialog::optionChanged (GtkComboBox *widget, gpointer data)
     This->mSelectedRenderSystem->setConfigOption (
         gtk_label_get_text (GTK_LABEL (ro_label)),
         gtk_combo_box_get_active_text (widget));
+
+    g_idle_add (refreshParams, data);
 }
 
 static void remove_all_callback (GtkWidget *widget, gpointer data)
@@ -124,6 +134,11 @@ void ConfigDialog::setupRendererParams ()
     uint row = 0;
     for (ConfigOptionMap::iterator i = options.begin (); i != options.end (); i++, row++)
     {
+	if (i->second.possibleValues.empty())
+	{
+	    continue;
+	}
+
         GtkWidget *ro_label = gtk_label_new (i->second.name.c_str ());
         gtk_widget_show (ro_label);
         gtk_table_attach (GTK_TABLE (mParamTable), ro_label, 0, 1, row, row + 1,
@@ -155,6 +170,8 @@ void ConfigDialog::setupRendererParams ()
         g_signal_connect (G_OBJECT (ro_cb), "changed",
                           G_CALLBACK (optionChanged), this);
     }
+
+    gtk_widget_grab_focus (GTK_WIDGET (mOKButton));
 }
 
 static void backdrop_destructor (guchar *pixels, gpointer data)
@@ -168,8 +185,8 @@ bool ConfigDialog::createWindow ()
     mDialog = gtk_dialog_new_with_buttons (
         "OGRE Engine Setup", NULL, GTK_DIALOG_MODAL,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-        GTK_STOCK_OK, GTK_RESPONSE_OK,
-        NULL);
+         NULL);
+    mOKButton = gtk_dialog_add_button (GTK_DIALOG (mDialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
     gtk_window_set_position (GTK_WINDOW (mDialog), GTK_WIN_POS_CENTER);
     gtk_window_set_resizable (GTK_WINDOW (mDialog), FALSE);
     gtk_widget_show (GTK_DIALOG (mDialog)->vbox);

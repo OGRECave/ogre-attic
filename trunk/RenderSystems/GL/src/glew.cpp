@@ -7255,11 +7255,15 @@ GLboolean __GLXEW_SUN_video_resize = GL_FALSE;
 
 #ifdef GLX_VERSION_1_2
 
+// FB: Patched to allow Ogre to overload glXGetCurrentDisplay
 static GLboolean _glewInit_GLX_VERSION_1_2 (GLXEW_CONTEXT_ARG_DEF_INIT)
 {
   GLboolean r = GL_FALSE;
 
-  r = ((glXGetCurrentDisplay = (PFNGLXGETCURRENTDISPLAYPROC)glewGetProcAddress((const GLubyte*)"glXGetCurrentDisplay")) == NULL) || r;
+  if (glXGetCurrentDisplay == NULL) 
+  {
+      r = ((glXGetCurrentDisplay = (PFNGLXGETCURRENTDISPLAYPROC)glewGetProcAddress((const GLubyte*)"glXGetCurrentDisplay")) == NULL) || r;
+  }
 
   return r;
 }

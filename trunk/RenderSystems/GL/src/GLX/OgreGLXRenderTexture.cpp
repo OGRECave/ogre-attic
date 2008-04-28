@@ -38,208 +38,133 @@ Torus Knot Software Ltd.
 #include "OgreGLXRenderTexture.h"
 #include "OgreGLXContext.h"
 #include "OgreGLXUtils.h"
-
+#include "OgreGLXGLSupport.h"
 #include <iostream>
-
-/// ATI: GLX_ATI_pixel_format_float
-#ifndef GLX_RGBA_FLOAT_ATI_BIT
-#define GLX_RGBA_FLOAT_ATI_BIT 0x00000100
-#endif
-
-/// ARB: GLX_ARB_fbconfig_float
-#ifndef GLX_RGBA_FLOAT_BIT
-#define GLX_RGBA_FLOAT_BIT 0x00000004
-#endif
-
-#ifndef GLX_RGBA_FLOAT_TYPE
-#define GLX_RGBA_FLOAT_TYPE 0x20B9
-#endif
-
 
 namespace Ogre
 {
-    GLXPBuffer::GLXPBuffer(PixelComponentType format, size_t width, size_t height):
-        GLPBuffer(format, width, height),
-        _hPBuffer(0),
-        mContext(0)
-    {
-        createPBuffer();
-        // Create context
-        mContext = new GLXContext(_pDpy, _hPBuffer, _hGLContext, mFBConfig);
-    }
-        
-    GLContext *GLXPBuffer::getContext()
-    {
-        return mContext;
-    }
-
-    void GLXPBuffer::createPBuffer() {        
-        //LogManager::getSingleton().logMessage(
-        //"GLXPBuffer::Creating PBuffer"
-        //); 
-        _pDpy = glXGetCurrentDisplay();
-        ::GLXContext context = glXGetCurrentContext();
-        int screen = DefaultScreen(_pDpy);
-        int attribs[50], ideal[50];
-        int attrib;
-        
-        // Process format
-        int bits=0;
-        bool isFloat=false;
-        switch(mFormat)
-        {
-            case PCT_BYTE:
-                bits=8; isFloat=false;
-                break;
-            case PCT_SHORT:
-                bits=16; isFloat=false;
-                break;
-            case PCT_FLOAT16:
-                bits=16; isFloat=true;
-                break;
-            case PCT_FLOAT32:
-                bits=32; isFloat=true;
-                break;
-            default: break;
-        };
-        RTFType floatBuffer = RTF_NONE;
-        if(isFloat)
-        {
-            floatBuffer = detectRTFType();
-            if(floatBuffer == RTF_NONE || floatBuffer == RTF_NV)
-            {
-                OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "Floating point PBuffers not supported on this hardware",  "GLRenderTexture::createPBuffer");
-            }
-        }
-
-        // Create base required format description
-        attrib = 0;
-        if (floatBuffer == RTF_ATI) {
-            attribs[attrib++] = GLX_RENDER_TYPE;
-            attribs[attrib++] = GLX_RGBA_FLOAT_ATI_BIT;
-        } 
-        else if (floatBuffer == RTF_ARB) 
-        {
-            attribs[attrib++] = GLX_RENDER_TYPE;
-            attribs[attrib++] = GLX_RGBA_FLOAT_BIT;
-        }
-        else
-        {
-            attribs[attrib++] = GLX_RENDER_TYPE;
-            attribs[attrib++] = GLX_RGBA_BIT;
-        }     
-        attribs[attrib++] = GLX_DRAWABLE_TYPE;
-        attribs[attrib++] = GLX_PBUFFER_BIT;
-        attribs[attrib++] = GLX_DOUBLEBUFFER;
-        attribs[attrib++] = 0;
-        /*
-        if (floatBuffer == RTF_NV) {
-		    attribs[attrib++] = GLX_FLOAT_COMPONENTS_NV;
-		    attribs[attrib++] = 1;
-	    }
-        */
-        attribs[attrib++] = None;
-        
-        // Create "ideal" format description
-        attrib = 0;
-        ideal[attrib++] = GLX_RED_SIZE;
-        ideal[attrib++] = bits;        
-        ideal[attrib++] = GLX_GREEN_SIZE;
-        ideal[attrib++] = bits;
-        ideal[attrib++] = GLX_BLUE_SIZE;
-        ideal[attrib++] = bits;        
-        ideal[attrib++] = GLX_ALPHA_SIZE;
-        ideal[attrib++] = bits;
-        ideal[attrib++] = GLX_DEPTH_SIZE;
-        ideal[attrib++] = 24;
-        ideal[attrib++] = GLX_STENCIL_SIZE;
-        ideal[attrib++] = 8;
-        ideal[attrib++] = GLX_ACCUM_RED_SIZE;
-        ideal[attrib++] = 0;    // Accumulation buffer not used
-        ideal[attrib++] = GLX_ACCUM_GREEN_SIZE;
-        ideal[attrib++] = 0;    // Accumulation buffer not used
-        ideal[attrib++] = GLX_ACCUM_BLUE_SIZE;
-        ideal[attrib++] = 0;    // Accumulation buffer not used
-        ideal[attrib++] = GLX_ACCUM_ALPHA_SIZE;
-        ideal[attrib++] = 0;    // Accumulation buffer not used
-        ideal[attrib++] = None;
-
-        // Create vector of existing config data formats        
-        mFBConfig = GLXUtils::findBestMatch(_pDpy, screen, attribs, ideal);
-
-        // Create the pbuffer in the best matching format
-        attrib = 0;
-        attribs[attrib++] = GLX_PBUFFER_WIDTH;
-        attribs[attrib++] = mWidth; // Get from texture?
-        attribs[attrib++] = GLX_PBUFFER_HEIGHT;
-        attribs[attrib++] = mHeight; // Get from texture?
-        attribs[attrib++] = GLX_PRESERVED_CONTENTS;
-        attribs[attrib++] = 1;
-        attribs[attrib++] = None;
-
-        FBConfigData configData(_pDpy, mFBConfig);
-        LogManager::getSingleton().logMessage(
-                LML_NORMAL,
-                "GLXPBuffer::PBuffer chose format "+configData.toString());                   
-
-        _hPBuffer = glXCreatePbuffer(_pDpy, mFBConfig, attribs);
-        if (!_hPBuffer) 
-            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "glXCreatePbuffer() failed", "GLRenderTexture::createPBuffer");
-
-        _hGLContext = glXCreateNewContext(_pDpy, mFBConfig, GLX_RGBA_TYPE, context, True);
-        if (!_hGLContext) 
-            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "glXCreateContext() failed", "GLRenderTexture::createPBuffer");        
-
-        // Query real width and height
-        GLuint iWidth, iHeight;
-        glXQueryDrawable(_pDpy, _hPBuffer, GLX_WIDTH, &iWidth);
-        glXQueryDrawable(_pDpy, _hPBuffer, GLX_HEIGHT, &iHeight);
-
-        LogManager::getSingleton().logMessage(
-             LML_NORMAL,
-                "GLXPBuffer::PBuffer created -- Real dimensions "+
-                StringConverter::toString(iWidth)+"x"+StringConverter::toString(iHeight)+
-                ", number of bits is "+
-                StringConverter::toString(bits)+
-                ", floating point is "+
-                StringConverter::toString(isFloat)
-        );
-        mWidth = iWidth;  
-        mHeight = iHeight;
-    }
-
-    GLXPBuffer::~GLXPBuffer()
-    {
-        // Destroy and unregister context
-        delete mContext;
-        // Destroy GL context
-        glXDestroyContext(_pDpy, _hGLContext);
-        _hGLContext = 0;
-        glXDestroyPbuffer(_pDpy, _hPBuffer);
-        _hPBuffer = 0;
-        LogManager::getSingleton().logMessage(
-             LML_NORMAL,
-                "GLXPBuffer::PBuffer destroyed");
-    }
-    
-    GLXPBuffer::RTFType GLXPBuffer::detectRTFType()
-    {
-        RTFType floatBuffer = RTF_NONE;
-        /// Query supported float buffer extensions
-        /// Choose the best one
-        std::stringstream ext;
-        std::string instr;
-        ext << glXQueryExtensionsString(_pDpy, DefaultScreen(_pDpy)) << " " << glXGetClientString(_pDpy, GLX_EXTENSIONS);
-        while(ext >> instr)
-        {
-            if(instr == "GLX_NV_float_buffer" && floatBuffer<RTF_NV)
-                floatBuffer = RTF_NV;
-            if(instr == "GLX_ATI_pixel_format_float" && floatBuffer<RTF_ATI)
-                floatBuffer = RTF_ATI;
-            if(instr == "GLX_ARB_fbconfig_float" && floatBuffer<RTF_ARB)
-                floatBuffer = RTF_ARB;
-        }
-        return floatBuffer;
-    }
-  
+	//-------------------------------------------------------------------------------------------------//
+	GLXPBuffer::GLXPBuffer(GLXGLSupport* glsupport, PixelComponentType format, size_t width, size_t height):
+		mGLSupport(glsupport), GLPBuffer(format, width, height), mContext(0)
+	{
+		Display *glDisplay = mGLSupport->getGLDisplay();
+		::GLXDrawable glxDrawable = 0;
+		::GLXFBConfig fbConfig = 0;
+		
+		bool isFloat = false;
+		int bits = 0;
+		
+		switch (mFormat)
+		{
+		case PCT_BYTE:
+			bits = 8; 
+			break;
+			
+		case PCT_SHORT:
+			bits = 16; 
+			break;
+			
+		case PCT_FLOAT16:
+			bits = 16; 
+			break;
+			
+		case PCT_FLOAT32:
+			bits = 32; 
+			break;
+			
+		default: 
+			break;
+		}
+		
+		int renderAttrib = GLX_RENDER_TYPE;
+		int renderValue  = GLX_RGBA_BIT;
+		
+		if (mFormat == PCT_FLOAT16 || mFormat == PCT_FLOAT32)
+		{
+			if (GLXEW_NV_float_buffer)
+			{
+				renderAttrib = GLX_FLOAT_COMPONENTS_NV;
+				renderValue  = GL_TRUE;
+			}
+			
+			if (GLXEW_ATI_pixel_format_float)
+			{
+				renderAttrib = GLX_RENDER_TYPE;
+				renderValue  = GLX_RGBA_FLOAT_ATI_BIT;
+			}
+			
+			if (GLXEW_ARB_fbconfig_float)
+			{
+				renderAttrib = GLX_RENDER_TYPE;
+				renderValue  = GLX_RGBA_FLOAT_BIT;
+			}
+			
+			if (renderAttrib == GLX_RENDER_TYPE && renderValue == GLX_RGBA_BIT)
+			{
+				OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "No support for Floating point PBuffers",  "GLRenderTexture::createPBuffer");
+			}
+		}
+		
+		int minAttribs[] = {
+			GLX_DRAWABLE_TYPE, GLX_PBUFFER,
+			renderAttrib,	  renderValue,
+			GLX_DOUBLEBUFFER,  0,
+			None
+		};
+		
+		int maxAttribs[] = {
+			GLX_RED_SIZE,	  bits,
+			GLX_GREEN_SIZE,	bits,
+			GLX_BLUE_SIZE,	 bits,
+			GLX_ALPHA_SIZE,	bits,
+			GLX_STENCIL_SIZE,  INT_MAX,
+			None
+		};
+		
+		int pBufferAttribs[] = {
+			GLX_PBUFFER_WIDTH,	  mWidth,
+			GLX_PBUFFER_HEIGHT,	 mHeight,
+			GLX_PRESERVED_CONTENTS, GL_TRUE,
+			None
+		};
+		
+		fbConfig = mGLSupport->selectFBConfig(minAttribs, maxAttribs);
+		
+		glxDrawable = glXCreatePbuffer(glDisplay, fbConfig, pBufferAttribs);
+		
+		if (! fbConfig || ! glxDrawable) 
+		{
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to create Pbuffer", "GLXPBuffer::GLXPBuffer");
+		}
+		
+		GLint fbConfigID;
+		GLuint iWidth, iHeight;
+		
+		glXGetFBConfigAttrib(glDisplay, fbConfig, GLX_FBCONFIG_ID, &fbConfigID);
+		glXQueryDrawable(glDisplay, glxDrawable, GLX_WIDTH, &iWidth);
+		glXQueryDrawable(glDisplay, glxDrawable, GLX_HEIGHT, &iHeight);
+		
+		mWidth = iWidth;  
+		mHeight = iHeight;
+		LogManager::getSingleton().logMessage(LML_NORMAL, "GLXPBuffer::create used final dimensions " + StringConverter::toString(mWidth) + " x " + StringConverter::toString(mHeight));
+		LogManager::getSingleton().logMessage("GLXPBuffer::create used FBConfigID " + StringConverter::toString(fbConfigID));
+		
+		mContext = new GLXContext(mGLSupport, fbConfig, glxDrawable);
+	}
+	
+	//-------------------------------------------------------------------------------------------------//
+	GLXPBuffer::~GLXPBuffer()
+	{
+		glXDestroyPbuffer(mGLSupport->getGLDisplay(), mContext->mDrawable);
+		
+		delete mContext;
+		
+		LogManager::getSingleton().logMessage(LML_NORMAL, "GLXPBuffer::PBuffer destroyed");
+	}
+	
+	//-------------------------------------------------------------------------------------------------//
+	GLContext *GLXPBuffer::getContext()
+	{
+		return mContext;
+	}
 }
