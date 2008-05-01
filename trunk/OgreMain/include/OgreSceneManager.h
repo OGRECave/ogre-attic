@@ -417,6 +417,8 @@ namespace Ogre {
 		bool mResetIdentityProj;
 
 		bool mNormaliseNormalsOnScale;
+		bool mFlipCullingOnNegativeScale;
+		CullingMode mPassCullingMode;
 
 	protected:
 
@@ -2897,6 +2899,21 @@ namespace Ogre {
 			are scaled.
 		*/
 		virtual bool getNormaliseNormalsOnScale() const { return mNormaliseNormalsOnScale; }
+
+		/** Set whether to automatically flip the culling mode on objects whenever they
+			are negatively scaled.
+		@remarks
+			Negativelyl scaling an object has the effect of flipping the triangles, 
+			so the culling mode should probably be inverted to deal with this. 
+			If you would prefer to manually manage this, set this option to 'false' 
+			and use different materials with Pass::setCullingMode set manually as needed.
+		*/
+		virtual void setFlipCullingOnNegativeScale(bool n) { mFlipCullingOnNegativeScale = n; }
+
+		/** Get whether to automatically flip the culling mode on objects whenever they
+			are negatively scaled.
+		*/
+		virtual bool getFlipCullingOnNegativeScale() const { return mFlipCullingOnNegativeScale; }
 
 		/** Render something as if it came from the current queue.
 			@param pass		Material pass to use for setting up this quad.

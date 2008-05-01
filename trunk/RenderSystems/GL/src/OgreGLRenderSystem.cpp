@@ -1662,6 +1662,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	void GLRenderSystem::_setCullingMode(CullingMode mode)
 	{
+		mCullingMode = mode;
 		// NB: Because two-sided stencil API dependence of the front face, we must
 		// use the same 'winding' for the front face everywhere. As the OGRE default
 		// culling mode is clockwise, we also treat anticlockwise winding as front

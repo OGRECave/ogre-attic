@@ -2196,6 +2196,7 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setCullingMode( CullingMode mode )
 	{
+		mCullingMode = mode;
 		HRESULT hr;
 		bool flip = ((mActiveRenderTarget->requiresTextureFlipping() && !mInvertVertexWinding) ||
 			(!mActiveRenderTarget->requiresTextureFlipping() && mInvertVertexWinding));

@@ -6720,6 +6720,48 @@ protected:
 
 	}
 
+	void testNegativeScale()
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+		Light* l = mSceneMgr->createLight("l1");
+		l->setPosition(500, 500, 200);
+		l->setDiffuseColour(ColourValue::White);
+
+		//mSceneMgr->setFlipCullingOnNegativeScale(false);
+
+		Entity *e = mSceneMgr->createEntity("1", "knot.mesh");
+
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		// one reflection
+		e = mSceneMgr->createEntity("2", "knot.mesh");
+		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		n->translate(-200, 0, 0);
+		n->scale(-1, 1, 1);
+		n->attachObject(e);
+
+		// three reflections - will need flipping
+		e = mSceneMgr->createEntity("3", "knot.mesh");
+		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		n->translate(200, 0, 0);
+		n->scale(-1, -1, -1);
+		n->attachObject(e);
+
+		// two reflections - won't need flipping
+		e = mSceneMgr->createEntity("4", "knot.mesh");
+		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		n->translate(400, 0, 0);
+		n->scale(-1, 1, -1);
+		n->attachObject(e);
+
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+
+
 
 	void testBug()
 	{
@@ -6852,6 +6894,7 @@ protected:
 		//testBlendDiffuseColour();
 
         //testRaySceneQuery();
+		testNegativeScale();
 		//testMaterialSerializer();
         //testIntersectionSceneQuery();
 
@@ -6920,7 +6963,7 @@ protected:
 		//testFloat16DDS();
 		//testFloat32DDS();
 		//testMaterial();
-		testExportPrecompiledAssemblerProgram();
+		//testExportPrecompiledAssemblerProgram();
 
 		//testVertexTexture();
 		//testGLSLTangent();

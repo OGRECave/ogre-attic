@@ -107,6 +107,7 @@ mLastFrameNumber(0),
 mResetIdentityView(false),
 mResetIdentityProj(false),
 mNormaliseNormalsOnScale(true),
+mFlipCullingOnNegativeScale(true),
 mLightsDirtyCounter(0),
 mShadowCasterPlainBlackPass(0),
 mShadowReceiverPass(0),
@@ -1050,12 +1051,13 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 			&& pass->getCullingMode() == CULL_CLOCKWISE)
 		{
 			// render back faces into shadow caster, can help with depth comparison
-			mDestRenderSystem->_setCullingMode(CULL_ANTICLOCKWISE);
+			mPassCullingMode = CULL_ANTICLOCKWISE;
 		}
 		else
 		{
-			mDestRenderSystem->_setCullingMode(pass->getCullingMode());
+			mPassCullingMode = pass->getCullingMode();
 		}
+		mDestRenderSystem->_setCullingMode(mPassCullingMode);
 		
 		// Shading
 		mDestRenderSystem->setShadingType(pass->getShadingMode());
@@ -2868,7 +2870,32 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 		else
 			mDestRenderSystem->setNormaliseNormals(false);
 
-        // Set up the solid / wireframe override
+		// Sort out negative scaling
+		// Assume first world matrix representative 
+		if (mFlipCullingOnNegativeScale)
+		{
+			CullingMode cullMode = mPassCullingMode;
+
+			if (mTempXform[0].hasNegativeScale())
+			{
+				switch(mPassCullingMode)
+				{
+				case CULL_CLOCKWISE:
+					cullMode = CULL_ANTICLOCKWISE;
+					break;
+				case CULL_ANTICLOCKWISE:
+					cullMode = CULL_CLOCKWISE;
+					break;
+				};
+			}
+
+			// this also copes with returning from negative scale in previous render op
+			// for same pass
+			if (cullMode != mDestRenderSystem->_getCullingMode())
+				mDestRenderSystem->_setCullingMode(cullMode);
+		}
+
+		// Set up the solid / wireframe override
 		// Precedence is Camera, Object, Material
 		// Camera might not override object if not overrideable
 		PolygonMode reqMode = pass->getPolygonMode();
@@ -5109,11 +5136,13 @@ void SceneManager::renderShadowVolumeObjects(ShadowCaster::ShadowRenderableListI
                 {
                     // select back facing light caps to render
                     mDestRenderSystem->_setCullingMode(CULL_ANTICLOCKWISE);
+					mPassCullingMode = CULL_ANTICLOCKWISE;
                     // use normal depth function for back facing light caps
                     renderSingleObject(lightCap, pass, false, false, manualLightList);
 
                     // select front facing light caps to render
                     mDestRenderSystem->_setCullingMode(CULL_CLOCKWISE);
+					mPassCullingMode = CULL_CLOCKWISE;
                     // must always fail depth check for front facing light caps
                     mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
                     renderSingleObject(lightCap, pass, false, false, manualLightList);
@@ -5122,6 +5151,7 @@ void SceneManager::renderShadowVolumeObjects(ShadowCaster::ShadowRenderableListI
                     mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
                     // reset culling mode
                     mDestRenderSystem->_setCullingMode(CULL_NONE);
+					mPassCullingMode = CULL_NONE;
                 }
                 else if ((secondpass || zfail) && !(secondpass && zfail))
                 {
@@ -5166,8 +5196,7 @@ void SceneManager::setShadowVolumeStencilState(bool secondpass, bool zfail, bool
     // for back faces
     if ( !twosided && ((secondpass || zfail) && !(secondpass && zfail)) )
     {
-        mDestRenderSystem->_setCullingMode(
-            twosided? CULL_NONE : CULL_ANTICLOCKWISE);
+		mPassCullingMode = twosided? CULL_NONE : CULL_ANTICLOCKWISE;
         mDestRenderSystem->setStencilBufferParams(
             CMPF_ALWAYS_PASS, // always pass stencil check
             0, // no ref value (no compare)
@@ -5180,8 +5209,7 @@ void SceneManager::setShadowVolumeStencilState(bool secondpass, bool zfail, bool
     }
     else
     {
-        mDestRenderSystem->_setCullingMode(
-            twosided? CULL_NONE : CULL_CLOCKWISE);
+		mPassCullingMode = twosided? CULL_NONE : CULL_CLOCKWISE;
         mDestRenderSystem->setStencilBufferParams(
             CMPF_ALWAYS_PASS, // always pass stencil check
             0, // no ref value (no compare)
@@ -5192,6 +5220,8 @@ void SceneManager::setShadowVolumeStencilState(bool secondpass, bool zfail, bool
             twosided
             );
     }
+	mDestRenderSystem->_setCullingMode(mPassCullingMode);
+
 }
 //---------------------------------------------------------------------
 void SceneManager::setShadowColour(const ColourValue& colour)

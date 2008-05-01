@@ -464,7 +464,13 @@ namespace Ogre
 			return false;
 		}
 
-        /** Extracts the rotation / scaling part as a quaternion from the Matrix.
+		/** Determines if this matrix involves a negative scaling. */
+		inline bool hasNegativeScale() const
+		{
+			return determinant() < 0;
+		}
+
+		/** Extracts the rotation / scaling part as a quaternion from the Matrix.
          */
         inline Quaternion extractQuaternion() const
         {
