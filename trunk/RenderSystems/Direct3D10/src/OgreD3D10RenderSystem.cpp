@@ -1737,6 +1737,7 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setCullingMode( CullingMode mode )
 	{
+		mCullingMode = mode;
 		mRasterizerDesc.CullMode = D3D10Mappings::get(mode);
 	}
 	//---------------------------------------------------------------------
