@@ -802,11 +802,14 @@ namespace Ogre
 		}
 
 
-		for(size_t i = 0 ; i < params.getTextureMatrices().size() ; i++)
+		for(size_t i = 0 ; i < params.getTextureMatrices().size() && i < mFixedFuncState.getTextureLayerStateList().size(); i++)
 		{
 			if (params.isTextureStageEnabled(i))
 			{
-				_setProgramMatrix4Parameter(GPT_VERTEX_PROGRAM, "TextureMatrix" + StringConverter::toString(i), params.getTextureMatrices()[i]);
+				if (params.isTextureStageEnabled(i))
+				{
+					_setProgramMatrix4Parameter(GPT_VERTEX_PROGRAM, "TextureMatrix" + StringConverter::toString(i), params.getTextureMatrices()[i]);
+				}
 			}
 		}
 

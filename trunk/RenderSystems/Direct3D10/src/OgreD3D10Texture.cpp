@@ -321,6 +321,8 @@ namespace Ogre
 		desc.Usage			= D3D10_USAGE_DEFAULT;//D3D10Mappings::_getUsage(mUsage);
 
 		desc.BindFlags		= D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
+
+
 		desc.CPUAccessFlags = 0;//D3D10_CPU_ACCESS_WRITE;//D3D10Mappings::_getAccessFlags(mUsage);
 		desc.MiscFlags		= 0;//D3D10_RESOURCE_MISC_GENERATE_MIPS;
 		//if (mMipmapsHardwareGenerated)
@@ -341,6 +343,20 @@ namespace Ogre
 			desc.MiscFlags		|= D3D10_RESOURCE_MISC_TEXTURECUBE;
 			desc.ArraySize		= 6;
 		}
+
+		if( desc.Format == DXGI_FORMAT_BC1_UNORM || 
+			desc.Format == DXGI_FORMAT_BC2_UNORM ||
+			desc.Format == DXGI_FORMAT_BC3_UNORM ||
+			desc.Format == DXGI_FORMAT_BC4_UNORM ||
+			desc.Format == DXGI_FORMAT_BC5_UNORM 
+			)
+		{
+			desc.BindFlags		= D3D10_BIND_SHADER_RESOURCE;
+			desc.MiscFlags = 0;
+			mNumRequestedMipmaps -= 2;
+			desc.MipLevels -= 2;
+		}
+
 
 
 

@@ -841,35 +841,35 @@ namespace Ogre
 		case DXGI_FORMAT_BC1_TYPELESS	:
 			return PF_UNKNOWN;
 		case DXGI_FORMAT_BC1_UNORM	:
-			return PF_UNKNOWN;
+			return PF_DXT1;
 		case DXGI_FORMAT_BC1_UNORM_SRGB	:
-			return PF_UNKNOWN;
+			return PF_DXT1;
 		case DXGI_FORMAT_BC2_TYPELESS	:
-			return PF_UNKNOWN;
+			return PF_DXT2;
 		case DXGI_FORMAT_BC2_UNORM	:
-			return PF_UNKNOWN;
+			return PF_DXT2;
 		case DXGI_FORMAT_BC2_UNORM_SRGB	:
-			return PF_UNKNOWN;
+			return PF_DXT2;
 		case DXGI_FORMAT_BC3_TYPELESS	:
-			return PF_UNKNOWN;
+			return PF_DXT3;
 		case DXGI_FORMAT_BC3_UNORM	:
-			return PF_UNKNOWN;
+			return PF_DXT3;
 		case DXGI_FORMAT_BC3_UNORM_SRGB	:
-			return PF_UNKNOWN;
+			return PF_DXT3;
 		case DXGI_FORMAT_BC4_TYPELESS	:
-			return PF_UNKNOWN;
+			return PF_DXT4;
 		case DXGI_FORMAT_BC4_UNORM	:
-			return PF_UNKNOWN;
+			return PF_DXT4;
 		case DXGI_FORMAT_BC4_SNORM	:
-			return PF_UNKNOWN;
+			return PF_DXT4;
 		case DXGI_FORMAT_BC5_TYPELESS	:
-			return PF_UNKNOWN;
+			return PF_DXT5;
 		case DXGI_FORMAT_BC5_UNORM	:
-			return PF_UNKNOWN;
+			return PF_DXT5;
 		case DXGI_FORMAT_BC5_SNORM	:
-			return PF_UNKNOWN;
+			return PF_DXT5;
 		case DXGI_FORMAT_B5G6R5_UNORM	:
-			return PF_UNKNOWN;
+			return PF_DXT5;
 		case DXGI_FORMAT_B5G5R5A1_UNORM	:
 			return PF_UNKNOWN;
 		case DXGI_FORMAT_B8G8R8A8_UNORM	:
@@ -894,7 +894,7 @@ namespace Ogre
 		case PF_A4L4:
 			return DXGI_FORMAT_UNKNOWN;
 		case PF_BYTE_LA:
-			return DXGI_FORMAT_UNKNOWN; // Assume little endian here
+			return DXGI_FORMAT_UNKNOWN; 
 		case PF_R3G3B2:
 			return DXGI_FORMAT_UNKNOWN;
 		case PF_A1R5G5B5:
@@ -930,13 +930,13 @@ namespace Ogre
 		case PF_DXT1:
 			return DXGI_FORMAT_BC1_UNORM;
 		case PF_DXT2:
-			return DXGI_FORMAT_BC1_UNORM;
+			return DXGI_FORMAT_BC2_UNORM;
 		case PF_DXT3:
-			return DXGI_FORMAT_BC2_UNORM;
+			return DXGI_FORMAT_BC3_UNORM;
 		case PF_DXT4:
-			return DXGI_FORMAT_BC2_UNORM;
+			return DXGI_FORMAT_BC4_UNORM;
 		case PF_DXT5:
-			return DXGI_FORMAT_BC3_UNORM ;
+			return DXGI_FORMAT_BC5_UNORM;
 		case PF_UNKNOWN:
 		default:
 			return DXGI_FORMAT_UNKNOWN;

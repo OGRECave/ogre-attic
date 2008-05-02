@@ -1806,8 +1806,8 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::_setPolygonMode(PolygonMode level)
 	{
-		mRasterizerDesc.FillMode = D3D10Mappings::get(level);
 		mPolygonMode = level;
+		mRasterizerDesc.FillMode = D3D10Mappings::get(mPolygonMode);
 	}
 	//---------------------------------------------------------------------
 	void D3D10RenderSystem::setStencilCheckEnabled(bool enabled)

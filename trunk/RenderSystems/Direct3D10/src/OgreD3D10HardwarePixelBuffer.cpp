@@ -284,6 +284,27 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------  
 	void D3D10HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box &dstBox)
 	{
+		bool isDds = false;
+		switch(mFormat)
+		{
+		case PF_DXT1:
+		case PF_DXT2:
+		case PF_DXT3:
+		case PF_DXT4:
+		case PF_DXT5:
+			isDds = true;
+			break;
+		default:
+
+			break;
+		}
+
+		if (isDds && (dstBox.getWidth() % 4 != 0 || dstBox.getHeight() % 4 != 0 ))
+		{
+			return;
+		}
+
+
 		// for scoped deletion of conversion buffer
 		MemoryDataStreamPtr buf;
 		PixelBox converted = src;
@@ -361,7 +382,11 @@ namespace Ogre {
 			break;
 		}
 
-		_genMipmaps();
+
+		if (!isDds)
+		{
+			_genMipmaps();
+		}
 
 	}
 	//-----------------------------------------------------------------------------  
