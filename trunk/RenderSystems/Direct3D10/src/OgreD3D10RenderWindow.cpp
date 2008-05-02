@@ -327,8 +327,8 @@ namespace Ogre
 			}
 
 			md3dpp.Windowed = !fullScreen;
-			md3dpp.BufferDesc.RefreshRate.Numerator=1;
-			md3dpp.BufferDesc.RefreshRate.Denominator= mIsFullScreen ? mDisplayFrequency : 0;
+			md3dpp.BufferDesc.RefreshRate.Numerator = 1;
+			md3dpp.BufferDesc.RefreshRate.Denominator= 1;
 			md3dpp.BufferDesc.Height = height;
 			md3dpp.BufferDesc.Width = width;
 
@@ -401,7 +401,7 @@ namespace Ogre
 		md3dpp.BufferDesc.Width		= mWidth;
 		md3dpp.BufferDesc.Height	= mHeight;
 		md3dpp.BufferDesc.RefreshRate.Numerator=1;
-		md3dpp.BufferDesc.RefreshRate.Denominator = mIsFullScreen ? mDisplayFrequency : 0;
+		md3dpp.BufferDesc.RefreshRate.Denominator = 1;
 		if (mIsFullScreen)
 		{
 			md3dpp.BufferDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
@@ -510,14 +510,7 @@ namespace Ogre
 					"Unable to create an additional swap chain",
 					"D3D10RenderWindow::createD3DResources");
 			}
-
 		
-
-		
-			
-	
-			
-
 			// Store references to buffers for convenience
 			//mpSwapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &mpRenderSurface );
 			// Additional swap chains need their own depth buffer
