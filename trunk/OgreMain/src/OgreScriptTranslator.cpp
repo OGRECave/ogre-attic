@@ -156,16 +156,27 @@ namespace Ogre{
 	//-------------------------------------------------------------------------
 	bool ScriptTranslator::getColour(AbstractNodeList::const_iterator i, AbstractNodeList::const_iterator end, ColourValue *result)
 	{
-		float vals[4];
-		memset(vals, 0, sizeof(float)*4);
-
 		int n = 0;
 		while(i != end && n < 4)
 		{
 			float v = 0;
 			if(getFloat(*i, &v))
 			{
-				vals[n] = v;
+				switch(n)
+				{
+				case 0:
+					result->r = v;
+					break;
+				case 1:
+					result->g = v;
+					break;
+				case 2:
+					result->b = v;
+					break;
+				case 3:
+					result->a = v;
+					break;
+				}
 			}
 			else
 			{
@@ -174,11 +185,6 @@ namespace Ogre{
 			++n;
 			++i;
 		}
-
-		result->r = vals[0];
-		result->g = vals[1];
-		result->b = vals[2];
-		result->a = vals[3];
 		return true;
 	}
 	//-------------------------------------------------------------------------
@@ -810,7 +816,7 @@ namespace Ogre{
 						}
 						else
 						{
-							ColourValue val;
+							ColourValue val = ColourValue::White;
 							if(getColour(prop->values.begin(), prop->values.end(), &val))
 								mPass->setAmbient(val);
 							else
@@ -838,7 +844,7 @@ namespace Ogre{
 						}
 						else
 						{
-							ColourValue val;
+							ColourValue val = ColourValue::White;
 							if(getColour(prop->values.begin(), prop->values.end(), &val))
 								mPass->setDiffuse(val);
 							else
@@ -879,7 +885,7 @@ namespace Ogre{
 							AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
 								i1 = getNodeAt(prop->values, 1),
 								i2 = getNodeAt(prop->values, 2);
-							ColourValue val;
+							ColourValue val(0.0f, 0.0f, 0.0f, 0.0f);
 							if(getReal(*i0, &val.r) && getReal(*i1, &val.g) && getReal(*i2, &val.b))
 							{
 								if(prop->values.size() == 4)
@@ -939,7 +945,7 @@ namespace Ogre{
 						}
 						else
 						{
-							ColourValue val;
+							ColourValue val(0.0f, 0.0f, 0.0f, 0.0f);
 							if(getColour(prop->values.begin(), prop->values.end(), &val))
 								mPass->setSelfIllumination(val);
 							else
@@ -979,7 +985,7 @@ namespace Ogre{
 								break;
 							default:
 								compiler->addError(ScriptCompiler::CE_INVALIDPARAMETERS, prop->file, prop->line,
-									"unknow directive \"" + atom->value + "\" for argument 1");
+									"scene_blend does not support \"" + prop->values.front()->getValue() + "\" for argument 1");
 							}
 						}
 						else
