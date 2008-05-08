@@ -885,7 +885,7 @@ namespace Ogre{
 							AbstractNodeList::const_iterator i0 = getNodeAt(prop->values, 0),
 								i1 = getNodeAt(prop->values, 1),
 								i2 = getNodeAt(prop->values, 2);
-							ColourValue val(0.0f, 0.0f, 0.0f, 0.0f);
+							ColourValue val(0.0f, 0.0f, 0.0f, 1.0f);
 							if(getReal(*i0, &val.r) && getReal(*i1, &val.g) && getReal(*i2, &val.b))
 							{
 								if(prop->values.size() == 4)
@@ -945,7 +945,7 @@ namespace Ogre{
 						}
 						else
 						{
-							ColourValue val(0.0f, 0.0f, 0.0f, 0.0f);
+							ColourValue val(0.0f, 0.0f, 0.0f, 1.0f);
 							if(getColour(prop->values.begin(), prop->values.end(), &val))
 								mPass->setSelfIllumination(val);
 							else
