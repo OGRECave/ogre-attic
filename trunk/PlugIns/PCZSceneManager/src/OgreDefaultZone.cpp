@@ -330,8 +330,7 @@ namespace Ogre
 				Portal * p2 = (*it2);
 				// only check against bigger portals (this will also prevent checking against self)
 				// and only against portals which point to another zone
-				if (pRadius < p2->getRadius() && 
-					p2->getTargetZone() != this)
+				if (pRadius < p2->getRadius() && p2->getTargetZone() != this)
 				{
 					// Portal#2 is bigger than Portal1, check for crossing
 					if (p->crossedPortal(p2) && p->getCurrentHomeZone() != p2->getTargetZone())
@@ -521,7 +520,7 @@ namespace Ogre
 					// add it to the list of visible nodes
 					visibleNodeList.push_back( pczsn );
 					// add the node to the render queue
-					pczsn -> _addToRenderQueue(camera, queue, onlyShadowCasters, visibleBounds );
+					pczsn->_addToRenderQueue(camera, queue, onlyShadowCasters, visibleBounds );
 					// if we are displaying nodes, add the node renderable to the queue
 					if ( displayNodes )
 					{

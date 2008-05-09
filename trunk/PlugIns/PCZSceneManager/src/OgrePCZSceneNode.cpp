@@ -94,6 +94,31 @@ namespace Ogre
 		mPrevPosition = mNewPosition;
 		mNewPosition = _getDerivedPosition();   // do this way since _update is called through SceneManager::_updateSceneGraph which comes before PCZSceneManager::_updatePCZSceneNodes
 	}
+    //-----------------------------------------------------------------------
+	SceneNode* PCZSceneNode::createChildSceneNode(const Vector3& translate, 
+        const Quaternion& rotate)
+	{
+		PCZSceneNode * childSceneNode = (PCZSceneNode*)(this->createChild(translate, rotate));
+		if (mAnchored)
+		{
+			childSceneNode->anchorToHomeZone(mHomeZone);
+			mHomeZone->_addNode(childSceneNode);
+		}
+		return static_cast<SceneNode*>(childSceneNode);
+	}
+    //-----------------------------------------------------------------------
+    SceneNode* PCZSceneNode::createChildSceneNode(const String& name, const Vector3& translate, 
+		const Quaternion& rotate)
+	{
+		PCZSceneNode * childSceneNode = (PCZSceneNode*)(this->createChild(name, translate, rotate));
+		if (mAnchored)
+		{
+			childSceneNode->anchorToHomeZone(mHomeZone);
+			mHomeZone->_addNode(childSceneNode);
+		}
+		return static_cast<SceneNode*>(childSceneNode);
+	}
+
 	PCZone* PCZSceneNode::getHomeZone(void)
 	{
 		return mHomeZone;

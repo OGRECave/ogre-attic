@@ -65,6 +65,30 @@ namespace Ogre
 		PCZSceneNode( SceneManager* creator, const String& name );
 		/** Standard destructor */
 		~PCZSceneNode();
+		virtual void _update(bool updateChildren, bool parentHasChanged);
+
+        /** Creates an unnamed new SceneNode as a child of this node.
+        @param
+            translate Initial translation offset of child relative to parent
+        @param
+            rotate Initial rotation relative to parent
+        */
+        virtual SceneNode* createChildSceneNode(
+            const Vector3& translate = Vector3::ZERO, 
+            const Quaternion& rotate = Quaternion::IDENTITY );
+
+        /** Creates a new named SceneNode as a child of this node.
+        @remarks
+            This creates a child node with a given name, which allows you to look the node up from 
+            the parent which holds this collection of nodes.
+            @param
+                translate Initial translation offset of child relative to parent
+            @param
+                rotate Initial rotation relative to parent
+        */
+        virtual SceneNode* createChildSceneNode(const String& name, const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
+
+
 		PCZone* 	getHomeZone(void);
 		void		setHomeZone(PCZone * zone);
 		void		anchorToHomeZone(PCZone * zone);
@@ -80,7 +104,6 @@ namespace Ogre
                                        RenderQueue *queue, 
                                        bool onlyShadowCasters, 
                                        VisibleObjectsBoundsInfo* visibleBounds );
-		virtual void _update(bool updateChildren, bool parentHasChanged);
 		void		savePrevPosition(void);
 		Vector3&	getPrevPosition(void) {return mPrevPosition;}
 		unsigned long		getLastVisibleFrame(void) {return mLastVisibleFrame;}

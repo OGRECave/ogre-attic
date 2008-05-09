@@ -252,12 +252,22 @@ namespace Ogre
 
 	}
 
+	SceneNode* PCZSceneManager::createSceneNodeImpl(void)
+	{
+		return new PCZSceneNode(this);
+	}
+
+	SceneNode* PCZSceneManager::createSceneNodeImpl(const String& name)
+	{
+		return new PCZSceneNode(this, name);
+	}
+
     SceneNode * PCZSceneManager::createSceneNode( void )
     {
-        PCZSceneNode * on = new PCZSceneNode( this );
+        SceneNode * on = createSceneNodeImpl();
         mSceneNodes[ on->getName() ] = on;
 		// create any zone-specific data necessary
-		createZoneSpecificNodeData(on);
+		createZoneSpecificNodeData((PCZSceneNode*)on);
 		// return pointer to the node
         return on;
     }
@@ -272,10 +282,10 @@ namespace Ogre
                 "A scene node with the name " + name + " already exists",
                 "PCZSceneManager::createSceneNode" );
         }
-        PCZSceneNode * on = new PCZSceneNode( this, name );
+        SceneNode * on = createSceneNodeImpl( name );
         mSceneNodes[ on->getName() ] = on;
 		// create any zone-specific data necessary
-		createZoneSpecificNodeData(on);
+		createZoneSpecificNodeData((PCZSceneNode*)on);
 		// return pointer to the node
         return on;
     }
