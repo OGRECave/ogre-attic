@@ -58,7 +58,7 @@ namespace Ogre
 	Font::Font(ResourceManager* creator, const String& name, ResourceHandle handle,
 		const String& group, bool isManual, ManualResourceLoader* loader)
 		:Resource (creator, name, handle, group, isManual, loader),
-		mType(FT_TRUETYPE), mTtfSize(0), mTtfResolution(0), mAntialiasColour(false)
+		mType(FT_TRUETYPE), mTtfSize(0), mTtfResolution(0), mTtfMaxBearingY(0), mAntialiasColour(false)
     {
 
 		if (createParamDictionary("Font"))
@@ -129,6 +129,11 @@ namespace Ogre
     {
         return mTtfResolution;
     }
+	//---------------------------------------------------------------------
+	int Font::getTrueTypeMaxBearingY() const
+	{
+		return mTtfMaxBearingY;
+	}
 	//---------------------------------------------------------------------
 	const Font::GlyphInfo& Font::getGlyphInfo(CodePoint id) const
 	{
@@ -257,7 +262,7 @@ namespace Ogre
 
         //FILE *fo_def = stdout;
 
-        int max_height = 0, max_width = 0, max_bear = 0;
+        int max_height = 0, max_width = 0;
 
 		// Backwards compatibility - if codepoints not supplied, assume 33-166
 		if (mCodePointRangeList.empty())
@@ -277,8 +282,8 @@ namespace Ogre
 
 				if( ( 2 * ( face->glyph->bitmap.rows << 6 ) - face->glyph->metrics.horiBearingY ) > max_height )
 					max_height = ( 2 * ( face->glyph->bitmap.rows << 6 ) - face->glyph->metrics.horiBearingY );
-				if( face->glyph->metrics.horiBearingY > max_bear )
-					max_bear = face->glyph->metrics.horiBearingY;
+				if( face->glyph->metrics.horiBearingY > mTtfMaxBearingY )
+					mTtfMaxBearingY = face->glyph->metrics.horiBearingY;
 
 				if( (face->glyph->advance.x >> 6 ) + ( face->glyph->metrics.horiBearingX >> 6 ) > max_width)
 					max_width = (face->glyph->advance.x >> 6 ) + ( face->glyph->metrics.horiBearingX >> 6 );
@@ -356,7 +361,7 @@ namespace Ogre
 					continue;
 				}
 
-				int y_bearnig = ( max_bear >> 6 ) - ( face->glyph->metrics.horiBearingY >> 6 );
+				int y_bearnig = ( mTtfMaxBearingY >> 6 ) - ( face->glyph->metrics.horiBearingY >> 6 );
 
 				for(int j = 0; j < face->glyph->bitmap.rows; j++ )
 				{
