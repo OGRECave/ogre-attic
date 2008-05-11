@@ -736,7 +736,7 @@ namespace Ogre {
             HardwareBufferManager::getSingleton()._releaseBufferCopies();
 
 		// Also tell the ResourceBackgroundQueue to propagate background load events
-		ResourceBackgroundQueue::getSingleton()._fireBackgroundLoadingComplete();
+		ResourceBackgroundQueue::getSingleton()._fireOnFrameCallbacks();
 
         return ret;
     }

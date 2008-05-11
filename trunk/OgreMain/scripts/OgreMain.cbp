@@ -102,6 +102,7 @@
 		<Unit filename="..\include\OgreArchive.h" />
 		<Unit filename="..\include\OgreArchiveFactory.h" />
 		<Unit filename="..\include\OgreArchiveManager.h" />
+		<Unit filename="..\include\OgreAtomicWrappers.h" />
 		<Unit filename="..\include\OgreAutoParamDataSource.h" />
 		<Unit filename="..\include\OgreAxisAlignedBox.h" />
 		<Unit filename="..\include\OgreBillboard.h" />

@@ -1259,6 +1259,10 @@ namespace Ogre {
 		/** Internal method to adjust pass index. */
 		void _notifyIndex(unsigned short index);
 
+		/** Internal method for preparing to load this pass. */
+		void _prepare(void);
+		/** Internal method for undoing the load preparartion for this pass. */
+		void _unprepare(void);
 		/** Internal method for loading this pass. */
 		void _load(void);
 		/** Internal method for unloading this pass. */

@@ -1068,6 +1068,33 @@ namespace Ogre {
 		}
 	}
     //-----------------------------------------------------------------------
+	void Pass::_prepare(void)
+	{
+		// We assume the Technique only calls this when the material is being
+		// prepared
+
+		// prepare each TextureUnitState
+		TextureUnitStates::iterator i, iend;
+		iend = mTextureUnitStates.end();
+		for (i = mTextureUnitStates.begin(); i != iend; ++i)
+		{
+			(*i)->_prepare();
+		}
+
+	}
+    //-----------------------------------------------------------------------
+	void Pass::_unprepare(void)
+	{
+		// unprepare each TextureUnitState
+		TextureUnitStates::iterator i, iend;
+		iend = mTextureUnitStates.end();
+		for (i = mTextureUnitStates.begin(); i != iend; ++i)
+		{
+			(*i)->_unprepare();
+		}
+
+	}
+    //-----------------------------------------------------------------------
 	void Pass::_load(void)
 	{
 		// We assume the Technique only calls this when the material is being

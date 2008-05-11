@@ -309,6 +309,23 @@ namespace Ogre {
 		*/
 		virtual void _notifyResourceUnloaded(Resource* res);
 
+		/** Generic prepare method, used to create a Resource specific to this 
+			ResourceManager without using one of the specialised 'prepare' methods
+			(containing per-Resource-type parameters).
+		@param name The name of the Resource
+		@param group The resource group to which this resource will belong
+		@param isManual Is the resource to be manually loaded? If so, you should
+			provide a value for the loader parameter
+		@param loader The manual loader which is to perform the required actions
+			when this resource is loaded; only applicable when you specify true
+			for the previous parameter
+        @param loadParams Optional pointer to a list of name/value pairs 
+            containing loading parameters for this type of resource.
+		*/
+		virtual ResourcePtr prepare(const String& name, 
+            const String& group, bool isManual = false, 
+			ManualResourceLoader* loader = 0, const NameValuePairList* loadParams = 0);
+
 		/** Generic load method, used to create a Resource specific to this 
 			ResourceManager without using one of the specialised 'load' methods
 			(containing per-Resource-type parameters).
@@ -369,6 +386,12 @@ namespace Ogre {
 		/** Gets a string identifying the type of resource this manager handles. */
 		const String& getResourceType(void) const { return mResourceType; }
 
+        /** Sets whether this manager and its resources habitually produce log output */
+        virtual void setVerbose(bool v) { mVerbose = v; }
+
+        /** Gets whether this manager and its resources habitually produce log output */
+        virtual bool getVerbose(void) { return mVerbose; }
+
     protected:
 
         /** Allocates the next handle. */
@@ -416,6 +439,8 @@ namespace Ogre {
         ResourceHandle mNextHandle;
         size_t mMemoryBudget; // In bytes
         size_t mMemoryUsage; // In bytes
+
+        bool mVerbose;
 
 		// IMPORTANT - all subclasses must populate the fields below
 

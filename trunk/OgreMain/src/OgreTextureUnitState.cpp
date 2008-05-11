@@ -966,10 +966,20 @@ namespace Ogre {
         addEffect(eff);
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::_load(void)
+    void TextureUnitState::_prepare(void)
     {
         // Unload first
-        _unload();
+        //_unload();
+
+        // Load textures
+		for (unsigned int i = 0; i < mFrames.size(); ++i)
+		{
+			ensurePrepared(i);
+		}
+    }
+    //-----------------------------------------------------------------------
+    void TextureUnitState::_load(void)
+    {
 
         // Load textures
 		for (unsigned int i = 0; i < mFrames.size(); ++i)
@@ -1029,6 +1039,38 @@ namespace Ogre {
 	{
 		assert(frame < mFramePtrs.size());
 		mFramePtrs[frame] = texptr;
+	}
+    //-----------------------------------------------------------------------
+	void TextureUnitState::ensurePrepared(size_t frame) const
+	{
+		if (!mFrames[frame].empty())
+		{
+			// Ensure texture is loaded, specified number of mipmaps and
+			// priority
+			if (mFramePtrs[frame].isNull())
+			{
+				try {
+					mFramePtrs[frame] = 
+						TextureManager::getSingleton().prepare(mFrames[frame], 
+							mParent->getResourceGroup(), mTextureType, 
+							mTextureSrcMipmaps, 1.0f, mIsAlpha, mDesiredFormat);
+				}
+				catch (Exception &e) {
+					String msg;
+					msg = msg + "Error loading texture " + mFrames[frame]  + 
+						". Texture layer will be blank. Loading the texture "
+						"failed with the following exception: " 
+						+ e.getFullDescription();
+					LogManager::getSingleton().logMessage(msg);
+					mTextureLoadFailed = true;
+				}	
+			}
+			else
+			{
+				// Just ensure existing pointer is prepared
+				mFramePtrs[frame]->prepare();
+			}
+		}
 	}
     //-----------------------------------------------------------------------
 	void TextureUnitState::ensureLoaded(size_t frame) const
@@ -1218,6 +1260,17 @@ namespace Ogre {
         return mIsDefaultAniso? MaterialManager::getSingleton().getDefaultAnisotropy() : mMaxAniso;
 	}
 
+	//-----------------------------------------------------------------------
+    void TextureUnitState::_unprepare(void)
+    {
+        // Unreference textures
+        std::vector<TexturePtr>::iterator ti, tiend;
+        tiend = mFramePtrs.end();
+        for (ti = mFramePtrs.begin(); ti != tiend; ++ti)
+        {
+            ti->setNull();
+        }
+    }
 	//-----------------------------------------------------------------------
     void TextureUnitState::_unload(void)
     {

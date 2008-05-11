@@ -1022,6 +1022,10 @@ namespace Ogre {
         /// Gets the parent Pass object
         Pass* getParent(void) const { return mParent; }
 
+		/** Internal method for preparing this object for load, as part of Material::prepare*/
+		void _prepare(void);
+		/** Internal method for undoing the preparation this object as part of Material::unprepare*/
+		void _unprepare(void);
 		/** Internal method for loading this object as part of Material::load */
 		void _load(void);
 		/** Internal method for unloading this object as part of Material::unload */
@@ -1166,6 +1170,8 @@ protected:
         */
         void createEffectController(TextureEffect& effect);
 
+		/** Internal method for ensuring the texture for a given frame is prepared. */
+		void ensurePrepared(size_t frame) const;
 		/** Internal method for ensuring the texture for a given frame is loaded. */
 		void ensureLoaded(size_t frame) const;
 

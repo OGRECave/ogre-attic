@@ -198,17 +198,41 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-    void Mesh::loadImpl()
+    void Mesh::prepareImpl()
     {
         // Load from specified 'name'
-        MeshSerializer serializer;
-		serializer.setListener(MeshManager::getSingleton().getListener());
-        LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
+        if (getCreator()->getVerbose())
+            LogManager::getSingleton().logMessage("Mesh: Loading "+mName+".");
 
-        DataStreamPtr stream =
+        mFreshFromDisk =
             ResourceGroupManager::getSingleton().openResource(
 				mName, mGroup, true, this);
-        serializer.importMesh(stream, this);
+ 
+        // fully prebuffer into host RAM
+        mFreshFromDisk = DataStreamPtr(new MemoryDataStream(mName,mFreshFromDisk));
+    }
+    //-----------------------------------------------------------------------
+    void Mesh::unprepareImpl()
+    {
+        mFreshFromDisk.setNull();
+    }
+    void Mesh::loadImpl()
+    {
+        MeshSerializer serializer;
+        serializer.setListener(MeshManager::getSingleton().getListener());
+
+        // If the only copy is local on the stack, it will be cleaned
+        // up reliably in case of exceptions, etc
+        DataStreamPtr data(mFreshFromDisk);
+        mFreshFromDisk.setNull();
+
+        if (data.isNull()) {
+            OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
+                        "Data doesn't appear to have been prepared in " + mName,
+                        "Mesh::loadImpl()");
+        }
+
+		serializer.importMesh(data, this);
 
         /* check all submeshes to see if their materials should be
            updated.  If the submesh has texture aliases that match those

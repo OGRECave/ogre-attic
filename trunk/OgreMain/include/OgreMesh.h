@@ -41,6 +41,7 @@ Torus Knot Software Ltd.
 #include "OgreSkeleton.h"
 #include "OgreAnimationTrack.h"
 #include "OgrePose.h"
+#include "OgreDataStream.h"
 
 
 namespace Ogre {
@@ -119,6 +120,9 @@ namespace Ogre {
 
 		
     protected:
+
+        DataStreamPtr mFreshFromDisk;
+
 		SubMeshNameMap mSubMeshNameMap ;
 
         /// Local bounding box volume
@@ -172,6 +176,15 @@ namespace Ogre {
 		PoseList mPoseList;
 
 
+        /** Loads the mesh from disk.  This call only performs IO, it
+            does not parse the bytestream or check for any errors therein.
+            It also does not set up submeshes, etc.  You have to call load()
+            to do that.
+         */
+        void prepareImpl(void);
+        /** Destroys data cached by prepareImpl.
+         */
+        void unprepareImpl(void);
         /// @copydoc Resource::loadImpl
         void loadImpl(void);
 		/// @copydoc Resource::postLoadImpl

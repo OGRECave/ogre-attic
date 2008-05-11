@@ -126,6 +126,14 @@ namespace Ogre {
 
 		/** Overridden from Resource.
 		*/
+		void prepareImpl(void);
+
+		/** Overridden from Resource.
+		*/
+		void unprepareImpl(void);
+
+		/** Overridden from Resource.
+		*/
 		void loadImpl(void);
 
 		/** Unloads the material, frees resources etc.

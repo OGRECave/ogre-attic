@@ -63,6 +63,10 @@ namespace Ogre {
     protected:
 		/// @copydoc Texture::createInternalResourcesImpl
 		void createInternalResourcesImpl(void);
+        /// @copydoc Resource::prepareImpl
+        void prepareImpl(void);
+        /// @copydoc Resource::unprepareImpl
+        void unprepareImpl(void);
         /// @copydoc Resource::loadImpl
         void loadImpl(void);
         /// @copydoc Resource::freeInternalResourcesImpl
@@ -74,6 +78,17 @@ namespace Ogre {
 			actually allocate the buffer
 		*/
 		void _createSurfaceList();
+
+        /// Used to hold images between calls to prepare and load.
+        typedef SharedPtr<std::vector<Image> > LoadedImages;
+
+        /** Vector of images that were pulled from disk by
+            prepareLoad but have yet to be pushed into texture memory
+            by loadImpl.  Images should be deleted by loadImpl and unprepareImpl.
+        */
+        LoadedImages mLoadedImages;
+
+
     private:
         GLuint mTextureID;
         GLSupport& mGLSupport;

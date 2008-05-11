@@ -93,16 +93,11 @@ namespace Ogre {
 	//--------------------------------------------------------------------------    
 	void Texture::loadImage( const Image &img )
 	{
-		// Scope lock over load status
-		{
-			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
-			if (mLoadingState != LOADSTATE_UNLOADED)
-			{
-				// no loading to be done
-				return;
-			}
-			mLoadingState = LOADSTATE_LOADING;
-		}
+
+        LoadingState old = mLoadingState.get();
+        if (old!=LOADSTATE_UNLOADED && old!=LOADSTATE_PREPARED) return;
+
+        if (!mLoadingState.cas(old,LOADSTATE_LOADING)) return;
 
 		// Scope lock for actual loading
 		try
@@ -116,19 +111,12 @@ namespace Ogre {
 		catch (...)
 		{
 			// Reset loading in-progress flag in case failed for some reason
-			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
-			mLoadingState = LOADSTATE_UNLOADED;
+			mLoadingState.set(old);
 			// Re-throw
 			throw;
 		}
 
-		// Scope lock for loading progress
-		{
-			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
-
-			// Now loaded
-			mLoadingState = LOADSTATE_LOADED;
-		}
+        mLoadingState.set(LOADSTATE_LOADED);
 
 		// Notify manager
 		if(mCreator)
@@ -257,38 +245,40 @@ namespace Ogre {
 		if(faces > getNumFaces())
 			faces = getNumFaces();
 		
-		// Say what we're doing
-		StringUtil::StrStreamType str;
-		str << "Texture: " << mName << ": Loading " << faces << " faces"
-			<< "(" << PixelUtil::getFormatName(images[0]->getFormat()) << "," <<
-			images[0]->getWidth() << "x" << images[0]->getHeight() << "x" << images[0]->getDepth() <<
-			") with ";
-		if (!(mMipmapsHardwareGenerated && mNumMipmaps == 0))
-			str << mNumMipmaps;
-		if(mUsage & TU_AUTOMIPMAP)
-		{
-			if (mMipmapsHardwareGenerated)
-				str << " hardware";
+        if (TextureManager::getSingleton().getVerbose()) {
+            // Say what we're doing
+            StringUtil::StrStreamType str;
+            str << "Texture: " << mName << ": Loading " << faces << " faces"
+                << "(" << PixelUtil::getFormatName(images[0]->getFormat()) << "," <<
+                images[0]->getWidth() << "x" << images[0]->getHeight() << "x" << images[0]->getDepth() <<
+                ") with ";
+            if (!(mMipmapsHardwareGenerated && mNumMipmaps == 0))
+                str << mNumMipmaps;
+            if(mUsage & TU_AUTOMIPMAP)
+            {
+                if (mMipmapsHardwareGenerated)
+                    str << " hardware";
 
-			str << " generated mipmaps";
-		}
-		else
-		{
-			str << " custom mipmaps";
-		}
- 		if(multiImage)
-			str << " from multiple Images.";
-		else
-			str << " from Image.";
-		// Scoped
-		{
-			// Print data about first destination surface
-			HardwarePixelBufferSharedPtr buf = getBuffer(0, 0); 
-			str << " Internal format is " << PixelUtil::getFormatName(buf->getFormat()) << 
-			"," << buf->getWidth() << "x" << buf->getHeight() << "x" << buf->getDepth() << ".";
-		}
-		LogManager::getSingleton().logMessage( 
-				LML_NORMAL, str.str());
+                str << " generated mipmaps";
+            }
+            else
+            {
+                str << " custom mipmaps";
+            }
+            if(multiImage)
+                str << " from multiple Images.";
+            else
+                str << " from Image.";
+            // Scoped
+            {
+                // Print data about first destination surface
+                HardwarePixelBufferSharedPtr buf = getBuffer(0, 0); 
+                str << " Internal format is " << PixelUtil::getFormatName(buf->getFormat()) << 
+                "," << buf->getWidth() << "x" << buf->getHeight() << "x" << buf->getDepth() << ".";
+            }
+            LogManager::getSingleton().logMessage( 
+                    LML_NORMAL, str.str());
+        }
 		
 		// Main loading loop
         // imageMips == 0 if the image has no custom mipmaps, otherwise contains the number of custom mips

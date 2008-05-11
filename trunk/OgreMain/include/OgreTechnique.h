@@ -218,6 +218,10 @@ namespace Ogre {
 		*/
 		bool isTransparentSortingEnabled(void) const;
 
+        /** Internal prepare method, derived from call to Material::prepare. */
+        void _prepare(void);
+        /** Internal unprepare method, derived from call to Material::unprepare. */
+        void _unprepare(void);
         /** Internal load method, derived from call to Material::load. */
         void _load(void);
         /** Internal unload method, derived from call to Material::unload. */

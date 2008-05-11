@@ -519,6 +519,37 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------------
+    void Technique::_prepare(void)
+    {
+		assert (mIsSupported && "This technique is not supported");
+		// Load each pass
+		Passes::iterator i, iend;
+		iend = mPasses.end();
+		for (i = mPasses.begin(); i != iend; ++i)
+		{
+			(*i)->_prepare();
+		}
+
+		IlluminationPassList::iterator il, ilend;
+		ilend = mIlluminationPasses.end();
+		for (il = mIlluminationPasses.begin(); il != ilend; ++il)
+		{
+			if((*il)->pass != (*il)->originalPass)
+			    (*il)->pass->_prepare();
+		}
+    }
+    //-----------------------------------------------------------------------------
+    void Technique::_unprepare(void)
+    {
+		// Unload each pass
+		Passes::iterator i, iend;
+		iend = mPasses.end();
+		for (i = mPasses.begin(); i != iend; ++i)
+		{
+			(*i)->_unprepare();
+		}
+    }
+    //-----------------------------------------------------------------------------
     void Technique::_load(void)
     {
 		assert (mIsSupported && "This technique is not supported");

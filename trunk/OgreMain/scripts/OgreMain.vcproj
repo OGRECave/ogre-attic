@@ -889,6 +889,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreArchiveManager.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreAtomicWrappers.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreAutoParamDataSource.h">
 			</File>
 			<File

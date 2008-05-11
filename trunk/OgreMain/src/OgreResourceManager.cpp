@@ -40,7 +40,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     ResourceManager::ResourceManager()
-		: mNextHandle(1), mMemoryUsage(0), mLoadOrder(0)
+		: mNextHandle(1), mMemoryUsage(0), mLoadOrder(0), mVerbose(true)
     {
         // Init memory limit & usage
         mMemoryBudget = std::numeric_limits<unsigned long>::max();
@@ -87,18 +87,24 @@ namespace Ogre {
 		return ResourceCreateOrRetrieveResult(res, created);
 	}
     //-----------------------------------------------------------------------
+    ResourcePtr ResourceManager::prepare(const String& name, 
+        const String& group, bool isManual, ManualResourceLoader* loader, 
+        const NameValuePairList* loadParams)
+    {
+        ResourcePtr r = createOrRetrieve(name,group,isManual,loader,loadParams).first;
+		// ensure prepared
+        r->prepare();
+        return r;
+    }
+    //-----------------------------------------------------------------------
     ResourcePtr ResourceManager::load(const String& name, 
         const String& group, bool isManual, ManualResourceLoader* loader, 
         const NameValuePairList* loadParams)
     {
-        ResourcePtr ret = getByName(name);
-        if (ret.isNull())
-        {
-            ret = create(name, group, isManual, loader, loadParams);
-        }
+        ResourcePtr r = createOrRetrieve(name,group,isManual,loader,loadParams).first;
 		// ensure loaded
-        ret->load();
-        return ret;
+        r->load();
+        return r;
     }
     //-----------------------------------------------------------------------
     void ResourceManager::addImpl( ResourcePtr& res )

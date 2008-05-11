@@ -33,6 +33,7 @@ Torus Knot Software Ltd.
 #include "OgreString.h"
 #include "OgreSharedPtr.h"
 #include "OgreStringInterface.h"
+#include "OgreAtomicWrappers.h"
 
 namespace Ogre {
 
@@ -82,27 +83,43 @@ namespace Ogre {
 			@remarks
 				This callback is only relevant when a Resource has been
 				marked as background loaded (@see Resource::setBackgroundLoaded)
-				, and occurs when that loading has completed. The call itself
+				, and occurs when that loading has completed. The call
 				does not itself occur in the thread which is doing the loading;
 				when loading is complete a response indicator is placed with the
 				ResourceGroupManager, which will then be sent back to the 
 				listener as part of the application's primary frame loop thread.
 			*/
 			virtual void backgroundLoadingComplete(Resource*) {}
+
+			/** Callback to indicate that background preparing has completed.
+			@remarks
+				This callback is only relevant when a Resource has been
+				marked as background loaded (@see Resource::setBackgroundLoaded)
+				, and occurs when that preparing (but not necessarily loading) has completed. The call
+				does not itself occur in the thread which is doing the preparing;
+				when preparing is complete a response indicator is placed with the
+				ResourceGroupManager, which will then be sent back to the 
+				listener as part of the application's primary frame loop thread.
+			*/
+			virtual void backgroundPreparingComplete(Resource*) {}
 			
 		};
 		
 		/// Enum identifying the loading state of the resource
 		enum LoadingState
 		{
-			/// Not loaded
-			LOADSTATE_UNLOADED,
-			/// Loading is in progress
-			LOADSTATE_LOADING,
-			/// Fully loaded
-			LOADSTATE_LOADED,
-			/// Currently unloading
-			LOADSTATE_UNLOADING
+            /// Not loaded
+            LOADSTATE_UNLOADED,
+            /// Loading is in progress
+            LOADSTATE_LOADING,
+            /// Fully loaded
+            LOADSTATE_LOADED,
+            /// Currently unloading
+            LOADSTATE_UNLOADING,
+            /// Fully prepared
+            LOADSTATE_PREPARED,
+            /// Preparing is in progress
+            LOADSTATE_PREPARING
 		};
     protected:
 		/// Creator
@@ -114,11 +131,9 @@ namespace Ogre {
 		/// Numeric handle for more efficient look up than name
         ResourceHandle mHandle;
 		/// Is the resource currently loaded?
-        volatile LoadingState mLoadingState;
+        AtomicScalar<LoadingState> mLoadingState;
 		/// Is this resource going to be background loaded? Only applicable for multithreaded
 		volatile bool mIsBackgroundLoaded;
-		/// Mutex to cover the status of loading
-		OGRE_MUTEX(mLoadingStatusMutex)
 		/// The size of the resource in bytes
         size_t mSize;
 		/// Is this file manually loaded?
@@ -167,6 +182,14 @@ namespace Ogre {
 		*/
 		virtual void postUnloadImpl(void) {}
 
+        /** Internal implementation of the meat of the 'prepare' action. 
+        */
+        virtual void prepareImpl(void) {}
+        /** Internal function for undoing the 'prepare' action.  Called when
+            the load is completed, and when resources are unloaded when they
+            are prepared but not yet loaded.
+        */
+        virtual void unprepareImpl(void) {}
 		/** Internal implementation of the meat of the 'load' action, only called if this 
 			resource is not being loaded from a ManualResourceLoader. 
 		*/
@@ -180,6 +203,9 @@ namespace Ogre {
 
 		/// Queue the firing of background loading complete event
 		virtual void queueFireBackgroundLoadingComplete(void);
+
+		/// Queue the firing of background preparing complete event
+		virtual void queueFireBackgroundPreparingComplete(void);
 
     public:
 		/** Standard constructor.
@@ -206,7 +232,22 @@ namespace Ogre {
         */
         virtual ~Resource();
 
-        /** Loads the resource, if it is not already.
+        /** Prepares the resource for load, if it is not already.  One can call prepare()
+            before load(), but this is not required as load() will call prepare() 
+            itself, if needed.  When OGRE_THREAD_SUPPORT==1 both load() and prepare() 
+            are thread-safe.  When OGRE_THREAD_SUPPORT==2 however, only prepare() 
+            is thread-safe.  The reason for this function is to allow a background 
+            thread to do some of the loading work, without requiring the whole render
+            system to be thread-safe.  The background thread would call
+            prepare() while the main render loop would later call load().  So long as
+            prepare() remains thread-safe, subclasses can arbitrarily split the work of
+            loading a resource between load() and prepare().  It is best to try and
+            do as much work in prepare(), however, since this will leave less work for
+            the main render thread to do and thus increase FPS.
+        */
+        virtual void prepare();
+
+     /** Loads the resource, if it is not already.
 		@remarks
 			If the resource is loaded from a file, loading is automatic. If not,
 			if for example this resource gained it's data from procedural calls
@@ -267,12 +308,20 @@ namespace Ogre {
             return mHandle;
         }
 
+        /** Returns true if the Resource has been prepared, false otherwise.
+        */
+        virtual bool isPrepared(void) const 
+        { 
+			// No lock required to read this state since no modify
+            return (mLoadingState.get() == LOADSTATE_PREPARED); 
+        }
+
         /** Returns true if the Resource has been loaded, false otherwise.
         */
         virtual bool isLoaded(void) const 
         { 
 			// No lock required to read this state since no modify
-            return (mLoadingState == LOADSTATE_LOADED); 
+            return (mLoadingState.get() == LOADSTATE_LOADED); 
         }
 
 		/** Returns whether the resource is currently in the process of
@@ -280,14 +329,14 @@ namespace Ogre {
 		*/
 		virtual bool isLoading() const
 		{
-			return (mLoadingState == LOADSTATE_LOADING);
+			return (mLoadingState.get() == LOADSTATE_LOADING);
 		}
 
 		/** Returns the current loading state.
 		*/
 		virtual LoadingState getLoadingState() const
 		{
-			return mLoadingState;
+			return mLoadingState.get();
 		}
 
 
@@ -360,7 +409,7 @@ namespace Ogre {
 		virtual void _notifyOrigin(const String& origin) { mOrigin = origin; }
 
 		/** Returns the number of times this resource has changed state, which 
-			generally means teh number of times it has been loaded. Objects that 
+			generally means the number of times it has been loaded. Objects that 
 			build derived data based on the resource can check this value against 
 			a copy they kept last time they built this derived data, in order to
 			know whether it needs rebuilding. This is a nice way of monitoring
@@ -384,6 +433,15 @@ namespace Ogre {
 			yourself.
 		*/
 		virtual void _fireBackgroundLoadingComplete(void);
+
+		/** Firing of background preparing complete event
+		@remarks
+			You should call this from the thread that runs the main frame loop 
+			to avoid having to make the receivers of this event thread-safe.
+			If you use Ogre's built in frame loop you don't need to call this
+			yourself.
+		*/
+		virtual void _fireBackgroundPreparingComplete(void);
 
     };
 
@@ -434,8 +492,16 @@ namespace Ogre {
 		ManualResourceLoader() {}
 		virtual ~ManualResourceLoader() {}
 
-		/** Called when a resource wishes to load.
+        /** Called when a resource wishes to load.  Note that this could get
+         * called in a background thread even in just a semithreaded ogre
+         * (OGRE_THREAD_SUPPORT==2).  Thus, you must not access the rendersystem from
+         * this callback.  Do that stuff in loadResource.
 		@param resource The resource which wishes to load
+		*/
+		virtual void prepareResource(Resource* resource) { }
+
+		/** Called when a resource wishes to prepare.
+		@param resource The resource which wishes to prepare
 		*/
 		virtual void loadResource(Resource* resource) = 0;
 	};

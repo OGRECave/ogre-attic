@@ -60,15 +60,17 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    TexturePtr TextureManager::load(const String &name, const String& group,
-        TextureType texType, int numMipmaps, Real gamma, bool isAlpha, PixelFormat desiredFormat, 
-		bool hwGamma)
+    TextureManager::ResourceCreateOrRetrieveResult TextureManager::createOrRetrieve(
+            const String &name, const String& group, bool isManual, ManualResourceLoader* loader,
+            const NameValuePairList* createParams, TextureType texType, int numMipmaps, Real gamma,
+            bool isAlpha, PixelFormat desiredFormat, bool hwGamma)
     {
-		ResourceCreateOrRetrieveResult res = createOrRetrieve(name, group);
-        TexturePtr tex = res.first;
+		ResourceCreateOrRetrieveResult res =
+            Ogre::ResourceManager::createOrRetrieve(name, group, isManual, loader, createParams);
 		// Was it created?
 		if(res.second)
         {
+            TexturePtr tex = res.first;
             tex->setTextureType(texType);
             tex->setNumMipmaps((numMipmaps == MIP_DEFAULT)? mDefaultNumMipmaps :
 				static_cast<size_t>(numMipmaps));
@@ -77,8 +79,28 @@ namespace Ogre {
             tex->setFormat(desiredFormat);
 			tex->setHardwareGammaEnabled(hwGamma);
         }
+        return res;
+    }
+    //-----------------------------------------------------------------------
+    TexturePtr TextureManager::prepare(const String &name, const String& group, TextureType texType,
+                                       int numMipmaps, Real gamma, bool isAlpha,
+                                       PixelFormat desiredFormat, bool hwGamma)
+    {
+		ResourceCreateOrRetrieveResult res =
+            createOrRetrieve(name,group,false,0,0,texType,numMipmaps,gamma,isAlpha,desiredFormat,hwGamma);
+        TexturePtr tex = res.first;
+		tex->prepare();
+        return tex;
+    }
+    //-----------------------------------------------------------------------
+    TexturePtr TextureManager::load(const String &name, const String& group, TextureType texType,
+                                    int numMipmaps, Real gamma, bool isAlpha, PixelFormat desiredFormat,
+                                    bool hwGamma)
+    {
+		ResourceCreateOrRetrieveResult res =
+            createOrRetrieve(name,group,false,0,0,texType,numMipmaps,gamma,isAlpha,desiredFormat,hwGamma);
+        TexturePtr tex = res.first;
 		tex->load();
-
         return tex;
     }
 

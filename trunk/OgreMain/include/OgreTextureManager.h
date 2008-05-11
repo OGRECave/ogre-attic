@@ -59,6 +59,71 @@ namespace Ogre {
         TextureManager(void);
         virtual ~TextureManager();
 
+        /** Create a new texture, or retrieve an existing one with the same
+            name if it already exists.
+            @param
+                texType The type of texture to load/create, defaults to normal 2D textures
+            @param
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to MIP_DEFAULT then
+                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
+                If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
+                level, 1x1x1.
+            @param
+                gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
+            @param 
+                isAlpha Only applicable to greyscale images. If true, specifies that
+                the image should be loaded into an alpha texture rather than a
+                single channel colour texture - useful for fixed-function systems.
+            @param 
+                desiredFormat The format you would like to have used instead of
+                the format being based on the contents of the texture
+			@param hwGammaCorrection Pass 'true' to enable hardware gamma correction
+				(sRGB) on this texture. The hardware will convert from gamma space
+				to linear space when reading from this texture. Only applicable for 
+				8-bits per channel textures, will be ignored for other types. Has the advantage
+				over pre-applied gamma that the texture precision is maintained.
+            @see ResourceManager::createOrRetrieve
+        */
+        virtual ResourceCreateOrRetrieveResult createOrRetrieve(
+            const String &name, const String& group, bool isManual = false,
+            ManualResourceLoader* loader = 0, const NameValuePairList* createParams = 0,
+            TextureType texType = TEX_TYPE_2D, int numMipmaps = MIP_DEFAULT, 
+            Real gamma = 1.0f, bool isAlpha = false,
+            PixelFormat desiredFormat = PF_UNKNOWN, bool hwGammaCorrection = false);
+
+        /** Prepares to loads a texture from a file.
+            @param
+                name The file to load, or a String identifier in some cases
+            @param
+                group The name of the resource group to assign the texture to
+            @param
+                texType The type of texture to load/create, defaults to normal 2D textures
+            @param
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to MIP_DEFAULT then
+                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
+                If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
+                level, 1x1x1.
+            @param
+                gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
+            @param 
+                isAlpha Only applicable to greyscale images. If true, specifies that
+                the image should be loaded into an alpha texture rather than a
+                single channel colour texture - useful for fixed-function systems.
+            @param 
+                desiredFormat The format you would like to have used instead of
+                the format being based on the contents of the texture
+			@param hwGammaCorrection Pass 'true' to enable hardware gamma correction
+				(sRGB) on this texture. The hardware will convert from gamma space
+				to linear space when reading from this texture. Only applicable for 
+				8-bits per channel textures, will be ignored for other types. Has the advantage
+				over pre-applied gamma that the texture precision is maintained.
+        */
+        virtual TexturePtr prepare( 
+            const String& name, const String& group, 
+            TextureType texType = TEX_TYPE_2D, int numMipmaps = MIP_DEFAULT, 
+            Real gamma = 1.0f, bool isAlpha = false,
+            PixelFormat desiredFormat = PF_UNKNOWN, bool hwGammaCorrection = false);
+
         /** Loads a texture from a file.
             @param
                 name The file to load, or a String identifier in some cases

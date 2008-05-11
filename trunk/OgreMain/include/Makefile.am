@@ -13,6 +13,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreAny.h \
                      OgreArchiveFactory.h \
                      OgreArchiveManager.h \
+					 OgreAtomicWrappers.h \
                      OgreAutoParamDataSource.h \
                      OgreAxisAlignedBox.h \
                      OgreBillboard.h \

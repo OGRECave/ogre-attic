@@ -87,12 +87,23 @@ namespace Ogre {
 
         /// Initialise the device and get formats
         void _initDevice(void);
+
+        // needed to store data between prepareImpl and loadImpl
+        typedef SharedPtr<std::vector<MemoryDataStreamPtr> > LoadedStreams;
+
 		/// internal method, load a cube texture
-		void _loadCubeTex();
+		void _loadCubeTex(const LoadedStreams &loadedStreams);
 		/// internal method, load a normal texture
-		void _loadNormTex();
+		void _loadNormTex(const LoadedStreams &loadedStreams);
 		/// internal method, load a volume texture
-		void _loadVolumeTex();
+		void _loadVolumeTex(const LoadedStreams &loadedStreams);
+
+		/// internal method, prepare a cube texture
+		LoadedStreams _prepareCubeTex();
+		/// internal method, prepare a normal texture
+		LoadedStreams _prepareNormTex();
+		/// internal method, prepare a volume texture
+		LoadedStreams _prepareVolumeTex();
 
 		/// internal method, create a blank normal 1D/2D texture
 		void _createNormTex();
@@ -133,6 +144,17 @@ namespace Ogre {
 
         /// overriden from Resource
         void loadImpl();
+        /// overriden from Resource
+        void prepareImpl();
+        /// overriden from Resource
+        void unprepareImpl();
+
+        /** Vector of pointers to streams that were pulled from disk by
+            prepareImpl  but have yet to be pushed into texture memory
+            by loadImpl.  Should be cleared on load and on unprepare.
+        */
+        LoadedStreams mLoadedStreams;
+
 	public:
 		/// constructor 
         D3D9Texture(ResourceManager* creator, const String& name, ResourceHandle handle,

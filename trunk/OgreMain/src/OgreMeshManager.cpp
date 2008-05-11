@@ -82,12 +82,16 @@ namespace Ogre
 		createPrefabSphere();
     }
     //-----------------------------------------------------------------------
-    MeshPtr MeshManager::load( const String& filename, const String& groupName, 
+    MeshManager::ResourceCreateOrRetrieveResult MeshManager::createOrRetrieve(
+        const String& name, const String& group,
+        bool isManual, ManualResourceLoader* loader,
+        const NameValuePairList* params,
 		HardwareBuffer::Usage vertexBufferUsage, 
 		HardwareBuffer::Usage indexBufferUsage, 
 		bool vertexBufferShadowed, bool indexBufferShadowed)
     {
-        ResourceCreateOrRetrieveResult res = createOrRetrieve(filename, groupName);
+        ResourceCreateOrRetrieveResult res = 
+            ResourceManager::createOrRetrieve(name,group,isManual,loader,params);
 		MeshPtr pMesh = res.first;
 		// Was it created?
         if (res.second)
@@ -95,9 +99,32 @@ namespace Ogre
 			pMesh->setVertexBufferPolicy(vertexBufferUsage, vertexBufferShadowed);
 			pMesh->setIndexBufferPolicy(indexBufferUsage, indexBufferShadowed);
         }
+        return res;
+
+    }
+    //-----------------------------------------------------------------------
+    MeshPtr MeshManager::prepare( const String& filename, const String& groupName, 
+		HardwareBuffer::Usage vertexBufferUsage, 
+		HardwareBuffer::Usage indexBufferUsage, 
+		bool vertexBufferShadowed, bool indexBufferShadowed)
+    {
+		MeshPtr pMesh = createOrRetrieve(filename,groupName,false,0,0,
+                                         vertexBufferUsage,indexBufferUsage,
+                                         vertexBufferShadowed,indexBufferShadowed).first;
+		pMesh->prepare();
+        return pMesh;
+    }
+    //-----------------------------------------------------------------------
+    MeshPtr MeshManager::load( const String& filename, const String& groupName, 
+		HardwareBuffer::Usage vertexBufferUsage, 
+		HardwareBuffer::Usage indexBufferUsage, 
+		bool vertexBufferShadowed, bool indexBufferShadowed)
+    {
+		MeshPtr pMesh = createOrRetrieve(filename,groupName,false,0,0,
+                                         vertexBufferUsage,indexBufferUsage,
+                                         vertexBufferShadowed,indexBufferShadowed).first;
 		pMesh->load();
         return pMesh;
-
     }
     //-----------------------------------------------------------------------
     MeshPtr MeshManager::createManual( const String& name, const String& groupName, 

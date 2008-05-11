@@ -57,42 +57,27 @@ namespace Ogre
 		load(true);
 	}
 	//-----------------------------------------------------------------------
-	void Resource::load(bool background)
+	void Resource::prepare()
 	{
-		// Early-out without lock (mitigate perf cost of ensuring loaded)
-		// Don't load if:
-		// 1. We're already loaded
-		// 2. Another thread is loading right now
-		// 3. We're marked for background loading and this is not the background
-		//    loading thread we're being called by
-		if (mLoadingState != LOADSTATE_UNLOADED || (mIsBackgroundLoaded && !background))
-			return;
+        // quick check that avoids any synchronisation
+        if (mLoadingState.get() != LOADSTATE_UNLOADED) return;
 
-		// Scope lock over load status
-		{
-			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
-			// Check again just in case status changed (since we didn't lock above)
-			if (mLoadingState != LOADSTATE_UNLOADED || (mIsBackgroundLoaded && !background))
-			{
-				// no loading to be done
-				return;
-			}
-			mLoadingState = LOADSTATE_LOADING;
-		}
+        // atomically do slower check to make absolutely sure,
+        // and set the load state to PREPARING
+		if (!mLoadingState.cas(LOADSTATE_UNLOADED,LOADSTATE_PREPARING))
+			return;
 
 		// Scope lock for actual loading
         try
 		{
 
 			OGRE_LOCK_AUTO_MUTEX
-			preLoadImpl();
 
 			if (mIsManual)
 			{
-				// Load from manual loader
-				if (mLoader)
+                if (mLoader)
 				{
-					mLoader->loadResource(this);
+					mLoader->prepareResource(this);
 				}
 				else
 				{
@@ -113,30 +98,114 @@ namespace Ogre
 						ResourceGroupManager::getSingleton()
 						.findGroupContainingResource(mName));
 				}
-				loadImpl();
+				prepareImpl();
 			}
-			// Calculate resource size
-			mSize = calculateSize();
-
-			postLoadImpl();
 		}
         catch (...)
         {
-            // Reset loading in-progress flag in case failed for some reason
-            OGRE_LOCK_MUTEX(mLoadingStatusMutex)
-            mLoadingState = LOADSTATE_UNLOADED;
+            mLoadingState.set(LOADSTATE_UNLOADED);
+            throw;
+        }
+
+        mLoadingState.set(LOADSTATE_PREPARED);
+
+		// Since we don't distinguish between GPU and CPU RAM, this
+		// seems pointless
+		//if(mCreator)
+		//	mCreator->_notifyResourcePrepared(this);
+
+		// Fire (deferred) events
+		if (mIsBackgroundLoaded)
+			queueFireBackgroundPreparingComplete();
+
+	}
+
+    void Resource::load(bool background)
+	{
+		// Early-out without lock (mitigate perf cost of ensuring loaded)
+		// Don't load if:
+		// 1. We're already loaded
+		// 2. Another thread is loading right now
+		// 3. We're marked for background loading and this is not the background
+		//    loading thread we're being called by
+
+        if (mIsBackgroundLoaded && !background) return;
+
+        // quick check that avoids any synchronisation
+        LoadingState old = mLoadingState.get();
+        if (old!=LOADSTATE_UNLOADED && old!=LOADSTATE_PREPARED) return;
+
+        // atomically do slower check to make absolutely sure,
+        // and set the load state to LOADING
+        if (!mLoadingState.cas(old,LOADSTATE_LOADING)) return;
+
+		// Scope lock for actual loading
+        try
+		{
+
+			OGRE_LOCK_AUTO_MUTEX
+
+
+
+			if (mIsManual)
+			{
+                preLoadImpl();
+				// Load from manual loader
+				if (mLoader)
+				{
+					mLoader->loadResource(this);
+				}
+				else
+				{
+					// Warn that this resource is not reloadable
+					LogManager::getSingleton().logMessage(
+						"WARNING: " + mCreator->getResourceType() + 
+						" instance '" + mName + "' was defined as manually "
+						"loaded, but no manual loader was provided. This Resource "
+						"will be lost if it has to be reloaded.");
+				}
+                postLoadImpl();
+			}
+			else
+			{
+
+                if (old==LOADSTATE_UNLOADED)
+                    prepareImpl();
+
+                preLoadImpl();
+
+                old = LOADSTATE_PREPARED;
+
+				if (mGroup == ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME)
+				{
+					// Derive resource group
+					changeGroupOwnership(
+						ResourceGroupManager::getSingleton()
+						.findGroupContainingResource(mName));
+				}
+
+				loadImpl();
+
+                postLoadImpl();
+			}
+
+			// Calculate resource size
+			mSize = calculateSize();
+
+		}
+        catch (...)
+        {
+            // Reset loading in-progress flag, in case failed for some reason.
+            // We reset it to UNLOADED because the only other case is when
+            // old == PREPARED in which case the loadImpl should wipe out
+            // any prepared data since it might be invalid.
+            mLoadingState.set(LOADSTATE_UNLOADED);
             // Re-throw
             throw;
         }
 
-		// Scope lock for loading progress
-		{
-			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
-		
-			// Now loaded
-			mLoadingState = LOADSTATE_LOADED;
-			_dirtyState();
-		}
+        mLoadingState.set(LOADSTATE_LOADED);
+        _dirtyState();
 
 		// Notify manager
 		if(mCreator)
@@ -170,40 +239,30 @@ namespace Ogre
 	void Resource::unload(void) 
 	{ 
 		// Early-out without lock (mitigate perf cost of ensuring unloaded)
-		if (mLoadingState != LOADSTATE_LOADED)
-			return;
+        LoadingState old = mLoadingState.get();
+        if (old!=LOADSTATE_LOADED && old!=LOADSTATE_PREPARED) return;
 
-		// Scope lock for loading status
-		{
-			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
-			if (mLoadingState == LOADSTATE_LOADING)
-			{
-				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
-					"Cannot unload resource " + mName + " whilst loading is in progress!", 
-					"Resource::unload");
-			}
-			if (mLoadingState != LOADSTATE_LOADED)
-				return; // nothing to do
 
-			mLoadingState = LOADSTATE_UNLOADING;
-		}
+        if (!mLoadingState.cas(old,LOADSTATE_UNLOADING)) return;
 
 		// Scope lock for actual unload
 		{
 			OGRE_LOCK_AUTO_MUTEX
-			preUnloadImpl();
-			unloadImpl();
-			postUnloadImpl();
+            if (old==LOADSTATE_PREPARED) {
+                unprepareImpl();
+            } else {
+                preUnloadImpl();
+                unloadImpl();
+                postUnloadImpl();
+            }
 		}
 
-		// Scope lock for loading status
-		{
-			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
-			mLoadingState = LOADSTATE_UNLOADED;
-		}
+        mLoadingState.set(LOADSTATE_UNLOADED);
 
 		// Notify manager
-		if(mCreator)
+		// Note if we have gone from PREPARED to UNLOADED, then we haven't actually
+		// unloaded, i.e. there is no memory freed on the GPU.
+		if(old==LOADSTATE_LOADED && mCreator)
 			mCreator->_notifyResourceUnloaded(this);
 
 	}
@@ -211,7 +270,7 @@ namespace Ogre
 	void Resource::reload(void) 
 	{ 
 		OGRE_LOCK_AUTO_MUTEX
-		if (mLoadingState == LOADSTATE_LOADED)
+		if (mLoadingState.get() == LOADSTATE_LOADED)
 		{
 			unload();
 			load();
@@ -220,7 +279,6 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::touch(void) 
 	{
-		OGRE_LOCK_AUTO_MUTEX
         // make sure loaded
         load();
 
@@ -257,6 +315,25 @@ namespace Ogre
 			i != mListenerList.end(); ++i)
 		{
 			(*i)->backgroundLoadingComplete(this);
+		}
+	}
+	//-----------------------------------------------------------------------
+	void Resource::queueFireBackgroundPreparingComplete(void)
+	{
+		// Lock the listener list
+		OGRE_LOCK_MUTEX(mListenerListMutex)
+		if(!mListenerList.empty())
+			ResourceBackgroundQueue::getSingleton()._queueFireBackgroundPreparingComplete(this);
+	}
+	//-----------------------------------------------------------------------
+	void Resource::_fireBackgroundPreparingComplete(void)
+	{
+		// Lock the listener list
+		OGRE_LOCK_MUTEX(mListenerListMutex)
+		for (ListenerList::iterator i = mListenerList.begin();
+			i != mListenerList.end(); ++i)
+		{
+			(*i)->backgroundPreparingComplete(this);
 		}
 	}
 

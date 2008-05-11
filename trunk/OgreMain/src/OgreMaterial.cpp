@@ -118,11 +118,34 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    void Material::loadImpl(void)
+    void Material::prepareImpl(void)
     {
 		// compile if required
         if (mCompilationRequired)
             compile();
+
+        // Load all supported techniques
+        Techniques::iterator i, iend;
+        iend = mSupportedTechniques.end();
+        for (i = mSupportedTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->_prepare();
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::unprepareImpl(void)
+    {
+        // Load all supported techniques
+        Techniques::iterator i, iend;
+        iend = mSupportedTechniques.end();
+        for (i = mSupportedTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->_unprepare();
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::loadImpl(void)
+    {
 
         // Load all supported techniques
         Techniques::iterator i, iend;

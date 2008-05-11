@@ -60,6 +60,10 @@ namespace Ogre {
         <li>worldGeometryStageStarted (*)</li>
         <li>worldGeometryStageEnded (*)</li>
 		<li>resourceGroupLoadEnded</li>
+		<li>resourceGroupPrepareStarted</li>
+		<li>resourcePrepareStarted (*)</li>
+        <li>resourcePrepareEnded (*)</li>
+		<li>resourceGroupPrepareEnded</li>
 		</ul>
     @note
         If OGRE_THREAD_SUPPORT is 1, this class is thread-safe.
@@ -90,6 +94,34 @@ namespace Ogre {
 		/** This event is fired when a resource group finished parsing scripts. */
 		virtual void resourceGroupScriptingEnded(const String& groupName) = 0;
 
+		/** This event is fired  when a resource group begins preparing.
+		@param groupName The name of the group being prepared
+		@param resourceCount The number of resources which will be prepared, including
+            a number of stages required to prepare any linked world geometry
+		*/
+		virtual void resourceGroupPrepareStarted(const String& groupName, size_t resourceCount) {}
+		/** This event is fired when a declared resource is about to be prepared. 
+		@param resource Weak reference to the resource prepared.
+		*/
+		virtual void resourcePrepareStarted(const ResourcePtr& resource) {}
+        /** This event is fired when the resource has been prepared. 
+        */
+        virtual void resourcePrepareEnded(void) {}
+        /** This event is fired when a stage of preparing linked world geometry 
+            is about to start. The number of stages required will have been 
+            included in the resourceCount passed in resourceGroupLoadStarted.
+        @param description Text description of what was just prepared
+        */
+        virtual void worldGeometryPrepareStageStarted(const String& description) {}
+        /** This event is fired when a stage of preparing linked world geometry 
+            has been completed. The number of stages required will have been 
+            included in the resourceCount passed in resourceGroupLoadStarted.
+        @param description Text description of what was just prepared
+        */
+        virtual void worldGeometryPrepareStageEnded(void) {}
+        /** This event is fired when a resource group finished preparing. */
+        virtual void resourceGroupPrepareEnded(const String& groupName) {}
+
 		/** This event is fired  when a resource group begins loading.
 		@param groupName The name of the group being loaded
 		@param resourceCount The number of resources which will be loaded, including
@@ -115,9 +147,8 @@ namespace Ogre {
         @param description Text description of what was just loaded
         */
         virtual void worldGeometryStageEnded(void) = 0;
-
-		/** This event is fired when a resource group finished loading. */
-		virtual void resourceGroupLoadEnded(const String& groupName) = 0;
+        /** This event is fired when a resource group finished loading. */
+        virtual void resourceGroupLoadEnded(const String& groupName) = 0;
     };
 
 	/**
@@ -318,14 +349,22 @@ namespace Ogre {
         void fireScriptEnded(const String& scriptName);
 		/// Internal event firing method
 		void fireResourceGroupScriptingEnded(const String& groupName);
-		/// Internal event firing method
+        /// Internal event firing method
 		void fireResourceGroupLoadStarted(const String& groupName, size_t resourceCount);
         /// Internal event firing method
-        void fireResourceStarted(const ResourcePtr& resource);
+        void fireResourceLoadStarted(const ResourcePtr& resource);
 		/// Internal event firing method
-		void fireResourceEnded(void);
+		void fireResourceLoadEnded(void);
 		/// Internal event firing method
 		void fireResourceGroupLoadEnded(const String& groupName);
+        /// Internal event firing method
+		void fireResourceGroupPrepareStarted(const String& groupName, size_t resourceCount);
+        /// Internal event firing method
+        void fireResourcePrepareStarted(const ResourcePtr& resource);
+		/// Internal event firing method
+		void fireResourcePrepareEnded(void);
+		/// Internal event firing method
+		void fireResourceGroupPrepareEnded(const String& groupName);
 
 		/// Stored current group - optimisation for when bulk loading a group
 		ResourceGroup* mCurrentGroup;
@@ -417,6 +456,26 @@ namespace Ogre {
 		*/
 		void initialiseAllResourceGroups(void);
 
+		/** Prepares a resource group.
+        @remarks
+			Prepares any created resources which are part of the named group.
+			Note that resources must have already been created by calling
+			ResourceManager::create, or declared using declareResource() or
+			in a script (such as .material and .overlay). The latter requires
+			that initialiseResourceGroup has been called. 
+		
+			When this method is called, this class will callback any ResourceGroupListeners
+			which have been registered to update them on progress. 
+        @param name The name of the resource group to prepare.
+		@param prepareMainResources If true, prepares normal resources associated 
+			with the group (you might want to set this to false if you wanted
+			to just prepare world geometry in bulk)
+		@param prepareWorldGeom If true, prepares any linked world geometry
+			@see ResourceGroupManager::linkWorldGeometryToResourceGroup
+        */
+        void prepareResourceGroup(const String& name, bool prepareMainResources = true, 
+			bool prepareWorldGeom = true);
+
 		/** Loads a resource group.
         @remarks
 			Loads any created resources which are part of the named group.
@@ -427,7 +486,7 @@ namespace Ogre {
 		
 			When this method is called, this class will callback any ResourceGroupListeners
 			which have been registered to update them on progress. 
-        @param name The name to of the resource group to load.
+        @param name The name of the resource group to load.
 		@param loadMainResources If true, loads normal resources associated 
 			with the group (you might want to set this to false if you wanted
 			to just load world geometry in bulk)
@@ -809,6 +868,23 @@ namespace Ogre {
 		@param manager Pointer to the manager for which all resources are being removed
 		*/
 		void _notifyAllResourcesRemoved(ResourceManager* manager);
+
+        /** Notify this manager that one stage of world geometry loading has been 
+            started.
+        @remarks
+            Custom SceneManagers which load custom world geometry should call this 
+            method the number of times equal to the value they return from 
+            SceneManager::estimateWorldGeometry while loading their geometry.
+        */
+        void _notifyWorldGeometryPrepareStageStarted(const String& description);
+        /** Notify this manager that one stage of world geometry loading has been 
+            completed.
+        @remarks
+            Custom SceneManagers which load custom world geometry should call this 
+            method the number of times equal to the value they return from 
+            SceneManager::estimateWorldGeometry while loading their geometry.
+        */
+        void _notifyWorldGeometryPrepareStageEnded(void);
 
         /** Notify this manager that one stage of world geometry loading has been 
             started.

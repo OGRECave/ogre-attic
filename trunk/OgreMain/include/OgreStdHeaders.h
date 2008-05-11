@@ -93,7 +93,13 @@ extern "C" {
 #endif
 
 #if OGRE_THREAD_SUPPORT
-#	include <boost/thread/recursive_mutex.hpp>
+#   ifndef NOMINMAX
+#       define NOMINMAX
+#	    include <boost/thread/recursive_mutex.hpp>
+#       undef NOMINMAX
+#   else
+#	    include <boost/thread/recursive_mutex.hpp>
+#   endif
 #endif
 
 #if defined ( OGRE_GCC_VISIBILITY )

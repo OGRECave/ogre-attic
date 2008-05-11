@@ -193,22 +193,138 @@ namespace Ogre
             mD3DPool = D3DPOOL_MANAGED;
         }
 
+        // only copy is on the stack so well-behaved if exception thrown
+        LoadedStreams loadedStreams = mLoadedStreams;
+        mLoadedStreams.setNull();
+
 		// load based on tex.type
 		switch (this->getTextureType())
 		{
 		case TEX_TYPE_1D:
 		case TEX_TYPE_2D:
-			this->_loadNormTex();
+			this->_loadNormTex(loadedStreams);
 			break;
 		case TEX_TYPE_3D:
-            this->_loadVolumeTex();
+            this->_loadVolumeTex(loadedStreams);
             break;
 		case TEX_TYPE_CUBE_MAP:
-			this->_loadCubeTex();
+			this->_loadCubeTex(loadedStreams);
 			break;
 		default:
 			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::loadImpl" );
 		}
+
+	}
+	/****************************************************************************************/
+	void D3D9Texture::prepareImpl()
+	{
+		if (mUsage & TU_RENDERTARGET)
+		{
+			return;
+		}
+
+        LoadedStreams loadedStreams;
+
+		// prepare load based on tex.type
+		switch (this->getTextureType())
+		{
+		case TEX_TYPE_1D:
+		case TEX_TYPE_2D:
+			loadedStreams = this->_prepareNormTex();
+			break;
+		case TEX_TYPE_3D:
+            loadedStreams = this->_prepareVolumeTex();
+            break;
+		case TEX_TYPE_CUBE_MAP:
+			loadedStreams = this->_prepareCubeTex();
+			break;
+		default:
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::prepareImpl" );
+		}
+
+        mLoadedStreams = loadedStreams;
+	}
+    /****************************************************************************************/
+	D3D9Texture::LoadedStreams D3D9Texture::_prepareCubeTex()
+	{
+		assert(this->getTextureType() == TEX_TYPE_CUBE_MAP);
+
+        LoadedStreams loadedStreams = LoadedStreams(new std::vector<MemoryDataStreamPtr>());
+        // DDS load?
+		if (getSourceFileType() == "dds")
+		{
+            // find & load resource data
+			DataStreamPtr dstream = 
+				ResourceGroupManager::getSingleton().openResource(
+					mName, mGroup, true, this);
+            loadedStreams->push_back(MemoryDataStreamPtr(new MemoryDataStream(dstream)));
+        }
+        else
+        {
+			// Load from 6 separate files
+			// Use OGRE its own codecs
+			String baseName, ext;
+			size_t pos = mName.find_last_of(".");
+			baseName = mName.substr(0, pos);
+			if ( pos != String::npos )
+				ext = mName.substr(pos+1);
+			static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
+
+			for(size_t i = 0; i < 6; i++)
+			{
+				String fullName = baseName + suffixes[i];
+				if (!ext.empty())
+					fullName = fullName + "." + ext;
+
+            	// find & load resource data intro stream to allow resource
+				// group changes if required
+				DataStreamPtr dstream = 
+					ResourceGroupManager::getSingleton().openResource(
+						fullName, mGroup, true, this);
+
+                loadedStreams->push_back(MemoryDataStreamPtr(new MemoryDataStream(dstream)));
+			}
+        }
+
+        return loadedStreams;
+	}
+	/****************************************************************************************/
+	D3D9Texture::LoadedStreams D3D9Texture::_prepareVolumeTex()
+	{
+		assert(this->getTextureType() == TEX_TYPE_3D);
+
+		// find & load resource data
+		DataStreamPtr dstream = 
+			ResourceGroupManager::getSingleton().openResource(
+				mName, mGroup, true, this);
+
+        LoadedStreams loadedStreams = LoadedStreams(new std::vector<MemoryDataStreamPtr>());
+        loadedStreams->push_back(MemoryDataStreamPtr(new MemoryDataStream(dstream)));
+        return loadedStreams;
+    }
+	/****************************************************************************************/
+	D3D9Texture::LoadedStreams D3D9Texture::_prepareNormTex()
+	{
+		assert(this->getTextureType() == TEX_TYPE_1D || this->getTextureType() == TEX_TYPE_2D);
+
+		// find & load resource data
+		DataStreamPtr dstream = 
+			ResourceGroupManager::getSingleton().openResource(
+				mName, mGroup, true, this);
+
+        LoadedStreams loadedStreams = LoadedStreams(new std::vector<MemoryDataStreamPtr>());
+        loadedStreams->push_back(MemoryDataStreamPtr(new MemoryDataStream(dstream)));
+        return loadedStreams;
+	}
+	/****************************************************************************************/
+	void D3D9Texture::unprepareImpl()
+	{
+		if (mUsage & TU_RENDERTARGET)
+		{
+			return;
+		}
+
+        mLoadedStreams.setNull();
 
 	}
 	/****************************************************************************************/
@@ -221,7 +337,7 @@ namespace Ogre
 		SAFE_RELEASE(mFSAASurface);
 	}
 	/****************************************************************************************/
-	void D3D9Texture::_loadCubeTex()
+	void D3D9Texture::_loadCubeTex(const D3D9Texture::LoadedStreams &loadedStreams)
 	{
 		assert(this->getTextureType() == TEX_TYPE_CUBE_MAP);
 
@@ -229,10 +345,7 @@ namespace Ogre
 		if (getSourceFileType() == "dds")
 		{
             // find & load resource data
-			DataStreamPtr dstream = 
-				ResourceGroupManager::getSingleton().openResource(
-					mName, mGroup, true, this);
-            MemoryDataStream stream( dstream );
+            assert(loadedStreams->size()==1);
 
 			DWORD usage = 0;
 			UINT numMips = (mNumRequestedMipmaps == MIP_UNLIMITED) ?
@@ -258,8 +371,8 @@ namespace Ogre
 
 			HRESULT hr = D3DXCreateCubeTextureFromFileInMemoryEx(
 				mpDev,
-				stream.getPtr(),
-				stream.size(),
+				(*loadedStreams)[0]->getPtr(),
+				(*loadedStreams)[0]->size(),
 				D3DX_DEFAULT, // dims (square)
 				numMips,
 				usage,
@@ -298,30 +411,19 @@ namespace Ogre
         }
         else
         {
-			// Load from 6 separate files
-			// Use OGRE its own codecs
-			String baseName, ext;
+            assert(loadedStreams->size()==6);
+
+			String  ext;
 			size_t pos = mName.find_last_of(".");
-			baseName = mName.substr(0, pos);
 			if ( pos != String::npos )
 				ext = mName.substr(pos+1);
+
 			std::vector<Image> images(6);
 			ConstImagePtrList imagePtrs;
-			static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 
 			for(size_t i = 0; i < 6; i++)
 			{
-				String fullName = baseName + suffixes[i];
-				if (!ext.empty())
-					fullName = fullName + "." + ext;
-
-            	// find & load resource data intro stream to allow resource
-				// group changes if required
-				DataStreamPtr dstream = 
-					ResourceGroupManager::getSingleton().openResource(
-						fullName, mGroup, true, this);
-	
-				images[i].load(dstream, ext);
+				images[i].load(DataStreamPtr((*loadedStreams)[i]), ext);
 
 				imagePtrs.push_back(&images[i]);
 			}
@@ -330,17 +432,14 @@ namespace Ogre
         }
 	}
 	/****************************************************************************************/
-	void D3D9Texture::_loadVolumeTex()
+	void D3D9Texture::_loadVolumeTex(const D3D9Texture::LoadedStreams &loadedStreams)
 	{
 		assert(this->getTextureType() == TEX_TYPE_3D);
 		// DDS load?
 		if (getSourceFileType() == "dds")
 		{
 			// find & load resource data
-			DataStreamPtr dstream = 
-				ResourceGroupManager::getSingleton().openResource(
-					mName, mGroup, true, this);
-			MemoryDataStream stream(dstream);
+            assert(loadedStreams->size()==1);
 	
 			DWORD usage = 0;
 			UINT numMips = (mNumRequestedMipmaps == MIP_UNLIMITED) ?
@@ -366,8 +465,8 @@ namespace Ogre
 
 			HRESULT hr = D3DXCreateVolumeTextureFromFileInMemoryEx(
 				mpDev,
-				stream.getPtr(),
-				stream.size(),
+				(*loadedStreams)[0]->getPtr(),
+				(*loadedStreams)[0]->size(),
 				D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, // dims
 				numMips,
 				usage,
@@ -407,17 +506,15 @@ namespace Ogre
 		else
 		{
 			Image img;
-           	// find & load resource data intro stream to allow resource
-			// group changes if required
-			DataStreamPtr dstream = 
-				ResourceGroupManager::getSingleton().openResource(
-					mName, mGroup, true, this);
+
+            assert(loadedStreams->size()==1);
+
 			size_t pos = mName.find_last_of(".");
 			String ext;
 			if ( pos != String::npos )
 				ext = mName.substr(pos+1);
 	
-			img.load(dstream, ext);
+			img.load(DataStreamPtr((*loadedStreams)[0]), ext);
 			// Call internal _loadImages, not loadImage since that's external and 
 			// will determine load status etc again
 			ConstImagePtrList imagePtrs;
@@ -426,18 +523,14 @@ namespace Ogre
 		}
     }
 	/****************************************************************************************/
-	void D3D9Texture::_loadNormTex()
+	void D3D9Texture::_loadNormTex(const D3D9Texture::LoadedStreams &loadedStreams)
 	{
 		assert(this->getTextureType() == TEX_TYPE_1D || this->getTextureType() == TEX_TYPE_2D);
 		// DDS load?
 		if (getSourceFileType() == "dds")
 		{
 			// Use D3DX
-			// find & load resource data
-			DataStreamPtr dstream = 
-				ResourceGroupManager::getSingleton().openResource(
-					mName, mGroup, true, this);
-			MemoryDataStream stream(dstream);
+            assert(loadedStreams->size()==1);
 	
 			DWORD usage = 0;
 			UINT numMips = (mNumRequestedMipmaps == MIP_UNLIMITED) ?
@@ -463,8 +556,8 @@ namespace Ogre
 
 			HRESULT hr = D3DXCreateTextureFromFileInMemoryEx(
 				mpDev,
-				stream.getPtr(),
-				stream.size(),
+				(*loadedStreams)[0]->getPtr(),
+				(*loadedStreams)[0]->size(),
 				D3DX_DEFAULT, D3DX_DEFAULT, // dims
 				numMips,
 				usage,
@@ -506,22 +599,21 @@ namespace Ogre
 			Image img;
            	// find & load resource data intro stream to allow resource
 			// group changes if required
-			DataStreamPtr dstream = 
-				ResourceGroupManager::getSingleton().openResource(
-					mName, mGroup, true, this);
+            assert(loadedStreams->size()==1);
 	
 			size_t pos = mName.find_last_of(".");
 			String ext; 
 			if ( pos != String::npos )
 				ext = mName.substr(pos+1);
 			
-			img.load(dstream, ext);
+			img.load(DataStreamPtr((*loadedStreams)[0]), ext);
 			// Call internal _loadImages, not loadImage since that's external and 
 			// will determine load status etc again
 			ConstImagePtrList imagePtrs;
 			imagePtrs.push_back(&img);
 			_loadImages( imagePtrs );
 		}
+
 	}
 	/****************************************************************************************/
     void D3D9Texture::createInternalResourcesImpl(void)
@@ -1018,6 +1110,7 @@ namespace Ogre
 		mSrcDepth = depth;
         mSrcFormat = format;
 		// say to the world what we are doing
+        if (!TextureManager::getSingleton().getVerbose()) return;
 		switch (this->getTextureType())
 		{
 		case TEX_TYPE_1D:

@@ -1169,6 +1169,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreAtomicWrappers.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreAutoParamDataSource.h"
 				>
 			</File>

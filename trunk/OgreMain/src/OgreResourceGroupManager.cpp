@@ -150,6 +150,97 @@ namespace Ogre {
 		}
 	}
     //-----------------------------------------------------------------------
+    void ResourceGroupManager::prepareResourceGroup(const String& name, 
+		bool prepareMainResources, bool prepareWorldGeom)
+    {
+		// Can only bulk-load one group at a time (reasonable limitation I think)
+		OGRE_LOCK_AUTO_MUTEX
+
+		LogManager::getSingleton().stream()
+			<< "Preparing resource group '" << name << "' - Resources: "
+			<< prepareMainResources << " World Geometry: " << prepareWorldGeom;
+		// load all created resources
+		ResourceGroup* grp = getResourceGroup(name);
+		if (!grp)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"Cannot find a group named " + name, 
+				"ResourceGroupManager::prepareResourceGroup");
+		}
+
+		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex 
+		// Set current group
+		mCurrentGroup = grp;
+
+		// Count up resources for starting event
+		ResourceGroup::LoadResourceOrderMap::iterator oi;
+		size_t resourceCount = 0;
+		if (prepareMainResources)
+		{
+			for (oi = grp->loadResourceOrderMap.begin(); oi != grp->loadResourceOrderMap.end(); ++oi)
+			{
+				resourceCount += oi->second->size();
+			}
+		}
+        // Estimate world geometry size
+        if (grp->worldGeometrySceneManager && prepareWorldGeom)
+        {
+            resourceCount += 
+				grp->worldGeometrySceneManager->estimateWorldGeometry(
+					grp->worldGeometry);
+        }
+
+		fireResourceGroupPrepareStarted(name, resourceCount);
+
+		// Now load for real
+		if (prepareMainResources)
+		{
+			for (oi = grp->loadResourceOrderMap.begin(); 
+				oi != grp->loadResourceOrderMap.end(); ++oi)
+			{
+				size_t n = 0;
+				for (LoadUnloadResourceList::iterator l = oi->second->begin();
+					l != oi->second->end(); ++l, ++n)
+				{
+					ResourcePtr res = *l;
+
+					// Fire resource events no matter whether resource needs preparing
+                    // or not. This ensures that the number of callbacks
+					// matches the number originally estimated, which is important
+					// for progress bars.
+					fireResourceLoadStarted(res);
+
+					// If preparing one of these resources cascade-prepares another resource, 
+					// the list will get longer! But these should be prepared immediately
+					// Call prepare regardless, already prepared or loaded resources will be skipped
+					res->prepare();
+
+					// Did the resource change group? if so, our iterator will have
+					// been invalidated
+					if (res->getGroup() != name)
+					{
+						l = oi->second->begin();
+						std::advance(l, n);
+					}
+
+					fireResourceLoadEnded();
+				}
+			}
+		}
+        // Load World Geometry
+        if (grp->worldGeometrySceneManager && prepareWorldGeom)
+        {
+            grp->worldGeometrySceneManager->prepareWorldGeometry(
+                grp->worldGeometry);
+        }
+		fireResourceGroupPrepareEnded(name);
+
+		// reset current group
+		mCurrentGroup = 0;
+		
+		LogManager::getSingleton().logMessage("Finished preparing resource group " + name);
+    }
+    //-----------------------------------------------------------------------
     void ResourceGroupManager::loadResourceGroup(const String& name, 
 		bool loadMainResources, bool loadWorldGeom)
     {
@@ -208,7 +299,7 @@ namespace Ogre {
 					// loaded or not. This ensures that the number of callbacks
 					// matches the number originally estimated, which is important
 					// for progress bars.
-					fireResourceStarted(res);
+					fireResourceLoadStarted(res);
 
 					// If loading one of these resources cascade-loads another resource, 
 					// the list will get longer! But these should be loaded immediately
@@ -223,7 +314,7 @@ namespace Ogre {
 						std::advance(l, n);
 					}
 
-					fireResourceEnded();
+					fireResourceLoadEnded();
 				}
 			}
 		}
@@ -1115,7 +1206,7 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-	void ResourceGroupManager::fireResourceStarted(const ResourcePtr& resource)
+	void ResourceGroupManager::fireResourceLoadStarted(const ResourcePtr& resource)
 	{
 		OGRE_LOCK_AUTO_MUTEX
 		for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
@@ -1125,7 +1216,7 @@ namespace Ogre {
 		}
 	}
     //-----------------------------------------------------------------------
-    void ResourceGroupManager::fireResourceEnded(void)
+    void ResourceGroupManager::fireResourceLoadEnded(void)
     {
         OGRE_LOCK_AUTO_MUTEX
             for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
@@ -1162,6 +1253,46 @@ namespace Ogre {
 			l != mResourceGroupListenerList.end(); ++l)
 		{
 			(*l)->resourceGroupLoadEnded(groupName);
+		}
+	}
+	//-----------------------------------------------------------------------
+	void ResourceGroupManager::fireResourceGroupPrepareStarted(const String& groupName, size_t resourceCount)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+		for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
+			l != mResourceGroupListenerList.end(); ++l)
+		{
+			(*l)->resourceGroupPrepareStarted(groupName, resourceCount);
+		}
+	}
+    //-----------------------------------------------------------------------
+    void ResourceGroupManager::fireResourcePrepareStarted(const ResourcePtr& resource)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+        for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
+            l != mResourceGroupListenerList.end(); ++l)
+        {
+            (*l)->resourcePrepareStarted(resource);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void ResourceGroupManager::fireResourcePrepareEnded(void)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+            for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
+                l != mResourceGroupListenerList.end(); ++l)
+            {
+                (*l)->resourcePrepareEnded();
+            }
+    }
+	//-----------------------------------------------------------------------
+	void ResourceGroupManager::fireResourceGroupPrepareEnded(const String& groupName)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+		for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
+			l != mResourceGroupListenerList.end(); ++l)
+		{
+			(*l)->resourceGroupPrepareEnded(groupName);
 		}
 	}
 	//-----------------------------------------------------------------------
