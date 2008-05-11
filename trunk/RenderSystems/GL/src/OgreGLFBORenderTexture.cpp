@@ -342,6 +342,11 @@ static const size_t depthBits[] =
             // Delete texture and framebuffer
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glDeleteFramebuffersEXT(1, &fb);
+			
+			// Workaround for NVIDIA / Linux 169.21 driver problem
+			// see http://www.ogre3d.org/phpBB2/viewtopic.php?t=38037&start=25
+			glFinish();
+			
             if (fmt!=GL_NONE)
                 glDeleteTextures(1, &tid);
         }

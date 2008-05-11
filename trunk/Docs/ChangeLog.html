@@ -297,6 +297,33 @@ Rendering Engine)</p>
 
 <p class="header" align="center">Change Log</p>
 
+<p class="mainheader" align="left">v1.4.8 [Eihort] (10 May 2008) - Maintenance Release</p>
+<ul>
+	<li>Mac OSX:
+	<ul>
+	<li>Workaround for a few GL driver bugs on older machines, in particular first-gen iMacs and old PPC machines</li>
+	<li>Workaround for GLSL vertex attribute aliasing problems. </li></ul></li>
+	<li>Linux:
+	<ul><li>Don\'t use non-conformant GLX visuals.</li>
+		<li>Workaround for FBO problem with some Linux NVIDIA 169.x drivers - if this fix doesn't work for you, see <a href="http://www.ogre3d.org/phpBB2/viewtopic.php?t=38037&start=25&postdays=0&postorder=asc&highlight=">this forum thread</a> for a more drastic temporary workaround. </li>
+	</ul></li>
+	<li>Windows:
+	<ul>
+	<li>Safety check in D3D9RenderSystem::__SetTextureStageState should ignore texture stages above 7. Could cause errors in D3D9 debug mode with large numbers of textures.</li>
+	<li>Add NOMINMAX declaration to WindowEventUtilities header since it includes windows.h - ordering of includes could start complaining about std::min/max in other Ogre headers.</li>
+	<li>GetModuleHandle calls fixed to deal with debug plugins more correctly</li>
+	</ul></li>
+
+	<li>Terrain:
+	<ul><li>Allow creation of terrain before any camera/viewport</li>
+		<li>Report an exception when terrain isn't found rather than just asserting</li></ul></li>
+	<li>Fix Maya exporter vertex colours - use packed RGBA instead of float4</li>
+	<li>Camera::setWindow() fixed</li>
+	<li>Fixed FileSystemArchive::exists bug with absolute filenames</li>
+	<li>MayaExport ported to OSX, phong materials supported</li>
+	<li>Update the manual to list all the new automatically bound GLSL custom vertex attributes (those to replace built-ins if you need to use all custom attributes to avoid aliasing problems on some drivers)</li>
+</ul>
+
 
 <p class="mainheader" align="left">v1.4.7 [Eihort] (6 March 2008) - Maintenance Release</p>
 <ul>

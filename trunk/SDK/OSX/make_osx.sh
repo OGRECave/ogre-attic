@@ -1,13 +1,17 @@
 #!/bin/bash
 
-OGRE_VERSION="v1.4.7"
+OGRE_VERSION="v1.4.8"
 # Only build for i386, halves the size
 ARCH="i386"
 REMOVE_ARCH="ppc"
 
 # invoke xcode build
 xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Release
-xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Debug
+# Just release mode, debug is too big
+#xcodebuild -project ../../Mac/Ogre/Ogre.xcodeproj -alltargets -configuration Debug
+
+rm -rf sdk_contents 
+mkdir sdk_contents
 
 # frameworks
 echo Copying frameworks...
@@ -21,50 +25,42 @@ ditto -arch $ARCH ../../Dependencies/Cg.framework sdk_contents/Dependencies/Cg.f
 ditto -arch $ARCH ../../Dependencies/CEGUI.framework sdk_contents/Dependencies/CEGUI.framework
 
 echo Frameworks copied.
-echo Building frameworks package...
-
-/Developer/Tools/packagemaker -build -proj sdk_frameworks.pmproj -p sdk_frameworks.pkg
-
-echo Frameworks package built.
 
 # Docs
 echo Building API docs...
-rm -rf sdk_docs
-mkdir sdk_docs
+mkdir sdk_contents/docs
 
 # invoke doxygen
 pushd ../../Docs/src
 doxygen html.cfg
 popd
 
-cp -R ../../Docs/api sdk_docs/
+cp -R ../../Docs/api sdk_contents/docs/
 # delete unnecessary files
-rm -f sdk_docs/api/html/*.hhk
-rm -f sdk_docs/api/html/*.map
-rm -f sdk_docs/api/html/*.md5
-cp -R ../../Docs/manual sdk_docs/
-cp -R ../../Docs/licenses sdk_docs/
-cp -R ../Win32/docs/ReadMe.html sdk_docs/
-cp -R ../../Docs/ChangeLog.html sdk_docs/
+rm -f sdk_contents/docs/api/html/*.hhk
+rm -f sdk_contents/docs/api/html/*.map
+rm -f sdk_contents/docs/api/html/*.md5
+cp -R ../../Docs/manual sdk_contents/docs/
+cp -R ../../Docs/licenses sdk_contents/docs/
+cp ReadMe.html sdk_contents/docs/
+cp ../../Docs/style.css sdk_contents/docs/
+cp -R ../../Docs/ChangeLog.html sdk_contents/docs/
 
 echo API generation done.
-echo Building docs package...
-/Developer/Tools/packagemaker -build -proj sdk_docs.pmproj -p sdk_docs.pkg
-echo Docs package done.
+
 # do samples
 echo Copying samples...
-rm -rf sdk_samples
-mkdir sdk_samples
+mkdir sdk_contents/Samples
 
 # Copy project location
-cp -R ../../Mac/Samples/* sdk_samples/
+ditto ../../Mac/Samples sdk_contents/Samples/
 # copy source
-mkdir sdk_samples/src
-mkdir sdk_samples/include
+mkdir sdk_contents/Samples/src
+mkdir sdk_contents/Samples/include
 
-find ../../samples -iname *.cpp -exec cp \{\} sdk_samples/src \;
-find ../../samples -iname *.h -exec cp \{\} sdk_samples/include \;
-cp ../../ReferenceApplication/BspCollision/src/*.cpp sdk_samples/src
+find ../../samples -iname *.cpp -exec cp \{\} sdk_contents/Samples/src \;
+find ../../samples -iname *.h -exec cp \{\} sdk_contents/Samples/include \;
+cp ../../ReferenceApplication/BspCollision/src/*.cpp sdk_contents/Samples/src
 
 # Copy dependencies
 mkdir sdk_contents/Dependencies/include
@@ -82,28 +78,33 @@ mv tmp.xcodeproj sdk_contents/Samples/Samples.xcodeproj/project.pbxproj
 sed -i -e "s/$REMOVE_ARCH,//g" sdk_contents/Samples/Samples.xcodeproj/project.pbxproj
 
 echo Samples copied.
-echo Building samples package...
-/Developer/Tools/packagemaker -build -proj sdk_samples.pmproj -p sdk_samples.pkg
-echo Samples package built.
 
-# Final install
-echo Building final installer...
-# NB can't use the alias for doing dist packages? Always fails!
-# Also note - PackageManager fails when using relative paths to contained packages
-# when building a distribution package. Therefore the paths in the pmproj are absolute
-# but need updating to make sure they are correct
-# Get current dir and escape it (NB backslashes have to be double-escaped here)
-currDir=`pwd | sed -e 's/\//\\\\\\//g'`
-sedCmd="s/\<string\>.*\/ogrenew\/SDK\/OSX\/sdk_frameworks\.pkg\<\/string\>/<string>$currDir\/sdk_frameworks.pkg<\/string>/"
-echo $sedCmd > sed.cmd
-sedCmd="s/\<string\>.*\/ogrenew\/SDK\/OSX\/sdk_docs\.pkg\<\/string\>/<string>$currDir\/sdk_docs.pkg<\/string>/"
-echo $sedCmd >> sed.cmd
-sedCmd="s/\<string\>.*\/ogrenew\/SDK\/OSX\/sdk_samples\.pkg\<\/string\>/<string>$currDir\/sdk_samples.pkg<\/string>/"
-echo $sedCmd >> sed.cmd
+echo Copying Media...
 
-# Need to make sure that project file is XML rather than binary
-plutil -convert xml1 sdk_complete_in.pmproj
-sed -f sed.cmd sdk_complete_in.pmproj > sdk_complete.pmproj
-/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj sdk_complete.pmproj -p OgreSDKOSX_v1.4.4.mpkg
+cp -R ../../Samples/Media sdk_contents/Samples/
+
+# Fix up config files
+sed -i -e "s/\.\.\/\.\.\/\.\.\/\.\.\/Samples/..\/..\/..\/Samples/g" sdk_contents/samples/config/resources.cfg
+
+echo Media copied.
+
+#remove SVN files to avoid increasing the size of the SDK with duplicates
+find sdk_contents -iname .svn -exec rm -rf \{\} \;
+
+echo Building DMG...
+
+# Note that our template DMG has already been set up with images, folders and links
+# and has already had 'bless -folder blah -openfolder blah' run on it
+# to make it auto-open on mounting.
+
+bunzip2 -k -f template.dmg.bz2
+mkdir tmp_dmg
+hdiutil attach template.dmg -noautoopen -quiet -mountpoint tmp_dmg
+ditto sdk_contents tmp_dmg/OgreSDK
+hdiutil detach tmp_dmg
+rm OgreSDK_$OGRE_VERSION.dmg
+hdiutil convert -format UDBZ  -o OgreSDK_$OGRE_VERSION.dmg template.dmg
+rm -rf tmp_dmg
+rm template.dmg
 
 echo Done!

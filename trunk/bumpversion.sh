@@ -35,12 +35,12 @@ sed -i -e "s/AC_INIT(.*$/AC_INIT([OGRE], [$MAJOR.$MINOR.$PATCH])/i" configure.in
 sed -i -e "s/AM_INIT_AUTOMAKE(.*$/AM_INIT_AUTOMAKE([OGRE], $MAJOR.$MINOR.$PATCH)/i" configure.in
 
 # Docs/src/html.cfg
-#	PROJECT_NUMBER         = 1.4.0
-sed -i -e "s/PROJECT_NUMBER.*$/PROJECT_NUMBER         = $MAJOR.$MINOR.$PATCH/i" Docs/src/html.cfg
+#	PROJECT_NUMBER         = 1.4
+sed -i -e "s/PROJECT_NUMBER.*$/PROJECT_NUMBER         = $MAJOR.$MINOR/i" Docs/src/html.cfg
 
 # Docs/src/manual.texi 
-#	@settitle OGRE Manual v1.4.0 ('Eihort')
-sed -i -e "s/@settitle.*$/@settitle OGRE Manual v$MAJOR.$MINOR.$PATCH ('$CODENAME')/i" Docs/src/manual.texi
+#	@settitle OGRE Manual v1.4 ('Eihort')
+sed -i -e "s/@settitle.*$/@settitle OGRE Manual v$MAJOR.$MINOR ('$CODENAME')/i" Docs/src/manual.texi
 
 # Mac/Ogre/include/config.h
 #	#define PACKAGE_STRING "OGRE 1.4.0"

@@ -1,1 +1,0 @@
-Welcome to the OGRE SDK installer. This will install precompiled OGRE libraries on your Mac, along with sample programs.
