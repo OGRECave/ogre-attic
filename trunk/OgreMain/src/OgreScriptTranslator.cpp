@@ -415,6 +415,7 @@ namespace Ogre{
 
 		mMaterial->removeAllTechniques();
 		obj->context = Any(mMaterial);
+		mMaterial->_notifyOrigin(obj->file);
 
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
 		{
@@ -4186,6 +4187,8 @@ namespace Ogre{
 			compiler->addError(ScriptCompiler::CE_OBJECTALLOCATIONERROR, obj->file, obj->line);
 			return;
 		}
+		
+		mSystem->_notifyOrigin(obj->file);
 
 		mSystem->removeAllEmitters();
 		mSystem->removeAllAffectors();
@@ -4449,6 +4452,7 @@ namespace Ogre{
 
 		// Prepare the compositor
 		mCompositor->removeAllTechniques();
+		mCompositor->_notifyOrigin(obj->file);
 		obj->context = Any(mCompositor);
 
 		for(AbstractNodeList::iterator i = obj->children.begin(); i != obj->children.end(); ++i)
