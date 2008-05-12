@@ -21,7 +21,7 @@
 					<Add library="kernel32" />
 					<Add library="user32" />
 					<Add library="zziplib_d" />
-					<Add library="freetype230_d" />
+					<Add library="freetype235_d" />
 					<Add library="freeimage_d" />
 					<Add library="LibPNG_d" />
 					<Add library="LibMNG_d" />
@@ -49,7 +49,7 @@
 					<Add library="user32" />
 					<Add library="zziplib" />
 					<Add library="freeimage" />
-					<Add library="freetype230" />
+					<Add library="freetype235" />
 					<Add library="LibPNG" />
 					<Add library="LibMNG" />
 					<Add library="LibJPEG" />
@@ -507,6 +507,7 @@
 		<Unit filename="..\src\WIN32\winres.h" />
 		<Extensions>
 			<code_completion />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

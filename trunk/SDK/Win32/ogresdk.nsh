@@ -87,13 +87,13 @@ Section -Headers
   ; Dependencies - only ODE and CEGui
   SetOutPath "$INSTDIR\include\CEGUI"
   SetOverwrite try
-  File /r /x CVS "..\..\Dependencies\include\CEGUI\*.*"
+  File /r /x .svn "..\..\Dependencies\include\CEGUI\*.*"
   SetOutPath "$INSTDIR\include\ode"
   SetOverwrite try
-  File /r /x CVS "..\..\Dependencies\include\ode\*.*"
+  File /r /x .svn "..\..\Dependencies\include\ode\*.*"
   SetOutPath "$INSTDIR\include\OIS"
   SetOverwrite try
-  File /r /x CVS "..\..\Dependencies\include\OIS\*.*"
+  File /r /x .svn "..\..\Dependencies\include\OIS\*.*"
 
   ; Optional headers (for linking direct to plugins)
   SetOutPath "$INSTDIR\include\opt"
@@ -208,7 +208,7 @@ Section -Media
   SetOutPath "$INSTDIR\media"
   SetOverwrite ifnewer
 
-  File /r /x CVS "..\..\Samples\Media\*.*"
+  File /r /x .svn "..\..\Samples\Media\*.*"
 
 SectionEnd
 

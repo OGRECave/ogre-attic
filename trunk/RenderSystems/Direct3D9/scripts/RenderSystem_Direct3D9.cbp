@@ -73,6 +73,7 @@
 			<Add directory="..\include" />
 			<Add directory="..\..\..\OgreMain\include" />
 			<Add directory="..\..\..\Dependencies\include" />
+			<Add directory="$(DXSDK_DIR)\Include" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
@@ -125,6 +126,7 @@
 		<Unit filename="..\src\OgreD3D9VideoModeList.cpp" />
 		<Extensions>
 			<code_completion />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
