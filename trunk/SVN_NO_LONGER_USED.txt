@@ -1,0 +1,5 @@
+OGRE no longer uses Subversion for our core repository. We have as moved to a 
+Mercurial repository hosted at http://bitbucket.org/sinbad/ogre/
+
+Please download Mercurial and clone our repository from there if you wish to 
+stay up to date!
